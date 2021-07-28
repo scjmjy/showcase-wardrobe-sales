@@ -27,9 +27,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-//import { St3DEngine, sketchEngine } from "@/lib/wardrobe/st_sketch_engine";
-//import { StSketchCacheTest } from "@/lib/data/st_sketch_cache_test";
-//import { StBabylonBuild3dTest } from "@/test/babylon/st_babylon_build3d_test";
+import { St3DEngine, sketchEngine } from "@/lib/utility/st_sketch_engine";
+// import { StSketchCacheTest } from "@/lib/data/st_sketch_cache_test";
+import { StBabylonBuild3dTest } from "@/test/babylon/st_babylon_build3d_test";
 
 // vue 2 options api
 export default defineComponent({
@@ -54,10 +54,8 @@ export default defineComponent({
     mounted: function () {
         console.log(`component ${this.$options.name} is mounted ...`);
         const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
-        /*
         sketchEngine.initialize(St3DEngine.BABYLON_JS, canvas, this.callbackCameraUpdatePos, this.useGizmo);
         this.room = sketchEngine.getRoom();
-        */
         //this.onCameraFront();
     },
 
@@ -99,7 +97,6 @@ export default defineComponent({
         },
 
         onTestMesh(type: string) {
-            /*
             const test = new StBabylonBuild3dTest();
             switch (type) {
                 case "box-pivot":
@@ -114,7 +111,7 @@ export default defineComponent({
                 default:
                     alert(`unknowty mesh ${type}`);
                     break;
-            }*/
+            }
         },
 
         async onCacheInfo() {
@@ -122,7 +119,7 @@ export default defineComponent({
             const test = new StSketchCacheTest();
             this.topInfo = await test.showCacheInfo();
             */
-            this.topInfo = "todo";
+            this.topInfo = "todo: show cache info";
         },
     },
 });

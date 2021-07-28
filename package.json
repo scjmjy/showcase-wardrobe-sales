@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@types/geometric": "^2.2.0",
+    "@types/uuid": "^8.3.1",
     "babylonjs": "4.2.0",
     "babylonjs-gui": "4.2.0",
     "babylonjs-loaders": "4.2.0",

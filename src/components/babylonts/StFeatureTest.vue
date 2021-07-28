@@ -102,16 +102,6 @@ export default Vue.extend({
         const test = new StSketchCacheTest();
         this.topInfo = await test.showCacheInfo();
     },
-
-    _getFirstCube(){
-      const cube = this.room.wardrobe?.mainUnit.getBody(0);
-      if(cube == null) {
-          console.error("ERR: cude is null!");
-          throw Error("ERR: cube is null");
-      }
-      return cube;
-    },
-
   }
 })
 </script>

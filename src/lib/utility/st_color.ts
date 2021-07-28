@@ -1,12 +1,12 @@
 /**
  * @file    st_color.ts
  * @author  Guilin
- * 
+ *
  * @description A simple color wrapper
- * 
+ *
  * ------------------ Logs -----------------------------------------------------
- * [Guilin 2021-7-21] Created. 
- * 
+ * [Guilin 2021-7-21] Created.
+ *
  */
 import { StObject } from "./st_object";
 
@@ -15,16 +15,16 @@ import { StObject } from "./st_object";
  * alpha: 0-1
  */
 export class StColor extends StObject {
-	readonly r: number;
-	readonly g: number;
-	readonly b: number;
-	readonly alpha?: number;
+    readonly r: number;
+    readonly g: number;
+    readonly b: number;
+    readonly alpha?: number;
 
-	constructor(r: number, g: number, b: number, alpha?: number) {
-		super();
-		this.r = r;
-		this.g = g;
-		this.b = b;
-		this.alpha = alpha;
-	}
+    constructor(r: number, g: number, b: number, alpha?: number) {
+        super();
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.alpha = alpha;
+    }
 }
