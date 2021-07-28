@@ -12,6 +12,10 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
+      "babylonjs",
+      "babylonjs-gui",
+      "babylonjs-materials",
+      "babylonjs-serializers",
       "webpack-env"
     ],
     "paths": {

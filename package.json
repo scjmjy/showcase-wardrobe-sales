@@ -14,6 +14,16 @@
     "vuex": "^4.0.2"
   },
   "devDependencies": {
+    "babylonjs": "4.2.0",
+    "babylonjs-gui": "4.2.0",
+    "babylonjs-loaders": "4.2.0",
+    "babylonjs-materials": "4.2.0",
+    "babylonjs-serializers": "4.2.0",
+    "earcut": "^2.2.2",
+    "geometric": "^2.2.6",
+    "localforage": "^1.9.0",
+    "uuid": "^8.3.2",
+
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
     "@vue/cli-plugin-babel": "~4.5.0",
