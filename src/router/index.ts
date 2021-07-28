@@ -7,8 +7,11 @@ import DemoAccesory from "@/views/demo/demo-accesory.vue";
 import DemoMaterial from "@/views/demo/demo-material.vue";
 import Demo3D from "@/views/demo/demo-3d.vue";
 import DemoDemo3 from "@/views/demo/demo-demo3.vue";
+import StBuild3d from "@/views/demo/StBuild3d.vue";
 
 const routes: Array<RouteRecordRaw> = [
+    { path: "/demo/build3d", name: "Build 3D", component: StBuild3d },
+
     {
         path: "/",
         name: "Home",
