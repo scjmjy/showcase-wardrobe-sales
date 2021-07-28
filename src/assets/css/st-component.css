@@ -1,0 +1,41 @@
+.st-tank {
+    width: 1280px; 
+    height: 800px;
+    background-color: darkgray
+  }
+
+  .st-head {
+    margin: 10px;
+    background-color: yellowgreen;
+    font-size: 18px;
+  }
+
+  .st-body {
+    width: 1260px;
+    margin: 10px;
+    /* 
+    margin: 6px;
+    border: 4px solid black; 
+    */
+    background-color: green;
+    display: flex;
+  }
+
+  .st-body .main {
+    width: 915px;
+    /* height: 830px; */
+    flex: 1 1 auto;
+    background-color: wheat;
+    margin: 0px;
+    padding: 0px;
+    display: flex;
+  }
+
+  .st-body .main#st-workarea{
+    height: 640px;
+  }
+
+  .st-body .sidebar {
+    width: 345px;
+    background-color: darkslategrey;
+  }
