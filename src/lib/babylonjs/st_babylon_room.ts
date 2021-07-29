@@ -78,6 +78,7 @@ export class StBabylonRoom implements StISketchRoom {
             engine.resize();
         });
 
+        StBabylonUtil.initialize({ scene: scene });
         StBabylonUtil.showWorldAxis(3, scene);
         this.engine = engine;
         this.scene = scene;
@@ -92,7 +93,7 @@ export class StBabylonRoom implements StISketchRoom {
             StGizmo.setupGismo(scene, camera);
         }
     }
-    private _onEngineLoop() {
+    private _onEngineLoop = () => { 
         if (this.updateCamera == true) {
             const cam = this.camera;
             if (cam instanceof BABYLON.ArcRotateCamera) {

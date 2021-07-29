@@ -24,6 +24,7 @@ export default class StBabylonUtil {
      * @param opt
      */
     static initialize(opt: { scene: BABYLON.Scene }): void {
+        console.log("!!! initializ BABYLON Util !!!");
         StBabylonUtil.scene = opt.scene;
     }
 
