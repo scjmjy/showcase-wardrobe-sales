@@ -117,7 +117,8 @@ abstract class StSketchMesh extends StObject implements StIMesh {
     }
     deleteMesh(): void {
         if (!this.mesh) {
-            throw Error("Mesh is not defined");
+            return;
+            //throw Error("Mesh is not defined");
         }
         this.mesh.dispose();
         this.mesh = undefined;
