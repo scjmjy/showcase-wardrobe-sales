@@ -38,6 +38,8 @@ interface StIModel {
     setHeight(h: number): void;
     setDepth(d: number): void;
     getSize(): StSketchVector3;
+
+    updateMesh(): void;
 }
 
 interface StIAccesory extends StIModel {
@@ -102,7 +104,7 @@ interface StILevel extends StIModel {
 
     getHeight(): number;
 
-    setHeight(h: number): void;
+    // setHeight(h: number): void;
 }
 
 interface StICube extends StIModel {

@@ -108,9 +108,9 @@ abstract class StSketchMesh extends StObject implements StIMesh {
             throw Error("Mesh is not defined");
         }
         const space = this.space;
-        this.mesh.translate(NORMAL_X, vec.x / ST_SCALE_FROM_MM, space);
-        this.mesh.translate(NORMAL_Y, vec.y / ST_SCALE_FROM_MM, space);
-        this.mesh.translate(NORMAL_Z, vec.z / ST_SCALE_FROM_MM, space);
+        if(vec.x !=0) this.mesh.translate(NORMAL_X, vec.x / ST_SCALE_FROM_MM, space);
+        if(vec.y !=0) this.mesh.translate(NORMAL_Y, vec.y / ST_SCALE_FROM_MM, space);
+        if(vec.z !=0) this.mesh.translate(NORMAL_Z, vec.z / ST_SCALE_FROM_MM, space);
         if (update_pos) {
             this.position.selfAdd(vec);
         }
@@ -205,7 +205,7 @@ class StPillarMesh extends StOnsiteMesh {
     }
 
     createMesh(): string {
-        const mat = new StMaterial({});
+        const mat = new StMaterial({ name: "_st_default_mat" });
         let uuid: string;
         [uuid, this.mesh] = this.build3d.extrudeShape(this.polygon, this.depth, mat);
         this.onAddedMesh();

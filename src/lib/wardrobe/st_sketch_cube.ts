@@ -1,10 +1,11 @@
 import { StSketchPoint, StSketchRect } from "../geometry/st_geometric_2d";
 import { StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StIAccesory, StICube, StIDivison, StILevel } from "./st_model_interface";
-import { StBoardMesh } from "./st_board_mesh";
+import { StBoardMesh, StBoardType } from "./st_board_mesh";
 import { StDoorType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
 import { StModel, StSketchAccesory } from "./st_model_object";
+import { StTexture, StWoodType, textureManager } from "../utility/st_texture";
 
 export class StSketchDivision extends StModel implements StIDivison {
     /**
@@ -51,6 +52,7 @@ export class StSketchDivision extends StModel implements StIDivison {
         this.rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(pos.x, pos.y), size.x, size.y);
     }
 
+    /*
     setWidth(w: number): void {
         throw new Error("Method not implemented." + w);
     }
@@ -59,6 +61,10 @@ export class StSketchDivision extends StModel implements StIDivison {
     }
     setDepth(d: number): void {
         throw new Error("Method not implemented." + d);
+    }
+    */
+    updateMesh(): void {
+        throw new Error("Method not implemented.");
     }
 
     calculateAvailable(acce_info: StIAccesory): StSketchRect[] {
@@ -76,6 +82,9 @@ export class StSketchDivision extends StModel implements StIDivison {
 }
 
 export class StSketchLevel extends StModel implements StILevel {
+    updateMesh(): void {
+        throw new Error("Method not implemented.");
+    }
     moveDivide(idx: number, step: number): number {
         throw new Error("Method not implemented.");
     }
@@ -86,8 +95,9 @@ export class StSketchLevel extends StModel implements StILevel {
         throw new Error("Method not implemented.");
     }
     getHeight(): number {
-        throw new Error("Method not implemented.");
+        return this.getSize().y;
     }
+    /*
     setWidth(w: number): void {
         throw new Error("Method not implemented.");
     }
@@ -97,6 +107,7 @@ export class StSketchLevel extends StModel implements StILevel {
     setDepth(w: number): void {
         throw new Error("Method not implemented.");
     }
+    */
 }
 
 export class StSketchCube extends StModel implements StICube {
@@ -109,32 +120,33 @@ export class StSketchCube extends StModel implements StICube {
     constructor(obj: StSketchCube) {
         super(obj);
         this.doorType = obj.doorType || StDoorType.NONE;
-        this.gapBottom = obj.gapBottom || 0;
+        this.gapBottom = obj.gapBottom || 100;
         this.gapTop = obj.gapTop || 0;
         this.thickness = obj.thickness || 20;
-        this._updateMesh();
+        this.updateMesh();
     }
 
-    private _updateMesh() {
+    updateMesh(): void {
+        for(const m of this.meshList) {
+            m.deleteMesh();
+        }
+        this.meshList.slice(0, this.meshList.length);
+        const back_texture = textureManager.wood(StWoodType.PINE, 0);
         const [w, h, d] = this.getSize().toArray();
-        const board_thickness = this.thickness;
-        const left = StBoardMesh.buildSideBoard(w, h, board_thickness);
-        const right = StBoardMesh.buildSideBoard(w, h, board_thickness);
-        right.translate(new StSketchVector3(w - board_thickness, 0, 0));
-
-        // todo
-        // const top =
+        const TH = this.thickness;
+        const left = StBoardMesh.buildSideBoard(d, h, TH);
+        const right = StBoardMesh.buildSideBoard(d, h, TH);
+        const top = StBoardMesh.buildHorizonalBoard(w - 2 * TH, d, TH);
+        const bottom = StBoardMesh.buildHorizonalBoard(w - 2*TH, d, TH);
+        const back = StBoardMesh.buildBoard(w, h, TH, StBoardType.FACE, back_texture);
+        left.translate(new StSketchVector3(TH, 0, 0));
+        right.translate(new StSketchVector3(w, 0, 0));
+        bottom.translate(new StSketchVector3(TH, TH + this.gapBottom, 0));
+        top.translate(new StSketchVector3   (TH, h - this.gapTop, 0));
+        back.translate(new StSketchVector3(0, 0, d- TH));
+        this.meshList.push(left, right, top, bottom, back);
     }
 
-    setWidth(w: number): void {
-        throw new Error("Method not implemented.");
-    }
-    setHeight(w: number): void {
-        throw new Error("Method not implemented.");
-    }
-    setDepth(w: number): void {
-        throw new Error("Method not implemented.");
-    }
     createLevel(offset_y: number): void {
         throw new Error("Method not implemented.");
     }

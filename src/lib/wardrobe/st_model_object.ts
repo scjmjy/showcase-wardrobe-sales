@@ -15,7 +15,7 @@ export abstract class StModel extends StObject implements StIModel {
     private height: number;
     private depth: number;
 
-    private meshList: StSketchMesh[];
+    meshList: StSketchMesh[];
 
     //constructor(obj: any);
     constructor(obj: StModel) {
@@ -56,9 +56,17 @@ export abstract class StModel extends StObject implements StIModel {
         return new StSketchVector3(this.width, this.height, this.depth);
     }
 
-    abstract setWidth(w: number): void;
-    abstract setHeight(h: number): void;
-    abstract setDepth(d: number): void;
+    setWidth(w: number): void {
+        this.width = w;
+    }
+    setHeight(h: number): void {
+        this.height = h;
+    }
+    setDepth(w: number): void {
+        this.width = w;
+    }
+ 
+    abstract updateMesh(): void;
 
     /* 
      * Changing w/h/d may cause updating the 3D mesh in BABYLON  
