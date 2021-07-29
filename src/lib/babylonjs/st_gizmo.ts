@@ -1,13 +1,20 @@
-import * as BABYLON from "babylonjs";
-import "babylonjs-loaders";
-
-var gizmoManager = null;
+//import * as BABYLON from "babylonjs";
+//import "babylonjs-loaders";
+/**
+ * @file    st_gizmo.ts
+ * @author  Guilin
+ *
+ * @description Based on the old JS file 'gizmo.js' form Shu Jian
+ *
+ * ------------------ Logs -----------------------------------------------------
+ * [Guilin 2021-07-29] Created.
+ */
 
 // enablePhysics the 3D scene :
-export const setupGismo = (scene, camera) => {
+export function setupGismo(scene: BABYLON.Scene, camera: BABYLON.Camera): BABYLON.GizmoManager {
     // export function setupGismo(scene, camera) {
     // Initialize GizmoManager
-    if (!gizmoManager) gizmoManager = new BABYLON.GizmoManager(scene);
+    const gizmoManager = new BABYLON.GizmoManager(scene);
     gizmoManager.keepDepthUtilityLayer.setRenderCamera(camera);
     gizmoManager.utilityLayer.setRenderCamera(camera);
 
@@ -18,6 +25,14 @@ export const setupGismo = (scene, camera) => {
 
     // Modify gizmos based on keypress
     document.onkeydown = (e) => {
+        if (
+            !gizmoManager.gizmos ||
+            !gizmoManager.gizmos.positionGizmo ||
+            !gizmoManager.gizmos.rotationGizmo ||
+            !gizmoManager.gizmos.scaleGizmo
+        ) {
+            throw Error("gizmo error");
+        }
         if (e.key === "w" || e.key === "e" || e.key === "r") {
             // Switch gizmo type
             gizmoManager.positionGizmoEnabled = false;
@@ -67,7 +82,8 @@ export const setupGismo = (scene, camera) => {
     };
 
     // Start by only enabling position control
-    document.onkeydown({ key: "w" });
+    const evt = new KeyboardEvent("w");
+    document.dispatchEvent(evt);
 
     return gizmoManager;
-};
+}

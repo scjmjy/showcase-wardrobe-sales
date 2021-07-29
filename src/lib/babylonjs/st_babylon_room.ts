@@ -13,10 +13,13 @@ import { StISketchRoom } from "../utility/st_sketch_room_interface";
 import StBabylonUtil from "./st_babylon_util";
 export type StCallbackUpdateCamera = (pos: BABYLON.Vector3, target: BABYLON.Vector3, rotate: BABYLON.Vector3) => void;
 
-const StGizmo = require("./gizmo.js");
+//const StGizmo = require("./gizmo.js");
 //const StGizmo = await import("./gizmo.js");
 //import * as StGizmo from "./gizmo";
 //import StGizmo = require("./gizmo.js");
+//import setupGismo from "./gizmo.js";
+//import setupGismo from "./gizmo";
+import * as StGizmo from "./st_gizmo";
 
 /**
  * initialize babaylon JS engine

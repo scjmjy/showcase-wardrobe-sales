@@ -27,8 +27,7 @@ export class StMaterial extends StObject {
     readonly texture?: StTexture;
     readonly color?: StColor;
 
-    constructor(obj: any);
-    constructor(obj: StMaterial) {
+    constructor(obj: { name: string; texture?: StTexture }) {
         super();
         this.texture = obj && obj.texture;
         this.name = obj && obj.name;
