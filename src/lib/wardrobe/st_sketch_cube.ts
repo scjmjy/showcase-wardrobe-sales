@@ -127,7 +127,7 @@ export class StSketchCube extends StModel implements StICube {
     }
 
     updateMesh(): void {
-        for(const m of this.meshList) {
+        for (const m of this.meshList) {
             m.deleteMesh();
         }
         this.meshList.slice(0, this.meshList.length);
@@ -137,13 +137,13 @@ export class StSketchCube extends StModel implements StICube {
         const left = StBoardMesh.buildSideBoard(d, h, TH);
         const right = StBoardMesh.buildSideBoard(d, h, TH);
         const top = StBoardMesh.buildHorizonalBoard(w - 2 * TH, d, TH);
-        const bottom = StBoardMesh.buildHorizonalBoard(w - 2*TH, d, TH);
+        const bottom = StBoardMesh.buildHorizonalBoard(w - 2 * TH, d, TH);
         const back = StBoardMesh.buildBoard(w, h, TH, StBoardType.FACE, back_texture);
         left.translate(new StSketchVector3(TH, 0, 0));
         right.translate(new StSketchVector3(w, 0, 0));
         bottom.translate(new StSketchVector3(TH, TH + this.gapBottom, 0));
-        top.translate(new StSketchVector3   (TH, h - this.gapTop, 0));
-        back.translate(new StSketchVector3(0, 0, d- TH));
+        top.translate(new StSketchVector3(TH, h - this.gapTop, 0));
+        back.translate(new StSketchVector3(0, 0, d - TH));
         this.meshList.push(left, right, top, bottom, back);
     }
 

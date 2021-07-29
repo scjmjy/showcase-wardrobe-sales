@@ -29,8 +29,8 @@ export class StBoardMesh extends StOnsiteMesh {
         height: number,
         thickness = 20,
         type?: StBoardType,
-        /* beta?: number,*/ texture?: StTexture, 
-        color?: StColor
+        /* beta?: number,*/ texture?: StTexture,
+        color?: StColor,
     ): StBoardMesh {
         if (!texture) {
             texture = textureManager.wood(StWoodType.OAK, 0);

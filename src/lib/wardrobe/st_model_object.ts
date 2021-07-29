@@ -63,9 +63,9 @@ export abstract class StModel extends StObject implements StIModel {
         this.height = h;
     }
     setDepth(w: number): void {
-        this.width = w;
+        this.depth = w;
     }
- 
+
     abstract updateMesh(): void;
 
     /* 

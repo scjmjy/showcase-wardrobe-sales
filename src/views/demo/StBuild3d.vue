@@ -1,12 +1,8 @@
 <template>
     <div class="st-tank">
-
         <div class="st-head">
-            <aside>
-                DEMO: {{ title }} ---- (Lib: {{ libVersion }}) ...
-            </aside>
-            <textarea v-model="topInfo"> 
-            </textarea>
+            <aside>DEMO: {{ title }} ---- (Lib: {{ libVersion }}) ...</aside>
+            <textarea v-model="topInfo"> </textarea>
         </div>
 
         <div class="st-body">
@@ -35,21 +31,20 @@ import { defineComponent } from "vue";
 import { St3DEngine, sketchEngine } from "@/lib/utility/st_sketch_engine";
 import { StSketchCacheTest } from "@/lib/data/st_sketch_cache_test";
 import { StBabylonBuild3dTest } from "@/test/babylon/st_babylon_build3d_test";
-
+import { StISketchRoom } from "@/lib/utility/st_sketch_room_interface";
 
 export default defineComponent({
     name: "DemoBuild3d",
-    components: {
-    },
+    components: {},
     props: {
         msg: {
-        type: String,
+            type: String,
         },
-    }, 
+    },
     data() {
         return {
             title: "Demo: Build 3D mesh with utility",
-            room: {} as any,
+            room: {} as StISketchRoom,
 
             showDoor: true,
             openDoor: 0,

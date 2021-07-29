@@ -16,6 +16,13 @@
                 <button class="test" v-on:click="onTestCube('create')">Cube: C</button>
                 <button class="test" v-on:click="onTestCube('W+')">W+</button>
                 <button class="test" v-on:click="onTestCube('W-')">W-</button>
+                <button class="test" v-on:click="onTestCube('H+')">H+</button>
+                <button class="test" v-on:click="onTestCube('H-')">H-</button>
+                <button class="test" v-on:click="onTestCube('D+')">D+</button>
+                <button class="test" v-on:click="onTestCube('D-')">D-</button>
+                <button class="test" v-on:click="onTestCube('GB+')">GB+</button>
+                <button class="test" v-on:click="onTestCube('GB-')">GB-</button>
+                <br />
                 <br />
                 <button class="test" v-on:click="onTestMesh('board-3')">Board: Left-Right</button>
                 <button class="test" v-on:click="onTestMesh('board-1')">B-Position</button>
@@ -37,7 +44,7 @@ import StSketchConstant from "@/lib/utility/st_sketch_constant";
 import { St3DEngine, sketchEngine } from "@/lib/utility/st_sketch_engine";
 import { StSketchCacheTest } from "@/lib/data/st_sketch_cache_test";
 import { StMeshObjectTest } from "@/test/wardrobe/st_mesh_object_test";
-import { StSketchCubeTest } from "@/test/wardrobe/st_model_object_test";
+import { cubeTest } from "@/test/wardrobe/st_model_object_test";
 import { StISketchRoom } from "@/lib/utility/st_sketch_room_interface";
 
 export default defineComponent({
@@ -53,7 +60,6 @@ export default defineComponent({
             libVersion: StSketchConstant.VERSION,
             //sketchEngine: {} as any,
             room: {} as StISketchRoom,
-            cubeTest: new StSketchCubeTest(),
 
             showDoor: true,
             openDoor: 0,
@@ -144,16 +150,34 @@ export default defineComponent({
         },
 
         onTestCube(opt: string) {
-            const test = this.cubeTest;
+            const test = cubeTest;
             switch (opt) {
                 case "create":
                     test.create_01();
+                    break;
+                case "H+":
+                    test.changeHeight(true);
+                    break;
+                case "H-":
+                    test.changeHeight(false);
                     break;
                 case "W+":
                     test.changeWidth(true);
                     break;
                 case "W-":
                     test.changeWidth(false);
+                    break;
+                case "D+":
+                    test.changeDepth(true);
+                    break;
+                case "D-":
+                    test.changeDepth(false);
+                    break;
+                case "GB+":
+                    test.changeBottomGap(true);
+                    break;
+                case "GB-":
+                    test.changeBottomGap(false);
                     break;
                 default:
                     alert("unknown operation: " + opt);
