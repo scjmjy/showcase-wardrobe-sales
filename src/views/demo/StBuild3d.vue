@@ -1,9 +1,14 @@
 <template>
     <div class="st-tank">
+
         <div class="st-head">
-            <aside>DEMO: {{ title }} ---- (Lib: {{ libVersion }}) ...</aside>
-            <textarea v-model="topInfo"> </textarea>
+            <aside>
+                DEMO: {{ title }} ---- (Lib: {{ libVersion }}) ...
+            </aside>
+            <textarea v-model="topInfo"> 
+            </textarea>
         </div>
+
         <div class="st-body">
             <div class="main">
                 <button class="camera" v-on:click="onCameraFront()">视角: 正面</button>
@@ -28,16 +33,24 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { St3DEngine, sketchEngine } from "@/lib/utility/st_sketch_engine";
-// import { StSketchCacheTest } from "@/lib/data/st_sketch_cache_test";
+import { StSketchCacheTest } from "@/lib/data/st_sketch_cache_test";
 import { StBabylonBuild3dTest } from "@/test/babylon/st_babylon_build3d_test";
 
-// vue 2 options api
+
 export default defineComponent({
     name: "DemoBuild3d",
+    components: {
+    },
+    props: {
+        msg: {
+        type: String,
+        },
+    }, 
     data() {
         return {
             title: "Demo: Build 3D mesh with utility",
             room: {} as any,
+
             showDoor: true,
             openDoor: 0,
             topInfo: "",
@@ -51,6 +64,7 @@ export default defineComponent({
             },
         };
     },
+
     mounted: function () {
         console.log(`component ${this.$options.name} is mounted ...`);
         const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
@@ -115,11 +129,9 @@ export default defineComponent({
         },
 
         async onCacheInfo() {
-            /*
             const test = new StSketchCacheTest();
             this.topInfo = await test.showCacheInfo();
-            */
-            this.topInfo = "todo: show cache info";
+            //this.topInfo = "todo: show cache info";
         },
     },
 });
