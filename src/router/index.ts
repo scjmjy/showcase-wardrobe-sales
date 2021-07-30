@@ -12,8 +12,8 @@ import StDisplay3D from "@/views/demo/StDisplay3D.vue";
 import EditScheme from "@/views/EditScheme.vue"
 
 const routes: Array<RouteRecordRaw> = [
-    { path: "/demo/build3d",    name: "Build 3D",  component: StBuild3d },
-    { path: "/demo/display3d",  name: "Display 3D", component: StDisplay3D },
+    { path: "/demo/build3d", name: "Build 3D", component: StBuild3d },
+    { path: "/demo/display3d", name: "Display 3D", component: StDisplay3D },
 
     {
         path: "/",

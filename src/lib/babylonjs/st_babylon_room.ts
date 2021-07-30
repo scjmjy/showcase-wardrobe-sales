@@ -93,7 +93,7 @@ export class StBabylonRoom implements StISketchRoom {
             StGizmo.setupGismo(scene, camera);
         }
     }
-    private _onEngineLoop = () => { 
+    private _onEngineLoop = () => {
         if (this.updateCamera == true) {
             const cam = this.camera;
             if (cam instanceof BABYLON.ArcRotateCamera) {
@@ -109,7 +109,7 @@ export class StBabylonRoom implements StISketchRoom {
                 console.log("-- camera target:    %d,%d,%d", target.x, target.y, target.z);
             }
         }
-    }
+    };
 
     setCameraPos(x: number, y: number, z: number): void {
         this.updateCameraPos = new BABYLON.Vector3(x, y, z);

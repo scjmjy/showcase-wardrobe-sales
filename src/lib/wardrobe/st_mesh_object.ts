@@ -108,16 +108,17 @@ abstract class StSketchMesh extends StObject implements StIMesh {
             throw Error("Mesh is not defined");
         }
         const space = this.space;
-        if(vec.x !=0) this.mesh.translate(NORMAL_X, vec.x / ST_SCALE_FROM_MM, space);
-        if(vec.y !=0) this.mesh.translate(NORMAL_Y, vec.y / ST_SCALE_FROM_MM, space);
-        if(vec.z !=0) this.mesh.translate(NORMAL_Z, vec.z / ST_SCALE_FROM_MM, space);
+        if (vec.x != 0) this.mesh.translate(NORMAL_X, vec.x / ST_SCALE_FROM_MM, space);
+        if (vec.y != 0) this.mesh.translate(NORMAL_Y, vec.y / ST_SCALE_FROM_MM, space);
+        if (vec.z != 0) this.mesh.translate(NORMAL_Z, vec.z / ST_SCALE_FROM_MM, space);
         if (update_pos) {
             this.position.selfAdd(vec);
         }
     }
     deleteMesh(): void {
         if (!this.mesh) {
-            throw Error("Mesh is not defined");
+            return;
+            //throw Error("Mesh is not defined");
         }
         this.mesh.dispose();
         this.mesh = undefined;
