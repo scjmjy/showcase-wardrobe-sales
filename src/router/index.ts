@@ -9,6 +9,7 @@ import Demo3D from "@/views/demo/demo-3d.vue";
 import DemoDemo3 from "@/views/demo/demo-demo3.vue";
 import StBuild3d from "@/views/demo/StBuild3d.vue";
 import StDisplay3D from "@/views/demo/StDisplay3D.vue";
+import EditScheme from "@/views/EditScheme.vue"
 
 const routes: Array<RouteRecordRaw> = [
     { path: "/demo/build3d",    name: "Build 3D",  component: StBuild3d },
@@ -53,6 +54,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "/demo-demo3",
         name: "DemoDemo3",
         component: DemoDemo3,
+    },
+    {
+        path: "/editscheme",
+        name: "EditScheme",
+        component: EditScheme,
     },
     // {
     //     path: "/about",
