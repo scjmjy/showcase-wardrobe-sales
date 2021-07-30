@@ -1,3 +1,14 @@
+/**
+ * @file    st_mesh_object.ts
+ * @author 	Guilin
+ *
+ * @description Implementation of common 3D meshes.
+ *
+ * ------------------ Logs -----------------------------------------------------
+ * [Guilin 2021-07-24] Created.
+ *
+ */
+
 import { StSketchPolygon } from "../geometry/st_geometric_2d";
 import { StSketchVector3, StBoundaryBox, StPoint3 } from "../geometry/st_geometric_3d";
 import { StObject } from "../utility/st_object";

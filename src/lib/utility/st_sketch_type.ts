@@ -1,5 +1,5 @@
 /**
- * @file    st_sketch_typs.ts
+ * @file    st_sketch_types.ts
  * @author 	Guilin
  *
  * @description Types used in sketch lib
@@ -45,4 +45,16 @@ export enum StCubePart {
     DIVISION, // vertical
     DOOR,
     PULLOUT,
+}
+
+export enum StContainerType {
+    /**
+     * The container does not have sub-containers.
+     * A division is its only child.
+     */
+    NODE,
+
+    VERTICAL,
+
+    HORIZONAL,
 }

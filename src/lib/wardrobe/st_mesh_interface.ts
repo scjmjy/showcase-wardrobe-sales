@@ -1,3 +1,14 @@
+/**
+ * @file    st_mesh_interface.ts
+ * @author 	Guilin
+ *
+ * @description interfaces of 3D meshes.
+ *
+ * ------------------ Logs -----------------------------------------------------
+ * [Guilin 2021-07-24] Created.
+ *
+ */
+
 import { StBoundaryBox, StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StTexture } from "../utility/st_texture";
 import { StColor } from "../utility/st_color";

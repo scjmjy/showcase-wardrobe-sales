@@ -1,24 +1,83 @@
-import { StSketchRect } from "../geometry/st_geometric_2d";
+/**
+ * @file    st_model_object.ts
+ * @author 	Guilin
+ *
+ * ------------------ Logs -----------------------------------------------------
+ * [Guilin 2021-07-28] Created.
+ *
+ */
+
+import { StSketchPoint, StSketchRect } from "../geometry/st_geometric_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StObject } from "../utility/st_object";
-import { StIAccesory, StIModel } from "./st_model_interface";
+import { StIAccesory, StIModel, StIModelOpt, StIUuidObject } from "./st_model_interface";
 import { v4 as uuidv4 } from "uuid";
 import { StSketchMesh } from "./st_mesh_object";
 
+/**
+ * @description A model holds data and method for a biz object.
+ *
+ * A model has several 3D mesh objects. When a 3D mesh is selected, a model must be found by the ID/Name/tag of the selected 3D mesh.
+ *
+ * The main flow when a mesh is selected:
+ *
+ * 1) View: Edit a Wardrobe Unit
+ * Curent Model: Skecth-Unit
+ *
+ * User: select a CUBE (bounding box)
+ * [Algorithm]
+ * Search for the cube in the unit by mesh-ID
+ *
+ * [operation]
+ * change cube size: Width/Height/Depth/bottomGap
+ * change cube color
+ * change cube texture
+ *
+ * 2) View: Edit a cube framework;
+ * Curent Model: Skecth-Cube
+ *
+ * User: select a BOARD
+ * [Algorithm]
+ * Search for the level/division in this cube by mesh-ID
+ *
+ * [operation]
+ * change level/division offset (move)
+ *
+ * 3) View: Edit Accesory in a cube
+ * Curent Model: Skecth-Cube
+ *
+ * User: select the area in a division
+ *
+ * [Algorithm]
+ * Search for the division in this cube by mesh-ID
+ *
+ * [operation]
+ * Add/Move/Delete an accesory.
+ *
+ */
 export abstract class StModel extends StObject implements StIModel {
     readonly uuid: string;
     private position: StPoint3;
-    private beta = 0;
-    private parent: StIModel | null;
+    private parent?: StIModel;
     private childen: StIModel[] = [];
     private width: number;
     private height: number;
     private depth: number;
+    private rotate: StSketchVector3 = new StSketchVector3();
 
-    meshList: StSketchMesh[];
+    private dirty = false;
+    protected meshList: StSketchMesh[];
 
+    constructor(obj: StIUuidObject);
+    constructor(obj: StIModelOpt) {
     //constructor(obj: any);
-    constructor(obj: StModel) {
+        /* constructor(obj: {
+        parent: StIModel;
+        width?: number;
+        height?: number;
+        depth?: number;
+        position?: StSketchVector3;
+    }) { */
         super();
         this.parent = obj.parent;
         this.width = obj.width || 0;
@@ -36,7 +95,7 @@ export abstract class StModel extends StObject implements StIModel {
         }
         const parent = this.meshList[0];
         parent.rotateY(angle);
-        this.beta += angle;
+        this.rotate.y += angle;
     }
 
     translate(v: StSketchVector3): void {
@@ -56,17 +115,34 @@ export abstract class StModel extends StObject implements StIModel {
         return new StSketchVector3(this.width, this.height, this.depth);
     }
 
+    getHeight(): number {
+        return this.height;
+    }
+    getWidth(): number {
+        return this.width;
+    }
+    getDepth(): number {
+        return this.depth;
+    }
+
     setWidth(w: number): void {
         this.width = w;
+        this.onEditFinish();
     }
     setHeight(h: number): void {
         this.height = h;
+        this.onEditFinish();
     }
     setDepth(w: number): void {
         this.depth = w;
+        this.onEditFinish();
     }
 
     abstract updateMesh(): void;
+
+    protected onEditFinish() {
+        this.dirty = true;
+    }
 
     /* 
      * Changing w/h/d may cause updating the 3D mesh in BABYLON  
@@ -84,7 +160,7 @@ export abstract class StModel extends StObject implements StIModel {
     setParent(parent: StIModel): void {
         this.parent = parent;
     }
-    getParent(): StIModel | null {
+    getParent(): StIModel | undefined {
         return this.parent;
     }
 

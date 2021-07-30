@@ -1,3 +1,14 @@
+/**
+ * @file    st_board_mesh.ts
+ * @author 	Guilin
+ *
+ * @description 3D Mesh: A Simple Board
+ *
+ * ------------------ Logs -----------------------------------------------------
+ * [Guilin 2021-07-28] Created.
+ *
+ */
+
 import { StSketchPoint, StSketchRect } from "../geometry/st_geometric_2d";
 import { StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StTexture, StWoodType, textureManager } from "../utility/st_texture";

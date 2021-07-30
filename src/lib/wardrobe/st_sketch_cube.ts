@@ -1,11 +1,20 @@
+/**
+ * @file    st_sketch_cube.ts
+ * @author 	Guilin
+ *
+ * ------------------ Logs -----------------------------------------------------
+ * [Guilin 2021-07-28] Created.
+ *
+ */
+
 import { StSketchPoint, StSketchRect } from "../geometry/st_geometric_2d";
 import { StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StIAccesory, StICube, StIDivison, StILevel } from "./st_model_interface";
+import { StIAccesory, StICube, StICubeOpt, StIDivison, StILevel, StIModel, StIModelOpt, StIUuidObject } from "./st_model_interface";
 import { StBoardMesh, StBoardType } from "./st_board_mesh";
 import { StDoorType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
 import { StModel, StSketchAccesory } from "./st_model_object";
-import { StTexture, StWoodType, textureManager } from "../utility/st_texture";
+import { StWoodType, textureManager } from "../utility/st_texture";
 
 export class StSketchDivision extends StModel implements StIDivison {
     /**
@@ -45,7 +54,14 @@ export class StSketchDivision extends StModel implements StIDivison {
      */
     //constructor(obj: start_point: StSketchPoint, width:number, height:number) {
     // constructor(obj: any);
-    constructor(obj: StSketchDivision) {
+    /* constructor(obj:{
+        parent: StIModel;
+        width?: number;
+        height?: number;
+        depth?: number;
+        position?: StSketchVector3;
+    }) { */
+    constructor(obj: StIModelOpt) {
         super(obj);
         const size = this.getSize();
         const pos = this.getPosition();
@@ -81,6 +97,10 @@ export class StSketchDivision extends StModel implements StIDivison {
     }
 }
 
+
+/**
+ * @deprecated by container
+ */
 export class StSketchLevel extends StModel implements StILevel {
     updateMesh(): void {
         throw new Error("Method not implemented.");
@@ -116,8 +136,10 @@ export class StSketchCube extends StModel implements StICube {
     gapBottom: number;
     thickness: number;
 
-    constructor(obj: any);
-    constructor(obj: StSketchCube) {
+    readonly levels: StSketchLevel[] = [];
+
+    constructor(obj: StIUuidObject) 
+    constructor(obj: StICubeOpt) {
         super(obj);
         this.doorType = obj.doorType || StDoorType.NONE;
         this.gapBottom = obj.gapBottom || 100;
@@ -148,8 +170,31 @@ export class StSketchCube extends StModel implements StICube {
     }
 
     createLevel(offset_y: number): void {
-        throw new Error("Method not implemented.");
+        /* from old font-3d:
+         *
+        const height = this.getHeight() - this.gapTop - offset_y;
+        const cnt = this.levels.length;
+        if (cnt == 0) {
+            // if cnt==0, add the 1st level, there is NO previous level.
+            if (offset_y != this.gapBottom) {
+                throw Error("Level 0 is NOT bottom: " + offset_y);
+            }
+        } else if (cnt > 0) {
+            const range = this._getLevelRange();
+            if (offset_y < range[0] || range[1] < offset_y) {
+                console.error("Level Offset Y %d out of Range: %s", offset_y, range.toString());
+                throw Error("Offset Y of New Level is NOT correct: " + offset_y);
+            }
+            const pre_level = this.levels[cnt - 1];
+            const pre_level_height = pre_level.getHeight() - height;
+            pre_level.setHeight(pre_level_height);
+        }
+        const level = new StCubeLevel(offset_y, height, this.width);
+        this.levels.push(level);
+        console.debug("Add Top Level. Offset Y: %d, Height: %d", offset_y, height);
+        */
     }
+
     setLevelOffset(level_id: string, offset_y: number): void {
         throw new Error("Method not implemented.");
     }
