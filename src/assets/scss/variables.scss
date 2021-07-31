@@ -1,0 +1,23 @@
+$color1: #f79a30;
+$color2: #4579df;
+$color3: #6a9732;
+$color4: #fe3233;
+
+$colors: $color1, $color2, $color3, $color4;
+
+$colorDanger: #eb0000;
+$colorText1: white;
+$colorTextInfo: #a8a8a8;
+
+$colorBgCard: black;
+$colorBest: #56abd0;
+$colorGood: #6a9732;
+$colorBad: #56abd0;
+$colorWorst: #ee3031;
+
+:export {
+    cssColor1: $color1;
+    cssColor2: $color2;
+    cssColor3: $color3;
+    cssColor4: $color4;
+}

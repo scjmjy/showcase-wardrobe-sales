@@ -1,5 +1,11 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import Home from "../views/Home.vue";
+import { nextTick } from "vue";
+import store from "@/store";
+
+import Login from "../views/login.vue";
+import Home from "../views/home/home.vue";
+import SelectProduct from "../views/product/select-product.vue";
+import ProductDetail from "../views/product/product-detail.vue";
 import DemoModel from "@/views/demo/demo-model.vue";
 import DemoCube from "@/views/demo/demo-cube.vue";
 import DemoStorage from "@/views/demo/demo-storage.vue";
@@ -9,7 +15,7 @@ import Demo3D from "@/views/demo/demo-3d.vue";
 import DemoDemo3 from "@/views/demo/demo-demo3.vue";
 import StBuild3d from "@/views/demo/StBuild3d.vue";
 import StDisplay3D from "@/views/demo/StDisplay3D.vue";
-import EditScheme from "@/views/EditScheme.vue"
+import EditScheme from "@/views/EditScheme.vue";
 
 const routes: Array<RouteRecordRaw> = [
     { path: "/demo/build3d", name: "Build 3D", component: StBuild3d },
@@ -19,6 +25,21 @@ const routes: Array<RouteRecordRaw> = [
         path: "/",
         name: "Home",
         component: Home,
+    },
+    {
+        path: "/login",
+        name: "Login",
+        component: Login,
+    },
+    {
+        path: "/select-product",
+        name: "SelectProduct",
+        component: SelectProduct,
+    },
+    {
+        path: "/product-detail",
+        name: "ProductDetail",
+        component: ProductDetail,
     },
     {
         path: "/demo-model",
@@ -73,6 +94,44 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
     history: createWebHashHistory(),
     routes,
+});
+
+const whiteList = ["/login"];
+
+router.beforeEach(async (to, from, next) => {
+    if (whiteList.includes(to.path)) {
+        next();
+    }
+    const isLoggedIn = store.getters.isLoggedIn;
+    if (!isLoggedIn) {
+        next({ path: "/login" });
+    } else {
+        // const hasConfig = !!store.getters.globalCfg;
+        const hasConfig = true;
+        if (hasConfig) {
+            next();
+        } else {
+            // $apiProvider(RestProvider) 依赖于 Vue app
+            nextTick(() => {
+                store
+                    .dispatch("config")
+                    .then((res) => {
+                        next();
+                        // next({ ...to, replace: true }); // hack方法 确保addRoutes已完成
+                    })
+                    .catch(async (err) => {
+                        console.log("config:", err);
+
+                        // remove token and go to login page to re-login
+                        await store.dispatch("logout");
+                        next("/login");
+                        // next(`/login?redirect=${to.path}`);
+                    })
+                    .catch(() => {});
+            });
+        }
+        // next();
+    }
 });
 
 export default router;
