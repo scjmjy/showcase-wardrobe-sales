@@ -5,7 +5,6 @@ class StSketchCubeTest {
 
     create_01(): StSketchCube {
         const cube = new StSketchCube({
-            parent: null,
             width: 600,
             height: 1200,
             depth: 450,
@@ -44,8 +43,6 @@ class StSketchCubeTest {
         this.cube.gapBottom += add ? 20 : -20;
         this.cube.updateMesh();
     }
-
 }
-
 
 export const cubeTest = new StSketchCubeTest();

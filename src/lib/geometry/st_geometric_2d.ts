@@ -181,6 +181,13 @@ export class StSketchRect extends StSketchPolygon {
     readonly a: number;
     readonly b: number;
 
+    static buildRect(opt: { p0?: StSketchPoint; width?: number; height?: number }): StSketchRect {
+        const p0 = opt.p0 || new StSketchPoint(0, 0);
+        const width = opt.width || 2;
+        const height = opt.height || 1;
+        return this.buildRectByStartPoint(p0, width, height);
+    }
+
     static buildRectByStartPoint(p0: StSketchPoint, width: number, height: number): StSketchRect {
         console.debug("build sketch rectangle...");
         const p1 = new StSketchPoint(p0.x + width, p0.y);

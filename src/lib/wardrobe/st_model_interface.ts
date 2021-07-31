@@ -23,38 +23,6 @@ import { StColor } from "../utility/st_color";
 
 export { StIModel, StIAccesory, StIMovable, StIPullout, StIDivison, StILevel, StICube };
 
-export interface StIUuidObject {
-    uuid: string;
-}
-
-/**
- * Constructor Option (Parameter)
- */
-export interface StIModelOpt extends StIUuidObject {
-    position: StPoint3;
-
-    /**
-     * Reserved
-     */
-    rotate: StSketchVector3;
-
-    parent: StIModel;
-    childen: StIModel[];
-    width: number;
-    height: number;
-    depth: number;
-}
-
-/**
- * Constructor Parameter
- */
-export interface StICubeOpt extends StIModelOpt {
-    doorType: StDoorType;
-    gapTop: number;
-    gapBottom: number;
-    thickness: number;
-}
-
 /**
  * Interface: Biz Model Object, e.g. a wardrobe, a cube, a division.
  */
@@ -150,7 +118,7 @@ interface StIDivison extends StIModel {
 
 /**
  * a level a made of 1-n division.
- * 
+ *
  * @deprecated  by StIRectArea
  */
 interface StILevel extends StIModel {
@@ -198,7 +166,6 @@ interface StICube extends StIModel {
     calculateAvailable(acce: StIAccesory): StSketchRect[];
 }
 
-
 /**
  * @description Rectangle Area
  */
@@ -211,8 +178,31 @@ export interface StIRectArea extends StIModel {
     deleteBoard(id: string): void;
 }
 
+/**
+ * Constructor Option (Parameter)
+ */
+export interface StIModelOpt {
+    // uuid: string;
+    position?: StPoint3;
 
-export interface StIRectAreaOpt extends StIModelOpt {
-    rect: StSketchRect;
-    type: StContainerType;
+    /**
+     * Reserved
+     */
+    rotate?: StSketchVector3;
+
+    parent?: StIModel;
+    childen?: StIModel[];
+    width?: number;
+    height?: number;
+    depth?: number;
+}
+
+/**
+ * Constructor Parameter
+ */
+export interface StICubeOpt extends StIModelOpt {
+    doorType?: StDoorType;
+    gapTop?: number;
+    gapBottom?: number;
+    thickness?: number;
 }

@@ -8,8 +8,8 @@
  */
 
 import { StSketchPoint, StSketchRect } from "../geometry/st_geometric_2d";
-import { StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StIAccesory, StICube, StICubeOpt, StIDivison, StILevel, StIModel, StIModelOpt, StIUuidObject } from "./st_model_interface";
+import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
+import { StIAccesory, StICube, StICubeOpt, StIDivison, StILevel, StIModel, StIModelOpt } from "./st_model_interface";
 import { StBoardMesh, StBoardType } from "./st_board_mesh";
 import { StDoorType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
@@ -97,7 +97,6 @@ export class StSketchDivision extends StModel implements StIDivison {
     }
 }
 
-
 /**
  * @deprecated by container
  */
@@ -138,8 +137,21 @@ export class StSketchCube extends StModel implements StICube {
 
     readonly levels: StSketchLevel[] = [];
 
-    constructor(obj: StIUuidObject) 
     constructor(obj: StICubeOpt) {
+        /*
+    constructor( model_opt: StIModelOpt, obj: {
+        position?: StPoint3;
+        rotate?: StSketchVector3;
+        parent?: StIModel;
+        childen?: StIModel[];
+        width?: number;
+        height?: number;
+        depth?: number;
+        doorType?: StDoorType;
+        gapTop?: number;
+        gapBottom?: number;
+        thickness?: number;
+    } ) {  */
         super(obj);
         this.doorType = obj.doorType || StDoorType.NONE;
         this.gapBottom = obj.gapBottom || 100;

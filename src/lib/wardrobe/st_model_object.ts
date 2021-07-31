@@ -7,10 +7,10 @@
  *
  */
 
-import { StSketchPoint, StSketchRect } from "../geometry/st_geometric_2d";
+import { StSketchRect } from "../geometry/st_geometric_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StObject } from "../utility/st_object";
-import { StIAccesory, StIModel, StIModelOpt, StIUuidObject } from "./st_model_interface";
+import { StIAccesory, StIModel } from "./st_model_interface";
 import { v4 as uuidv4 } from "uuid";
 import { StSketchMesh } from "./st_mesh_object";
 
@@ -68,16 +68,16 @@ export abstract class StModel extends StObject implements StIModel {
     private dirty = false;
     protected meshList: StSketchMesh[];
 
-    constructor(obj: StIUuidObject);
-    constructor(obj: StIModelOpt) {
-    //constructor(obj: any);
-        /* constructor(obj: {
-        parent: StIModel;
+    constructor(obj: {
+        //uuid: string;
+        position?: StPoint3;
+        rotate?: StSketchVector3; // Reserved
+        parent?: StIModel;
+        childen?: StIModel[];
         width?: number;
         height?: number;
         depth?: number;
-        position?: StSketchVector3;
-    }) { */
+    }) {
         super();
         this.parent = obj.parent;
         this.width = obj.width || 0;
@@ -138,24 +138,14 @@ export abstract class StModel extends StObject implements StIModel {
         this.onEditFinish();
     }
 
+    /**
+     * update mesh if 'dirty' is set
+     */
     abstract updateMesh(): void;
 
-    protected onEditFinish() {
+    protected onEditFinish(): void {
         this.dirty = true;
     }
-
-    /* 
-     * Changing w/h/d may cause updating the 3D mesh in BABYLON  
-     * 
-    setWidth(w: number) {
-        this.width = w;
-    }
-    setHeight(h: number): void {
-        this.height = h;
-    }
-    setDepth(d: number): void {
-        this.depth = d;
-    }*/
 
     setParent(parent: StIModel): void {
         this.parent = parent;
