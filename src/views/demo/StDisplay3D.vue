@@ -10,7 +10,6 @@
                 <button class="camera" v-on:click="onCameraFront()">视角: 正面</button>
             </div>
             <div class="sidebar">
-                <br />
                 <button class="test" v-on:click="onCacheInfo()">Cache Info</button>
                 <button class="test" v-on:click="onTestMesh('pillar')">Pillar</button>
                 <button class="test" v-on:click="onTestCube('create')">Cube: C</button>
@@ -22,7 +21,6 @@
                 <button class="test" v-on:click="onTestCube('D-')">D-</button>
                 <button class="test" v-on:click="onTestCube('GB+')">GB+</button>
                 <button class="test" v-on:click="onTestCube('GB-')">GB-</button>
-                <br />
                 <br />
                 <button class="test" v-on:click="onTestMesh('board-3')">Board: Left-Right</button>
                 <button class="test" v-on:click="onTestMesh('board-1')">B-Position</button>

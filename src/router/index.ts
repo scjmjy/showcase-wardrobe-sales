@@ -96,7 +96,8 @@ const router = createRouter({
     routes,
 });
 
-const whiteList = ["/login"];
+// [Guilin: 2021-8-1] "/demo/" and "/demo/*" fails in the white list
+const whiteList = ["/login", "/demo/display3d", "/demo/build3d", "/demo/*"];
 
 router.beforeEach(async (to, from, next) => {
     if (whiteList.includes(to.path)) {
