@@ -11,7 +11,10 @@ import router from "./router";
 import ElementPlus from "element-plus";
 import "element-plus/lib/theme-chalk/index.css";
 
+import SvgIcon from "@/assets/icons";
+
 const app = createApp(App);
-app.use(router).use(store).use(ElementPlus).mount("#app");
+
+app.use(router).use(store).use(ElementPlus).use(SvgIcon).mount("#app");
 
 export default app;
