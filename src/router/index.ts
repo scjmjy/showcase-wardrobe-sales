@@ -97,10 +97,23 @@ const router = createRouter({
 });
 
 // [Guilin: 2021-8-1] "/demo/" and "/demo/*" fails in the white list
-const whiteList = ["/login", "/demo/display3d", "/demo/build3d", "/demo/*"];
+// [Jinyuan: 2021-8-1] support wildcard character like "/demo*" which match all routers starting with "/demo", e.g. "/demo1", "/demo/test"...,
+//                     and support RegEx like /demo$/ which match all routers ending with "demo", e.g. "/model-demo", "/model/demo"...
+const whiteList: (string | RegExp)[] = ["/login", "/demo*", /demo$/];
+
+function isInWhiteList(path: string) {
+    for (const whitePath of whiteList) {
+        const regex = whitePath instanceof RegExp ? whitePath : new RegExp(whitePath);
+        if (regex.test(path)) {
+            return true;
+        }
+    }
+    return false;
+}
 
 router.beforeEach(async (to, from, next) => {
-    if (whiteList.includes(to.path)) {
+    // if (whiteList.includes(to.path)) {
+    if (isInWhiteList(to.path)) {
         next();
     }
     const isLoggedIn = store.getters.isLoggedIn;
