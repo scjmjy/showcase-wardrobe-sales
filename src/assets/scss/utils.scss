@@ -21,3 +21,14 @@
         transform: scale(1.1) translate(5px, 5px);
     }
 }
+
+.clearfix {
+    &:after {
+        visibility: hidden;
+        display: block;
+        font-size: 0;
+        content: ' ';
+        clear: both;
+        height: 0;
+    }
+}

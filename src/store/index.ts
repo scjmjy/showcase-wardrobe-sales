@@ -1,4 +1,5 @@
 import { createStore } from "vuex";
+import apiProvider from "@/api/provider";
 import { Customer, User } from "@/api/dto/user";
 
 export default createStore({
@@ -30,8 +31,39 @@ export default createStore({
         },
     },
     actions: {
-        login({ commit }, payload) {
-            commit("SET-USER", payload);
+        login({ state, commit, dispatch }, { username, passwd, code, uuid }) {
+            commit("SET-USER", { username, passwd, code, uuid });
+            // return new Promise((resolve, reject) => {
+            //     apiProvider
+            //         .login(username, passwd, code, uuid)
+            //         .then((loginRes) => {
+            //             commit("SET-USER", loginRes.data);
+            //             resolve(loginRes.data);
+            //         })
+            //         .catch((err) => {
+            //             reject(err);
+            //         });
+            // });
+        },
+
+        // config({ state, commit, dispatch }) {
+        //     return new Promise((resolve, reject) => {
+        //         apiProvider
+        //             .requestGlobalConfig()
+        //             .then((cfgRes) => {
+        //                 commit("SET-GLOBAL-CONFIG", cfgRes.data);
+        //                 resolve(cfgRes.data);
+        //                 app.$emit("login");
+        //             })
+        //             .catch((err) => {
+        //                 commit("CLEAR-USER-INFO");
+        //                 reject(err);
+        //             });
+        //     });
+        // },
+        logout({ state, commit, dispatch }) {
+            commit("SET-USER", undefined);
+            return Promise.resolve();
         },
     },
     modules: {},
