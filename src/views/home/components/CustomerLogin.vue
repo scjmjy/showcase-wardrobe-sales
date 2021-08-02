@@ -1,15 +1,42 @@
 <template>
-    <div class="login">
-        <el-form ref="form" class="login__form" :model="formData" label-width="80px">
-            <el-form-item label="客户">
-                <el-input v-model="formData.customerName" placeholder="请输入客户编号/姓名"></el-input>
-            </el-form-item>
-            <el-form-item label="电话">
-                <el-input v-model="formData.phoneNumber" placeholder="选填"></el-input>
-            </el-form-item>
+    <div class="customer-login">
+        <app-header />
+        <div class="customer-login-form">
+            <div class="customer-login-form__title">客户接待</div>
+            <el-input
+                v-model="formData.customerName"
+                class="customer-login-form__input"
+                prefix-icon="iconfont icon-username"
+                placeholder="请输入客户名称"
+            >
+                <template #suffix>
+                    <i class="el-input__icon iconfont icon-btn icon-random" @click="onRandomClick"></i>
 
-            <el-button type="primary" :disabled="isLoginDisabled" @click="startService">开始服务</el-button>
-        </el-form>
+                    <!-- <el-button icon="iconfont icon-random" circle></el-button> -->
+                </template>
+            </el-input>
+            <el-input
+                v-model="formData.phoneNumber"
+                class="customer-login-form__input"
+                auto-complete="off"
+                prefix-icon="iconfont icon-passwd"
+                placeholder="请输入客户手机号码（选填）"
+                type="password"
+                @keyup.enter="login"
+            />
+            <el-radio-group class="customer-login-form__gender" v-model="formData.gender">
+                <el-radio label="male">先生</el-radio>
+                <el-radio label="female">女士</el-radio>
+            </el-radio-group>
+            <button
+                class="customer-login-form__btn btn-primary"
+                v-loading="loginLoading"
+                :disabled="isLoginDisabled"
+                @click="startService"
+            >
+                开始接待
+            </button>
+        </div>
     </div>
 </template>
 
@@ -17,13 +44,19 @@
 import { defineComponent, reactive, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import { formatPlain } from "@/utils/date";
+import AppHeader from "./AppHeader.vue";
 
 export default defineComponent({
-    name: "Login",
+    name: "CustomerLogin",
+    components: {
+        AppHeader,
+    },
     setup() {
         const formData = reactive({
             customerName: "",
             phoneNumber: "",
+            gender: "",
         });
 
         const isLoginDisabled = computed(() => !formData.customerName);
@@ -32,33 +65,70 @@ export default defineComponent({
         const router = useRouter();
 
         const startService = () => {
-            router.push("/select-product").then((res) => {
+            router.push("/select-product").then(() => {
                 store.commit("SWITCH-CUSTOMER", formData);
             });
+        };
+        const onRandomClick = () => {
+            formData.customerName = "客户" + formatPlain(new Date());
         };
         return {
             formData,
             isLoginDisabled,
+            loginLoading: false,
             startService,
+            onRandomClick,
         };
     },
 });
 </script>
 
-<style scoped lang="scss">
-.login {
+<style lang="scss" scoped>
+@import "~@/assets/scss/element-variables.scss";
+
+.customer-login {
+    position: relative;
+    width: 100%;
     height: 100%;
+    background-image: url(~@/assets/img/bg-login.png);
+    background-size: 100% 100%;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding-bottom: 30px;
+    justify-content: center;
+    align-items: center;
+    &-form {
+        width: 618px;
+        // height: 661px;
+        padding: 46px 98px 95px;
+        border-radius: 30px;
+        background-color: white;
+        text-align: center;
+        // display: flex;
+        // flex-direction: column;
 
-    text-align: center;
+        &__title {
+            text-align: center;
+            font-size: 40px;
+            font-weight: bold;
+            color: #172021;
+        }
 
-    background-color: violet;
-    &__form {
-        padding: 20px 30%;
-        background-color: #e8c8c880;
+        &__input {
+            font-size: 22px;
+            margin-top: 68px;
+            &:first-of-type {
+                margin-top: 78px;
+            }
+        }
+        &__gender {
+            margin-top: 49px;
+            font-size: 26px !important;
+            font-weight: bold !important;
+        }
+        &__btn {
+            margin-top: 50px;
+            display: block;
+            width: 100%;
+        }
     }
 }
 </style>

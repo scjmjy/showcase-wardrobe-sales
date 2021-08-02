@@ -18,6 +18,7 @@
     "babylonjs-materials": "4.2.0",
     "babylonjs-serializers": "4.2.0",
     "core-js": "^3.6.5",
+    "dayjs": "^1.10.6",
     "earcut": "^2.2.2",
     "element-plus": "^1.0.2-beta.65",
     "geometric": "^2.2.6",

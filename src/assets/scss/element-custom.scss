@@ -1,3 +1,9 @@
 .el-input--prefix .el-input__inner {
-    padding-left: 45px;
+    padding-left: 45px !important;
+}
+
+.el-input__inner {
+    border-top-color: transparent !important;
+    border-left-color: transparent !important;
+    border-right-color: transparent !important;
 }

@@ -3338,7 +3338,7 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
-dayjs@1.x:
+dayjs@1.x, dayjs@^1.10.6:
   version "1.10.6"
   resolved "https://registry.nlark.com/dayjs/download/dayjs-1.10.6.tgz#288b2aa82f2d8418a6c9d4df5898c0737ad02a63"
   integrity sha1-KIsqqC8thBimydTfWJjAc3rQKmM=
@@ -5543,17 +5543,15 @@ javascript-stringify@^2.0.1:
   resolved "https://registry.npm.taobao.org/javascript-stringify/download/javascript-stringify-2.1.0.tgz?cache=0&sync_timestamp=1618360134745&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fjavascript-stringify%2Fdownload%2Fjavascript-stringify-2.1.0.tgz#27c76539be14d8bd128219a2d731b09337904e79"
   integrity sha1-J8dlOb4U2L0Sghmi1zGwkzeQTnk=
 
-<<<<<<< HEAD
-js-cookie@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.nlark.com/js-cookie/download/js-cookie-3.0.0.tgz?cache=0&sync_timestamp=1627319346334&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fjs-cookie%2Fdownload%2Fjs-cookie-3.0.0.tgz#db1661d5459920ec95aaf186ccf74ceb4a495164"
-  integrity sha1-2xZh1UWZIOyVqvGGzPdM60pJUWQ=
-=======
 js-base64@^2.1.9:
   version "2.6.4"
   resolved "https://registry.nlark.com/js-base64/download/js-base64-2.6.4.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fjs-base64%2Fdownload%2Fjs-base64-2.6.4.tgz#f4e686c5de1ea1f867dbcad3d46d969428df98c4"
   integrity sha1-9OaGxd4eofhn28rT1G2WlCjfmMQ=
->>>>>>> 9c2aa1873ae4dbccc450b80248f2f9c0cf3e3e91
+
+js-cookie@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.nlark.com/js-cookie/download/js-cookie-3.0.0.tgz?cache=0&sync_timestamp=1627319346334&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fjs-cookie%2Fdownload%2Fjs-cookie-3.0.0.tgz#db1661d5459920ec95aaf186ccf74ceb4a495164"
+  integrity sha1-2xZh1UWZIOyVqvGGzPdM60pJUWQ=
 
 js-message@1.0.7:
   version "1.0.7"

@@ -41,7 +41,7 @@ module.exports = {
         },
         proxy: {
             "/api": {
-                target: "http://121.41.29.206:9001/",
+                target: "http://121.41.29.206:9101/",
                 changeOrigin: true,
             },
         },

@@ -1,21 +1,30 @@
 <template>
     <div class="home">
-        <el-tabs class="home__tabs" tab-position="bottom" stretch>
-            <el-tab-pane label="首页">
+        <el-tabs class="home__tabs" v-model="currentPane" tab-position="bottom" stretch>
+            <el-tab-pane name="customer">
                 <customer-index v-if="isServing" />
                 <customer-login v-else />
+
+                <template #label>
+                    <tab-pane-label label="客户接待" icon="customer" :disabled="currentPane === 'my'" />
+                </template>
             </el-tab-pane>
-            <el-tab-pane label="我的"><my /></el-tab-pane>
+            <el-tab-pane name="my"
+                ><my />
+                <template #label>
+                    <tab-pane-label label="个人中心" icon="my" :disabled="currentPane === 'customer'" /> </template
+            ></el-tab-pane>
         </el-tabs>
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
 import CustomerLogin from "./components/CustomerLogin.vue";
 import CustomerIndex from "./components/CustomerIndex.vue";
 import My from "./components/My.vue";
+import TabPaneLabel from "./components/TabPaneLabel.vue";
 
 export default defineComponent({
     name: "Home",
@@ -23,11 +32,14 @@ export default defineComponent({
         CustomerLogin,
         CustomerIndex,
         My,
+        TabPaneLabel,
     },
     setup() {
         const store = useStore();
+        const currentPane = ref("customer");
         return {
             isServing: computed(() => store.getters.isServing),
+            currentPane,
         };
     },
 });
@@ -53,6 +65,10 @@ export default defineComponent({
             & .el-tab-pane {
                 height: 100%;
             }
+        }
+        &__item {
+            height: 100px;
+            font-size: 40px;
         }
     }
 }

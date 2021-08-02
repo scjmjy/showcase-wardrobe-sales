@@ -23,8 +23,9 @@ export default createStore({
         },
         "SET-USER"(state, payload) {
             if (payload) {
-                state.user.userId = "11111";
+                state.user.userId = payload.uid;
                 state.user.userName = payload.username;
+                state.user.token = payload.token;
             } else {
                 state.user = new User();
             }
@@ -32,18 +33,20 @@ export default createStore({
     },
     actions: {
         login({ state, commit, dispatch }, { username, passwd, code, uuid }) {
-            commit("SET-USER", { username, passwd, code, uuid });
-            // return new Promise((resolve, reject) => {
-            //     apiProvider
-            //         .login(username, passwd, code, uuid)
-            //         .then((loginRes) => {
-            //             commit("SET-USER", loginRes.data);
-            //             resolve(loginRes.data);
-            //         })
-            //         .catch((err) => {
-            //             reject(err);
-            //         });
-            // });
+            return new Promise((resolve, reject) => {
+                apiProvider
+                    .login(username, passwd, code, uuid)
+                    .then((loginRes) => {
+                        commit("SET-USER", {
+                            username,
+                            ...loginRes.data,
+                        });
+                        resolve(loginRes.data);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    });
+            });
         },
 
         // config({ state, commit, dispatch }) {

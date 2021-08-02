@@ -5,14 +5,15 @@
             <el-input
                 v-model="username"
                 class="login-form__input"
-                prefix-icon="el-icon-user"
+                prefix-icon="iconfont icon-username"
                 placeholder="请输入手机号码/工号"
-            />
+            >
+            </el-input>
             <el-input
                 v-model="passwd"
                 class="login-form__input"
                 auto-complete="off"
-                prefix-icon="el-icon-key"
+                prefix-icon="iconfont icon-passwd"
                 placeholder="请输入密码"
                 type="password"
                 @keyup.enter="login"
@@ -20,7 +21,12 @@
             <div class="clearfix">
                 <el-link class="login-form__forgot" type="primary" @click.prevent="onForgotClick">忘记密码</el-link>
             </div>
-            <button class="login-form__btn" v-loading="loginLoading" :disabled="isBtnDisabled" @click="login">
+            <button
+                class="login-form__btn btn-primary"
+                v-loading="loginLoading"
+                :disabled="isBtnDisabled"
+                @click="login"
+            >
                 登录
             </button>
             <el-link class="login-form__code" type="primary" @click.prevent="onCodeClick">验证码登录</el-link>
@@ -56,8 +62,12 @@ export default defineComponent({
         // this.getCode();
     },
     methods: {
-        onForgotClick() {},
-        onCodeClick() {},
+        onForgotClick() {
+            this.$message.warning("未实现");
+        },
+        onCodeClick() {
+            this.$message.warning("未实现");
+        },
         // getCode() {
         // this.$apiProvider.getCaptchaImage().then((res: any) => {
         //     this.codeUrl = "data:image/gif;base64," + res.data.img;
@@ -113,7 +123,7 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
-    .login-form {
+    &-form {
         width: 618px;
         // height: 661px;
         padding: 46px 98px 95px;
@@ -148,38 +158,11 @@ export default defineComponent({
             font-size: 26px !important;
         }
         &__btn {
-            cursor: pointer;
             margin-top: 52px;
             display: block;
             width: 100%;
-            height: 58px;
-            background-color: rgba($--color-primary, 0.6);
-            color: white;
-            border-radius: 30px;
-            font-size: 18px;
-
-            &:focus {
-                background-color: rgba($--color-primary, 0.8);
-            }
-            &:hover {
-                background-color: rgba($--color-primary, 0.8);
-            }
-            &:active {
-                background-color: rgba($--color-primary, 1);
-            }
-            &:disabled {
-                background-color: rgba($--color-primary, 0.4);
-            }
+            cursor: pointer;
         }
     }
-}
-</style>
-
-<style lang="scss">
-button,
-button:focus,
-button:active {
-    border: none;
-    outline: none;
 }
 </style>

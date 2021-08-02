@@ -2,6 +2,11 @@
 // $--color-primary: #5eb6b3;
 @use "sass:map";
 
+.el-tag {
+  --el-tag-font-size: 16px;
+  --el-tag-border-radius: 20px;
+}
+
 // colors
 $--colors: () !default;
 $--colors: map.deep-merge(
@@ -47,7 +52,16 @@ $--font-size: map.merge(
 // border
 // $--border-style-base: none none solid !default;
 
+// radio
+$--radio-input-width: 28px;
+$--radio-input-height: 28px;
 
 /* icon font path, required */
 $--font-path: "~element-plus/lib/theme-chalk/fonts";
 @import "~element-plus/packages/theme-chalk/src/index";
+
+
+.el-radio__inner::after {
+    width: 8px;
+    height: 8px;
+}
