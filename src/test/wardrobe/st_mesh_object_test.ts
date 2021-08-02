@@ -1,4 +1,4 @@
-import { StSketchPoint, StSketchPolygon, StSketchRect } from "@/lib/geometry/st_geometric_2d";
+import { StSketchVector, StSketchPolygon, StSketchRect } from "@/lib/geometry/st_geometric_2d";
 import { StSketchVector3 } from "@/lib/geometry/st_geometric_3d";
 import { StTexture, StWoodType, textureManager } from "@/lib/utility/st_texture";
 import { StPillarMesh } from "@/lib/wardrobe/st_mesh_object";
@@ -36,7 +36,7 @@ export class StMeshObjectTest {
      * create boards with different positions
      */
     createBoard_01(): void {
-        const rect: StSketchRect = StSketchRect.buildRectByStartPoint(new StSketchPoint(0, 0), 600, 300);
+        const rect: StSketchRect = StSketchRect.buildRectByStartPoint(new StSketchVector(0, 0), 600, 300);
         const oak_0: StTexture = textureManager.wood(StWoodType.OAK, 0);
 
         new StBoardMesh({
@@ -61,7 +61,7 @@ export class StMeshObjectTest {
      * @deprecated:  DONOT rotate after creating the board!!
      */
     createBoard_02(): void {
-        const rect: StSketchRect = StSketchRect.buildRectByStartPoint(new StSketchPoint(0, 0), 450, 1200);
+        const rect: StSketchRect = StSketchRect.buildRectByStartPoint(new StSketchVector(0, 0), 450, 1200);
         const oak_0: StTexture = textureManager.wood(StWoodType.OAK, 0);
 
         const b1 = new StBoardMesh({

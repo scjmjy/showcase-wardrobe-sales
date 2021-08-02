@@ -10,8 +10,14 @@
  *
  */
 
+import { v4 as uuidv4 } from "uuid";
+
 export class StObject {
     toString(): string {
         return JSON.stringify(this);
     }
+}
+
+export class StUuidObject extends StObject {
+    readonly uuid = uuidv4();
 }

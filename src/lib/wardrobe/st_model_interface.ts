@@ -16,7 +16,7 @@
  *
  */
 
-import { StSketchRect } from "../geometry/st_geometric_2d";
+import { StSketchVector, StSketchRect } from "../geometry/st_geometric_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StContainerType, StDoorType, StPulloutType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
@@ -32,7 +32,7 @@ interface StIModel {
     getParent(): StIModel | undefined;
 
     /**
-     * position in its parent model
+     * position in its parent model?
      */
     getPosition(): StPoint3;
     translate(v: StSketchVector3): void;
@@ -164,18 +164,6 @@ interface StICube extends StIModel {
     changeColor(color: StColor): void;
 
     calculateAvailable(acce: StIAccesory): StSketchRect[];
-}
-
-/**
- * @description Rectangle Area
- */
-export interface StIRectArea extends StIModel {
-    rect: StSketchRect;
-    type: StContainerType;
-
-    addBoard(offset: number): string;
-    setBoard(id: string, offset: string): number;
-    deleteBoard(id: string): void;
 }
 
 /**

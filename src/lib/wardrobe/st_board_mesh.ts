@@ -9,7 +9,7 @@
  *
  */
 
-import { StSketchPoint, StSketchRect } from "../geometry/st_geometric_2d";
+import { StSketchVector, StSketchRect } from "../geometry/st_geometric_2d";
 import { StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StTexture, StWoodType, textureManager } from "../utility/st_texture";
 import { StColor } from "../utility/st_color";
@@ -46,7 +46,7 @@ export class StBoardMesh extends StOnsiteMesh {
         if (!texture) {
             texture = textureManager.wood(StWoodType.OAK, 0);
         }
-        const rect: StSketchRect = StSketchRect.buildRectByStartPoint(new StSketchPoint(0, 0), width, height);
+        const rect: StSketchRect = StSketchRect.buildRectByStartPoint(new StSketchVector(0, 0), width, height);
         const b1 = new StBoardMesh({
             position: new StSketchVector3(0, 0, 0),
             rect: rect,

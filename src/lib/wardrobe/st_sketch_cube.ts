@@ -7,7 +7,7 @@
  *
  */
 
-import { StSketchPoint, StSketchRect } from "../geometry/st_geometric_2d";
+import { StSketchVector, StSketchRect } from "../geometry/st_geometric_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StIAccesory, StICube, StICubeOpt, StIDivison, StILevel, StIModel, StIModelOpt } from "./st_model_interface";
 import { StBoardMesh, StBoardType } from "./st_board_mesh";
@@ -65,7 +65,7 @@ export class StSketchDivision extends StModel implements StIDivison {
         super(obj);
         const size = this.getSize();
         const pos = this.getPosition();
-        this.rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(pos.x, pos.y), size.x, size.y);
+        this.rect = StSketchRect.buildRectByStartPoint(new StSketchVector(pos.x, pos.y), size.x, size.y);
     }
 
     /*
