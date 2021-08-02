@@ -1,14 +1,14 @@
 <template>
     <div class="function-card clickable">
-        <svg-icon class="function-card__img" :icon-class="icon"></svg-icon>
-        <div class="function-card__title">
+        <i class="function-card__icon iconfont" :class="'icon-' + icon" :style="iconStyle"></i>
+        <div class="function-card__name">
             <div>{{ functionName }}</div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent } from "vue";
 
 export default defineComponent({
     name: "FunctionCard",
@@ -17,13 +17,22 @@ export default defineComponent({
             type: String,
             default: "",
         },
+        color: {
+            type: String,
+            default: "",
+        },
         functionName: {
             type: String,
             default: "",
         },
     },
-    setup() {
-        return {};
+    setup(props) {
+        const iconStyle = computed(() => ({
+            color: props.color,
+        }));
+        return {
+            iconStyle,
+        };
     },
 });
 </script>
@@ -31,17 +40,19 @@ export default defineComponent({
 <style scoped lang="scss">
 .function-card {
     display: inline-flex;
-    flex-direction: column;
-
-    vertical-align: top;
     padding: 15px;
-    border-radius: 4px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-
-    margin: 5px;
-    &__img {
-        width: 80px !important;
-        height: 80px !important;
+    flex-direction: column;
+    align-items: center;
+    // border-radius: 4px;
+    // box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    &__icon {
+        font-size: 65px;
+    }
+    &__name {
+        margin-top: 16px;
+        font-size: 30px;
+        font-weight: bold;
+        color: #172021;
     }
 }
 </style>
