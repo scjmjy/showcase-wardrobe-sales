@@ -12,7 +12,10 @@ import App from "./App.vue";
 import store from "./store";
 import router from "./router";
 
+import SvgIcon from "@/assets/icons";
+
 const app = createApp(App);
-app.use(router).use(store).use(ElementPlus).mount("#app");
+
+app.use(router).use(store).use(ElementPlus).use(SvgIcon).mount("#app");
 
 export default app;

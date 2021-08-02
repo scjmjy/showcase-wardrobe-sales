@@ -5,20 +5,25 @@
                 <customer-index v-if="isServing" />
                 <customer-login v-else />
             </el-tab-pane>
-            <el-tab-pane label="我的">我的</el-tab-pane>
+            <el-tab-pane label="我的"><my /></el-tab-pane>
         </el-tabs>
     </div>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent } from "vue";
+import { useStore } from "vuex";
 import CustomerLogin from "./components/CustomerLogin.vue";
 import CustomerIndex from "./components/CustomerIndex.vue";
-import { useStore } from "vuex";
+import My from "./components/My.vue";
 
 export default defineComponent({
     name: "Home",
-    components: { CustomerLogin, CustomerIndex },
+    components: {
+        CustomerLogin,
+        CustomerIndex,
+        My,
+    },
     setup() {
         const store = useStore();
         return {
