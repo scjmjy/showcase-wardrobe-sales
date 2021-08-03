@@ -7,7 +7,7 @@
 
             <div class="my__info-profile">
                 <el-image
-                    class="my__info-profile__avatar circle"
+                    class="my__info-profile__avatar u-circle"
                     src="https://picsum.photos/200"
                     circle
                     fit="contain"
@@ -21,20 +21,20 @@
         <div class="my__functions">
             <el-row :gutter="20" justify="center">
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="我的客户" icon="customer" color="#00FFF6" />
+                    <function-card functionName="我的客户" icon="customer" color="#00FFF6" @click="gotoCustomerList" />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="商品库" icon="products" color="#FF5E00" />
+                    <function-card functionName="商品库" icon="products" color="#FF5E00" @click="gotoProductList" />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="帮助手册" icon="manual" color="#FFBB00" />
+                    <function-card functionName="帮助手册" icon="manual" color="#FFBB00" @click="gotoXXX" />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="设置" icon="settings" color="#0073FF" />
+                    <function-card functionName="设置" icon="settings" color="#0073FF" @click="gotoXXX" />
                 </el-col>
                 <div style="width: 100%; height: 30px"></div>
                 <el-col v-for="index in 4" :key="index" :span="6" style="text-align: center">
-                    <function-card functionName="待定菜单" icon="empty" color="grey" />
+                    <function-card functionName="待定菜单" icon="empty" color="grey" @click="gotoXXX" />
                 </el-col>
             </el-row>
         </div>
@@ -42,7 +42,9 @@
 </template>
 
 <script lang="ts">
+import { ElMessage } from "element-plus";
 import { computed, defineComponent } from "vue";
+import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import FluidBg from "./FluidBg.vue";
 import FunctionCard from "./FunctionCard.vue";
@@ -54,8 +56,18 @@ export default defineComponent({
     },
     setup() {
         const store = useStore();
+        const router = useRouter();
         return {
             user: computed(() => store.state.user),
+            gotoCustomerList() {
+                router.push("/customers");
+            },
+            gotoProductList() {
+                router.push("/select-product");
+            },
+            gotoXXX() {
+                ElMessage.warning("未实现");
+            },
         };
     },
 });

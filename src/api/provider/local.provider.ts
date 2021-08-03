@@ -1,4 +1,11 @@
-import ApiProvider, { AjaxResponse, LoginResult, Product, ProductCategory } from "../interface/provider.interface";
+import ApiProvider, {
+    AjaxResponse,
+    Customer,
+    LoginResult,
+    Product,
+    ProductCategory,
+    Scheme,
+} from "../interface/provider.interface";
 
 export default class LocalProvider implements ApiProvider {
     login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>> {
@@ -51,6 +58,36 @@ export default class LocalProvider implements ApiProvider {
                     compostion: "compostion",
                     description: "description",
                     cover: "https://picsum.photos/300/300?random=" + index + cid,
+                };
+            }),
+        });
+    }
+
+    createCustomer(name: string, phone?: string): Promise<AjaxResponse<string>> {
+        throw new Error("Method not implemented.");
+    }
+    requestCustomerList(uid: string | number, page?: number, pageSize?: number): Promise<AjaxResponse<Customer[]>> {
+        throw new Error("Method not implemented.");
+    }
+    requestSchemes(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Scheme[]>> {
+        return Promise.resolve({
+            status: 200,
+            ok: true,
+            data: new Array(10).fill(0).map((val, index) => {
+                return {
+                    name: cid + "-方案-" + index,
+                    customer: cid + "",
+                    product: "方案来源",
+                    pid: index,
+                    manifest: "manifest",
+                    composition: "composition",
+                    offer: index % 2 === 0 ? "10000" : "0",
+                    ptime: Date.now() + "",
+                    cover: [
+                        "https://picsum.photos/300/300?random=" + index + cid,
+                        "https://picsum.photos/300/300?random=1" + index + cid,
+                        "https://picsum.photos/300/300?random=2" + index + cid,
+                    ],
                 };
             }),
         });

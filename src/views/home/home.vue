@@ -36,7 +36,7 @@ export default defineComponent({
     },
     setup() {
         const store = useStore();
-        const currentPane = ref("my");
+        const currentPane = ref("customer");
         return {
             isServing: computed(() => store.getters.isServing),
             currentPane,

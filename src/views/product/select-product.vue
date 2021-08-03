@@ -1,6 +1,6 @@
 <template>
     <div class="select-product">
-        <app-header class="select-product__header" />
+        <app-header class="select-product__header" type="dark" />
         <prod-cat-menu class="select-product__menu" @select="onProdCatSelect" />
         <el-row class="select-product__products" :gutter="20" justify="space-between">
             <el-col
@@ -56,7 +56,7 @@ export default defineComponent({
             onProdCatSelect(cid: string) {
                 apiProvider.requestProducts(cid).then((res) => {
                     if (res.ok) {
-                        products.splice(0, products.length, ...res.data);
+                        products.splice(0, products.length, ...(res.data || []));
                     }
                 });
             },
@@ -79,7 +79,7 @@ export default defineComponent({
     display: flex;
     position: relative;
     height: 100%;
-    padding-top: 71px;
+    padding-top: 70px;
     overflow: hidden;
     &__menu {
         width: 233px;

@@ -2,10 +2,11 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import { nextTick } from "vue";
 import store from "@/store";
 
-import Login from "../views/login.vue";
-import Home from "../views/home/home.vue";
-import SelectProduct from "../views/product/select-product.vue";
-import ProductDetail from "../views/product/product-detail.vue";
+import Login from "@/views/login.vue";
+import Home from "@/views/home/home.vue";
+import SelectProduct from "@/views/product/select-product.vue";
+import ProductDetail from "@/views/product/product-detail.vue";
+import CustomerList from "@/views/customers/customer-list.vue";
 import DemoModel from "@/views/demo/demo-model.vue";
 import DemoCube from "@/views/demo/demo-cube.vue";
 import DemoStorage from "@/views/demo/demo-storage.vue";
@@ -40,6 +41,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "/product-detail",
         name: "ProductDetail",
         component: ProductDetail,
+    },
+    {
+        path: "/customers",
+        name: "CustomerList",
+        component: CustomerList,
     },
     {
         path: "/demo-model",

@@ -1,9 +1,8 @@
 <template>
     <el-menu :default-active="defaultActive" :uniqueOpened="true">
-        <el-menu-item v-for="(cat, index) of productCats" :key="index" :index="cat.id">
-            <i class="iconfont" :class="'icon-' + cat.icon"></i>
-            <span style="margin-left: 10px">{{ cat.name }}</span>
-            <!-- <template #title>导航二</template> -->
+        <el-menu-item class="u-line-1" v-for="(customer, index) of customers" :key="index" :index="customer.cid">
+            <i class="avatar">李</i>
+            <span style="margin-left: 10px">{{ customer.name }}</span>
         </el-menu-item>
     </el-menu>
 </template>
@@ -11,25 +10,27 @@
 <script lang="ts">
 import { defineComponent, reactive, ref } from "vue";
 import apiProvider from "@/api/provider";
-import { ProductCategory } from "@/api/interface/provider.interface";
+import { Customer } from "@/api/interface/provider.interface";
 import variables from "@/assets/scss/element-variables.scss";
+import { useStore } from "vuex";
 
 export default defineComponent({
     setup(props, context) {
         props;
+        const store = useStore();
         const defaultActive = ref("" as number | string);
-        const productCats = reactive([] as ProductCategory[]);
-        apiProvider.requestProductCategories().then((res) => {
+        const customers = reactive([] as Customer[]);
+        apiProvider.requestCustomerList(store.state.user.userId).then((res) => {
             if (res.ok) {
-                productCats.push(...(res.data || []));
-                if (productCats.length > 0) {
-                    defaultActive.value = productCats[0].id;
+                customers.push(...(res.data || []));
+                if (customers.length > 0) {
+                    defaultActive.value = customers[0].cid;
                     context.emit("select", defaultActive.value);
                 }
             }
         });
         return {
-            productCats,
+            customers,
             variables,
             defaultActive,
         };

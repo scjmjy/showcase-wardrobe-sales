@@ -19,7 +19,8 @@
 .el-menu-item {
     background-color: $--color-primary;
     padding-left: 40px !important;
-    height: 86px;
+    height: 86px !important;
+    line-height: 86px !important;
     font-weight: bold;
 
     &.is-active {

@@ -21,8 +21,7 @@
                 auto-complete="off"
                 prefix-icon="iconfont icon-passwd"
                 placeholder="请输入客户手机号码（选填）"
-                type="password"
-                @keyup.enter="login"
+                @keyup.enter="startService"
             />
             <el-radio-group class="customer-login-form__gender" v-model="formData.gender">
                 <el-radio label="male">先生</el-radio>
@@ -42,10 +41,12 @@
 
 <script lang="ts">
 import { defineComponent, reactive, ref, computed } from "vue";
+import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { formatPlain } from "@/utils/date";
 import AppHeader from "./AppHeader.vue";
+import apiProvider from "@/api/provider";
 
 export default defineComponent({
     name: "CustomerLogin",
@@ -57,17 +58,34 @@ export default defineComponent({
             customerName: "",
             phoneNumber: "",
             gender: "",
+            cid: "",
         });
-
+        const loginLoading = ref(false);
         const isLoginDisabled = computed(() => !formData.customerName);
 
         const store = useStore();
         const router = useRouter();
 
         const startService = () => {
-            router.push("/select-product").then(() => {
-                store.commit("SWITCH-CUSTOMER", formData);
-            });
+            loginLoading.value = true;
+            apiProvider
+                .createCustomer(formData.customerName, formData.phoneNumber)
+                .then((res) => {
+                    if (res.ok) {
+                        formData.cid = res.data || "";
+                        router.push("/select-product").then(() => {
+                            store.commit("SWITCH-CUSTOMER", formData);
+                        });
+                    } else if (res.show) {
+                        ElMessage({
+                            type: res.show,
+                            message: res.msg,
+                        });
+                    }
+                })
+                .finally(() => {
+                    loginLoading.value = false;
+                });
         };
         const onRandomClick = () => {
             formData.customerName = "客户" + formatPlain(new Date());
@@ -75,7 +93,7 @@ export default defineComponent({
         return {
             formData,
             isLoginDisabled,
-            loginLoading: false,
+            loginLoading,
             startService,
             onRandomClick,
         };

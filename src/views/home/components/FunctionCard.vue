@@ -1,5 +1,5 @@
 <template>
-    <div class="function-card clickable">
+    <div class="function-card u-clickable">
         <i class="function-card__icon iconfont" :class="'icon-' + icon" :style="iconStyle"></i>
         <div class="function-card__name">
             <div>{{ functionName }}</div>

@@ -2,15 +2,19 @@
 export interface AjaxResponse<T> {
     status: number; // HTTP status code
     ok: boolean; // 此次请求的结果是 success 还是 error
-    data: T; // 服务器返回的实际数据
-    toastMsg?: string; // reserved
-    errorMsg?: string; // reserved
+    data?: T; // 服务器返回的实际数据
+    msg?: string; // 要显示的信息
+    show?: "warning" | "error" | "success" | "info" | false; // 显示的方式
 }
 
 export interface LoginResult {
     uid: number;
     token: string;
 }
+// export interface CaptchaResult {
+//     uuid: number;
+//     img: string;
+// }
 
 export interface Product {
     name: string;
@@ -30,10 +34,23 @@ export interface ProductCategory extends Category {
     children: Category[];
 }
 
-// export interface CaptchaResult {
-//     uuid: number;
-//     img: string;
-// }
+export interface Customer {
+    cid: string;
+    name: string;
+    phone?: string;
+}
+
+export interface Scheme {
+    name: string;
+    customer: string;
+    product: string;
+    pid: number;
+    manifest: string;
+    composition: string;
+    offer: string;
+    ptime: string;
+    cover: [string, string, string];
+}
 
 export default interface ApiProvider {
     /**
@@ -55,4 +72,20 @@ export default interface ApiProvider {
      * @param cid 商品分类 id
      */
     requestProducts(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Product[]>>;
+
+    /**
+     * 创建一个客户
+     * @param name 用户名
+     * @param phone 用户手机
+     * @returns 用户id
+     */
+    createCustomer(name: string, phone?: string): Promise<AjaxResponse<string>>;
+
+    requestCustomerList(uid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Customer[]>>;
+
+    /**
+     * 获取某客户的方案列表
+     * @param cid 客户 id
+     */
+    requestSchemes(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Scheme[]>>;
 }
