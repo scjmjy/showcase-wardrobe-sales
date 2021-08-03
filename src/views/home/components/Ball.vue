@@ -30,7 +30,7 @@ export default defineComponent({
     }
 
     to {
-        transform: scale(1.05) translate(10%, 10%);
+        transform: scale(1.1) translate(10%, 10%);
     }
 }
 

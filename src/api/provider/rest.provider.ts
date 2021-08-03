@@ -3,9 +3,6 @@ import { AjaxResponse, LoginResult } from "../interface/provider.interface";
 import LocalProvider from "./local.provider";
 
 export default class RestProvider extends LocalProvider {
-    constructor(parameters?: any) {
-        super(parameters)
-    }
     login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>> {
         return new Promise((resolve, reject) => {
             request({
@@ -28,7 +25,7 @@ export default class RestProvider extends LocalProvider {
                         },
                     });
                 })
-                .catch((err?) => {
+                .catch(() => {
                     reject({
                         showMsg: "登录错误",
                     });

@@ -1,9 +1,8 @@
 <template>
-    <div class="product-card clickable">
-        <el-image class="product-card__img" :src="img" fit="contain"></el-image>
-        <div class="product-card__right">
-            <div>{{ productName }}</div>
-        </div>
+    <div class="product-card">
+        <el-image class="product-card__img" :src="cover" fit="cover"></el-image>
+        <div class="product-card__name">{{ productName }}</div>
+        <el-button class="product-card__btn" type="primary" size="small" round @click="onBtnClick">开始定制</el-button>
     </div>
 </template>
 
@@ -12,7 +11,7 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
     props: {
-        img: {
+        cover: {
             type: String,
             default: "",
         },
@@ -21,26 +20,42 @@ export default defineComponent({
             default: "",
         },
     },
-    setup() {
-        return {};
+    emits: ["detail"],
+    setup(props, context) {
+        return {
+            onBtnClick() {
+                context.emit("detail", props.productName);
+            },
+        };
     },
 });
 </script>
 
 <style scoped lang="scss">
 .product-card {
+    position: relative;
     display: inline-flex;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
 
-    vertical-align: top;
-    padding: 15px;
-    border-radius: 4px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-
-    margin: 5px;
     &__img {
-        width: 80px;
-        height: 80px;
+        width: 322px;
+        height: 316px;
+    }
+    &__name {
+        position: absolute;
+        left: 14px;
+        top: 280px;
+        font-size: 22px;
+        color: white;
+    }
+    &__btn {
+        margin: 16px auto;
+        width: 135px;
     }
 }
 </style>

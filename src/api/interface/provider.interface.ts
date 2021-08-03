@@ -12,6 +12,24 @@ export interface LoginResult {
     token: string;
 }
 
+export interface Product {
+    name: string;
+    manifest: string;
+    compostion: string;
+    description: string;
+    cover: string;
+}
+
+export interface Category {
+    id: string | number;
+    name: string;
+    icon: string;
+}
+
+export interface ProductCategory extends Category {
+    children: Category[];
+}
+
 // export interface CaptchaResult {
 //     uuid: number;
 //     img: string;
@@ -30,4 +48,11 @@ export default interface ApiProvider {
     // getCaptchaImage(): Promise<AjaxResponse<CaptchaResult>>;
 
     // requestGlobalConfig(): Promise<AjaxResponse<ConfigResult>>;
+
+    requestProductCategories(): Promise<AjaxResponse<ProductCategory[]>>;
+    /**
+     * 获取某个商品分类下的商品列表，分页
+     * @param cid 商品分类 id
+     */
+    requestProducts(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Product[]>>;
 }
