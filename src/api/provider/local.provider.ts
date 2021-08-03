@@ -69,7 +69,7 @@ export default class LocalProvider implements ApiProvider {
     requestCustomerList(uid: string | number, page?: number, pageSize?: number): Promise<AjaxResponse<Customer[]>> {
         throw new Error("Method not implemented.");
     }
-    requestSchemes(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Scheme[]>> {
+    requestSchemes(cid: string | number, page = 1, pageSize =1): Promise<AjaxResponse<Scheme[]>> {
         return Promise.resolve({
             status: 200,
             ok: true,
