@@ -22,7 +22,7 @@
                 prefix-icon="iconfont icon-passwd"
                 placeholder="请输入客户手机号码（选填）"
                 type="password"
-                @keyup.enter="login"
+                @keyup.enter="startService"
             />
             <el-radio-group class="customer-login-form__gender" v-model="formData.gender">
                 <el-radio label="male">先生</el-radio>
