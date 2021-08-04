@@ -9,6 +9,12 @@
     border-left-color: transparent !important;
     border-right-color: transparent !important;
 }
+
+.el-radio__inner::after {
+    width: 8px;
+    height: 8px;
+}
+
 .el-menu {
     --el-menu-background-color: var(--el-color-primary);
     --el-menu-item-font-size: 26px;
@@ -18,7 +24,7 @@
 }
 .el-menu-item {
     background-color: $--color-primary;
-    padding-left: 40px !important;
+    padding-left: 30px !important;
     height: 86px !important;
     line-height: 86px !important;
     font-weight: bold;
@@ -27,4 +33,25 @@
         color: $--color-primary;
         background-color: white;
     }
+}
+
+$darkColor: #172021;
+
+.el-button--dark.is-active {
+    background: white !important;
+    border-color: $darkColor !important;
+    color: $darkColor !important;
+}
+
+.el-button--dark:focus,
+.el-button--dark:hover {
+    background: white !important;
+    border-color: $darkColor !important;
+    color: $darkColor !important;
+}
+
+.el-button--dark {
+    color: #fff !important;
+    background-color: $darkColor !important;
+    border-color: $darkColor !important;
 }

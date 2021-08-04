@@ -61,6 +61,7 @@ export default interface ApiProvider {
      * @param uuid 图片验证服务返回给前端的uuid，再次传给服务器
      */
     login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>>;
+    logout(): Promise<AjaxResponse<string>>;
 
     // getCaptchaImage(): Promise<AjaxResponse<CaptchaResult>>;
 

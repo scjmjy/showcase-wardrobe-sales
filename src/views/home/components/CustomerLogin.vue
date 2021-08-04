@@ -2,7 +2,7 @@
     <div class="customer-login">
         <app-header />
         <div class="customer-login-form">
-            <div class="customer-login-form__title">客户接待</div>
+            <div class="customer-login-form__title">新客户接待</div>
             <el-input
                 v-model="formData.customerName"
                 class="customer-login-form__input"

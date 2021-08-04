@@ -12,7 +12,7 @@ $--colors: () !default;
 $--colors: map.deep-merge(
     (
         "white": #ffffff,
-        "black": #000000,
+        "black": #172021,
         "primary": (
             "base": #5eb6b3,
         ),
@@ -61,6 +61,26 @@ $--button-font-size: map.merge(
   $--button-font-size
 );
 
+
+// $--button: () !default;
+
+// @each $type in (dark) {
+//   $--button: map.deep-merge(
+//     $--button,
+//     (
+//       'border-color': (
+//         $type: map.get($--colors, $type, 'base'),
+//       ),
+//       'font-color': (
+//         $type: map.get($--colors, 'white'),
+//       ),
+//       'background-color': (
+//         $type: map.get($--colors, $type, 'base'),
+//       ),
+//     )
+//   ) !global;
+// }
+
 // border
 // $--border-style-base: none none solid !default;
 
@@ -71,11 +91,6 @@ $--radio-input-height: 28px;
 /* icon font path, required */
 $--font-path: "~element-plus/lib/theme-chalk/fonts";
 @import "~element-plus/packages/theme-chalk/src/index";
-
-.el-radio__inner::after {
-    width: 8px;
-    height: 8px;
-}
 
 :export {
     colorPrimary: $--color-primary;

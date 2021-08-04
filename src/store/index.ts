@@ -4,17 +4,18 @@ import { Customer, User } from "@/api/dto/user";
 
 export default createStore({
     state: {
-        user: new User(),
+        user: User.load(),
         currentCustomer: new Customer(),
     },
     getters: {
         isLoggedIn: (state) => Boolean(state.user.userId),
         isServing: (state) => Boolean(state.currentCustomer.customerId),
+        token: (state) => state.user.token,
     },
     mutations: {
         "SWITCH-CUSTOMER"(state, payload) {
             if (payload) {
-                state.currentCustomer.customerId = "11111";
+                state.currentCustomer.customerId = payload.cid;
                 state.currentCustomer.customerName = payload.customerName;
                 state.currentCustomer.phoneNumber = payload.phoneNumber;
             } else {
@@ -29,6 +30,7 @@ export default createStore({
             } else {
                 state.user = new User();
             }
+            state.user.save();
         },
     },
     actions: {
@@ -64,9 +66,11 @@ export default createStore({
         //             });
         //     });
         // },
-        logout({ state, commit, dispatch }) {
-            commit("SET-USER", undefined);
-            return Promise.resolve();
+        logout({ commit }) {
+            return apiProvider.logout().then(() => {
+                commit("SET-USER", undefined);
+                return "ok";
+            });
         },
     },
     modules: {},

@@ -18,6 +18,13 @@ export default class LocalProvider implements ApiProvider {
             },
         });
     }
+    logout(): Promise<AjaxResponse<string>> {
+        return Promise.resolve({
+            status: 200,
+            ok: true,
+            data: "logout success",
+        });
+    }
     // getCaptchaImage(): Promise<AjaxResponse<CaptchaResult>> {
     //     return Promise.resolve({
     //         status: 200,
@@ -69,7 +76,7 @@ export default class LocalProvider implements ApiProvider {
     requestCustomerList(uid: string | number, page?: number, pageSize?: number): Promise<AjaxResponse<Customer[]>> {
         throw new Error("Method not implemented.");
     }
-    requestSchemes(cid: string | number, page = 1, pageSize =1): Promise<AjaxResponse<Scheme[]>> {
+    requestSchemes(cid: string | number, page = 1, pageSize = 1): Promise<AjaxResponse<Scheme[]>> {
         return Promise.resolve({
             status: 200,
             ok: true,

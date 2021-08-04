@@ -1,3 +1,4 @@
+import store from "@/store";
 import request from "@/utils/request";
 import { AjaxResponse, Customer, LoginResult } from "../interface/provider.interface";
 import LocalProvider from "./local.provider";
@@ -26,8 +27,34 @@ export default class RestProvider extends LocalProvider {
                     });
                 })
                 .catch(() => {
-                    reject({
-                        showMsg: "登录错误",
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "登录错误",
+                    });
+                });
+        });
+    }
+    logout(): Promise<AjaxResponse<string>> {
+        return new Promise((resolve) => {
+            request({
+                method: "GET",
+                url: "/api/v1/user/logout/" + store.state.user.userId,
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: "登出成功",
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "登出错误",
                     });
                 });
         });
