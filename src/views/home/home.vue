@@ -55,21 +55,20 @@ export default defineComponent({
     &__tabs {
         height: 100%;
     }
-    ::v-deep .el-tabs {
+    :deep(.el-tabs) {
         display: flex;
         flex-direction: column;
+    }
+    :deep(.el-tabs__content) {
+        flex: 1;
 
-        &__content {
-            flex: 1;
-
-            & .el-tab-pane {
-                height: 100%;
-            }
+        & .el-tab-pane {
+            height: 100%;
         }
-        &__item {
-            height: 100px;
-            font-size: 40px;
-        }
+    }
+    :deep(.el-tabs__item) {
+        height: 100px;
+        font-size: 40px;
     }
 }
 </style>

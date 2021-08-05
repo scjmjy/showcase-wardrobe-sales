@@ -3,8 +3,8 @@
 @use "sass:map";
 
 .el-tag {
-  --el-tag-font-size: 16px;
-  --el-tag-border-radius: 20px;
+    --el-tag-font-size: 16px;
+    --el-tag-border-radius: 20px;
 }
 
 // colors
@@ -12,7 +12,7 @@ $--colors: () !default;
 $--colors: map.deep-merge(
     (
         "white": #ffffff,
-        "black": #000000,
+        "black": #172021,
         "primary": (
             "base": #5eb6b3,
         ),
@@ -38,16 +38,48 @@ $--colors: map.deep-merge(
 // font-size
 $--font-size: () !default;
 $--font-size: map.merge(
-  (
-    'extra-large': 28px,
-    'large': 26px,
-    'medium': 24px,
-    'base': 22px,
-    'small': 21px,
-    'extra-small': 20px,
-  ),
-  $--font-size
+    (
+        "extra-large": 28px,
+        "large": 26px,
+        "medium": 24px,
+        "base": 22px,
+        "small": 21px,
+        "extra-small": 20px,
+    ),
+    $--font-size
 );
+
+// button
+$--button-font-size: () !default;
+$--button-font-size: map.merge(
+  (
+    'default': map.get($--font-size, 'base'),
+    'medium': map.get($--font-size, 'base'),
+    'small': 18px,
+    'mini': 14px,
+  ),
+  $--button-font-size
+);
+
+
+// $--button: () !default;
+
+// @each $type in (dark) {
+//   $--button: map.deep-merge(
+//     $--button,
+//     (
+//       'border-color': (
+//         $type: map.get($--colors, $type, 'base'),
+//       ),
+//       'font-color': (
+//         $type: map.get($--colors, 'white'),
+//       ),
+//       'background-color': (
+//         $type: map.get($--colors, $type, 'base'),
+//       ),
+//     )
+//   ) !global;
+// }
 
 // border
 // $--border-style-base: none none solid !default;
@@ -60,8 +92,6 @@ $--radio-input-height: 28px;
 $--font-path: "~element-plus/lib/theme-chalk/fonts";
 @import "~element-plus/packages/theme-chalk/src/index";
 
-
-.el-radio__inner::after {
-    width: 8px;
-    height: 8px;
+:export {
+    colorPrimary: $--color-primary;
 }

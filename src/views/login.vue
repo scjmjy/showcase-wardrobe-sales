@@ -18,7 +18,7 @@
                 type="password"
                 @keyup.enter="login"
             />
-            <div class="clearfix">
+            <div class="u-clearfix">
                 <el-link class="login-form__forgot" type="primary" @click.prevent="onForgotClick">忘记密码</el-link>
             </div>
             <button

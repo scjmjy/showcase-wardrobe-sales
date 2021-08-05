@@ -1,7 +1,18 @@
 <template>
     <div class="select-product">
-        <div class="select-product__title">请选择商品，开始定制</div>
-        <el-tabs class="select-product__tabs" tab-position="left">
+        <app-header class="select-product__header" type="dark" />
+        <prod-cat-menu class="select-product__menu" @select="onProdCatSelect" />
+        <el-row class="select-product__products" :gutter="20" justify="space-between">
+            <el-col
+                v-for="(p, index) in products"
+                :key="index"
+                :span="8"
+                style="text-align: center; padding-top: 10px; padding-bottom: 10px"
+            >
+                <product-card :productName="p.name" :cover="p.cover" @detail="onProductClick(p)" />
+            </el-col>
+        </el-row>
+        <!-- <el-tabs class="select-product__tabs" tab-position="left">
             <el-tab-pane v-for="(c, index) of products" :key="index" :label="c.categoryName">
                 <product-card
                     v-for="(p, index2) of c.products"
@@ -13,38 +24,41 @@
             </el-tab-pane>
         </el-tabs>
 
-        <el-button icon="el-icon-arrow-left" @click="onBackClick" />
+        <el-button icon="el-icon-arrow-left" @click="onBackClick" /> -->
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive } from "vue";
 import { useRouter } from "vue-router";
+import apiProvider from "@/api/provider";
+import ProdCatMenu from "./components/ProdCatMenu.vue";
 import ProductCard from "./components/ProductCard.vue";
+import AppHeader from "../home/components/AppHeader.vue";
+import { Product } from "@/api/interface/provider.interface";
 
 export default defineComponent({
     name: "SelectProduct",
     components: {
         ProductCard,
+        ProdCatMenu,
+        AppHeader,
     },
     setup() {
-        const products = new Array(10).fill(0).map((val, index) => {
-            return {
-                categoryName: "分类" + index,
-                products: new Array(10).fill(0).map((val2, index2) => ({
-                    id: "" + index + index2,
-                    name: "产品" + index + index2,
-                    img: "https://picsum.photos/300/300?random=" + index + index2,
-                })),
-            };
-        });
-
         const router = useRouter();
+        const products = reactive([] as Product[]);
 
         return {
-            products: reactive(products),
+            products,
             onBackClick() {
                 router.back();
+            },
+            onProdCatSelect(cid: string) {
+                apiProvider.requestProducts(cid).then((res) => {
+                    if (res.ok) {
+                        products.splice(0, products.length, ...(res.data || []));
+                    }
+                });
             },
             onProductClick(product: any) {
                 router.push({
@@ -60,10 +74,19 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+@import "~@/assets/scss/element-variables.scss";
 .select-product {
-    &__title {
-        font-size: 30px;
-        font-weight: bold;
+    display: flex;
+    position: relative;
+    height: 100%;
+    padding-top: 70px;
+    overflow: hidden;
+    &__menu {
+        width: 233px;
+    }
+    &__products {
+        flex: 1;
+        overflow-y: auto;
     }
 }
 </style>

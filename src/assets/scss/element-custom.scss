@@ -1,3 +1,5 @@
+@import "./element-variables.scss";
+
 .el-input--prefix .el-input__inner {
     padding-left: 45px !important;
 }
@@ -6,4 +8,50 @@
     border-top-color: transparent !important;
     border-left-color: transparent !important;
     border-right-color: transparent !important;
+}
+
+.el-radio__inner::after {
+    width: 8px;
+    height: 8px;
+}
+
+.el-menu {
+    --el-menu-background-color: var(--el-color-primary);
+    --el-menu-item-font-size: 26px;
+    --el-menu-item-font-color: white;
+    --el-text-color-secondary: white;
+    --el-menu-item-hover-fill: var(--el-color-primary-light-3);
+}
+.el-menu-item {
+    background-color: $--color-primary;
+    padding-left: 30px !important;
+    height: 86px !important;
+    line-height: 86px !important;
+    font-weight: bold;
+
+    &.is-active {
+        color: $--color-primary;
+        background-color: white;
+    }
+}
+
+$darkColor: #172021;
+
+.el-button--dark.is-active {
+    background: white !important;
+    border-color: $darkColor !important;
+    color: $darkColor !important;
+}
+
+.el-button--dark:focus,
+.el-button--dark:hover {
+    background: white !important;
+    border-color: $darkColor !important;
+    color: $darkColor !important;
+}
+
+.el-button--dark {
+    color: #fff !important;
+    background-color: $darkColor !important;
+    border-color: $darkColor !important;
 }
