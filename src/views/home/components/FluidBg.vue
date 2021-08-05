@@ -27,6 +27,7 @@ export default defineComponent({
     z-index: -1;
     background-color: #0cc3c0;
     clip-path: ellipse(100% 100% at 50% 0%);
+    overflow: hidden;
 
     &__ball-1 {
         position: absolute;

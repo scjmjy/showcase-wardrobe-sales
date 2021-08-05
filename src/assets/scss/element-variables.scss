@@ -31,9 +31,14 @@ $--colors: map.deep-merge(
         "info": (
             "base": #909399,
         ),
+        "bg": (
+            "base": #f8f8f8,
+        ),
     ),
     $--colors
 );
+
+$--color-bg: map.get($--colors, "bg", "base");
 
 // font-size
 $--font-size: () !default;
@@ -52,15 +57,14 @@ $--font-size: map.merge(
 // button
 $--button-font-size: () !default;
 $--button-font-size: map.merge(
-  (
-    'default': map.get($--font-size, 'base'),
-    'medium': map.get($--font-size, 'base'),
-    'small': 18px,
-    'mini': 14px,
-  ),
-  $--button-font-size
+    (
+        "default": map.get($--font-size, "base"),
+        "medium": map.get($--font-size, "base"),
+        "small": 18px,
+        "mini": 14px,
+    ),
+    $--button-font-size
 );
-
 
 // $--button: () !default;
 

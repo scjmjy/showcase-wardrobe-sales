@@ -87,6 +87,7 @@ export default defineComponent({
     &__products {
         flex: 1;
         overflow-y: auto;
+        background-color: $--color-bg;
     }
 }
 </style>

@@ -31,7 +31,7 @@
 
     &.is-active {
         color: $--color-primary;
-        background-color: white;
+        background-color: $--color-bg;
     }
 }
 

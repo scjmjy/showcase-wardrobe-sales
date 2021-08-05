@@ -44,12 +44,12 @@ export default defineComponent({
 
     &__img {
         width: 322px;
-        height: 316px;
+        height: 256px;
     }
     &__name {
         position: absolute;
         left: 14px;
-        top: 280px;
+        top: 220px;
         font-size: 22px;
         color: white;
     }

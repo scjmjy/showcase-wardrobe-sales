@@ -40,8 +40,8 @@ export default defineComponent({
     align-items: center;
     overflow: hidden;
 
-    width: 322px;
-    height: 462px;
+    width: 300px;
+    height: 334px;
 
     background: #ffffff;
     box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.08);

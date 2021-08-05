@@ -74,8 +74,12 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+@import "~@/assets/scss/element-variables.scss";
+
 .my {
+    background-color: $--color-bg;
     &__info {
+        z-index: 1;
         display: flex;
         position: relative;
         padding: 86px 51px 181px;
@@ -119,6 +123,7 @@ export default defineComponent({
         }
     }
     &__functions {
+        z-index: 2;
         position: relative;
         background: white;
         box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.13);
@@ -127,7 +132,7 @@ export default defineComponent({
         margin-left: auto;
         margin-right: auto;
         margin-top: -122px;
-        padding: 60px 120px;
+        padding: 50px 120px;
     }
 }
 </style>

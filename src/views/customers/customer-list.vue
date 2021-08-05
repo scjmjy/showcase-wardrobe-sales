@@ -12,14 +12,14 @@
                 <el-col
                     v-for="(s, index) in schemes"
                     :key="index"
-                    :span="8"
+                    :span="colSpan"
                     style="text-align: center; padding-top: 10px; padding-bottom: 10px"
                 >
-                    <scheme-card :cover="s.cover" :name="s.name" />
+                    <scheme-card :cover="s.cover" :name="s.name" @detail="gotoDetail(s)" />
                 </el-col>
                 <el-col
                     v-if="!showServeBtn"
-                    :span="8"
+                    :span="colSpan"
                     style="text-align: center; padding-top: 10px; padding-bottom: 10px"
                 >
                     <new-scheme-card @click="newScheme" />
@@ -80,6 +80,7 @@ export default defineComponent({
             schemes,
             customerId,
             showServeBtn,
+            colSpan: computed(() => (props.menu ? 8 : 6)),
             onBackClick() {
                 router.back();
             },
@@ -95,16 +96,18 @@ export default defineComponent({
                 }
             },
             newScheme() {
-                console.log("【newScheme】");
+                router.push({
+                    path: "/select-product"
+                });
             },
-            // onProductClick(product: any) {
-            //     router.push({
-            //         path: "/product-detail",
-            //         query: {
-            //             productId: product.id,
-            //         },
-            //     });
-            // },
+            gotoDetail(scheme: Scheme) {
+                router.push({
+                    path: "/product-detail",
+                    query: {
+                        schemeId: scheme.id,
+                    },
+                });
+            },
         };
     },
 });
@@ -125,6 +128,7 @@ export default defineComponent({
         flex: 1;
         overflow-y: auto;
         padding: 20px;
+        background-color: $--color-bg;
     }
     &__info {
         display: flex;

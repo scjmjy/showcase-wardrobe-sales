@@ -17,6 +17,7 @@ export interface LoginResult {
 // }
 
 export interface Product {
+    id: string;
     name: string;
     manifest: string;
     compostion: string;
@@ -41,7 +42,9 @@ export interface Customer {
 }
 
 export interface Scheme {
+    id: string;
     name: string;
+    cid: string;
     customer: string;
     product: string;
     pid: number;
@@ -74,6 +77,8 @@ export default interface ApiProvider {
      */
     requestProducts(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Product[]>>;
 
+    requestProductDetail(pid: string | number): Promise<AjaxResponse<Product>>;
+
     /**
      * 创建一个客户
      * @param name 用户名
@@ -89,4 +94,6 @@ export default interface ApiProvider {
      * @param cid 客户 id
      */
     requestSchemes(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Scheme[]>>;
+
+    requestSchemeDetail(sid: string | number): Promise<AjaxResponse<Scheme>>;
 }
