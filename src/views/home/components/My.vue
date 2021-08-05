@@ -30,7 +30,7 @@
                     <function-card functionName="帮助手册" icon="manual" color="#FFBB00" @click="gotoXXX" />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="设置" icon="settings" color="#0073FF" @click="gotoXXX" />
+                    <function-card functionName="设置" icon="settings-fill" color="#0073FF" @click="gotoXXX" />
                 </el-col>
                 <div style="width: 100%; height: 30px"></div>
                 <el-col v-for="index in 4" :key="index" :span="6" style="text-align: center">
