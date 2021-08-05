@@ -1,0 +1,12 @@
+html,
+body,
+div {
+	box-sizing: border-box;
+}
+
+button,
+button:focus,
+button:active {
+    border: none;
+    outline: none;
+}

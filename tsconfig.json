@@ -12,6 +12,10 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
+      "babylonjs",
+      "babylonjs-gui",
+      "babylonjs-materials",
+      "babylonjs-serializers",
       "webpack-env"
     ],
     "paths": {
@@ -31,7 +35,7 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "tests/**/*.tsx",
   ],
   "exclude": [
     "node_modules"
