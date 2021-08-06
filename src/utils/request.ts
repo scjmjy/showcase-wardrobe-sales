@@ -1,7 +1,6 @@
 import axios from "axios";
 import store from "@/store";
 import { ElMessage } from "element-plus";
-import { getToken } from "./token";
 import debounce from "@/utils/debounce";
 // create an axios instance
 const service = axios.create({
@@ -12,7 +11,7 @@ const service = axios.create({
 
 service.interceptors.request.use(
     (config) => {
-        const token = store.getters.token || getToken();
+        const token = store.getters.token;
         if (token) {
             config.headers["token"] = token;
         }

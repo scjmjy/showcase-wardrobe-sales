@@ -1,17 +1,17 @@
-.flex-row {
+.u-flex-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.flex-col {
+.u-flex-col {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     // align-items: center;
 }
 
-.clickable {
+.u-clickable {
     cursor: pointer;
     transition: transform 0.3s ease-out;
     &:hover {
@@ -22,7 +22,7 @@
     }
 }
 
-.clearfix {
+.u-clearfix {
     &:after {
         visibility: hidden;
         display: block;
@@ -33,7 +33,47 @@
     }
 }
 
-.circle {
+.u-circle {
     border-radius: 50%;
+    border: 2px solid white;
     overflow: hidden;
+}
+
+
+.u-line-multi {
+  white-space: pre-line;
+}
+
+/* start--文本行数限制--start */
+.u-line-1 {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.u-line-2 {
+  -webkit-line-clamp: 2;
+}
+
+.u-line-3 {
+  -webkit-line-clamp: 3;
+}
+
+.u-line-4 {
+  -webkit-line-clamp: 4;
+}
+
+.u-line-5 {
+  -webkit-line-clamp: 5;
+}
+
+.u-line-2,
+.u-line-3,
+.u-line-4,
+.u-line-5 {
+  overflow: hidden;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  display: -webkit-box; // 弹性伸缩盒
+  -webkit-box-orient: vertical; // 设置伸缩盒子元素排列方式
 }

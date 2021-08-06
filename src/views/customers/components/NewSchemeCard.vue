@@ -1,8 +1,7 @@
 <template>
-    <div class="product-card">
-        <el-image class="product-card__img" :src="cover" fit="cover"></el-image>
-        <div class="product-card__name">{{ productName }}</div>
-        <el-button class="product-card__btn" type="primary" size="small" round @click="onBtnClick">开始定制</el-button>
+    <div class="new-scheme-card">
+        <el-button class="new-scheme-card__add" type="text" icon="el-icon-circle-plus-outline"></el-button>
+        <el-button class="new-scheme-card__text" type="text">创建定制方案</el-button>
     </div>
 </template>
 
@@ -10,12 +9,13 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
+    name: "NewSchemeCard",
     props: {
         cover: {
             type: String,
             default: "",
         },
-        productName: {
+        name: {
             type: String,
             default: "",
         },
@@ -24,7 +24,7 @@ export default defineComponent({
     setup(props, context) {
         return {
             onBtnClick() {
-                context.emit("detail", props.productName);
+                context.emit("detail", props.name);
             },
         };
     },
@@ -32,30 +32,27 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.product-card {
+.new-scheme-card {
     position: relative;
     display: inline-flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
     overflow: hidden;
+
+    width: 300px;
+    height: 334px;
+
     background: #ffffff;
     box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.08);
     border-radius: 10px;
 
-    &__img {
-        width: 322px;
-        height: 256px;
+    &__add {
+        font-size: 134px !important;
     }
-    &__name {
-        position: absolute;
-        left: 14px;
-        top: 220px;
-        font-size: 22px;
-        color: white;
-    }
-    &__btn {
-        margin: 16px auto;
-        width: 135px;
+
+    &__text {
+        margin-top: 40px;
     }
 }
 </style>
