@@ -16,7 +16,8 @@
  *
  */
 
-import { StSketchVector, StSketchRect } from "../geometry/st_geometric_2d";
+import { StSketchRect } from "../geometry/st_geometric_2d";
+import { StVector } from "../geometry/st_vector_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StContainerType, StDoorType, StPulloutType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
@@ -139,25 +140,25 @@ interface StILevel extends StIModel {
 }
 
 interface StICube extends StIModel {
-    /**
-     * @deprecated  by StIRectArea
-     */
-    createLevel(offset_y: number): void;
+    // /**
+    //  * @deprecated  by StIRectArea
+    //  */
+    // createLevel(offset_y: number): void;
 
-    /**
-     * @deprecated  by StIRectArea
-     */
-    setLevelOffset(level_id: string, offset_y: number): void;
+    // /**
+    //  * @deprecated  by StIRectArea
+    //  */
+    // setLevelOffset(level_id: string, offset_y: number): void;
 
-    /**
-     * @deprecated  by StIRectArea
-     */
-    deleteLevel(level_id: string): void;
+    // /**
+    //  * @deprecated  by StIRectArea
+    //  */
+    // deleteLevel(level_id: string): void;
 
-    /**
-     * @deprecated  by StIRectArea
-     */
-    deleteDivision(div_id: string): void;
+    // /**
+    //  * @deprecated  by StIRectArea
+    //  */
+    // deleteDivision(div_id: string): void;
 
     changeTexture(txt_id: string): void;
 

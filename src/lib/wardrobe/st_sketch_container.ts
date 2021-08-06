@@ -14,6 +14,9 @@ import { StContainerType } from "../utility/st_sketch_type";
 import { StIModel } from "./st_model_interface";
 import { StModel } from "./st_model_object";
 
+/**
+ * @deprecated [2021-8-6] currently, NOT used. Adding board in cube.
+ */
 export class StSketchContainer extends StObject implements StIRectArea {
     /**
      * The whole rectangle of this container

@@ -29,6 +29,7 @@ interface StIMesh {
     getPosition(): StPoint3;
 
     deleteMesh(): void;
+    getMeshId(): string;
 
     /**
      * @todo NOT implemented

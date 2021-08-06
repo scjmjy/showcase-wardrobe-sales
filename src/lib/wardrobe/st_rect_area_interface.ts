@@ -7,18 +7,19 @@
  *
  */
 
-import { StPoint, StSketchLine, StSketchRect } from "../geometry/st_geometric_2d";
+import { StSketchPoint, StSketchLine, StSketchRect } from "../geometry/st_geometric_2d";
 import { StContainerType } from "../utility/st_sketch_type";
 import { StIModel } from "./st_model_interface";
 
 /**
  * A rectangle area (v0.2), which is divided by both horizonal and vertical lines.
  *
+ * @deprecated [2021-8-6] currently, NOT used. Adding board in cube.
  */
 export interface StIRectArea {
     rect: StSketchRect;
 
-    selectPoint(edge: StSketchLine, offset: number): StPoint;
+    selectPoint(edge: StSketchLine, offset: number): StSketchPoint;
 
     /**
      *
@@ -27,7 +28,7 @@ export interface StIRectArea {
      *
      * return the ID of the line(board) model
      */
-    addBoard(p0: StPoint, p1: StPoint): string;
+    addBoard(p0: StSketchPoint, p1: StSketchPoint): string;
 
     // REASON: a vertical board may go through the crossing horizonal board, and vice versa.
     //
