@@ -21,3 +21,13 @@ export class StObject {
 export class StUuidObject extends StObject {
     readonly uuid = uuidv4();
 }
+
+class StSketchUtil {
+    assert(condition: boolean, msg?: string) {
+        if (!condition) {
+            throw Error(msg);
+        }
+    }
+}
+
+export const sketchUtil = new StSketchUtil();

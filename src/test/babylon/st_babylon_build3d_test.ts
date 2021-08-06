@@ -1,5 +1,6 @@
 import { StBabylonBuild3d } from "@/lib/babylonjs/st_babylon_build3d";
-import { StSketchVector, StSketchRect } from "@/lib/geometry/st_geometric_2d";
+import { StSketchPoint, StSketchRect } from "@/lib/geometry/st_geometric_2d";
+import { StVector } from "@/lib/geometry/st_vector_2d";
 import { StSketchVector3 } from "@/lib/geometry/st_geometric_3d";
 import { StMaterial } from "@/lib/utility/st_material";
 
@@ -11,7 +12,7 @@ export class StBabylonBuild3dTest {
      */
     createBox_setPivotPoint(scene: BABYLON.Scene): string {
         const build3d = new StBabylonBuild3d({ scene: scene });
-        const rect = StSketchRect.buildRectByStartPoint(new StSketchVector(0, 0), 400, 200);
+        const rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(0, 0), 400, 200);
         const depth = 20;
         const trans = new StSketchVector3(rect.a / 2, rect.b / 2, depth / 2);
 
@@ -73,7 +74,7 @@ export class StBabylonBuild3dTest {
 
     createBox_1(scene: BABYLON.Scene): string {
         const build3d = new StBabylonBuild3d({ scene: scene });
-        const rect = StSketchRect.buildRectByStartPoint(new StSketchVector(0, 0), 400, 200);
+        const rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(0, 0), 400, 200);
         const depth = 20;
         const trans = new StSketchVector3(rect.a / 2, rect.b / 2, depth / 2);
 
@@ -111,7 +112,7 @@ export class StBabylonBuild3dTest {
 
     createBox_2(scene: BABYLON.Scene): string {
         const build3d = new StBabylonBuild3d({ scene: scene });
-        const rect = StSketchRect.buildRectByStartPoint(new StSketchVector(0, 0), 400, 200);
+        const rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(0, 0), 400, 200);
         const depth = 20;
         {
             console.log("===== Rotate(LOCAL) --> translate(WORLD) =====");

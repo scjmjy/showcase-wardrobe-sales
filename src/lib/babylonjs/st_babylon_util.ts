@@ -10,9 +10,10 @@
  */
 
 import * as geometric from "geometric";
-import { StSketchVector } from "../geometry/st_geometric_2d";
+import { StVector } from "../geometry/st_vector_2d";
 import { StSketchVector3 } from "../geometry/st_geometric_3d";
 import StSketchConstant from "../utility/st_sketch_constant";
+import { StSketchPoint } from "../geometry/st_geometric_2d";
 
 const ST_SCALE_FROM_MM = StSketchConstant.SCALE_FROM_MM;
 
@@ -249,12 +250,13 @@ export default class StBabylonUtil {
     }
 
     /**
-     * SCALE is added
+     * SCALE a list of points to BABYLON Vector3 
      */
-    static toScaledVector3(points: StSketchVector[]): Array<BABYLON.Vector3> {
+    static toScaledVector3(points: StSketchPoint[]): Array<BABYLON.Vector3> {
         const list: BABYLON.Vector3[] = [];
         for (const p of points) {
-            const v = new BABYLON.Vector3(p.x / ST_SCALE_FROM_MM, p.y / ST_SCALE_FROM_MM, 0);
+            const [x, y] = p.toArray();
+            const v = new BABYLON.Vector3(x / ST_SCALE_FROM_MM, y / ST_SCALE_FROM_MM, 0);
             list.push(v);
         }
         return list;

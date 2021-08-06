@@ -45,6 +45,7 @@ abstract class StSketchMesh extends StObject implements StIMesh {
      * mesh is set by createMesh() or loadMesh() in sub-class
      */
     protected mesh?: BABYLON.Mesh;
+    protected meshId?: string;
 
     protected build3d: StIBuild3d;
     protected readonly scene: BABYLON.Scene;
@@ -54,7 +55,6 @@ abstract class StSketchMesh extends StObject implements StIMesh {
      *
      * @param obj
      */
-    //constructor(obj: any);
     constructor(obj: { position: StSketchVector3; space?: BABYLON.Space }) {
         super();
         this.position = obj.position;
@@ -126,6 +126,7 @@ abstract class StSketchMesh extends StObject implements StIMesh {
             this.position.selfAdd(vec);
         }
     }
+
     deleteMesh(): void {
         if (!this.mesh) {
             return;
@@ -134,6 +135,12 @@ abstract class StSketchMesh extends StObject implements StIMesh {
         this.mesh.dispose();
         this.mesh = undefined;
     }
+
+    getMeshId(): string {
+        if(!this.meshId) throw Error("Mesh is NOT created, yet!");
+        return this.meshId;
+    }
+
     getBoundaryBox(): StBoundaryBox {
         if (!this.mesh) {
             throw Error("Mesh is not defined");
