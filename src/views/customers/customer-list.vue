@@ -15,7 +15,7 @@
                     :span="colSpan"
                     style="text-align: center; padding-top: 10px; padding-bottom: 10px"
                 >
-                    <scheme-card :cover="s.cover" :name="s.name" @detail="gotoDetail(s)" />
+                    <scheme-card :offer="!showServeBtn" :scheme="s" @detail="gotoDetail" />
                 </el-col>
                 <el-col
                     v-if="!showServeBtn && customerId"
