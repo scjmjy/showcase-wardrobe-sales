@@ -1,3 +1,3 @@
-import RestProvider from "./rest.provider"
+import RestProvider from "./rest.provider";
 
-export default new RestProvider()
+export default new RestProvider();

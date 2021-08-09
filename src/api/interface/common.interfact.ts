@@ -3,6 +3,7 @@ export interface LabelValue {
     value: string | number;
     disabled?: boolean;
     default?: boolean;
+    selected?: boolean;
 }
 export interface NameValue {
     name: string | number;

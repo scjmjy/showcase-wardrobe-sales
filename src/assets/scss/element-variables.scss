@@ -15,6 +15,7 @@ $--colors: map.deep-merge(
         "black": #172021,
         "primary": (
             "base": #5eb6b3,
+            "dark": #4F9493,
         ),
         "success": (
             "base": #67c23a,
@@ -23,13 +24,13 @@ $--colors: map.deep-merge(
             "base": #e6a23c,
         ),
         "danger": (
-            "base": #f56c6c,
+            "base": #bb4050,
         ),
         "error": (
-            "base": #f56c6c,
+            "base": #bb4050,
         ),
         "info": (
-            "base": #909399,
+            "base": #aeb1b6,
         ),
         "bg": (
             "base": #f8f8f8,
@@ -39,6 +40,7 @@ $--colors: map.deep-merge(
 );
 
 $--color-bg: map.get($--colors, "bg", "base");
+$--color-primary-dark: map.get($--colors, "primary", "dark");
 
 // font-size
 $--font-size: () !default;

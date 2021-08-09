@@ -13,8 +13,10 @@ import store from "./store";
 import router from "./router";
 
 import SvgIcon from "@/assets/icons";
+import ElCollapseTransitionH from "@/components/ElCollapseTransitionH.vue";
 
 const app = createApp(App);
+app.component(ElCollapseTransitionH.name, ElCollapseTransitionH);
 
 app.use(router).use(store).use(ElementPlus).use(SvgIcon).mount("#app");
 

@@ -1,6 +1,6 @@
 <template>
     <div class="customer-list">
-        <app-header class="customer-list__header" type="dark" customer />
+        <app-header class="customer-list__header" type="dark" customer back="返回" />
         <customer-menu v-if="menu" ref="refMenu" class="customer-list__menu" @select="onCustomerSelect" />
         <div class="customer-list__schemes">
             <div v-if="customerId" class="customer-list__info">
@@ -18,7 +18,7 @@
                     <scheme-card :cover="s.cover" :name="s.name" @detail="gotoDetail(s)" />
                 </el-col>
                 <el-col
-                    v-if="!showServeBtn"
+                    v-if="!showServeBtn && customerId"
                     :span="colSpan"
                     style="text-align: center; padding-top: 10px; padding-bottom: 10px"
                 >
@@ -97,7 +97,7 @@ export default defineComponent({
             },
             newScheme() {
                 router.push({
-                    path: "/select-product"
+                    path: "/select-product",
                 });
             },
             gotoDetail(scheme: Scheme) {
@@ -123,6 +123,7 @@ export default defineComponent({
     overflow: hidden;
     &__menu {
         width: 233px;
+        overflow-y: auto;
     }
     &__schemes {
         flex: 1;

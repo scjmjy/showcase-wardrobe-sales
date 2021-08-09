@@ -40,15 +40,18 @@ export default class LocalProvider implements ApiProvider {
         return Promise.resolve({
             status: 200,
             ok: true,
-            data: new Array(10).fill(0).map((val, index) => {
+            data: new Array(9).fill(0).map((val, index) => {
                 return {
                     id: index + "",
                     name: "分类-" + index,
-                    icon: "closet",
-                    children: new Array(10).fill(0).map((val2, index2) => ({
-                        id: "" + index + index2,
-                        name: "子分类-" + index + index2,
-                        icon: "closet",
+                    icon: "drawing-room",
+                    filters: new Array(3).fill(0).map((val2, index2) => ({
+                        key: "风格" + index2,
+                        title: "风格" + index2,
+                        styles: new Array(6).fill(0).map((val3, index3) => ({
+                            label: "风格" + index2 + "-" + index3,
+                            value: "风格" + index2 + "-" + index3,
+                        })),
                     })),
                 };
             }),

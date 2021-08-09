@@ -1,7 +1,7 @@
 <template>
     <div class="select-product">
-        <app-header class="select-product__header" type="dark" />
-        <prod-cat-menu class="select-product__menu" @select="onProdCatSelect" />
+        <app-header class="select-product__header" type="dark" back="退出新方案定制" />
+        <prod-cat-menu class="select-product__menu" @select="onProdCatSelect" @filter="onProdFilter" />
         <el-row class="select-product__products" :gutter="20" justify="space-between">
             <el-col
                 v-for="(p, index) in products"
@@ -68,6 +68,9 @@ export default defineComponent({
                     },
                 });
             },
+            onProdFilter(filters: any) {
+                console.log("【onProdFilter】", filters);
+            },
         };
     },
 });
@@ -82,9 +85,11 @@ export default defineComponent({
     padding-top: 70px;
     overflow: hidden;
     &__menu {
-        width: 233px;
+        // width: 233px;
+        overflow: hidden;
     }
     &__products {
+        margin-left: 0px !important;
         flex: 1;
         overflow-y: auto;
         background-color: $--color-bg;
