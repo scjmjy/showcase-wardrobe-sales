@@ -10,6 +10,9 @@
                 <el-button class="app-header__stop" type="danger" size="small" round @click="stopServe"
                     >结束服务</el-button
                 >
+                <el-button v-if="back" class="app-header__back" type="danger" size="small" round @click="doBack">{{
+                    back
+                }}</el-button>
             </template>
             <template v-else>
                 <i class="app-header__icon iconfont icon-wardrobe" />

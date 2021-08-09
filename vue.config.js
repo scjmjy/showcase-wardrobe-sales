@@ -28,8 +28,7 @@ module.exports = {
     publicPath: "/",
     outputDir: "dist",
     assetsDir: "static",
-    // lintOnSave: process.env.NODE_ENV === "development",
-    lintOnSave: false,
+    lintOnSave: process.env.NODE_ENV === "development",
     productionSourceMap: false,
     devServer: {
         // allowedHosts: ['*'],
@@ -38,7 +37,7 @@ module.exports = {
         open: true,
         overlay: {
             warnings: false,
-            errors: false,
+            errors: true,
         },
         proxy: {
             "/api": {

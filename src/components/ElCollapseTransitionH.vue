@@ -1,19 +1,19 @@
+/* eslint-disable */
 <template>
     <transition v-on="on">
         <slot></slot>
     </transition>
 </template>
 <script lang="ts">
-/* eslint-disable */
 import { defineComponent } from "vue";
-import { addClass, removeClass } from "element-plus/packages/utils/dom";
+import { addClass, removeClass } from "@/utils/dom";
 
 export default defineComponent({
     name: "ElCollapseTransitionH",
     setup() {
         return {
             on: {
-                beforeEnter(el) {
+                beforeEnter(el: HTMLElement) {
                     addClass(el, "horizontal-collapse-transition");
                     // if (!el.dataset) el.dataset = {};
 
@@ -25,7 +25,7 @@ export default defineComponent({
                     el.style.paddingRight = "0";
                 },
 
-                enter(el) {
+                enter(el: HTMLElement) {
                     el.dataset.oldOverflow = el.style.overflow;
                     if (el.scrollWidth !== 0) {
                         el.style.width = el.scrollWidth + "px";
@@ -40,14 +40,14 @@ export default defineComponent({
                     el.style.overflow = "hidden";
                 },
 
-                afterEnter(el) {
+                afterEnter(el: HTMLElement) {
                     // for safari: remove class then reset width is necessary
                     removeClass(el, "horizontal-collapse-transition");
                     el.style.width = "";
                     el.style.overflow = el.dataset.oldOverflow || "";
                 },
 
-                beforeLeave(el) {
+                beforeLeave(el: HTMLElement) {
                     // if (!el.dataset) el.dataset = {};
                     el.dataset.oldPaddingLeft = el.style.paddingLeft;
                     el.dataset.oldPaddingRight = el.style.paddingRight;
@@ -57,7 +57,7 @@ export default defineComponent({
                     el.style.overflow = "hidden";
                 },
 
-                leave(el) {
+                leave(el: HTMLElement) {
                     if (el.scrollWidth !== 0) {
                         // for safari: add class after set width, or it will jump to zero width suddenly, weired
                         addClass(el, "horizontal-collapse-transition");
@@ -70,7 +70,7 @@ export default defineComponent({
                     }
                 },
 
-                afterLeave(el) {
+                afterLeave(el: HTMLElement) {
                     removeClass(el, "horizontal-collapse-transition");
                     el.style.width = "";
                     el.style.overflow = el.dataset.oldOverflow || "";

@@ -73,13 +73,14 @@ export default defineComponent({
     //         default: false,
     //     },
     // },
+    emits: ["select", "filter"],
     setup(props, context) {
         props;
         const defaultActive = ref("" as number | string);
 
         const productCats = reactive([] as ProductCategory[]);
         const currentProdCat = ref<ProductCategory | undefined>();
-        function onProdCatSelect(cid: string) {
+        function onProdCatSelect(cid: string | number) {
             currentProdCat.value = productCats.find((pc) => pc.id === cid);
             context.emit("select", cid);
         }
@@ -88,7 +89,7 @@ export default defineComponent({
                 productCats.push(...(res.data || []));
                 if (productCats.length > 0) {
                     defaultActive.value = productCats[0].id;
-                    onProdCatSelect(defaultActive.value);
+                    onProdCatSelect(defaultActive.value || "");
                 }
             }
         });
