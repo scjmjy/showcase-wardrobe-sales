@@ -1,6 +1,6 @@
 <template>
     <div class="customer-list">
-        <app-header class="customer-list__header" type="dark" customer />
+        <app-header class="customer-list__header" type="dark" customer :back="menu ? '返回' : ''" />
         <customer-menu v-if="menu" ref="refMenu" class="customer-list__menu" @select="onCustomerSelect" />
         <div class="customer-list__schemes">
             <div v-if="customerId" class="customer-list__info">
@@ -15,10 +15,10 @@
                     :span="colSpan"
                     style="text-align: center; padding-top: 10px; padding-bottom: 10px"
                 >
-                    <scheme-card :cover="s.cover" :name="s.name" @detail="gotoDetail(s)" />
+                    <scheme-card :offer="!showServeBtn" :scheme="s" @detail="gotoDetail" />
                 </el-col>
                 <el-col
-                    v-if="!showServeBtn"
+                    v-if="!showServeBtn && customerId"
                     :span="colSpan"
                     style="text-align: center; padding-top: 10px; padding-bottom: 10px"
                 >
@@ -34,7 +34,7 @@ import { computed, defineComponent, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import apiProvider from "@/api/provider";
 import CustomerMenu from "./components/CustomerMenu.vue";
-import AppHeader from "../home/components/AppHeader.vue";
+import AppHeader from "@/views/home/components/AppHeader.vue";
 import { Scheme } from "@/api/interface/provider.interface";
 import SchemeCard from "./components/SchemeCard.vue";
 import NewSchemeCard from "./components/NewSchemeCard.vue";
@@ -97,7 +97,7 @@ export default defineComponent({
             },
             newScheme() {
                 router.push({
-                    path: "/select-product"
+                    path: "/select-product",
                 });
             },
             gotoDetail(scheme: Scheme) {
@@ -123,6 +123,7 @@ export default defineComponent({
     overflow: hidden;
     &__menu {
         width: 233px;
+        overflow-y: auto;
     }
     &__schemes {
         flex: 1;

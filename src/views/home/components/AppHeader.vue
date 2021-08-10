@@ -10,10 +10,16 @@
                 <el-button class="app-header__stop" type="danger" size="small" round @click="stopServe"
                     >结束服务</el-button
                 >
+                <el-button v-if="back" class="app-header__back" type="danger" size="small" round @click="doBack">{{
+                    back
+                }}</el-button>
             </template>
             <template v-else>
                 <i class="app-header__icon iconfont icon-wardrobe" />
                 <span class="app-header__label">弘木橱柜定制系统</span>
+                <el-button v-if="back" class="app-header__back" type="danger" size="small" round @click="doBack">{{
+                    back
+                }}</el-button>
             </template>
         </div>
         <div class="app-header__right">
@@ -43,6 +49,10 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        back: {
+            type: String,
+            default: "", // dark
+        },
     },
     setup(props) {
         const store = useStore();
@@ -63,6 +73,9 @@ export default defineComponent({
                     router.push("/login");
                     // window.location.reload();
                 });
+            },
+            doBack() {
+                router.back();
             },
         };
     },
@@ -101,6 +114,10 @@ export default defineComponent({
     }
     &__stop {
         width: 118px !important;
+    }
+    &__back {
+        margin-left: 30px;
+        min-width: 118px !important;
     }
     &__label {
         margin-left: 12px;

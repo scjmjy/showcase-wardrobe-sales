@@ -21,13 +21,10 @@
     --el-menu-item-font-color: white;
     --el-text-color-secondary: white;
     --el-menu-item-hover-fill: var(--el-color-primary-light-3);
+    border-right: none !important;
 }
 .el-menu-item {
     background-color: $--color-primary;
-    padding-left: 30px !important;
-    height: 86px !important;
-    line-height: 86px !important;
-    font-weight: bold;
 
     &.is-active {
         color: $--color-primary;

@@ -1,30 +1,9 @@
 <template>
     <div class="product-detail">
-        <app-header type="dark" customer :back="backText" />
+        <app-header type="dark" customer back="退出编辑" />
         <!-- <Babylon class="product-detail__3d" /> -->
         <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" />
-        <div class="product-detail__right">
-            <div class="product-detail__right-info">
-                <span>{{ product.name }}</span>
-                <br />
-                <span v-if="!isNew">{{ product.offer || "待报价" }}</span>
-            </div>
-            <div class="product-detail__right-actions">
-                <el-button type="primary" round v-if="isNew" @click="newScheme">开始定制</el-button>
-                <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
-                <el-button type="primary" round v-if="isSelf" @click="offer">{{
-                    product.offer ? "重新报价" : "报价"
-                }}</el-button>
-                <el-button type="primary" round v-if="isOther" @click="copyScheme">由此方案定制</el-button>
-            </div>
-        </div>
-
-        <customize-dlg
-            v-model="showCustomizeDlg"
-            title="新方案定制"
-            @confirm="onNewSchemeConfirm"
-            @cancel="onNewSchemeCancel"
-        />
+        <div class="product-detail__right">编辑方案</div>
     </div>
 </template>
 
@@ -36,13 +15,11 @@ import { useStore } from "vuex";
 import { Product, Scheme } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
-import CustomizeDlg from "./components/CustomizeDlg.vue";
 
 export default defineComponent({
-    name: "ProductDetail",
+    name: "SchemeDetail",
     components: {
         AppHeader,
-        CustomizeDlg,
         // Babylon,
     },
     setup() {
@@ -90,8 +67,6 @@ export default defineComponent({
                 immediate: true,
             },
         );
-        const showCustomizeDlg = ref(false);
-
         return {
             mode,
             product,
@@ -109,25 +84,18 @@ export default defineComponent({
                         return "";
                 }
             }),
-            showCustomizeDlg,
             // productName: ref(route.query.productId),
-            newScheme() {
-                showCustomizeDlg.value = true;
-            },
-            onNewSchemeConfirm() {
+            startEditScheme() {
                 let p = product as Ref<Scheme | undefined>;
                 if (!p.value) {
                     return;
                 }
                 router.push({
-                    path: "/scheme-detail",
+                    path: "/scheme",
                     query: {
                         [p.value.pid ? "schemeId" : "productId"]: p.value.id,
                     },
                 });
-            },
-            onNewSchemeCancel() {
-                showCustomizeDlg.value = false;
             },
             offer() {
                 console.log("【offer】");

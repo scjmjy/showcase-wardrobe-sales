@@ -53,6 +53,12 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .customer-menu {
+    :deep(.el-menu-item) {
+        padding-left: 30px !important;
+        height: 86px !important;
+        line-height: 86px !important;
+        font-weight: bold;
+    }
     &__avatar {
         display: inline-flex;
         justify-content: center;

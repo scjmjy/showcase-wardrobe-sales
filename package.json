@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@turf/turf": "^6.5.0",
     "@types/geometric": "^2.2.0",
     "@types/md5": "^2.3.1",
     "@types/uuid": "^8.3.1",
