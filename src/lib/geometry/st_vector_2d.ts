@@ -9,6 +9,7 @@
  *
  */
 
+import { Vector2 } from "babylonjs/Maths/math.vector";
 import { StObject } from "../utility/st_object";
 
 /**
@@ -54,6 +55,12 @@ export class StVector extends StObject {
         vec.x += v.x;
         vec.y += v.y;
         return vec;
+    }
+
+    rotate(A: number): StVector {
+        const x = this.x;
+        const y = this.y;
+        return new StVector(x * Math.cos(A) - y * Math.sin(A), x * Math.sin(A) + y * Math.cos(A));
     }
 
     minus(v: StVector): StVector {

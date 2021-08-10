@@ -13,6 +13,8 @@ import { sketchUtil, StUuidObject } from "../utility/st_object";
 import * as geometric from "geometric";
 import { StVector } from "./st_vector_2d";
 
+import turf, { coordAll, FeatureCollection, Point } from "@turf/turf";
+
 export enum StPolygonOverlap {
     NONE,
     A_IN_B,
@@ -38,10 +40,8 @@ export abstract class StGeometic2D extends StUuidObject {
     abstract translate(vec: StVector): void;
 }
 
-
-
 /**
- * DO NOT make x,y public! 
+ * DO NOT make x,y public!
  * Reason: (x,y) is changed in sub-class methods.
  */
 export class StSketchPoint extends StGeometic2D {
@@ -150,6 +150,25 @@ export class StSketchLine extends StGeometic2D {
     translate(vec: StVector): void {
         this.vertex0.translate(vec);
         this.vertex1.translate(vec);
+    }
+
+    intersectWith(line: StSketchLine): StSketchPoint | null {
+        const line_a = this.toArray();
+        const line_b = line.toArray();
+        const lla = turf.lineString(line_a);
+        const llb = turf.lineString(line_b);
+        const seg_a = turf.lineSegment(lla);
+        const seg_b = turf.lineSegment(llb);
+        const collection: FeatureCollection<Point> = turf.lineIntersect(seg_a, seg_b);
+        const pts = collection.features;
+        if (pts.length > 1) {
+            throw Error(`ERROR: More than ONE Intersect Point. Count: ${pts.length} `);
+        }
+        if (pts.length < 1) {
+            return null;
+        }
+        const cord = pts[0].geometry.coordinates;
+        return new StSketchPoint(cord[0], cord[1]);
     }
 }
 
@@ -344,7 +363,7 @@ export class StSketchPolygon extends StGeometic2D {
     }
 
     private _getNextEdge(edge_id: string): [number, StSketchEdge] {
-        let [idx, edge] = this._getEdgeById(edge_id);
+        let [idx] = this._getEdgeById(edge_id);
         if (idx == this.edges.length) {
             idx = 0;
         } else {

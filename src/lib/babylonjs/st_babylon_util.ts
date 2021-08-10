@@ -250,7 +250,7 @@ export default class StBabylonUtil {
     }
 
     /**
-     * SCALE a list of points to BABYLON Vector3 
+     * SCALE a list of points to BABYLON Vector3
      */
     static toScaledVector3(points: StSketchPoint[]): Array<BABYLON.Vector3> {
         const list: BABYLON.Vector3[] = [];

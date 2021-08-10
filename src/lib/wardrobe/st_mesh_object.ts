@@ -137,7 +137,7 @@ abstract class StSketchMesh extends StObject implements StIMesh {
     }
 
     getMeshId(): string {
-        if(!this.meshId) throw Error("Mesh is NOT created, yet!");
+        if (!this.meshId) throw Error("Mesh is NOT created, yet!");
         return this.meshId;
     }
 

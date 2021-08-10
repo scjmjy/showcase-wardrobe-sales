@@ -19,6 +19,8 @@ export default class StSketchConstant {
     static readonly MIN_LEVEL_MM = 200;
     static readonly MIN_DIVISION_MM = 100;
 
+    static readonly MAX_LENGTH = 100 * 1000; // length: 100 m
+
     // normal vectors for X, Y, Z
     static readonly NORMAL_X: BABYLON.Vector3 = BABYLON.Axis.X;
     static readonly NORMAL_Y: BABYLON.Vector3 = BABYLON.Axis.Y;

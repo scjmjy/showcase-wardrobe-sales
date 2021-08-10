@@ -7,7 +7,7 @@
  *
  */
 
-import { StSketchEdge, StSketchLine, StSketchPoint, StSketchRect } from "../geometry/st_geometric_2d";
+import { StSketchEdge, StSketchLine, StSketchPoint, StSketchPolygon, StSketchRect } from "../geometry/st_geometric_2d";
 import { StVector } from "../geometry/st_vector_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StIAccesory, StICube, StICubeOpt, StIDivison, StILevel, StIModel, StIModelOpt } from "./st_model_interface";
@@ -16,6 +16,10 @@ import { StDoorType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
 import { StModel, StSketchAccesory } from "./st_model_object";
 import { StWoodType, textureManager } from "../utility/st_texture";
+import geometric from "geometric";
+
+import turf, { FeatureCollection, Point } from "@turf/turf";
+import StSketchConstant from "../utility/st_sketch_constant";
 
 export class StSketchDivision extends StModel implements StIDivison {
     /**
@@ -53,15 +57,6 @@ export class StSketchDivision extends StModel implements StIDivison {
      * @param width
      * @param height
      */
-    //constructor(obj: start_point: StSketchPoint, width:number, height:number) {
-    // constructor(obj: any);
-    /* constructor(obj:{
-        parent: StIModel;
-        width?: number;
-        height?: number;
-        depth?: number;
-        position?: StSketchVector3;
-    }) { */
     constructor(obj: StIModelOpt) {
         super(obj);
         const size = this.getSize();
@@ -69,17 +64,6 @@ export class StSketchDivision extends StModel implements StIDivison {
         this.rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(pos.x, pos.y), size.x, size.y);
     }
 
-    /*
-    setWidth(w: number): void {
-        throw new Error("Method not implemented." + w);
-    }
-    setHeight(h: number): void {
-        throw new Error("Method not implemented." + h);
-    }
-    setDepth(d: number): void {
-        throw new Error("Method not implemented." + d);
-    }
-    */
     updateMesh(): void {
         throw new Error("Method not implemented.");
     }
@@ -95,6 +79,12 @@ export class StSketchDivision extends StModel implements StIDivison {
     }
     deleteAccesory(acce_id: string): void {
         throw new Error(`Method not implemented. id: ${acce_id}`);
+    }
+
+    divideByEdge(e: StSketchEdge): StSketchDivision[] | null {
+        const subs: StSketchDivision[] = [];
+
+        return subs;
     }
 }
 
@@ -117,29 +107,21 @@ export class StSketchLevel extends StModel implements StILevel {
     getHeight(): number {
         return this.getSize().y;
     }
-    /*
-    setWidth(w: number): void {
-        throw new Error("Method not implemented.");
-    }
-    setHeight(w: number): void {
-        throw new Error("Method not implemented.");
-    }
-    setDepth(w: number): void {
-        throw new Error("Method not implemented.");
-    }
-    */
 }
 
 export enum StMeshLocation {
-    MIDDLE, LEFT, RIGHT,
+    MIDDLE,
+    LEFT,
+    RIGHT,
 }
+
 /**
  * A board that is parallels to Z axis
  */
 export class StSketchBoardZ extends StModel {
-    
-    constructor(edge: StSketchEdge, depth: number, mesh_loc: StMeshLocation ){
-
+    constructor(edge: StSketchEdge, depth: number, mesh_loc: StMeshLocation) {
+        super({});
+        throw new Error("Method not implemented.");
     }
 
     updateMesh(): void {
@@ -153,19 +135,20 @@ export class StSketchCube extends StModel implements StICube {
     gapBottom: number;
     thickness: number;
 
-    // readonly levels: StSketchLevel[] = [];
-
     /**
      * in LOCAL space. the 1st point is (0, 0).
+     *
+     * NOTE: divisions and edges are ALL in LOCAL space.
      */
     private readonly rect: StSketchRect;
 
-    private readonly divideRects: StSketchRect[] = [];
-
+    /**
+     * each edge is real wooden board.
+     */
     private readonly divideEdges: StSketchEdge[] = [];
 
+    // private readonly divideRects: StSketchRect[] = [];  // [2021-8-9] seems useless?
     private readonly divisions: StSketchDivision[] = [];
-
 
     /**
      * KEY: Mesh ID of a board
@@ -173,21 +156,6 @@ export class StSketchCube extends StModel implements StICube {
      */
     private readonly edgeMap: Map<string, StSketchEdge>;
 
-
-    /*
-    constructor( model_opt: StIModelOpt, obj: {
-        position?: StPoint3;
-        rotate?: StSketchVector3;
-        parent?: StIModel;
-        childen?: StIModel[];
-        width?: number;
-        height?: number;
-        depth?: number;
-        doorType?: StDoorType;
-        gapTop?: number;
-        gapBottom?: number;
-        thickness?: number;
-    } ) {  */
     constructor(obj: StICubeOpt) {
         super(obj);
         this.doorType = obj.doorType || StDoorType.NONE;
@@ -225,32 +193,58 @@ export class StSketchCube extends StModel implements StICube {
 
         // 8-6: add mesh into map
         const edges = this.rect.edges;
-        this.edgeMap.set(bottom.getMeshId(),edges[0]);
+        this.edgeMap.set(bottom.getMeshId(), edges[0]);
         this.edgeMap.set(right.getMeshId(), edges[1]);
-        this.edgeMap.set(top.getMeshId(),   edges[2]);
-        this.edgeMap.set(left.getMeshId(),  edges[3]);
+        this.edgeMap.set(top.getMeshId(), edges[2]);
+        this.edgeMap.set(left.getMeshId(), edges[3]);
 
         this.meshList.push(left, right, top, bottom, back);
     }
 
     getEdgeByMesh(mesh_id: string): StSketchEdge {
-        const edge: StSketchEdge|undefined = this.edgeMap.get(mesh_id);
-        if(!edge) {
+        const edge: StSketchEdge | undefined = this.edgeMap.get(mesh_id);
+        if (!edge) {
             throw Error(`Fail to find Edge by mesh: ${mesh_id}`);
         }
         return edge;
     }
 
-    addDivide(e1: StSketchEdge, e2: StSketchEdge): StSketchLine {
-        // 1. create a line from the 2 points of input e1 and e2
+    /**
+     * point[0]: start for e0.pt[0], offset 10cm;
+     * point[1]: make a line(L) that starts from point[0] and vertical to e0. Get the point that L crosses with e1;
+     *
+     * @param e1
+     * @param e2
+     */
+    addDivideBoard(e0: StSketchEdge, e1: StSketchEdge): StSketchEdge {
+        // 1. create a line from the 2 points of input e1 and e0
+        const p0 = e0.addPoint(100);
+        const vec0 = e0.getVector().rotate(Math.PI / 2);
+        const vec = StVector.makeVectorByLength(vec0, StSketchConstant.MAX_LENGTH);
 
+        const p01 = p0.clone();
+        p01.translate(vec);
+        const line01 = new StSketchLine(p0, p01);
 
-        // 2. calculate all crossing polygons 
+        const p1 = line01.intersectWith(e1);
+        if (p1 == null) {
+            throw Error(`Fail to find the intersecting point on the 2nd edge: ${e1}`);
+        }
+        const edge = new StSketchEdge(p0, p1);
+        this.divideEdges.push(edge);
 
-
+        // 2. search all divisions for the crossing polygons
+        const cross_poly: StSketchPolygon[] = [];
+        for (const div of this.divisions) {
+            const subs = div.divideByEdge(edge);
+            if (subs == null) {
+                console.log(`edge ${edge} cannot divide division: ${div}`);
+                continue;
+            }
+            // TODO
+        }
 
         // 3. divides all crossing polygons
-
 
         throw new Error("Method not implemented.");
     }
@@ -262,7 +256,6 @@ export class StSketchCube extends StModel implements StICube {
     deleteDivide(line: string): StSketchLine {
         throw new Error("Method not implemented.");
     }
-
 
     /* from old front-3d: addLevel
     *
