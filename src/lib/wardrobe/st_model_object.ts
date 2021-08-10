@@ -91,7 +91,7 @@ export abstract class StModel extends StUuidObject implements StIModel {
     }
 
     delete(): void {
-        for(const mesh of this.meshList) {
+        for (const mesh of this.meshList) {
             mesh.deleteMesh();
         }
         const cnt = this.meshList.length;

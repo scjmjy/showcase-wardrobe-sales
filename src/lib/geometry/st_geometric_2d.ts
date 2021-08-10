@@ -14,8 +14,8 @@ import * as geometric from "geometric";
 import { StVector } from "./st_vector_2d";
 
 //import turf, { coordAll, FeatureCollection, Point } from "@turf/turf";
-import turf  from "@turf/turf";
-import turfhelpers from "@turf/helpers"
+import turf from "@turf/turf";
+import turfhelpers from "@turf/helpers";
 
 export enum StPolygonOverlap {
     NONE,
@@ -398,13 +398,12 @@ export class StSketchPolygon extends StGeometic2D {
         return [idx, edge];
     }
 
-
     /**
      * Divide polygon by 2 edge-points, which can be found on one of the edges in this polygon.
-     * 
+     *
      * @param p0  point on polygon edge
      * @param p1  point on polygon edge
-     * @returns 
+     * @returns
      */
     divideByPoints(p0: StEdgePoint, p1: StEdgePoint): StSketchPolygon[] {
         const [idx0, e0] = this._getEdgeByPoint(p0.uuid);

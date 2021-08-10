@@ -52,7 +52,7 @@ export class StSketchDivision extends StModel implements StIDivison {
     private rect: StSketchRect;
 
     /**
-     * An accesory is NOT managed as a child model! 
+     * An accesory is NOT managed as a child model!
      * Can it be added as a child model??
      */
     readonly parts: StSketchAccesory[] = [];
@@ -90,11 +90,8 @@ export class StSketchDivision extends StModel implements StIDivison {
     divideByEdge(e: StSketchEdge): StSketchDivision[] | null {
         const subs: StSketchDivision[] = [];
 
-        
-
-
         // if divide success, delete all accessories
-        for(const acce of this.parts) {
+        for (const acce of this.parts) {
             acce.delete();
         }
         throw Error("TODO");
@@ -256,7 +253,6 @@ export class StSketchCube extends StModel implements StICube {
                 continue;
             }
             // TODO
-            
         }
 
         // 3. divides all crossing polygons
