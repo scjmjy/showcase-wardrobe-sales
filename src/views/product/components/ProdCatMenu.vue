@@ -19,9 +19,9 @@
         </div>
         <el-collapse-transition-h>
             <div v-if="opened && currentProdCat" class="prod-cat-menu__filter">
-                <div class="prod-cat-menu__filter-title">
+                <!-- <div class="prod-cat-menu__filter-title">
                     调性选择 <el-button circle icon="el-icon-s-fold" @click="opened = false"></el-button>
-                </div>
+                </div> -->
                 <div class="prod-cat-menu__filter-style">
                     <div
                         class="prod-cat-menu__filter-style__item"
@@ -32,15 +32,15 @@
                             {{ item.title }}
                             <el-button
                                 class="trigger-btn u-trigger"
-                                :class="{ 'u-trigger-ani': item.opened }"
+                                :class="{ 'u-trigger-ani': !item.closed }"
                                 circle
                                 type="dark"
                                 icon="el-icon-arrow-right"
-                                @click="item.opened = !item.opened"
+                                @click="item.closed = !item.closed"
                             ></el-button>
                         </div>
                         <el-collapse-transition>
-                            <div v-if="item.opened" class="prod-cat-menu__filter-style__item-styles">
+                            <div v-if="!item.closed" class="prod-cat-menu__filter-style__item-styles">
                                 <el-button
                                     class="style-btn"
                                     v-for="(style, index2) of item.styles"
@@ -193,7 +193,7 @@ export default defineComponent({
         }
         &-style {
             flex: 1;
-            padding: 30px 17px 0px 25px;
+            padding: 15px 17px 0px 25px;
             overflow-y: auto;
 
             &__item {

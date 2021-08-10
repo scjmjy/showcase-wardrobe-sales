@@ -1,6 +1,6 @@
 <template>
     <div class="select-product">
-        <app-header class="select-product__header" type="dark" back="退出新方案定制" />
+        <app-header class="select-product__header" customer type="dark" back="退出新方案定制" />
         <prod-cat-menu class="select-product__menu" @select="onProdCatSelect" @filter="onProdFilter" />
         <el-row class="select-product__products" :gutter="20" justify="space-between">
             <el-col

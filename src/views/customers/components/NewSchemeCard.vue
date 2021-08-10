@@ -1,7 +1,12 @@
 <template>
     <div class="new-scheme-card">
-        <el-button class="new-scheme-card__add" type="text" icon="el-icon-circle-plus-outline"></el-button>
-        <el-button class="new-scheme-card__text" type="text">创建定制方案</el-button>
+        <el-button
+            class="new-scheme-card__add"
+            type="text"
+            icon="el-icon-circle-plus-outline"
+            @click="doNew"
+        ></el-button>
+        <el-button class="new-scheme-card__text" type="text" @click="doNew">创建定制方案</el-button>
     </div>
 </template>
 
@@ -20,11 +25,11 @@ export default defineComponent({
             default: "",
         },
     },
-    emits: ["detail"],
+    emits: ["new"],
     setup(props, context) {
         return {
-            onBtnClick() {
-                context.emit("detail", props.name);
+            doNew() {
+                context.emit("new");
             },
         };
     },

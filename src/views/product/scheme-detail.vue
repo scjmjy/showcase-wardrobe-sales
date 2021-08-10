@@ -1,6 +1,6 @@
 <template>
     <div class="product-detail">
-        <app-header type="dark" customer back="退出编辑" />
+        <app-header type="dark" customer :stop="false" back="退出编辑" />
         <!-- <Babylon class="product-detail__3d" /> -->
         <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" />
         <div class="product-detail__right">编辑方案</div>

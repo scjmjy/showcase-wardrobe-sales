@@ -96,6 +96,8 @@ export default class LocalProvider implements ApiProvider {
         throw new Error("Method not implemented.");
     }
     requestSchemes(cid: string | number, page = 1, pageSize = 1): Promise<AjaxResponse<Scheme[]>> {
+        const mockDate = ["2021-08-10 14:00:00", "2021-08-11 14:00:00", "2021-08-12 14:00:00"];
+        const mockOffer = ["13999", "", "1500", "", "14000"];
         return Promise.resolve({
             status: 200,
             ok: true,
@@ -109,8 +111,8 @@ export default class LocalProvider implements ApiProvider {
                     pid: index,
                     manifest: "manifest",
                     composition: "composition",
-                    offer: index % 2 === 0 ? "10000" : "0",
-                    ptime: Date.now() + "",
+                    offer: mockOffer[index % mockOffer.length],
+                    ptime: mockDate[index % mockDate.length],
                     cover: [
                         "https://picsum.photos/300/300?random=" + index + cid,
                         "https://picsum.photos/300/300?random=1" + index + cid,

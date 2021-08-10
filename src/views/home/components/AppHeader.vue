@@ -10,7 +10,7 @@
                 <el-button v-if="stop" class="app-header__stop" type="danger" size="small" round @click="stopServe"
                     >结束服务</el-button
                 >
-                <el-button v-if="back" class="app-header__back" type="danger" size="small" round @click="doBack">{{
+                <el-button v-if="back" class="app-header__back" type="warning" size="small" round @click="doBack">{{
                     back
                 }}</el-button>
             </template>
@@ -71,6 +71,7 @@ export default defineComponent({
             headerStyle,
             stopServe() {
                 store.commit("SWITCH-CUSTOMER", undefined);
+                router.push("/");
             },
             logout() {
                 store.dispatch("logout").then(() => {
