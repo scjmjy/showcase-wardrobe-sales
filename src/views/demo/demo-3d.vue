@@ -10,9 +10,11 @@
                 <button class="camera" v-on:click="onCameraFront()">视角: 正面</button>
             </div>
             <div class="sidebar">
-                <button class="test" v-on:click="onTestEdge('pillar')">Pillar</button>
+                <button class="test" v-on:click="onTestEdge('intersect01')">Intersect 1</button>
                 <br />
-                <button class="test" v-on:click="onTestPolygon('board-3')">Board: Left-Right</button>
+                <!--
+                <button class="test" v-on:click="onTestPolygon('TODO...')">Board: Left-Right</button>
+                -->
             </div>
         </div>
 
@@ -29,9 +31,8 @@ import { defineComponent } from "vue";
 import StSketchConstant from "@/lib/utility/st_sketch_constant";
 import { St3DEngine, sketchEngine } from "@/lib/utility/st_sketch_engine";
 import { StSketchCacheTest } from "@/lib/data/st_sketch_cache_test";
-import { StMeshObjectTest } from "@/test/wardrobe/st_mesh_object_test";
-import { cubeTest } from "@/test/wardrobe/st_model_object_test";
 import { StISketchRoom } from "@/lib/utility/st_sketch_room_interface";
+import { edgeTest } from "@/test/geometry/st_geometric_2d_test";
 
 export default defineComponent({
     name: "st_geometry_2d",
@@ -99,72 +100,34 @@ export default defineComponent({
                 "]";
         },
 
-        callbackClickCubeMesh(cube_id: string, sec_id: string) {
-            this.topInfo = "Clicked: [Cube] " + cube_id + "\n\t [Section] " + sec_id;
-            this.selected.cubeId = cube_id;
-            this.selected.sectionId = sec_id;
-        },
-
         onCameraFront() {
             alert("TODO");
-            //this.room.moveCameraToMainUnit();
         },
 
-        onTestMesh(type: string) {
-            const pillar_test = new StMeshObjectTest();
+        onTestEdge(type: string) {
             switch (type) {
-                case "pillar":
-                    pillar_test.createPillar_01();
+                case "intersect01":
+                    edgeTest.intersect01();
                     break;
-                case "board-1":
-                    pillar_test.createBoard_01();
-                    break;
-                case "board-2":
-                    pillar_test.createBoard_02();
-                    break;
-                case "board-3":
-                    pillar_test.createBoard_03();
-                    break;
+
                 default:
                     alert(`unknowty mesh ${type}`);
                     break;
             }
         },
 
-        onTestCube(opt: string) {
+        onTestPolygon(opt: string) {
+            /*
             const test = cubeTest;
             switch (opt) {
-                case "create":
+                case "_TODO":
                     test.create_01();
-                    break;
-                case "H+":
-                    test.changeHeight(true);
-                    break;
-                case "H-":
-                    test.changeHeight(false);
-                    break;
-                case "W+":
-                    test.changeWidth(true);
-                    break;
-                case "W-":
-                    test.changeWidth(false);
-                    break;
-                case "D+":
-                    test.changeDepth(true);
-                    break;
-                case "D-":
-                    test.changeDepth(false);
-                    break;
-                case "GB+":
-                    test.changeBottomGap(true);
-                    break;
-                case "GB-":
-                    test.changeBottomGap(false);
                     break;
                 default:
                     alert("unknown operation: " + opt);
                     break;
             }
+            */
         },
 
         async onCacheInfo() {

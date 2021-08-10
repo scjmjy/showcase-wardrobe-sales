@@ -59,6 +59,11 @@ interface StIModel {
     getSize(): StSketchVector3;
 
     updateMesh(): void;
+
+    /**
+     * release all 3D resources.
+     */
+    delete(): void;
 }
 
 interface StIAccesory extends StIModel {

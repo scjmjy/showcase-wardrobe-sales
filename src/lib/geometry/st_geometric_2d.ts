@@ -13,7 +13,9 @@ import { sketchUtil, StUuidObject } from "../utility/st_object";
 import * as geometric from "geometric";
 import { StVector } from "./st_vector_2d";
 
-import turf, { coordAll, FeatureCollection, Point } from "@turf/turf";
+//import turf, { coordAll, FeatureCollection, Point } from "@turf/turf";
+import turf  from "@turf/turf";
+import turfhelpers from "@turf/helpers"
 
 export enum StPolygonOverlap {
     NONE,
@@ -152,14 +154,17 @@ export class StSketchLine extends StGeometic2D {
         this.vertex1.translate(vec);
     }
 
+    /**
+     * Find the intersect point with the input line
+     */
     intersectWith(line: StSketchLine): StSketchPoint | null {
         const line_a = this.toArray();
         const line_b = line.toArray();
-        const lla = turf.lineString(line_a);
-        const llb = turf.lineString(line_b);
+        const lla = turfhelpers.lineString(line_a);
+        const llb = turfhelpers.lineString(line_b);
         const seg_a = turf.lineSegment(lla);
         const seg_b = turf.lineSegment(llb);
-        const collection: FeatureCollection<Point> = turf.lineIntersect(seg_a, seg_b);
+        const collection: turf.FeatureCollection<turf.Point> = turf.lineIntersect(seg_a, seg_b);
         const pts = collection.features;
         if (pts.length > 1) {
             throw Error(`ERROR: More than ONE Intersect Point. Count: ${pts.length} `);
@@ -393,6 +398,14 @@ export class StSketchPolygon extends StGeometic2D {
         return [idx, edge];
     }
 
+
+    /**
+     * Divide polygon by 2 edge-points, which can be found on one of the edges in this polygon.
+     * 
+     * @param p0  point on polygon edge
+     * @param p1  point on polygon edge
+     * @returns 
+     */
     divideByPoints(p0: StEdgePoint, p1: StEdgePoint): StSketchPolygon[] {
         const [idx0, e0] = this._getEdgeByPoint(p0.uuid);
         const [idx1, e1] = this._getEdgeByPoint(p1.uuid);

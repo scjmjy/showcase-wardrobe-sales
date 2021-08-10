@@ -66,6 +66,7 @@ export abstract class StModel extends StUuidObject implements StIModel {
     private rotate: StSketchVector3 = new StSketchVector3();
 
     private dirty = false;
+    private deleted = false;
     protected meshList: StSketchMesh[];
 
     constructor(obj: {
@@ -87,6 +88,15 @@ export abstract class StModel extends StUuidObject implements StIModel {
         //this.uuid = uuidv4();
         //this.sketchMesh = obj.sketchMesh;
         this.meshList = [];
+    }
+
+    delete(): void {
+        for(const mesh of this.meshList) {
+            mesh.deleteMesh();
+        }
+        const cnt = this.meshList.length;
+        this.meshList.slice(0, cnt);
+        this.deleted = true;
     }
 
     rotateY(angle: number): void {

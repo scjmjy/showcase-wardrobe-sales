@@ -1,7 +1,7 @@
 import { StSketchEdge, StSketchPoint } from "@/lib/geometry/st_geometric_2d";
 
-export class StGeometric2dTest {
-    test01_edge_intersect(){
+class StSketchEdgeTest {
+    intersect01(){
         const p00  = new StSketchPoint(0,  0);
         const p01  = new StSketchPoint(0, 10);
         const e0 = new StSketchEdge(p00, p01);
@@ -18,5 +18,19 @@ export class StGeometric2dTest {
         
         console.log(`Intersect Point: ${intersect_point}`);
     }
-
 }
+
+
+class StSketchPolygonTest {
+    divide01_byEdgePoints() {
+        throw Error("TODO");
+    }
+
+    divide02_byCrossLine() {
+        throw Error("TODO");
+    }
+}
+
+export const edgeTest = new StSketchEdgeTest();
+
+export const polygonTest = new StSketchPolygonTest();

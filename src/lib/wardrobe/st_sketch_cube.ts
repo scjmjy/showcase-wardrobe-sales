@@ -16,10 +16,12 @@ import { StDoorType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
 import { StModel, StSketchAccesory } from "./st_model_object";
 import { StWoodType, textureManager } from "../utility/st_texture";
-import geometric from "geometric";
 
-import turf, { FeatureCollection, Point } from "@turf/turf";
+//import turf, { FeatureCollection, Point } from "@turf/turf";
+// import turfhelpers from "@turf/helpers"
+
 import StSketchConstant from "../utility/st_sketch_constant";
+import { StAccesoryManager } from "../data/st_accesory_manager";
 
 export class StSketchDivision extends StModel implements StIDivison {
     /**
@@ -49,6 +51,10 @@ export class StSketchDivision extends StModel implements StIDivison {
      */
     private rect: StSketchRect;
 
+    /**
+     * An accesory is NOT managed as a child model! 
+     * Can it be added as a child model??
+     */
     readonly parts: StSketchAccesory[] = [];
 
     /**
@@ -84,6 +90,14 @@ export class StSketchDivision extends StModel implements StIDivison {
     divideByEdge(e: StSketchEdge): StSketchDivision[] | null {
         const subs: StSketchDivision[] = [];
 
+        
+
+
+        // if divide success, delete all accessories
+        for(const acce of this.parts) {
+            acce.delete();
+        }
+        throw Error("TODO");
         return subs;
     }
 }
@@ -242,6 +256,7 @@ export class StSketchCube extends StModel implements StICube {
                 continue;
             }
             // TODO
+            
         }
 
         // 3. divides all crossing polygons
