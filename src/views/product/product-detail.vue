@@ -1,6 +1,6 @@
 <template>
     <div class="product-detail">
-        <app-header type="dark" customer :back="backText" />
+        <app-header type="dark" customer :stop="false" :back="backText" />
         <!-- <Babylon class="product-detail__3d" /> -->
         <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" />
         <div class="product-detail__right">
@@ -15,16 +15,17 @@
                 <el-button type="primary" round v-if="isSelf" @click="offer">{{
                     product.offer ? "重新报价" : "报价"
                 }}</el-button>
-                <el-button type="primary" round v-if="isOther" @click="copyScheme">由此方案定制</el-button>
+                <el-button type="primary" round v-if="isSelf || isOther" @click="copyScheme">由此方案定制</el-button>
             </div>
         </div>
 
         <customize-dlg
             v-model="showCustomizeDlg"
-            title="新方案定制"
-            @confirm="onNewSchemeConfirm"
+            :title="customizeDlgTitle"
+            @confirm="onEditSchemeConfirm"
             @cancel="onNewSchemeCancel"
         />
+        <offer-dlg v-model="showOfferDlg" title="报价" @confirm="showOfferDlg = false" @cancel="showOfferDlg = false" />
     </div>
 </template>
 
@@ -37,12 +38,14 @@ import { Product, Scheme } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
+import OfferDlg from "./components/OfferDlg.vue";
 
 export default defineComponent({
     name: "ProductDetail",
     components: {
         AppHeader,
         CustomizeDlg,
+        OfferDlg,
         // Babylon,
     },
     setup() {
@@ -58,7 +61,7 @@ export default defineComponent({
                 // 没有 product id，说明是通过商品定制新方案
                 return "scheme-new";
             }
-            return p.value.cid === store.state.currentCustomer.customerId ? "scheme-self" : "scheme-other";
+            return p.value.cid === store.state.currentCustomer.customerId + "" ? "scheme-self" : "scheme-other";
         });
         watch(
             () => route.query.productId as string,
@@ -90,7 +93,33 @@ export default defineComponent({
                 immediate: true,
             },
         );
+        const customizeMode = ref<"new" | "continue" | "copy">("new");
         const showCustomizeDlg = ref(false);
+        const showOfferDlg = ref(false);
+
+        function gotoEditScheme() {
+            let p = product as Ref<Scheme | undefined>;
+            if (!p.value) {
+                return;
+            }
+            router.push({
+                path: "/scheme-detail",
+                query: {
+                    [p.value.pid ? "schemeId" : "productId"]: p.value.id,
+                    mode: customizeMode.value,
+                },
+            });
+        }
+
+        const customizeDlgTitle = computed(() => {
+            switch (customizeMode.value) {
+                case "copy":
+                    return "复制方案";
+                case "new":
+                default:
+                    return "新方案定制";
+            }
+        });
 
         return {
             mode,
@@ -110,30 +139,28 @@ export default defineComponent({
                 }
             }),
             showCustomizeDlg,
-            // productName: ref(route.query.productId),
+            showOfferDlg,
+            customizeDlgTitle,
+            offer() {
+                showOfferDlg.value = true;
+            },
             newScheme() {
+                customizeMode.value = "new";
                 showCustomizeDlg.value = true;
             },
-            onNewSchemeConfirm() {
-                let p = product as Ref<Scheme | undefined>;
-                if (!p.value) {
-                    return;
-                }
-                router.push({
-                    path: "/scheme-detail",
-                    query: {
-                        [p.value.pid ? "schemeId" : "productId"]: p.value.id,
-                    },
-                });
+            continueEditScheme() {
+                customizeMode.value = "continue";
+                gotoEditScheme();
+            },
+            copyScheme() {
+                customizeMode.value = "copy";
+                showCustomizeDlg.value = true;
+            },
+            onEditSchemeConfirm() {
+                gotoEditScheme();
             },
             onNewSchemeCancel() {
                 showCustomizeDlg.value = false;
-            },
-            offer() {
-                console.log("【offer】");
-            },
-            copyScheme() {
-                console.log("copyScheme");
             },
         };
     },
@@ -167,8 +194,8 @@ export default defineComponent({
                 display: block;
                 width: 220px;
                 margin-left: 0 !important;
-                margin-top: 5px;
-                margin-bottom: 5px;
+                margin-top: 20px;
+                margin-bottom: 20px;
             }
         }
     }

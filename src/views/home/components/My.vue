@@ -78,6 +78,7 @@ export default defineComponent({
 
 .my {
     background-color: $--color-bg;
+    height: 100%;
     &__info {
         z-index: 1;
         display: flex;

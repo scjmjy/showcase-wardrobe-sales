@@ -1,6 +1,6 @@
 <template>
     <el-dialog v-bind="$attrs">
-        <el-form ref="elForm" :model="formData" label-width="140px" label-position="left">
+        <!-- <el-form ref="elForm" :model="formData" label-width="140px" label-position="left">
             <el-form-item label="单元柜高度" prop="height">
                 <el-input v-model="formData.height"></el-input>
             </el-form-item>
@@ -10,7 +10,8 @@
             <el-form-item label="单元柜宽度" prop="width">
                 <el-input v-model="formData.width"></el-input>
             </el-form-item>
-        </el-form>
+        </el-form> -->
+        报价
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="doCancel">取 消</el-button>
@@ -24,7 +25,7 @@
 import { defineComponent, reactive } from "vue";
 
 export default defineComponent({
-    name: "CustomizeDlg",
+    name: "OfferDlg",
     emits: ["confirm", "cancel"],
     setup(props, ctx) {
         const formData = reactive({

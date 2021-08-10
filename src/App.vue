@@ -44,7 +44,14 @@ body {
 #nav {
     padding: 30px;
     text-align: center;
-
+    position: fixed;
+    width: 100%;
+    transition: transform 0.3s ease;
+    transform: translateY(-60px);
+    background: chartreuse;
+    &:hover {
+        transform: translateY(0);
+    }
     a {
         font-weight: bold;
         color: #2c3e50;

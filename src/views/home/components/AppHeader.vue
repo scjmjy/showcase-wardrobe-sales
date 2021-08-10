@@ -7,7 +7,7 @@
                     >正在为 <strong>{{ currentCustomer.customerName }}</strong> 服务</span
                 >
                 <!-- <el-tag class="app-header__stop" type="error" color="#BB4050">结束服务</el-tag> -->
-                <el-button class="app-header__stop" type="danger" size="small" round @click="stopServe"
+                <el-button v-if="stop" class="app-header__stop" type="danger" size="small" round @click="stopServe"
                     >结束服务</el-button
                 >
                 <el-button v-if="back" class="app-header__back" type="danger" size="small" round @click="doBack">{{
@@ -48,6 +48,10 @@ export default defineComponent({
         customer: {
             type: Boolean,
             default: false,
+        },
+        stop: {
+            type: Boolean,
+            default: true,
         },
         back: {
             type: String,
@@ -105,7 +109,6 @@ export default defineComponent({
     }
     &__serving {
         margin-left: 12px;
-        margin-right: 30px;
         font-size: 26px;
         strong {
             font-size: 30px;
@@ -113,6 +116,7 @@ export default defineComponent({
         }
     }
     &__stop {
+        margin-left: 30px;
         width: 118px !important;
     }
     &__back {
