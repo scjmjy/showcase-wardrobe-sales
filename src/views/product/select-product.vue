@@ -2,7 +2,7 @@
     <div class="select-product">
         <app-header class="select-product__header" customer type="dark" back="退出新方案定制" />
         <prod-cat-menu class="select-product__menu" @select="onProdCatSelect" @filter="onProdFilter" />
-        <el-row class="select-product__products" :gutter="20" justify="space-between">
+        <el-row ref="refProdList" class="select-product__products" :gutter="20" justify="space-between">
             <el-col
                 v-for="(p, index) in products"
                 :key="index"
@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from "vue";
+import { defineComponent, reactive, ref, DefineComponent } from "vue";
 import { useRouter } from "vue-router";
 import apiProvider from "@/api/provider";
 import ProdCatMenu from "./components/ProdCatMenu.vue";
@@ -47,9 +47,11 @@ export default defineComponent({
     setup() {
         const router = useRouter();
         const products = reactive([] as Product[]);
+        const refProdList = ref<InstanceType<DefineComponent>>();
 
         return {
             products,
+            refProdList,
             onBackClick() {
                 router.back();
             },
@@ -57,6 +59,7 @@ export default defineComponent({
                 apiProvider.requestProducts(cid).then((res) => {
                     if (res.ok) {
                         products.splice(0, products.length, ...(res.data || []));
+                        refProdList.value?.$el.scrollTo({ top: 0, behavior: "smooth" });
                     }
                 });
             },

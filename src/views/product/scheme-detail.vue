@@ -1,9 +1,25 @@
 <template>
     <div class="product-detail">
-        <app-header type="dark" customer :stop="false" back="退出编辑" />
+        <!-- <app-header type="dark" customer :stop="false" back="退出编辑" /> -->
+        <div class="product-detail__title">
+            <el-button class="product-detail__title-backBtn" icon="el-icon-back" circle  @click="gotoBack"></el-button>
+            <el-button class="product-detail__title-backText" type="text" @click="gotoBack">返回</el-button>
+        </div>
         <!-- <Babylon class="product-detail__3d" /> -->
         <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" />
-        <div class="product-detail__right">编辑方案</div>
+        <el-collapse-transition-h>
+            <div v-show="showMenu" class="product-detail__2d">编辑方案</div>
+        </el-collapse-transition-h>
+        <div class="product-detail__action-left">
+            <el-button class="" icon="el-icon-download" circle></el-button>
+            <el-button class="" icon="el-icon-s-promotion" circle></el-button>
+        </div>
+        <div class="product-detail__action-right">
+            <el-button class="" icon="el-icon-info" circle @click="showMenu = !showMenu"></el-button>
+            <el-button class="" icon="el-icon-info" circle @click="showMenu = !showMenu"></el-button>
+            <el-button class="" icon="el-icon-info" circle @click="showMenu = !showMenu"></el-button>
+            <el-button class="" icon="el-icon-info" circle @click="showMenu = !showMenu"></el-button>
+        </div>
     </div>
 </template>
 
@@ -14,12 +30,12 @@ import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { Product, Scheme } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
-import AppHeader from "@/views/home/components/AppHeader.vue";
+// import AppHeader from "@/views/home/components/AppHeader.vue";
 
 export default defineComponent({
     name: "SchemeDetail",
     components: {
-        AppHeader,
+        // AppHeader,
         // Babylon,
     },
     setup() {
@@ -67,9 +83,12 @@ export default defineComponent({
                 immediate: true,
             },
         );
+
+        const showMenu = ref(false);
         return {
             mode,
             product,
+            showMenu,
             isNew: computed(() => mode.value === "scheme-new"),
             isSelf: computed(() => mode.value === "scheme-self"),
             isOther: computed(() => mode.value === "scheme-other"),
@@ -103,6 +122,9 @@ export default defineComponent({
             copyScheme() {
                 console.log("copyScheme");
             },
+            gotoBack() {
+                router.back();
+            },
         };
     },
 });
@@ -113,32 +135,58 @@ export default defineComponent({
 
 .product-detail {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     width: 100%;
     height: 100%;
     padding: 70px 20px 20px;
     background-color: $--color-bg;
+    &__title {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        padding: 0px 20px;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 70px;
+        background-color: lightblue;
+
+        &-backText {
+            // margin-left: 10px;
+        }
+    }
     &__3d {
         // flex: 1;
         // overflow: auto;
         width: 800px;
         height: 600px;
     }
-    &__right {
+    &__2d {
+        position: absolute;
         display: flex;
         flex-direction: column;
-
-        &-actions {
-            margin-top: 40px;
-            :deep(.el-button) {
-                display: block;
-                width: 220px;
-                margin-left: 0 !important;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
+        background-color: lightcoral;
+        top: 80px;
+        bottom: 80px;
+        right: 0px;
+        width: 200px;
+    }
+    &__action-left {
+        position: absolute;
+        left: 60px;
+        bottom: 60px;
+        :deep(.el-button) {
+            display: block;
+            margin-left: 0 !important;
+            margin-top: 15px;
+            margin-bottom: 15px;
         }
+    }
+    &__action-right {
+        position: absolute;
+        right: 60px;
+        bottom: 60px;
     }
 }
 </style>

@@ -1,4 +1,3 @@
-/* eslint-disable */
 <template>
     <transition v-on="on">
         <slot></slot>
@@ -28,7 +27,8 @@ export default defineComponent({
                 enter(el: HTMLElement) {
                     el.dataset.oldOverflow = el.style.overflow;
                     if (el.scrollWidth !== 0) {
-                        el.style.width = el.scrollWidth + "px";
+                        // el.style.width = el.scrollWidth + "px";
+                        el.style.width = "";
                         el.style.paddingLeft = el.dataset.oldPaddingLeft || "";
                         el.style.paddingRight = el.dataset.oldPaddingRight || "";
                     } else {
