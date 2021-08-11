@@ -50,6 +50,30 @@ export class StVector extends StObject {
         return Math.sqrt(this.x * this.x + this.y + this.y);
     }
 
+    angle(): number {
+        // Based on: '已知坐标求角度', https://blog.csdn.net/mu399/article/details/81951786
+        const [x, y] = [this.x, this.y];
+        const l = this.length();
+        const a = Math.acos(x / l);
+        const ret = (a * 180) / Math.PI; //弧度转角度，方便调试
+        if (y < 0) {
+            return 360 - ret;
+        }
+        return ret;
+    }
+
+    arch(): number {
+        // Based on: '已知坐标求角度', https://blog.csdn.net/mu399/article/details/81951786
+        const vec = this;
+        const [x, y] = [vec.x, vec.y];
+        const l = this.length();
+        const a = Math.acos(x / l);
+        if (y < 0) {
+            return 2 * Math.PI - a;
+        }
+        return a;
+    }
+
     add(v: StVector): StVector {
         const vec = this.clone();
         vec.x += v.x;

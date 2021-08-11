@@ -87,8 +87,23 @@ export class StSketchDivision extends StModel implements StIDivison {
         throw new Error(`Method not implemented. id: ${acce_id}`);
     }
 
-    divideByEdge(e: StSketchEdge): StSketchDivision[] | null {
+    /**
+     *
+     * @param line any line in current division's SPACE
+     * @returns
+     */
+    divideByLine(line: StSketchLine): StSketchDivision[] | null {
         const subs: StSketchDivision[] = [];
+
+        const sub_rects = this.rect.divideByLine(line);
+
+        if (subs.length == 0) {
+            return null;
+        }
+
+        if (subs.length != 2) {
+            throw Error(`More than 2 sub divisions: ${subs.length}`);
+        }
 
         // if divide success, delete all accessories
         for (const acce of this.parts) {

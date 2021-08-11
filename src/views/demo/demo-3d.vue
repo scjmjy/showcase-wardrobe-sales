@@ -10,8 +10,10 @@
                 <button class="camera" v-on:click="onCameraFront()">视角: 正面</button>
             </div>
             <div class="sidebar">
-                <button class="test" v-on:click="onTestEdge('intersect01')">Intersect 1</button>
-                <button class="test" v-on:click="onTestEdge('intersect02')">No Intersect</button>
+                <label>Edge Intersection:</label>
+                <button class="test" v-on:click="onTestEdge('intersect01')">Cross </button>
+                <button class="test" v-on:click="onTestEdge('intersect02')">NONE </button>
+                <button class="test" v-on:click="onTestEdge('intersect03')">On One Edge</button>
                 <br />
                 <!--
                 <button class="test" v-on:click="onTestPolygon('TODO...')">Board: Left-Right</button>
@@ -106,17 +108,24 @@ export default defineComponent({
         },
 
         onTestEdge(type: string) {
-            switch (type) {
-                case "intersect01":
-                    this.topInfo = edgeTest.intersect01();
-                    break;
-                case "intersect02":
-                    this.topInfo = edgeTest.intersect02();
-                    break;
+            try{
+                switch (type) {
+                    case "intersect01":
+                        this.topInfo = edgeTest.intersect01();
+                        break;
+                    case "intersect02":
+                        this.topInfo = edgeTest.intersect02();
+                        break;
+                    case "intersect03":
+                        this.topInfo = edgeTest.intersect03();
+                        break;
 
-                default:
-                    alert(`unknowty mesh ${type}`);
-                    break;
+                    default:
+                        alert(`unknowty mesh ${type}`);
+                        break;
+                }
+            }catch(e) {
+                this.topInfo = (e as Error).message;
             }
         },
 

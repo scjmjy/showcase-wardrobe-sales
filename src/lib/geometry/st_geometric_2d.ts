@@ -42,14 +42,13 @@ export abstract class StGeometic2D extends StUuidObject {
 
 /**
  * DO NOT make x,y public!
- * Reason: (x,y) is changed in sub-class methods.
+ * Reason: (x, y) may be changed in sub-class methods. e.g. StEdgePoint.setOffset()
+ *
+ * Call StSketchPoint.getVector() to access its (x, y)
  */
 export class StSketchPoint extends StGeometic2D {
-    // [Guilin: 2021-8-11] seems no necessary to make 'protected'
-    //protected x: number;
-    //protected y: number;
-    x: number;
-    y: number;
+    protected x: number;
+    protected y: number;
 
     constructor(x?: number, y?: number) {
         super();
@@ -87,6 +86,13 @@ export class StSketchPoint extends StGeometic2D {
     translate(vec: StVector): void {
         this.x += vec.x;
         this.y += vec.y;
+    }
+
+    distanceToPoint(p1: StSketchPoint): number {
+        const v0 = this.getVector();
+        const v1 = p1.getVector();
+        const vec = v1.minus(v0);
+        return vec.length();
     }
 
     static makeVector(p0: StSketchPoint, p1: StSketchPoint): StVector {
@@ -258,6 +264,16 @@ export class StSketchEdge extends StSketchLine {
             return null;
         }
     }
+
+    intersectWith(line: StSketchLine): StEdgePoint | null {
+        const pt = super.intersectWith(line);
+        if (pt == null) {
+            return null;
+        }
+        const offset = pt.distanceToPoint(this.vertex0);
+        const edge_pt = this.addPoint(offset);
+        return edge_pt;
+    }
 }
 
 /**
@@ -415,6 +431,26 @@ export class StSketchPolygon extends StGeometic2D {
         return [this._createChild(e0, p0, p1, e1), this._createChild(e1, p1, p0, e0)];
     }
 
+    divideByLine(line: StSketchLine): StSketchPolygon[] {
+        const polys: StSketchPolygon[] = [];
+        const pts: StEdgePoint[] = [];
+        for (const edge of this.edges) {
+            const p: StEdgePoint | null = edge.intersectWith(line);
+            if (p != null) {
+                pts.push(p);
+            }
+        }
+        return this.divideByPoints(pts[0], pts[1]);
+    }
+
+    /**
+     * input edges and points (e0, p0, p1, e1) are in counter-clock wise.
+     * @param e0
+     * @param p0
+     * @param p1
+     * @param e1
+     * @returns
+     */
     private _createChild(e0: StSketchEdge, p0: StEdgePoint, p1: StEdgePoint, e1: StSketchEdge): StSketchPolygon {
         const pt_arr: StSketchPoint[] = [];
         pt_arr.push(p0, p1);
@@ -423,7 +459,22 @@ export class StSketchPolygon extends StGeometic2D {
             pt_arr.push(edge.vertex1);
             [, edge] = this._getNextEdge(edge.uuid);
         }
-        return new StSketchPolygon(pt_arr);
+        // order the points: the 1st point is at the LEFT-BOTTOM corner
+        const cnt = pt_arr.length;
+        let min: [number, StVector] = [0, pt_arr[0].getVector()];
+        for (let i = 1; i < cnt; i++) {
+            const p = pt_arr[i].getVector();
+            if (p.x <= min[1].x && p.y <= min[1].y) {
+                min = [i, p];
+            }
+        }
+        const pt_arr2: StSketchPoint[] = [];
+        for (let i = 1; i < cnt; i++) {
+            const idx = (i + min[0]) % cnt;
+            const pt = pt_arr[idx];
+            pt_arr2.push(pt);
+        }
+        return new StSketchPolygon(pt_arr2);
     }
 
     /*
@@ -512,11 +563,44 @@ export class StSketchRect extends StSketchPolygon {
         return `[${cls_name}] start: ${this.getStartPoint()}, a:${this.a}, b:${this.b}`;
     }
 
+    /*
+     * [Guiln: 2021-8-11] If a line divides a rectangle, the children may NOT be rectangles.
+     * 
+    divideByLine(line: StSketchLine): StSketchRect[] {
+        const rects: StSketchRect[] = [];
+        const poly = super.divideByLine(line);
+        if(poly.length == 2){
+            rects.push(new StSketchRect(poly[0].vertices));;
+            rects.push(new StSketchRect(poly[1].vertices));;
+        }
+        return rects;
+    }
+    */
+
     static buildRect(opt: { p0?: StSketchPoint; width?: number; height?: number }): StSketchRect {
         const p0 = opt.p0 || new StSketchPoint(0, 0);
         const width = opt.width || 2;
         const height = opt.height || 1;
         return this.buildRectByStartPoint(p0, width, height);
+    }
+
+    static buildByPolygon(poly: StSketchPolygon): StSketchRect {
+        const pts = poly.vertices;
+        if (pts.length != 4) {
+            throw Error(`Vertices Number is NOT 4! count: ${pts.length}`);
+        }
+        const edges = poly.edges;
+        const angles: number[] = [
+            edges[0].getVector().angle(),
+            edges[1].getVector().angle(),
+            edges[2].getVector().angle(),
+            edges[3].getVector().angle(),
+        ];
+
+        if (angles[0] == 0 && angles[1] == 90 && angles[2] == 180 && angles[3] == 270) {
+            return new StSketchRect(poly.vertices);
+        }
+        throw Error(`Angles of the 4 Edges are not correct: ${angles}`);
     }
 
     static buildRectByStartPoint(p0: StSketchPoint, width: number, height: number): StSketchRect {
