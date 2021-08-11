@@ -13,9 +13,7 @@ import { sketchUtil, StUuidObject } from "../utility/st_object";
 import * as geometric from "geometric";
 import { StVector } from "./st_vector_2d";
 
-//import turf, { coordAll, FeatureCollection, Point } from "@turf/turf";
-import turf from "@turf/turf";
-import turfhelpers from "@turf/helpers";
+import * as turf from "@turf/turf";
 
 export enum StPolygonOverlap {
     NONE,
@@ -47,8 +45,11 @@ export abstract class StGeometic2D extends StUuidObject {
  * Reason: (x,y) is changed in sub-class methods.
  */
 export class StSketchPoint extends StGeometic2D {
-    protected x: number;
-    protected y: number;
+    // [Guilin: 2021-8-11] seems no necessary to make 'protected'
+    //protected x: number;
+    //protected y: number;
+    x: number;
+    y: number;
 
     constructor(x?: number, y?: number) {
         super();
@@ -160,8 +161,8 @@ export class StSketchLine extends StGeometic2D {
     intersectWith(line: StSketchLine): StSketchPoint | null {
         const line_a = this.toArray();
         const line_b = line.toArray();
-        const lla = turfhelpers.lineString(line_a);
-        const llb = turfhelpers.lineString(line_b);
+        const lla = turf.lineString(line_a);
+        const llb = turf.lineString(line_b);
         const seg_a = turf.lineSegment(lla);
         const seg_b = turf.lineSegment(llb);
         const collection: turf.FeatureCollection<turf.Point> = turf.lineIntersect(seg_a, seg_b);

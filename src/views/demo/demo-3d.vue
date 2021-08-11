@@ -11,6 +11,7 @@
             </div>
             <div class="sidebar">
                 <button class="test" v-on:click="onTestEdge('intersect01')">Intersect 1</button>
+                <button class="test" v-on:click="onTestEdge('intersect02')">No Intersect</button>
                 <br />
                 <!--
                 <button class="test" v-on:click="onTestPolygon('TODO...')">Board: Left-Right</button>
@@ -107,7 +108,10 @@ export default defineComponent({
         onTestEdge(type: string) {
             switch (type) {
                 case "intersect01":
-                    edgeTest.intersect01();
+                    this.topInfo = edgeTest.intersect01();
+                    break;
+                case "intersect02":
+                    this.topInfo = edgeTest.intersect02();
                     break;
 
                 default:
