@@ -14,7 +14,7 @@
 import { defineComponent, reactive, ref } from "vue";
 import apiProvider from "@/api/provider";
 import { Customer } from "@/api/interface/provider.interface";
-import variables from "@/assets/scss/element-variables.scss";
+import variables from "@/assets/scss/variables.scss";
 import { useStore } from "vuex";
 
 export default defineComponent({

@@ -270,8 +270,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "~@/assets/scss/element-variables.scss";
-
 .product-detail {
     position: relative;
     display: flex;
@@ -279,7 +277,8 @@ export default defineComponent({
     align-items: center;
     width: 100%;
     height: 100%;
-    background-color: $--color-bg;
+    // background-color: $--color-bg;
+    background-color: var(--el-color-primary);
     &__3d {
         // flex: 1;
         // overflow: auto;

@@ -131,8 +131,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "~@/assets/scss/element-variables.scss";
-
 .product-detail {
     display: flex;
     justify-content: center;
@@ -140,7 +138,7 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     padding: 70px 20px 20px;
-    background-color: $--color-bg;
+    background-color: var(--el-color-bg);
     &__title {
         position: absolute;
         display: flex;

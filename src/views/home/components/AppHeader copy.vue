@@ -35,7 +35,7 @@
 <script lang="ts">
 import { computed, defineComponent } from "vue";
 import { useStore } from "vuex";
-import variables from "@/assets/scss/element-variables.scss";
+import variables from "@/assets/scss/variables.scss";
 import { useRouter } from "vue-router";
 
 export default defineComponent({
@@ -88,8 +88,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "~@/assets/scss/element-variables.scss";
-
 .app-header {
     display: flex;
     justify-content: space-between;

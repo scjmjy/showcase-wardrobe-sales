@@ -1,0 +1,73 @@
+@use "sass:map";
+
+// colors
+$--colors: () !default;
+$--colors: map.deep-merge(
+    (
+        "white": #ffffff,
+        "black": #172021,
+        "primary": (
+            "base": #5eb6b3,
+            "dark": #4f9493,
+        ),
+        "success": (
+            "base": #67c23a,
+        ),
+        "warning": (
+            "base": #e6a23c,
+        ),
+        "danger": (
+            "base": #bb4050,
+        ),
+        "error": (
+            "base": #bb4050,
+        ),
+        "info": (
+            "base": #aeb1b6,
+        ),
+        "bg": (
+            "base": #f8f8f8,
+        ),
+    ),
+    $--colors
+);
+
+// font-size
+$--font-size: () !default;
+$--font-size: map.merge(
+    (
+        "extra-large": 28px,
+        "large": 26px,
+        "medium": 24px,
+        "base": 22px,
+        "small": 21px,
+        "extra-small": 20px,
+    ),
+    $--font-size
+);
+
+// button
+$--button-font-size: () !default;
+$--button-font-size: map.merge(
+    (
+        "default": map.get($--font-size, "base"),
+        "medium": map.get($--font-size, "base"),
+        "small": 18px,
+        "mini": 14px,
+    ),
+    $--button-font-size
+);
+
+$--color-bg: map.get($--colors, "bg", "base");
+$--color-primary-dark: map.get($--colors, "primary", "dark");
+
+$--color-primary: map.get($--colors, "primary", "base");
+
+:root {
+    --el-color-bg: #{$--color-bg};
+    --el-color-primary-dark: #{$--color-primary-dark};
+}
+
+:export {
+    colorPrimary: $--color-primary;
+}

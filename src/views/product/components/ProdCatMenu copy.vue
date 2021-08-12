@@ -63,7 +63,7 @@
 import { computed, defineComponent, reactive, ref } from "vue";
 import apiProvider from "@/api/provider";
 import { CategoryFilter, ProductCategory } from "@/api/interface/provider.interface";
-import variables from "@/assets/scss/element-variables.scss";
+import variables from "@/assets/scss/variables.scss";
 import { LabelValue } from "@/api/interface/common.interfact";
 
 export default defineComponent({
@@ -118,11 +118,10 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "~@/assets/scss/element-variables.scss";
 .prod-cat-menu {
     height: 100%;
     display: flex;
-    background-color: $--color-bg;
+    background-color: var(--el-color-bg);
     &__menu {
         height: 100%;
         display: flex;

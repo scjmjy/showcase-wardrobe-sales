@@ -1,24 +1,22 @@
-@import "~@/assets/scss/element-variables.scss";
-
 .btn-primary {
     height: 58px;
     cursor: pointer;
-    background-color: rgba($--color-primary, 0.6);
+    background-color: var(--el-color-primary-light-6);
     color: white;
     border-radius: 30px;
     font-size: 18px;
 
     &:focus {
-        background-color: rgba($--color-primary, 0.8);
+        background-color: var(--el-color-primary-light-8);
     }
     &:hover {
-        background-color: rgba($--color-primary, 0.8);
+        background-color: var(--el-color-primary-light-8);
     }
     &:active {
-        background-color: rgba($--color-primary, 1);
+        background-color: var(--el-color-primary);
     }
     &:disabled {
-        background-color: rgba($--color-primary, 0.4);
+        background-color: var(--el-color-primary-light-4);
         cursor: not-allowed;
     }
 }

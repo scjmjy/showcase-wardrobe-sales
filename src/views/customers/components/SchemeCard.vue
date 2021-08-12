@@ -54,7 +54,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "~@/assets/scss/element-variables.scss";
 .scheme-card {
     position: relative;
     display: inline-flex;
@@ -100,16 +99,16 @@ export default defineComponent({
     &__offer {
         width: 109px;
         padding: 4px 0px;
-        border: 1px solid $--color-danger;
+        border: 1px solid var(--el-color-danger);
         border-radius: 40px;
-        color: $--color-danger;
+        color: var(--el-color-danger);
         font-size: 18px;
         font-weight: bold;
 
         &.no-offer {
             border: none;
             background: #d8d8d8;
-            color: $--color-black;
+            color: var(--el-color-black);
             font-weight: normal;
         }
     }

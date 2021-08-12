@@ -113,8 +113,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/assets/scss/element-variables.scss";
-
 .login {
     width: 100%;
     height: 100%;

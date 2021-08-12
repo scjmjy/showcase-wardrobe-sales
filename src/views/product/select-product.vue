@@ -83,7 +83,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "~@/assets/scss/element-variables.scss";
 .select-product {
     display: flex;
     position: relative;
@@ -98,7 +97,7 @@ export default defineComponent({
         margin-left: 0px !important;
         flex: 1;
         overflow-y: auto;
-        background-color: $--color-bg;
+        background-color: var(--el-color-bg);
     }
 }
 </style>

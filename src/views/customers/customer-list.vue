@@ -145,7 +145,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "~@/assets/scss/element-variables.scss";
 .customer-list {
     display: flex;
     position: relative;
@@ -160,7 +159,7 @@ export default defineComponent({
         flex: 1;
         overflow-y: auto;
         padding: 10px 20px;
-        background-color: $--color-bg;
+        background-color: var(--el-color-bg);
     }
     &__info {
         display: flex;

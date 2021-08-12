@@ -74,10 +74,8 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "~@/assets/scss/element-variables.scss";
-
 .my {
-    background-color: $--color-bg;
+    background-color: var(--el-color-bg);
     height: 100%;
     &__info {
         z-index: 1;

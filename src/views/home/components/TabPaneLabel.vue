@@ -37,20 +37,18 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import "~@/assets/scss/element-variables.scss";
-
 .tab-pane-label {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding-top: 5px;
-    color: $--color-primary !important;
+    color: var(--el-color-primary) !important;
 
     &.disabled {
         color: #d8d8d8 !important;
         &:hover {
-            color: $--color-primary !important;
+            color: var(--el-color-primary) !important;
         }
     }
 

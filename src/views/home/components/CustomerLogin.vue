@@ -102,8 +102,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/assets/scss/element-variables.scss";
-
 .customer-login {
     position: relative;
     width: 100%;
