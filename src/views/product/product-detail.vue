@@ -1,6 +1,6 @@
 <template>
     <div v-if="product" class="product-detail">
-        <el-collapse-transition>
+        <transition name="el-zoom-in-top">
             <app-header
                 v-if="mode === 'view'"
                 type="dark"
@@ -9,12 +9,12 @@
                 :title="titles.title"
                 :subTitle="titles.subTitle"
             />
-        </el-collapse-transition>
-        <!-- <Babylon class="product-detail__3d" /> -->
-        <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" />
+        </transition>
+        <Babylon class="product-detail__3d" :scheme="scheme" @click="showMenu = false" />
+        <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
 
         <el-collapse-transition-h @after-leave="mode = 'edit'">
-            <div v-if="mode === 'view'" class="product-detail__actions">
+            <div v-if="mode === 'view'" class="product-detail__action-customize">
                 <div>
                     <el-button type="primary" round v-if="isNew" @click="newScheme">开始定制</el-button>
                     <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
@@ -33,18 +33,29 @@
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
                 >返回</el-button
             >
-            <div class="product-detail__action-left">
-                <el-button class="" icon="el-icon-download" circle></el-button>
-                <el-button class="" icon="el-icon-s-promotion" circle></el-button>
+            <div class="product-detail__action-left state-icon-group-v">
+                <state-icon icon="save" label="保存" @click="onSaveClick"></state-icon>
+                <state-icon icon="offer" label="报价" @click="onOfferClick"></state-icon>
             </div>
-            <div class="product-detail__action-right">
-                <el-button class="" icon="el-icon-info" circle @click="showMenu = !showMenu"></el-button>
-                <el-button class="" icon="el-icon-info" circle @click="showMenu = !showMenu"></el-button>
-                <el-button class="" icon="el-icon-info" circle @click="showMenu = !showMenu"></el-button>
-                <el-button class="" icon="el-icon-info" circle @click="showMenu = !showMenu"></el-button>
+            <div class="product-detail__action-right state-icon-group-h">
+                <state-icon v-model="stateSelect" icon="select-all" label="全选" @click="onSelectAllClick"></state-icon>
+                <state-icon v-model="stateMetals" icon="metals" label="五金" @click="onMetalsClick"></state-icon>
+                <state-icon
+                    v-model="stateInOut"
+                    icon="parts-indoor"
+                    :states="inOutStates"
+                    @click="onInOutClick"
+                ></state-icon>
+                <state-icon
+                    icon="parts"
+                    label="部件"
+                    iconColor="white"
+                    iconBg="#5EB6B3"
+                    @click="onPartsClick"
+                ></state-icon>
             </div>
             <el-collapse-transition-h>
-                <div v-if="mode === 'edit' && showMenu" class="product-detail__2d">编辑方案</div>
+                <div v-if="mode === 'edit' && showMenu" class="product-detail__menu2d">商品菜单</div>
             </el-collapse-transition-h>
         </template>
         <customize-dlg
@@ -59,7 +70,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, watch, Ref, nextTick } from "vue";
-// import Babylon from "@/components/Babylon.vue";
+import Babylon from "@/components/Babylon/Babylon.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { StateType } from "@/store";
@@ -75,7 +86,7 @@ export default defineComponent({
         AppHeader,
         CustomizeDlg,
         OfferDlg,
-        // Babylon,
+        Babylon,
     },
     setup() {
         const route = useRoute();
@@ -89,7 +100,7 @@ export default defineComponent({
 
         const product = ref(productDetailData as Product | Scheme);
 
-        function isProduct(p): p is Product {
+        function isProduct(p: any): p is Product {
             // 没有 product id，说明商品
             return p.pid === undefined;
         }
@@ -162,7 +173,26 @@ export default defineComponent({
             }
         });
         const showMenu = ref(false);
+
+        const stateSelect = ref<"active" | "">("");
+        const stateMetals = ref<"active" | "">("");
+        const stateInOut = ref<"in" | "out">("in");
+        const inOutStates = {
+            in: {
+                label: "内配",
+                iconBg: "black",
+                iconColor: "#D8D8D8",
+            },
+            out: {
+                label: "外配",
+            },
+        };
         return {
+            stateSelect,
+            stateMetals,
+            stateInOut,
+            inOutStates,
+            scheme: require("@/assets/mf/scheme.json"),
             showMenu,
             mode,
             schemeMode,
@@ -218,6 +248,22 @@ export default defineComponent({
                 // TODO make sure scheme has saved.
                 mode.value = "view";
             },
+            onSaveClick() {},
+            onOfferClick() {},
+            onSelectAllClick() {
+                stateSelect.value = stateSelect.value === "active" ? "" : "active";
+            },
+            onMetalsClick() {
+                stateSelect.value = stateSelect.value === "active" ? "" : "active";
+                showMenu.value = true;
+            },
+            onInOutClick() {
+                stateInOut.value = stateInOut.value === "in" ? "out" : "in";
+                showMenu.value = true;
+            },
+            onPartsClick() {
+                showMenu.value = true;
+            },
         };
     },
 });
@@ -239,11 +285,13 @@ export default defineComponent({
         // overflow: auto;
         // width: 800px;
         // height: 600px;
-        width: 100%;
+        // width: 100%;
+        flex: 1;
         height: 100%;
+        overflow: hidden;
     }
 
-    &__actions {
+    &__action-customize {
         width: 280px;
         height: 100%;
         display: flex;
@@ -267,13 +315,13 @@ export default defineComponent({
         font-size: 26px;
         color: black !important;
     }
-    &__2d {
+    &__menu2d {
         position: absolute;
         display: flex;
         flex-direction: column;
         background-color: lightcoral;
         top: 80px;
-        bottom: 80px;
+        bottom: 200px;
         right: 0px;
         width: 200px;
     }

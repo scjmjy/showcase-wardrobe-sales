@@ -1,0 +1,198 @@
+{
+	"background": [
+		{
+			"id": "665be189-2f7e-4ecf-9796-f18c49f16343",
+			"partId": 100001,
+			"manifest": ""
+		},
+		{
+			"id": "34965cfe-397e-4f89-b712-a1bafe9bbd2a",
+			"partId": 100002,
+			"manifest": ""
+		}
+	],
+	"cubes": [
+		{
+			"id": "4cd170f8-291b-4236-b515-b5d27ac1209d",
+			"partId": 200001,
+			"manifest": "mf/90da222b-d5c4-40e9-a693-8fe0b2b3ff78.json",
+			"items": [
+				{
+					"id": "985d1ace-3419-4319-8f4f-c07ae80cc6ed",
+					"partId": 300001,
+					"manifest": "mf/f5b3357e-6c76-476e-a97b-2a5612277e8e.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 2000,
+							"z": 0
+						}
+					}
+				},
+				{
+					"id": "e9d9def4-e294-41ad-8780-2f6545462d09",
+					"partId": 300002,
+					"manifest": "mf/ba27f19e-2131-4fe4-9b8c-e1edca652393.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 1950,
+							"z": 0
+						}
+					}
+				},
+				{
+					"id": "954dfa34-cf7f-4189-8e08-901e2d1a8abf",
+					"partId": 300001,
+					"manifest": "mf/f5b3357e-6c76-476e-a97b-2a5612277e8e.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 1000,
+							"z": 0
+						}
+					}
+				},
+				{
+					"id": "b9d4175f-d1da-4ccd-9dae-0d32dae092ff",
+					"partId": 300003,
+					"manifest": "mf/f5851579-ce40-4085-b3aa-47fbe3dcdb10.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 900,
+							"z": 0
+						}
+					}
+				},
+				{
+					"id": "f43ce29b-9507-4835-867f-647650fb4488",
+					"partId": 300004,
+					"manifest": "mf/51c67403-1823-42ab-8cc5-7325355c7a55.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 700,
+							"z": 0
+						}
+					}
+				},
+				{
+					"id": "9c54e6b8-717b-400b-9fb9-cc2fbf936a4b",
+					"partId": 300004,
+					"manifest": "mf/51c67403-1823-42ab-8cc5-7325355c7a55.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 500,
+							"z": 0
+						}
+					}
+				},
+				{
+					"id": "2cf1818e-38da-4c35-b09c-6c9186ec1eb5",
+					"partId": 300005,
+					"manifest": "mf/7d6ea7d9-c01c-481d-9b3a-f7c1e743a7b7.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 300,
+							"z": 0
+						}
+					}
+				},
+				{
+					"id": "d3957be6-9679-4c6d-ba32-e59e5b2d4c4d",
+					"partId": 300003,
+					"manifest": "mf/f5851579-ce40-4085-b3aa-47fbe3dcdb10.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 100,
+							"z": 0
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": "ce28f905-a6e1-4f68-9998-ed13f950ea91",
+			"partId": 200001,
+			"manifest": "mf/90da222b-d5c4-40e9-a693-8fe0b2b3ff78.json",
+			"items": [
+				{
+					"id": "acc5ce66-f717-4658-b896-eb4dbc29f9ba",
+					"partId": 300001,
+					"manifest": "mf/f5b3357e-6c76-476e-a97b-2a5612277e8e.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 2000,
+							"z": 0
+						}
+					}
+				},
+				{
+					"id": "c07ac18a-9e22-47b5-9fe5-d261508d436a",
+					"partId": 300002,
+					"manifest": "mf/ba27f19e-2131-4fe4-9b8c-e1edca652393.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 1950,
+							"z": 0
+						}
+					}
+				},
+				{
+					"id": "ae5acf78-ee08-4f8b-9708-9306a35ef163",
+					"partId": 300001,
+					"manifest": "mf/f5b3357e-6c76-476e-a97b-2a5612277e8e.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 300,
+							"z": 0
+						}
+					}
+				},
+				{
+					"id": "82e26c48-0c18-411a-b625-366e49864456",
+					"partId": 300003,
+					"manifest": "mf/f5851579-ce40-4085-b3aa-47fbe3dcdb10.json",
+					"location": {
+						"locationType": 1,
+						"startPos": {
+							"x": 0,
+							"y": 100,
+							"z": 0
+						}
+					}
+				}
+			]
+		}
+	],
+	"doors": [
+		{
+			"id": "a16ab240-88b6-4341-b619-d10ef9271e63",
+			"partId": 400001,
+			"manifest": "mf/bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json",
+			"doorType": 2,
+			"cubes": [
+				"4cd170f8-291b-4236-b515-b5d27ac1209d",
+				"ce28f905-a6e1-4f68-9998-ed13f950ea91"
+			]
+		}
+	]
+}

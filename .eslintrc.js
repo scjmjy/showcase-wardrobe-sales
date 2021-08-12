@@ -23,5 +23,6 @@ module.exports = {
         "@typescript-eslint/no-empty-function": ["off"], // 关闭空函数警告
         "@typescript-eslint/no-unused-vars": ["off"], // 
         "@typescript-eslint/ban-ts-comment": ["off"],
+        "@typescript-eslint/explicit-module-boundary-types": ["off"], // Argument should be typed with a non-any type
     },
 };
