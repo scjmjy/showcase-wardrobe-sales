@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, PropType, ref, watch, Ref } from "vue";
-import Babylon from "@/components/Babylon.vue";
+import Babylon from "@/components/Babylon/Babylon.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { Product, Scheme } from "@/api/interface/provider.interface";
