@@ -1,3 +1,5 @@
+import { LabelValue } from "./common.interfact";
+
 // import { LabelValue } from "./common.interface";
 export interface AjaxResponse<T> {
     status: number; // HTTP status code
@@ -31,8 +33,19 @@ export interface Category {
     icon: string;
 }
 
+export interface CategoryFilter {
+    key: string;
+    title: string;
+    styles: LabelValue[];
+}
+
+export interface FilterResults {
+    cid: string;
+    filters: string[][];
+}
+
 export interface ProductCategory extends Category {
-    children: Category[];
+    filters: CategoryFilter[];
 }
 
 export interface Customer {

@@ -10,6 +10,7 @@
  */
 
 import { StSketchPoint, StSketchRect } from "../geometry/st_geometric_2d";
+import { StVector } from "../geometry/st_vector_2d";
 import { StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StTexture, StWoodType, textureManager } from "../utility/st_texture";
 import { StColor } from "../utility/st_color";
@@ -86,8 +87,7 @@ export class StBoardMesh extends StOnsiteMesh {
             name: mat_name,
             texture: mat_texture,
         });
-        let uuid: string;
-        [uuid, this.mesh] = this.build3d.createTiledBox(this.rect, this.depth, mat);
+        [this.meshId, this.mesh] = this.build3d.createTiledBox(this.rect, this.depth, mat);
         if (!this.mesh) throw Error("Fail to create mesh");
         //console.debug(`##1. mesh position: ${this.mesh?.position}, pivot: ${this.mesh?.getPivotPoint()}`);
         const trans = new StSketchVector3(this.rect.a / 2, this.rect.b / 2, this.depth / 2);
@@ -104,6 +104,6 @@ export class StBoardMesh extends StOnsiteMesh {
         // ATTENTION: I do not fully understand PIVOT :(
         // this.setPivot(trans.multiple(-1));
         this.onAddedMesh();
-        return uuid;
+        return this.meshId;
     }
 }

@@ -1,30 +1,34 @@
 <template>
     <div class="customer-list">
-        <app-header class="customer-list__header" type="dark" customer />
+        <app-header class="customer-list__header" type="dark" customer :back="menu ? '返回' : ''" />
         <customer-menu v-if="menu" ref="refMenu" class="customer-list__menu" @select="onCustomerSelect" />
-        <div class="customer-list__schemes">
-            <div v-if="customerId" class="customer-list__info">
-                <strong class="customer-list__info-label">方案创建时间：</strong>
-                <span class="customer-list__info-value">2021-07-30 18:59</span>
-                <el-button v-if="showServeBtn" size="small" type="dark" round @click="serve">为此客户服务</el-button>
+        <div ref="refSchemeList" class="customer-list__schemes">
+            <div v-for="(schemes, index) of schemesList" :key="index" style="padding: 10px 0px">
+                <div v-if="customerId" class="customer-list__info">
+                    <strong class="customer-list__info-label">方案创建时间：</strong>
+                    <span class="customer-list__info-value">{{ schemes.date }}</span>
+                    <el-button v-if="showServeBtn && index === 0" size="small" type="dark" round @click="serve"
+                        >为此客户服务</el-button
+                    >
+                </div>
+                <el-row :gutter="20">
+                    <el-col
+                        v-if="!showServeBtn && customerId && index === 0"
+                        :span="colSpan"
+                        style="text-align: center; padding-top: 10px; padding-bottom: 10px"
+                    >
+                        <new-scheme-card @new="newScheme" />
+                    </el-col>
+                    <el-col
+                        v-for="(s, index) in schemes.schemes"
+                        :key="index"
+                        :span="colSpan"
+                        style="text-align: center; padding-top: 10px; padding-bottom: 10px"
+                    >
+                        <scheme-card :offer="!showServeBtn" :scheme="s" @detail="gotoDetail" />
+                    </el-col>
+                </el-row>
             </div>
-            <el-row :gutter="20">
-                <el-col
-                    v-for="(s, index) in schemes"
-                    :key="index"
-                    :span="colSpan"
-                    style="text-align: center; padding-top: 10px; padding-bottom: 10px"
-                >
-                    <scheme-card :cover="s.cover" :name="s.name" @detail="gotoDetail(s)" />
-                </el-col>
-                <el-col
-                    v-if="!showServeBtn"
-                    :span="colSpan"
-                    style="text-align: center; padding-top: 10px; padding-bottom: 10px"
-                >
-                    <new-scheme-card @click="newScheme" />
-                </el-col>
-            </el-row>
         </div>
     </div>
 </template>
@@ -34,11 +38,16 @@ import { computed, defineComponent, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import apiProvider from "@/api/provider";
 import CustomerMenu from "./components/CustomerMenu.vue";
-import AppHeader from "../home/components/AppHeader.vue";
+import AppHeader from "@/views/home/components/AppHeader.vue";
 import { Scheme } from "@/api/interface/provider.interface";
 import SchemeCard from "./components/SchemeCard.vue";
 import NewSchemeCard from "./components/NewSchemeCard.vue";
 import { useStore } from "vuex";
+
+interface SortedSchemes {
+    date: string;
+    schemes: Scheme[];
+}
 
 export default defineComponent({
     name: "CustomerList",
@@ -57,16 +66,36 @@ export default defineComponent({
     setup(props) {
         const router = useRouter();
         const store = useStore();
-        const schemes = reactive([] as Scheme[]);
+        const schemesList = reactive([] as SortedSchemes[]);
         const customerId = ref("");
         const showServeBtn = computed(() => store.state.currentCustomer.customerId !== customerId.value);
         const refMenu = ref<InstanceType<typeof CustomerMenu>>();
+        const refSchemeList = ref<HTMLDivElement>();
 
         function onCustomerSelect(cid: string) {
             customerId.value = cid;
             apiProvider.requestSchemes(cid).then((res) => {
                 if (res.ok) {
-                    schemes.splice(0, schemes.length, ...(res.data || []));
+                    const schemeList = res.data || [];
+                    schemeList.sort((a, b) => {
+                        return new Date(b.ptime).getTime() - new Date(a.ptime).getTime();
+                    });
+                    const sortedSchemesList: SortedSchemes[] = [];
+                    let sortedSchemes: SortedSchemes | undefined = undefined;
+                    for (const scheme of schemeList) {
+                        const date = new Date(scheme.ptime).toLocaleDateString();
+                        if (!sortedSchemes || sortedSchemes.date !== date) {
+                            sortedSchemes = {
+                                date: date,
+                                schemes: [scheme],
+                            };
+                            sortedSchemesList.push(sortedSchemes);
+                        } else {
+                            sortedSchemes.schemes.push(scheme);
+                        }
+                    }
+                    schemesList.splice(0, schemesList.length, ...sortedSchemesList);
+                    refSchemeList.value?.scrollTo({ top: 0, behavior: "smooth" });
                 }
             });
         }
@@ -77,7 +106,8 @@ export default defineComponent({
         }
         return {
             refMenu,
-            schemes,
+            refSchemeList,
+            schemesList,
             customerId,
             showServeBtn,
             colSpan: computed(() => (props.menu ? 8 : 6)),
@@ -97,7 +127,7 @@ export default defineComponent({
             },
             newScheme() {
                 router.push({
-                    path: "/select-product"
+                    path: "/select-product",
                 });
             },
             gotoDetail(scheme: Scheme) {
@@ -123,17 +153,18 @@ export default defineComponent({
     overflow: hidden;
     &__menu {
         width: 233px;
+        overflow-y: auto;
     }
     &__schemes {
         flex: 1;
         overflow-y: auto;
-        padding: 20px;
+        padding: 10px 20px;
         background-color: $--color-bg;
     }
     &__info {
         display: flex;
         align-items: center;
-        margin-bottom: 25px;
+        margin-bottom: 15px;
         &-label {
             font-size: 26px;
             color: #172021;

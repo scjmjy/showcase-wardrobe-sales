@@ -6,6 +6,7 @@ type FuncType = (...args: any[]) => any;
  * @param {boolean} immediate
  * @return {*}
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function debounce(func: FuncType, wait: number, immediate = true, ctx?: any): FuncType {
     let timeout: any, args: any, context: any, timestamp: any, result: any;
 

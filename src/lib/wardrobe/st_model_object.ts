@@ -9,7 +9,7 @@
 
 import { StSketchRect } from "../geometry/st_geometric_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StObject } from "../utility/st_object";
+import { StObject, StUuidObject } from "../utility/st_object";
 import { StIAccesory, StIModel } from "./st_model_interface";
 import { v4 as uuidv4 } from "uuid";
 import { StSketchMesh } from "./st_mesh_object";
@@ -55,8 +55,8 @@ import { StSketchMesh } from "./st_mesh_object";
  * Add/Move/Delete an accesory.
  *
  */
-export abstract class StModel extends StObject implements StIModel {
-    readonly uuid: string;
+export abstract class StModel extends StUuidObject implements StIModel {
+    //readonly uuid: string;
     private position: StPoint3;
     private parent?: StIModel;
     private childen: StIModel[] = [];
@@ -66,6 +66,7 @@ export abstract class StModel extends StObject implements StIModel {
     private rotate: StSketchVector3 = new StSketchVector3();
 
     private dirty = false;
+    private deleted = false;
     protected meshList: StSketchMesh[];
 
     constructor(obj: {
@@ -84,9 +85,18 @@ export abstract class StModel extends StObject implements StIModel {
         this.height = obj.height || 0;
         this.depth = obj.depth || 0;
         this.position = obj.position || new StSketchVector3(0, 0, 0);
-        this.uuid = uuidv4();
+        //this.uuid = uuidv4();
         //this.sketchMesh = obj.sketchMesh;
         this.meshList = [];
+    }
+
+    delete(): void {
+        for (const mesh of this.meshList) {
+            mesh.deleteMesh();
+        }
+        const cnt = this.meshList.length;
+        this.meshList.slice(0, cnt);
+        this.deleted = true;
     }
 
     rotateY(angle: number): void {

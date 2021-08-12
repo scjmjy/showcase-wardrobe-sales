@@ -17,6 +17,7 @@
  */
 
 import { StSketchRect } from "../geometry/st_geometric_2d";
+import { StVector } from "../geometry/st_vector_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StContainerType, StDoorType, StPulloutType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
@@ -32,7 +33,7 @@ interface StIModel {
     getParent(): StIModel | undefined;
 
     /**
-     * position in its parent model
+     * position in its parent model?
      */
     getPosition(): StPoint3;
     translate(v: StSketchVector3): void;
@@ -58,6 +59,11 @@ interface StIModel {
     getSize(): StSketchVector3;
 
     updateMesh(): void;
+
+    /**
+     * release all 3D resources.
+     */
+    delete(): void;
 }
 
 interface StIAccesory extends StIModel {
@@ -139,43 +145,31 @@ interface StILevel extends StIModel {
 }
 
 interface StICube extends StIModel {
-    /**
-     * @deprecated  by StIRectArea
-     */
-    createLevel(offset_y: number): void;
+    // /**
+    //  * @deprecated  by StIRectArea
+    //  */
+    // createLevel(offset_y: number): void;
 
-    /**
-     * @deprecated  by StIRectArea
-     */
-    setLevelOffset(level_id: string, offset_y: number): void;
+    // /**
+    //  * @deprecated  by StIRectArea
+    //  */
+    // setLevelOffset(level_id: string, offset_y: number): void;
 
-    /**
-     * @deprecated  by StIRectArea
-     */
-    deleteLevel(level_id: string): void;
+    // /**
+    //  * @deprecated  by StIRectArea
+    //  */
+    // deleteLevel(level_id: string): void;
 
-    /**
-     * @deprecated  by StIRectArea
-     */
-    deleteDivision(div_id: string): void;
+    // /**
+    //  * @deprecated  by StIRectArea
+    //  */
+    // deleteDivision(div_id: string): void;
 
     changeTexture(txt_id: string): void;
 
     changeColor(color: StColor): void;
 
     calculateAvailable(acce: StIAccesory): StSketchRect[];
-}
-
-/**
- * @description Rectangle Area
- */
-export interface StIRectArea extends StIModel {
-    rect: StSketchRect;
-    type: StContainerType;
-
-    addBoard(offset: number): string;
-    setBoard(id: string, offset: string): number;
-    deleteBoard(id: string): void;
 }
 
 /**

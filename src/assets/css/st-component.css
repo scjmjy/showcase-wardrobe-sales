@@ -39,3 +39,7 @@
     width: 945px;
     background-color: darkslategrey;
   }
+
+  .st-body .sidebar label {
+    color:antiquewhite;
+  }

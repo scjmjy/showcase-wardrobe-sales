@@ -64,7 +64,7 @@ export class StBabylonBuild3d implements StIBuild3d {
     }
 
     extrudeShape(polygon: StSketchPolygon, depthZ: number, mat?: StMaterial): [string, BABYLON.Mesh] {
-        const myShape = StBabylonUtil.toScaledVector3(polygon.list);
+        const myShape = StBabylonUtil.toScaledVector3(polygon.vertices);
         const myPath = [new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(0, 0, depthZ / ST_SCALE_FROM_MM)];
         const options = {
             shape: myShape, // vec3 array with z = 0,

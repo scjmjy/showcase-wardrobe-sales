@@ -1,4 +1,5 @@
 import { StSketchPoint, StSketchPolygon, StSketchRect } from "@/lib/geometry/st_geometric_2d";
+import { StVector } from "@/lib/geometry/st_vector_2d";
 import { StSketchVector3 } from "@/lib/geometry/st_geometric_3d";
 import { StTexture, StWoodType, textureManager } from "@/lib/utility/st_texture";
 import { StPillarMesh } from "@/lib/wardrobe/st_mesh_object";

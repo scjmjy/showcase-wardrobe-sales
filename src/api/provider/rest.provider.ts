@@ -5,7 +5,7 @@ import LocalProvider from "./local.provider";
 
 export default class RestProvider extends LocalProvider {
     login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             request({
                 method: "POST",
                 url: "/api/v1/user/login",
@@ -70,7 +70,7 @@ export default class RestProvider extends LocalProvider {
     //     });
     // }
     createCustomer(name: string, mobile?: string): Promise<AjaxResponse<string>> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             request({
                 method: "POST",
                 url: "/api/v1/biz/customer",
@@ -97,7 +97,7 @@ export default class RestProvider extends LocalProvider {
         });
     }
     requestCustomerList(eid: string | number, page = 1, pageSize = 20): Promise<AjaxResponse<Customer[]>> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             request({
                 method: "POST",
                 url: "/api/v1/biz/customers",

@@ -7,13 +7,19 @@
                     >正在为 <strong>{{ currentCustomer.customerName }}</strong> 服务</span
                 >
                 <!-- <el-tag class="app-header__stop" type="error" color="#BB4050">结束服务</el-tag> -->
-                <el-button class="app-header__stop" type="danger" size="small" round @click="stopServe"
+                <el-button v-if="stop" class="app-header__stop" type="danger" size="small" round @click="stopServe"
                     >结束服务</el-button
                 >
+                <el-button v-if="back" class="app-header__back" type="warning" size="small" round @click="doBack">{{
+                    back
+                }}</el-button>
             </template>
             <template v-else>
                 <i class="app-header__icon iconfont icon-wardrobe" />
                 <span class="app-header__label">弘木橱柜定制系统</span>
+                <el-button v-if="back" class="app-header__back" type="danger" size="small" round @click="doBack">{{
+                    back
+                }}</el-button>
             </template>
         </div>
         <div class="app-header__right">
@@ -43,6 +49,14 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        stop: {
+            type: Boolean,
+            default: true,
+        },
+        back: {
+            type: String,
+            default: "", // dark
+        },
     },
     setup(props) {
         const store = useStore();
@@ -57,12 +71,16 @@ export default defineComponent({
             headerStyle,
             stopServe() {
                 store.commit("SWITCH-CUSTOMER", undefined);
+                router.push("/");
             },
             logout() {
                 store.dispatch("logout").then(() => {
                     router.push("/login");
                     // window.location.reload();
                 });
+            },
+            doBack() {
+                router.back();
             },
         };
     },
@@ -92,7 +110,6 @@ export default defineComponent({
     }
     &__serving {
         margin-left: 12px;
-        margin-right: 30px;
         font-size: 26px;
         strong {
             font-size: 30px;
@@ -100,7 +117,12 @@ export default defineComponent({
         }
     }
     &__stop {
+        margin-left: 30px;
         width: 118px !important;
+    }
+    &__back {
+        margin-left: 30px;
+        min-width: 118px !important;
     }
     &__label {
         margin-left: 12px;

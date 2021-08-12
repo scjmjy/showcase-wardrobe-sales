@@ -1,5 +1,6 @@
 import { StBabylonBuild3d } from "@/lib/babylonjs/st_babylon_build3d";
 import { StSketchPoint, StSketchRect } from "@/lib/geometry/st_geometric_2d";
+import { StVector } from "@/lib/geometry/st_vector_2d";
 import { StSketchVector3 } from "@/lib/geometry/st_geometric_3d";
 import { StMaterial } from "@/lib/utility/st_material";
 

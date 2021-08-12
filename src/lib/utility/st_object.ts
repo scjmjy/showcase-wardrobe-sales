@@ -10,8 +10,24 @@
  *
  */
 
+import { v4 as uuidv4 } from "uuid";
+
 export class StObject {
     toString(): string {
         return JSON.stringify(this);
     }
 }
+
+export class StUuidObject extends StObject {
+    readonly uuid = uuidv4();
+}
+
+class StSketchUtil {
+    assert(condition: boolean, msg?: string) {
+        if (!condition) {
+            throw Error(msg);
+        }
+    }
+}
+
+export const sketchUtil = new StSketchUtil();
