@@ -1,5 +1,6 @@
-import { StSketchEdge, StSketchPoint, StSketchRect } from "@/lib/geometry/st_geometric_2d";
+import { StSketchEdge, StSketchLine, StSketchPoint, StSketchRect } from "@/lib/geometry/st_geometric_2d";
 import { StVector } from "@/lib/geometry/st_vector_2d";
+import { StringDictionary } from "babylonjs/Legacy/legacy";
 import { UtilityLayerRenderer } from "babylonjs/Rendering/utilityLayerRenderer";
 import { StSketchTest } from "./st_sketch_test";
 
@@ -96,23 +97,36 @@ class StSketchEdgeTest extends StSketchTest {
 }
 
 
-class StSketchPolygonTest {
+class StSketchPolygonTest extends StSketchTest {
     divide01_byEdgePoints() {
         throw Error("TODO");
     }
 
-    divide02_byCrossLine() {
+   /** 
+    *   	+-(10, 15) -------------+ (20, 15)
+    * 		|						|
+    * 		|						|
+    * 		|						|
+    * 		|						|
+    * 		|						|
+    *   	+-(10, 10) -------------+ (20, 10)
+    */
+    divide02_byCrossLine(): string {
         const pts: StSketchPoint[] = [];
         pts.push(new StSketchPoint(10,10));
         pts.push(new StSketchPoint(20,10));
         pts.push(new StSketchPoint(20,15));
         pts.push(new StSketchPoint(10,15));
         const rect = StSketchRect.buildRectByStartPoint(pts[0], 10, 5);
-        
-        
 
+        const line = new StSketchLine(new StSketchPoint(13,10), new StSketchPoint(13, 15));
+        const children = rect.divideByLine(line);
+        this.assertEqual(children.length, 2);
 
-        throw Error("TODO");
+        console.log(`Child-1: ${children[0]}`);
+        console.log(`Child-2: ${children[1]}`);
+        const info = `Child-1: ${children[0]}` + "\n"  + `Child-2: ${children[1]}`;
+        return info;
     }
 }
 

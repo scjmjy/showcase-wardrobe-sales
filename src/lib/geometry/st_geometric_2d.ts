@@ -386,12 +386,13 @@ export class StSketchPolygon extends StGeometic2D {
 
     private _getNextEdge(edge_id: string): [number, StSketchEdge] {
         let [idx] = this._getEdgeById(edge_id);
+        idx++;
         if (idx == this.edges.length) {
             idx = 0;
-        } else {
-            idx++;
         }
-        return [idx, this.edges[idx]];
+        const edge = this.edges[idx];
+        if(!edge) throw Error(`Fail to find edge by index: ${idx}`);
+        return [idx, edge];
     }
 
     /**
@@ -432,15 +433,21 @@ export class StSketchPolygon extends StGeometic2D {
     }
 
     divideByLine(line: StSketchLine): StSketchPolygon[] {
+        console.debug(`divide by line ${line}`);
         const polys: StSketchPolygon[] = [];
-        const pts: StEdgePoint[] = [];
+        const pts:   StEdgePoint[] = [];
+        const edges: StSketchEdge[] = [];
         for (const edge of this.edges) {
             const p: StEdgePoint | null = edge.intersectWith(line);
             if (p != null) {
                 pts.push(p);
+                edges.push(edge);
             }
         }
-        return this.divideByPoints(pts[0], pts[1]);
+        return [ 
+            this._createChild(edges[0], pts[0], pts[1], edges[1]), 
+            this._createChild(edges[1], pts[1], pts[0], edges[0]) 
+        ];
     }
 
     /**
@@ -456,6 +463,7 @@ export class StSketchPolygon extends StGeometic2D {
         pt_arr.push(p0, p1);
         let edge = e1;
         for (; edge != e0; ) {
+            console.debug(`## process edge: ${edge}`);
             pt_arr.push(edge.vertex1);
             [, edge] = this._getNextEdge(edge.uuid);
         }

@@ -10,14 +10,13 @@
                 <button class="camera" v-on:click="onCameraFront()">视角: 正面</button>
             </div>
             <div class="sidebar">
-                <label>Edge Intersection:</label>
+                <label>Edge Intersection: </label>
                 <button class="test" v-on:click="onTestEdge('intersect01')">Cross </button>
                 <button class="test" v-on:click="onTestEdge('intersect02')">NONE </button>
                 <button class="test" v-on:click="onTestEdge('intersect03')">On One Edge</button>
                 <br />
-                <!--
-                <button class="test" v-on:click="onTestPolygon('TODO...')">Board: Left-Right</button>
-                -->
+                <label>Divide Polygon: </label>
+                <button class="test" v-on:click="onTestPolygon('divide02')">Cross Line</button>
             </div>
         </div>
 
@@ -36,6 +35,7 @@ import { St3DEngine, sketchEngine } from "@/lib/utility/st_sketch_engine";
 import { StSketchCacheTest } from "@/lib/data/st_sketch_cache_test";
 import { StISketchRoom } from "@/lib/utility/st_sketch_room_interface";
 import { edgeTest } from "@/test/geometry/st_geometric_2d_test";
+import { polygonTest } from "@/test/geometry/st_geometric_2d_test";
 
 export default defineComponent({
     name: "st_geometry_2d",
@@ -130,17 +130,18 @@ export default defineComponent({
         },
 
         onTestPolygon(opt: string) {
-            /*
-            const test = cubeTest;
-            switch (opt) {
-                case "_TODO":
-                    test.create_01();
-                    break;
-                default:
-                    alert("unknown operation: " + opt);
-                    break;
+            try{
+                switch (opt) {
+                    case "divide02":
+                        this.topInfo = polygonTest.divide02_byCrossLine();
+                        break;
+                    default:
+                        alert("unknown operation: " + opt);
+                        break;
+                }
+            }catch(e) {
+                this.topInfo = (e as Error).message;
             }
-            */
         },
 
         async onCacheInfo() {

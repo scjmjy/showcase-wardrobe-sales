@@ -16,6 +16,12 @@ export class StObject {
     toString(): string {
         return JSON.stringify(this);
     }
+
+    assertTrue(v: boolean, msg?:string){
+        if(!v) {
+            throw Error(msg ?  `Error: ${msg}`: "Error: Assert Failure!");
+        }
+    }
 }
 
 export class StUuidObject extends StObject {
