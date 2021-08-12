@@ -46,7 +46,7 @@ export class Graphics {
             Math.PI / 2,
             Math.PI / 2,
             size,
-            new BABYLON.Vector3(0, 0, 0),
+            new BABYLON.Vector3(0, 500, 0),
             this._scene,
         );
         this._camera.maxZ = size * 3.75;
