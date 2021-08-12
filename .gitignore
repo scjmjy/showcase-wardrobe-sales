@@ -23,3 +23,6 @@ pnpm-debug.log*
 
 # Windows ADS
 *Zone.Identifier
+
+# package-lock
+package-lock.json
