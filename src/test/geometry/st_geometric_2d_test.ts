@@ -122,9 +122,13 @@ class StSketchPolygonTest extends StSketchTest {
         const line = new StSketchLine(new StSketchPoint(13,10), new StSketchPoint(13, 15));
         const children = rect.divideByLine(line);
         this.assertEqual(children.length, 2);
-
         console.log(`Child-1: ${children[0]}`);
         console.log(`Child-2: ${children[1]}`);
+
+        this.assertEqual(children[0].vertices.length,   4, "A rectangle has 4 vertices");
+        this.assertEqual(children[0].edges.length,      4, "A rectangle has 4 edges");
+        this.assertEqual(children[1].vertices.length,   4, "A rectangle has 4 vertices");
+        this.assertEqual(children[1].edges.length,      4, "A rectangle has 4 edges");
         const info = `Child-1: ${children[0]}` + "\n"  + `Child-2: ${children[1]}`;
         return info;
     }

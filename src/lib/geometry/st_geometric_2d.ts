@@ -477,7 +477,7 @@ export class StSketchPolygon extends StGeometic2D {
             }
         }
         const pt_arr2: StSketchPoint[] = [];
-        for (let i = 1; i < cnt; i++) {
+        for (let i = 0; i < cnt; i++) {
             const idx = (i + min[0]) % cnt;
             const pt = pt_arr[idx];
             pt_arr2.push(pt);

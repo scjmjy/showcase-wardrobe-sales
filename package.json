@@ -25,6 +25,7 @@
     "element-plus": "^1.0.2-beta.65",
     "geometric": "^2.2.6",
     "js-cookie": "^3.0.0",
+    "json-stringify-pretty-compact": "^3.0.0",
     "localforage": "^1.9.0",
     "md5": "^2.3.0",
     "mitt": "^3.0.0",
