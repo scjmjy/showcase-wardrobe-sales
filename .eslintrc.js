@@ -22,5 +22,6 @@ module.exports = {
         "@typescript-eslint/no-explicit-any": ["off"], // 关闭any类型时的警告
         "@typescript-eslint/no-empty-function": ["off"], // 关闭空函数警告
         "@typescript-eslint/no-unused-vars": ["off"], // 
+        "@typescript-eslint/ban-ts-comment": ["off"],
     },
 };

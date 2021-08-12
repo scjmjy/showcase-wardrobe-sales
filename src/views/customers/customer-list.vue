@@ -131,11 +131,12 @@ export default defineComponent({
                 });
             },
             gotoDetail(scheme: Scheme) {
+                store.commit("SET-PAGE-CHANNEL", {
+                    key: "productDetailData",
+                    value: scheme,
+                });
                 router.push({
                     path: "/product-detail",
-                    query: {
-                        schemeId: scheme.id,
-                    },
                 });
             },
         };

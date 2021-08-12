@@ -1,12 +1,20 @@
 import { createStore } from "vuex";
 import apiProvider from "@/api/provider";
+import { Product, Scheme } from "@/api/interface/provider.interface";
 import { Customer, User } from "@/api/dto/user";
 
-export default createStore({
-    state: {
-        user: User.load(),
-        currentCustomer: new Customer(),
+const state = {
+    user: User.load(),
+    currentCustomer: new Customer(),
+    pageChannel: {
+        productDetailData: undefined as undefined | Product | Scheme,
     },
+};
+
+export type StateType = typeof state;
+
+export default createStore({
+    state,
     getters: {
         isLoggedIn: (state) => Boolean(state.user.userId),
         isServing: (state) => Boolean(state.currentCustomer.customerId),
@@ -31,6 +39,10 @@ export default createStore({
                 state.user = new User();
             }
             state.user.save();
+        },
+        "SET-PAGE-CHANNEL"(state, { key, value }) {
+            // @ts-ignore
+            state.pageChannel[key] = value;
         },
     },
     actions: {

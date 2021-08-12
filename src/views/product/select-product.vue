@@ -1,6 +1,6 @@
 <template>
     <div class="select-product">
-        <app-header class="select-product__header" customer type="dark" back="退出新方案定制" />
+        <app-header class="select-product__header" customer type="dark" />
         <prod-cat-menu class="select-product__menu" @select="onProdCatSelect" @filter="onProdFilter" />
         <el-row ref="refProdList" class="select-product__products" :gutter="20" justify="space-between">
             <el-col
@@ -31,6 +31,7 @@
 <script lang="ts">
 import { defineComponent, reactive, ref, DefineComponent } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 import apiProvider from "@/api/provider";
 import ProdCatMenu from "./components/ProdCatMenu.vue";
 import ProductCard from "./components/ProductCard.vue";
@@ -46,6 +47,7 @@ export default defineComponent({
     },
     setup() {
         const router = useRouter();
+        const store = useStore();
         const products = reactive([] as Product[]);
         const refProdList = ref<InstanceType<DefineComponent>>();
 
@@ -63,12 +65,13 @@ export default defineComponent({
                     }
                 });
             },
-            onProductClick(product: any) {
+            onProductClick(product: Product) {
+                store.commit("SET-PAGE-CHANNEL", {
+                    key: "productDetailData",
+                    value: product,
+                });
                 router.push({
                     path: "/product-detail",
-                    query: {
-                        productId: product.id,
-                    },
                 });
             },
             onProdFilter(filters: any) {

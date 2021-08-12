@@ -1,6 +1,6 @@
 <template>
     <div class="customer-login">
-        <app-header />
+        <app-header back="" />
         <div class="customer-login-form">
             <div class="customer-login-form__title">新客户接待</div>
             <el-input

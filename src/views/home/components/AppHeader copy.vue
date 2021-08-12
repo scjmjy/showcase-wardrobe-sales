@@ -1,15 +1,6 @@
 <template>
     <div class="app-header" :style="headerStyle">
-        <el-button
-            v-if="back"
-            class="app-header__left app-header__back"
-            type="text"
-            icon="el-icon-arrow-left"
-            round
-            @click="doBack"
-            >{{ back }}</el-button
-        >
-        <div class="app-header__middle">
+        <div class="app-header__left">
             <template v-if="customer && currentCustomer.customerId">
                 <i class="app-header__icon iconfont icon-customer" />
                 <span class="app-header__serving"
@@ -19,11 +10,16 @@
                 <el-button v-if="stop" class="app-header__stop" type="danger" size="small" round @click="stopServe"
                     >结束服务</el-button
                 >
+                <el-button v-if="back" class="app-header__back" type="warning" size="small" round @click="doBack">{{
+                    back
+                }}</el-button>
             </template>
             <template v-else>
-                <i v-if="titleIcon" class="app-header__icon iconfont" :class="titleIcon" />
-                <span class="app-header__label">{{ title }}</span>
-                <span v-if="subTitle" class="app-header__subLabel">{{ subTitle }}</span>
+                <i class="app-header__icon iconfont icon-wardrobe" />
+                <span class="app-header__label">弘木橱柜定制系统</span>
+                <el-button v-if="back" class="app-header__back" type="danger" size="small" round @click="doBack">{{
+                    back
+                }}</el-button>
             </template>
         </div>
         <div class="app-header__right">
@@ -59,19 +55,7 @@ export default defineComponent({
         },
         back: {
             type: String,
-            default: "返回", //
-        },
-        icon: {
-            type: String,
-            default: "wardrobe",
-        },
-        title: {
-            type: String,
-            default: "弘木橱柜定制系统",
-        },
-        subTitle: {
-            type: String,
-            default: "",
+            default: "", // dark
         },
     },
     setup(props) {
@@ -85,7 +69,6 @@ export default defineComponent({
             user: computed(() => store.state.user),
             currentCustomer: computed(() => store.state.currentCustomer),
             headerStyle,
-            titleIcon: computed(() => (props.icon ? "icon-" + props.icon : "")),
             stopServe() {
                 store.commit("SWITCH-CUSTOMER", undefined);
                 router.push("/");
@@ -114,23 +97,12 @@ export default defineComponent({
 
     width: 100%;
     height: 70px;
-    padding: 0px 40px 0px 10px;
+    padding: 0 40px;
     position: absolute;
     top: 0;
     left: 0;
 
-    &__left,
-    &__right,
-    &__middle {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    &__back {
-        font-size: 26px;
-        color: inherit !important;
-    }
+    // background-color: #ffffffbd;
 
     &__icon {
         font-size: 34px;
@@ -145,8 +117,12 @@ export default defineComponent({
         }
     }
     &__stop {
-        margin-left: 20px;
+        margin-left: 30px;
         width: 118px !important;
+    }
+    &__back {
+        margin-left: 30px;
+        min-width: 118px !important;
     }
     &__label {
         margin-left: 12px;
@@ -154,8 +130,12 @@ export default defineComponent({
         font-size: 26px;
         font-weight: bold;
     }
-    &__subLabel {
-        font-size: 24px;
+
+    &__left,
+    &__right {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     &__avatar {
