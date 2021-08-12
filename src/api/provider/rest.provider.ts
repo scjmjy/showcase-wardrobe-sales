@@ -1,6 +1,6 @@
 import store from "@/store";
 import request from "@/utils/request";
-import { AjaxResponse, Customer, LoginResult } from "../interface/provider.interface";
+import { AjaxResponse, Customer, LoginResult, ProductCategory } from "../interface/provider.interface";
 import LocalProvider from "./local.provider";
 
 export default class RestProvider extends LocalProvider {
@@ -124,4 +124,28 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
+
+    // requestProductCategories(): Promise<AjaxResponse<ProductCategory[]>> {
+    //     return new Promise((resolve) => {
+    //         request({
+    //             method: "GET",
+    //             url: "/api/v1/biz/product/categories",
+    //         })
+    //             .then((res) => {
+    //                 resolve({
+    //                     ok: true,
+    //                     status: res.status,
+    //                     data: res.data,
+    //                 });
+    //             })
+    //             .catch(() => {
+    //                 resolve({
+    //                     ok: false,
+    //                     status: 500,
+    //                     show: "error",
+    //                     msg: "获取商品分类出错",
+    //                 });
+    //             });
+    //     });
+    // }
 }

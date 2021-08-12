@@ -254,7 +254,7 @@ export default defineComponent({
                 stateSelect.value = stateSelect.value === "active" ? "" : "active";
             },
             onMetalsClick() {
-                stateSelect.value = stateSelect.value === "active" ? "" : "active";
+                stateMetals.value = stateMetals.value === "active" ? "" : "active";
                 showMenu.value = true;
             },
             onInOutClick() {

@@ -27,11 +27,11 @@ export interface Product {
     cover: string;
 }
 
-export interface Category {
-    id: string | number;
-    name: string;
-    icon: string;
-}
+// export interface Category {
+//     id: string | number;
+//     name: string;
+//     icon: string;
+// }
 
 export interface CategoryFilter {
     key: string;
@@ -44,8 +44,16 @@ export interface FilterResults {
     filters: string[][];
 }
 
-export interface ProductCategory extends Category {
-    filters: CategoryFilter[];
+// export interface ProductCategory extends Category {
+//     filters: CategoryFilter[];
+// }
+
+export interface ProductCategory {
+    id: string | number;
+    name: string;
+    pic?: string;
+    leaf?: boolean;
+    children?: ProductCategory[];
 }
 
 export interface Customer {

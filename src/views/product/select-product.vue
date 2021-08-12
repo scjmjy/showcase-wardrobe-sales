@@ -92,7 +92,7 @@ export default defineComponent({
     overflow: hidden;
     &__menu {
         // width: 233px;
-        overflow: hidden;
+        overflow-y: auto;
     }
     &__products {
         margin-left: 0px !important;
