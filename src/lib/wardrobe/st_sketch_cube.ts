@@ -22,6 +22,7 @@ import { StWoodType, textureManager } from "../utility/st_texture";
 
 import StSketchConstant from "../utility/st_sketch_constant";
 import { StAccesoryManager } from "../data/st_accesory_manager";
+import { UtilityLayerRenderer } from "babylonjs/Rendering/utilityLayerRenderer";
 
 export class StSketchDivision extends StModel implements StIDivison {
     /**
@@ -169,9 +170,10 @@ export class StSketchCube extends StModel implements StICube {
     private readonly rect: StSketchRect;
 
     /**
-     * each edge is real wooden board.
+     * each line is real wooden board.
      */
-    private readonly divideEdges: StSketchEdge[] = [];
+    private readonly divideBoard: StSketchLine[] = [];
+    //private readonly divideEdges: StSketchEdge[] = [];
 
     // private readonly divideRects: StSketchRect[] = [];  // [2021-8-9] seems useless?
     private readonly divisions: StSketchDivision[] = [];
@@ -241,8 +243,10 @@ export class StSketchCube extends StModel implements StICube {
      *
      * @param e1
      * @param e2
+     * 
+     * @returns the divide board (line)
      */
-    addDivideBoard(e0: StSketchEdge, e1: StSketchEdge): StSketchEdge {
+    addDivideBoard(e0: StSketchEdge, e1: StSketchEdge): StSketchLine {
         // 1. create a line from the 2 points of input e1 and e0
         const p0 = e0.addPoint(100);
         const vec0 = e0.getVector().rotate(Math.PI / 2);
@@ -256,24 +260,22 @@ export class StSketchCube extends StModel implements StICube {
         if (p1 == null) {
             throw Error(`Fail to find the intersecting point on the 2nd edge: ${e1}`);
         }
-        const edge = new StSketchEdge(p0, p1);
-        this.divideEdges.push(edge);
+        const line = new StSketchLine(p0, p1);
+        this.divideBoard.push(line);
 
-        // 2. search all divisions for the crossing polygons
+        // 2. traverse all divisions, try to  divide them with input line
         const cross_poly: StSketchPolygon[] = [];
         for (const div of this.divisions) {
-            // TODO: have build error below.
-            // const subs = div.divideByEdge(edge);
-            // if (subs == null) {
-            //     console.log(`edge ${edge} cannot divide division: ${div}`);
-            //     continue;
-            // }
-            // TODO
+            const subs = div.divideByLine(line);
+            if (subs == null) {
+                console.log(`## Board ${line} cannot divide division: ${div}`);
+                continue;
+            }
+            this.assertTrue(subs.length == 2);
+            this.divisions.push(subs[0]);
+            this.divisions.push(subs[1]);
         }
-
-        // 3. divides all crossing polygons
-
-        throw new Error("Method not implemented.");
+        return line;
     }
 
     moveDivide(line: string, step?: number): StSketchLine {
