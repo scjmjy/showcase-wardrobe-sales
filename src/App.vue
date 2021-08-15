@@ -10,9 +10,25 @@
             <router-link to="/demo-demo3">Demo3</router-link> |
             <router-link to="/editscheme">Edit Scheme</router-link>
         </div>
-        <router-view />
+        <router-view v-slot="{ Component }">
+            <keep-alive include="SelectProduct">
+                <component :is="Component" />
+            </keep-alive>
+        </router-view>
     </div>
 </template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+    setup() {
+        return {
+            // cachedViews: ["SelectProduct"],
+        };
+    },
+});
+</script>
 
 <style lang="scss">
 @import "./assets/scss/index.scss";

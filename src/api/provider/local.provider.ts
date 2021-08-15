@@ -3,6 +3,9 @@ import ApiProvider, {
     CategoryFilter,
     Customer,
     LoginResult,
+    Part,
+    PartCategory,
+    PartCategoryMeta,
     Product,
     ProductCategory,
     Scheme,
@@ -244,7 +247,7 @@ export default class LocalProvider implements ApiProvider {
                     manifest: "manifest",
                     compostion: "compostion",
                     description: "description",
-                    cover: "https://picsum.photos/300/300?random=" + index + cid,
+                    pic: "https://picsum.photos/300/300?random=" + index + cid,
                 };
             }),
         });
@@ -260,7 +263,7 @@ export default class LocalProvider implements ApiProvider {
                 manifest: "manifest",
                 compostion: "compostion",
                 description: "description",
-                cover: "https://picsum.photos/300/300?random=" + pid,
+                pic: "https://picsum.photos/300/300?random=" + pid,
             },
         });
     }
@@ -320,5 +323,30 @@ export default class LocalProvider implements ApiProvider {
                 ],
             },
         });
+    }
+    createNewScheme(
+        name: string,
+        eid: string | number,
+        cid: string | number,
+        pid: string | number,
+        sid?: string | number,
+    ): Promise<AjaxResponse<string | number>> {
+        throw new Error("Method not implemented.");
+    }
+    requestPartCategories(): Promise<AjaxResponse<PartCategory[]>> {
+        throw new Error("Method not implemented.");
+    }
+    requestPartCatMeta(cid: string | number): Promise<AjaxResponse<PartCategoryMeta>> {
+        throw new Error("Method not implemented.");
+    }
+    requestParts(
+        ptcid: string | number,
+        ptbid: string | number,
+        cid: string | number,
+        mid: string | number,
+        page: number,
+        pageSize: number,
+    ): Promise<AjaxResponse<Part[]>> {
+        throw new Error("Method not implemented.");
     }
 }

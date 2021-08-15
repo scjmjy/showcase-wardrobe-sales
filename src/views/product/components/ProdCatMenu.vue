@@ -1,11 +1,12 @@
 <template>
-    <el-menu class="prod-cat-menu" @select="onProdCatSelect">
+    <el-menu ref="elMenu" class="prod-cat-menu" @select="onProdCatSelect" :default-active="defaultActive">
+        <!-- :default-openeds="defaultOpeneds" -->
         <template v-for="cat of productCats" :key="cat.id">
-            <el-submenu v-if="cat.children && cat.children.length" :index="cat.id">
+            <el-submenu v-if="cat.children && cat.children.length" :index="cat.id + ''">
                 <template #title>{{ cat.name }}</template>
                 <menu-item :category="cat" />
             </el-submenu>
-            <el-menu-item v-else :index="cat.id">
+            <el-menu-item v-else :index="cat.id + ''">
                 <template #title>{{ cat.name }}</template>
             </el-menu-item>
         </template>
@@ -69,12 +70,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from "vue";
+import { computed, DefineComponent, defineComponent, nextTick, reactive, ref } from "vue";
 import apiProvider from "@/api/provider";
-import { CategoryFilter, ProductCategory } from "@/api/interface/provider.interface";
+import { CategoryFilter, findDefaultActiveProdCat, ProductCategory } from "@/api/interface/provider.interface";
 import variables from "@/assets/scss/variables.scss";
 import { LabelValue } from "@/api/interface/common.interfact";
 import MenuItem from "./MenuItem.vue";
+import { ElMenu } from "element-plus";
 
 export default defineComponent({
     // props: {
@@ -88,8 +90,9 @@ export default defineComponent({
     },
     emits: ["select", "filter"],
     setup(props, context) {
-        props;
+        const elMenu = ref<InstanceType<typeof ElMenu>>();
         const defaultActive = ref("" as number | string);
+        const defaultOpeneds = ref([] as string[]);
 
         const productCats = reactive([] as ProductCategory[]);
         const currentProdCat = ref<ProductCategory | undefined>();
@@ -101,7 +104,17 @@ export default defineComponent({
             if (res.ok) {
                 productCats.push(...(res.data || []));
                 if (productCats.length > 0) {
-                    defaultActive.value = productCats[0].id;
+                    // productCats.forEach((item, index) => {
+                    //     defaultOpeneds.value.push(item.id + "");
+                    // });
+                    defaultOpeneds.value.push(productCats[0].id.toString());
+                    nextTick(() => {
+                        defaultOpeneds.value.forEach((sub) => {
+                            elMenu.value?.open(sub);
+                        });
+                    });
+
+                    defaultActive.value = findDefaultActiveProdCat(productCats);
                     onProdCatSelect(defaultActive.value || "");
                 }
             }
@@ -115,10 +128,12 @@ export default defineComponent({
         //     });
         // };
         return {
+            elMenu,
             currentProdCat,
             productCats,
             variables,
             defaultActive,
+            defaultOpeneds,
             opened: ref(false),
             onStyleClick(filter: CategoryFilter, style: LabelValue) {
                 style.selected = !style.selected;

@@ -24,7 +24,7 @@ export interface Product {
     manifest: string;
     compostion: string;
     description: string;
-    cover: string;
+    pic: string;
 }
 
 // export interface Category {
@@ -56,6 +56,23 @@ export interface ProductCategory {
     children?: ProductCategory[];
 }
 
+function findDefaultActive(cat: ProductCategory): string {
+    if (!cat.children || cat.children.length === 0) {
+        return cat.id.toString();
+    } else {
+        const cat1 = cat.children[0];
+        return findDefaultActive(cat1);
+    }
+}
+
+export function findDefaultActiveProdCat(cats: ProductCategory[]): string {
+    if (cats.length === 0) {
+        return "";
+    }
+    const cat = cats[0];
+    return findDefaultActive(cat);
+}
+
 export interface Customer {
     cid: string;
     name: string;
@@ -73,9 +90,50 @@ export interface Scheme {
     composition: string;
     offer: string;
     ptime: string;
-    cover: [string, string, string];
+    cover: string[];
 }
 
+export interface PartCategory {
+    id: string | number;
+    name: string;
+    pic?: string;
+    leaf?: boolean;
+    children?: PartCategory[];
+}
+
+export interface MetaColor {
+    id: string | number;
+    name: string;
+    hex: string;
+    pic: string;
+}
+export interface MetaMaterial {
+    id: string | number;
+    name: string;
+    pic: string;
+}
+export interface MetaBrand {
+    id: string | number;
+    name: string;
+    logo: string;
+}
+export interface PartCategoryMeta {
+    colors: MetaColor[];
+    materials: MetaMaterial[];
+    brands: MetaBrand[];
+}
+export interface Part {
+    id: string | number;
+    name: string;
+    depth: number;
+    width: number;
+    height: number;
+    manifest: string;
+    pic: string;
+    price: string;
+    unit: string;
+    mutime?: string;
+}
 export default interface ApiProvider {
     /**
      * 登录接口
@@ -117,4 +175,35 @@ export default interface ApiProvider {
     requestSchemes(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Scheme[]>>;
 
     requestSchemeDetail(sid: string | number): Promise<AjaxResponse<Scheme>>;
+
+    createNewScheme(
+        name: string,
+        eid: string | number,
+        cid: string | number,
+        pid: string | number,
+        sid?: string | number,
+    ): Promise<AjaxResponse<string | number>>;
+
+    requestPartCategories(): Promise<AjaxResponse<PartCategory[]>>;
+    /**
+     * @param cid 分类 id
+     */
+    requestPartCatMeta(cid: string | number): Promise<AjaxResponse<PartCategoryMeta>>;
+    /**
+     *
+     * @param ptcid 配件分类 id
+     * @param ptbid 配件品牌 id
+     * @param cid 颜色 id
+     * @param mid 材质 id
+     * @param page
+     * @param pageSize
+     */
+    requestParts(
+        ptcid: string | number,
+        ptbid: string | number,
+        cid: string | number,
+        mid: string | number,
+        page: number,
+        pageSize: number,
+    ): Promise<AjaxResponse<Part[]>>;
 }

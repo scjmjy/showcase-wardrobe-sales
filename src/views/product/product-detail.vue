@@ -1,5 +1,5 @@
 <template>
-    <div v-if="product" class="product-detail">
+    <div v-if="product" class="product-detail" :class="{ 'menu-opened': showMenu }">
         <transition name="el-zoom-in-top">
             <app-header
                 v-if="mode === 'view'"
@@ -16,7 +16,9 @@
         <el-collapse-transition-h @after-leave="mode = 'edit'">
             <div v-if="mode === 'view'" class="product-detail__action-customize">
                 <div>
-                    <el-button type="primary" round v-if="isNew" @click="newScheme">开始定制</el-button>
+                    <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="creatingNewScheme"
+                        >开始定制</el-button
+                    >
                     <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
                     <el-button type="primary" round v-if="isSelf && !product.offer" @click="offer">报价</el-button>
                     <el-button type="primary" round v-if="isSelf || isOther" @click="copyScheme"
@@ -34,34 +36,43 @@
                 >返回</el-button
             >
             <div class="product-detail__action-left state-icon-group-v">
-                <state-icon icon="save" label="保存" @click="onSaveClick"></state-icon>
-                <state-icon icon="offer" label="报价" @click="onOfferClick"></state-icon>
+                <state-icon icon="save" label="保存" @change="onSaveClick"></state-icon>
+                <state-icon icon="offer" label="报价" @change="onOfferClick"></state-icon>
             </div>
             <div class="product-detail__action-right state-icon-group-h">
-                <state-icon v-model="stateSelect" icon="select-all" label="全选" @click="onSelectAllClick"></state-icon>
-                <state-icon v-model="stateMetals" icon="metals" label="五金" @click="onMetalsClick"></state-icon>
+                <state-icon
+                    v-model="stateSelect"
+                    icon="select-all"
+                    label="全选"
+                    @change="onSelectAllClick"
+                ></state-icon>
+                <state-icon v-model="stateMetals" icon="metals" label="五金" @change="onMetalsChange"></state-icon>
                 <state-icon
                     v-model="stateInOut"
                     icon="parts-indoor"
                     :states="inOutStates"
-                    @click="onInOutClick"
+                    @change="onInOutChange"
                 ></state-icon>
                 <state-icon
                     icon="parts"
                     label="部件"
                     iconColor="white"
                     iconBg="#5EB6B3"
-                    @click="onPartsClick"
+                    @change="onPartsClick"
                 ></state-icon>
             </div>
+            <div class="product-detail__action-top state-icon-group-v">
+                <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
+                <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon>
+            </div>
             <el-collapse-transition-h>
-                <div v-if="mode === 'edit' && showMenu" class="product-detail__menu2d">商品菜单</div>
+                <parts-menu v-if="mode === 'edit' && showMenu" class="product-detail__menu2d"></parts-menu>
             </el-collapse-transition-h>
         </template>
         <customize-dlg
             v-model="showCustomizeDlg"
             :title="customizeDlgTitle"
-            @confirm="onEditSchemeConfirm"
+            @confirm="onNewSchemeConfirm"
             @cancel="onNewSchemeCancel"
         />
         <offer-dlg v-model="showOfferDlg" title="报价" @confirm="showOfferDlg = false" @cancel="showOfferDlg = false" />
@@ -79,6 +90,8 @@ import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
+import PartsMenu from "./components/PartsMenu.vue";
+import { ElMessage } from "element-plus";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -87,6 +100,7 @@ export default defineComponent({
         CustomizeDlg,
         OfferDlg,
         Babylon,
+        PartsMenu,
     },
     setup() {
         const route = useRoute();
@@ -145,6 +159,7 @@ export default defineComponent({
         const customizeMode = ref<"new" | "continue" | "copy">("new");
         const showCustomizeDlg = ref(false);
         const showOfferDlg = ref(false);
+        const creatingNewScheme = ref(false);
 
         async function gotoEditScheme() {
             showCustomizeDlg.value = false;
@@ -174,20 +189,28 @@ export default defineComponent({
         });
         const showMenu = ref(false);
 
+        const state3D = ref<"active" | "">("");
+        const stateRuler = ref<"active" | "">("");
         const stateSelect = ref<"active" | "">("");
         const stateMetals = ref<"active" | "">("");
         const stateInOut = ref<"in" | "out">("in");
-        const inOutStates = {
-            in: {
+        const inOutStates = [
+            {
+                state: "in",
                 label: "内配",
                 iconBg: "black",
                 iconColor: "#D8D8D8",
             },
-            out: {
+
+            {
+                state: "out",
                 label: "外配",
             },
-        };
+        ];
+
         return {
+            state3D,
+            stateRuler,
             stateSelect,
             stateMetals,
             stateInOut,
@@ -203,6 +226,7 @@ export default defineComponent({
             showCustomizeDlg,
             showOfferDlg,
             customizeDlgTitle,
+            creatingNewScheme,
             titles: computed(() => {
                 const { customerName } = store.state.currentCustomer;
                 let productName = "";
@@ -227,17 +251,58 @@ export default defineComponent({
             },
             newScheme() {
                 customizeMode.value = "new";
-                showCustomizeDlg.value = true;
+                // TODO uncomment
+                // showCustomizeDlg.value = true;
+                if (!store.state.currentCustomer.customerId) {
+                    ElMessage({
+                        type: "warning",
+                        message: "没有正在服务的客户",
+                    });
+                    return;
+                }
+                creatingNewScheme.value = true;
+                apiProvider
+                    .createNewScheme(
+                        "新方案" + Date.now(),
+                        store.state.user.userId,
+                        store.state.currentCustomer.customerId,
+                        product.value.id,
+                    )
+                    .then((res) => {
+                        if (res.ok) {
+                            gotoEditScheme();
+                        } else if (res.show) {
+                            ElMessage({
+                                type: res.show,
+                                message: res.msg,
+                            });
+                        }
+                    })
+                    .finally(() => {
+                        creatingNewScheme.value = false;
+                    });
+                // TODO remove
+                // gotoEditScheme();
             },
             continueEditScheme() {
                 customizeMode.value = "continue";
                 gotoEditScheme();
             },
             copyScheme() {
+                if (!store.state.currentCustomer.customerId) {
+                    ElMessage({
+                        type: "warning",
+                        message: "没有正在服务的客户",
+                    });
+                    return;
+                }
                 customizeMode.value = "copy";
-                showCustomizeDlg.value = true;
+                // TODO uncomment
+                // showCustomizeDlg.value = true;
+                // TODO remove
+                gotoEditScheme();
             },
-            onEditSchemeConfirm() {
+            onNewSchemeConfirm() {
                 gotoEditScheme();
             },
             onNewSchemeCancel() {
@@ -251,18 +316,29 @@ export default defineComponent({
             onSaveClick() {},
             onOfferClick() {},
             onSelectAllClick() {
-                stateSelect.value = stateSelect.value === "active" ? "" : "active";
+                // stateSelect.value = stateSelect.value === "active" ? "" : "active";
             },
-            onMetalsClick() {
-                stateMetals.value = stateMetals.value === "active" ? "" : "active";
-                showMenu.value = true;
+            onMetalsChange(val: string) {
+                // stateMetals.value = stateMetals.value === "active" ? "" : "active";
+                showMenu.value = val === "active" ? true : false;
             },
-            onInOutClick() {
-                stateInOut.value = stateInOut.value === "in" ? "out" : "in";
-                showMenu.value = true;
+            onInOutChange(val: string) {
+                // showMenu.value = val === "active" ? true : false;
             },
-            onPartsClick() {
-                showMenu.value = true;
+            onPartsClick(val: string) {
+                showMenu.value = !showMenu.value;
+            },
+            on3DClick() {
+                ElMessage({
+                    type: "info",
+                    message: "TODO: 切换3D视图",
+                });
+            },
+            onRulerClick() {
+                ElMessage({
+                    type: "info",
+                    message: "TODO: 3D视图显示标尺",
+                });
             },
         };
     },
@@ -278,7 +354,7 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     // background-color: $--color-bg;
-    background-color: var(--el-color-primary);
+    background-color: var(--el-color-bg);
     &__3d {
         // flex: 1;
         // overflow: auto;
@@ -309,20 +385,17 @@ export default defineComponent({
     }
     &__back {
         position: absolute;
-        left: 50px;
-        top: 50px;
+        left: 30px;
+        top: 10px;
         font-size: 26px;
         color: black !important;
     }
     &__menu2d {
         position: absolute;
-        display: flex;
-        flex-direction: column;
-        background-color: lightcoral;
         top: 80px;
         bottom: 200px;
         right: 0px;
-        width: 200px;
+        white-space: nowrap;
     }
     &__info {
         position: absolute;
@@ -356,6 +429,15 @@ export default defineComponent({
         position: absolute;
         right: 60px;
         bottom: 60px;
+    }
+    &__action-top {
+        position: absolute;
+        top: 90px;
+        right: 60px;
+        transition: right 0.3s ease;
+    }
+    &.menu-opened &__action-top {
+        right: 348px;
     }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
     <el-menu class="customer-menu" :default-active="defaultActive" :uniqueOpened="true">
-        <el-menu-item v-for="(customer, index) of customers" :key="index" :index="customer.cid">
+        <el-menu-item v-for="(customer, index) of customers" :key="index" :index="customer.cid.toString()">
             <span class="customer-menu__avatar">{{ getFirstWord(customer.name) }}</span>
             <div class="customer-menu__name">
                 <span class="u-line-1">{{ customer.name }}</span>
@@ -28,9 +28,9 @@ export default defineComponent({
                 customers.push(...(res.data || []));
                 if (customers.length > 0) {
                     if (store.state.currentCustomer.customerId) {
-                        defaultActive.value = store.state.currentCustomer.customerId;
+                        defaultActive.value = store.state.currentCustomer.customerId.toString();
                     } else {
-                        defaultActive.value = customers[0].cid;
+                        defaultActive.value = customers[0].cid.toString();
                     }
                     context.emit("select", defaultActive.value);
                 }
@@ -41,7 +41,7 @@ export default defineComponent({
             variables,
             defaultActive,
             getFullCustomer(cid: string) {
-                return customers.find((c) => c.cid === cid);
+                return customers.find((c) => c.cid.toString() === cid);
             },
             getFirstWord(name: string) {
                 return name ? name[0] : "";

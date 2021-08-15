@@ -159,7 +159,6 @@ export default defineComponent({
             margin-top: 52px;
             display: block;
             width: 100%;
-            cursor: pointer;
         }
     }
 }

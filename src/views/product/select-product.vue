@@ -6,10 +6,10 @@
             <el-col
                 v-for="(p, index) in products"
                 :key="index"
-                :span="8"
+                :span="12"
                 style="text-align: center; padding-top: 10px; padding-bottom: 10px"
             >
-                <product-card :productName="p.name" :cover="p.cover" @detail="onProductClick(p)" />
+                <product-card :productName="p.name" :cover="p.pic" @detail="onProductClick(p)" />
             </el-col>
         </el-row>
         <!-- <el-tabs class="select-product__tabs" tab-position="left">

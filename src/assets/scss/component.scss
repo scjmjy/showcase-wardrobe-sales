@@ -1,22 +1,22 @@
 .btn-primary {
     height: 58px;
     cursor: pointer;
-    background-color: var(--el-color-primary-light-6);
+    background-color: var(--el-color-primary-light-2);
     color: white;
     border-radius: 30px;
     font-size: 18px;
 
     &:focus {
-        background-color: var(--el-color-primary-light-8);
+        background-color: var(--el-color-primary-light-5);
     }
     &:hover {
-        background-color: var(--el-color-primary-light-8);
+        background-color: var(--el-color-primary-light-5);
     }
     &:active {
         background-color: var(--el-color-primary);
     }
     &:disabled {
-        background-color: var(--el-color-primary-light-4);
+        background-color: var(--el-color-primary-light-8);
         cursor: not-allowed;
     }
 }

@@ -68,7 +68,7 @@ export default defineComponent({
         const store = useStore();
         const schemesList = reactive([] as SortedSchemes[]);
         const customerId = ref("");
-        const showServeBtn = computed(() => store.state.currentCustomer.customerId !== customerId.value);
+        const showServeBtn = computed(() => store.state.currentCustomer.customerId.toString() !== customerId.value);
         const refMenu = ref<InstanceType<typeof CustomerMenu>>();
         const refSchemeList = ref<HTMLDivElement>();
 

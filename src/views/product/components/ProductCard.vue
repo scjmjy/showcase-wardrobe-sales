@@ -1,8 +1,8 @@
 <template>
-    <div class="product-card">
+    <div class="product-card u-clickable" @click="$emit('detail', productName)">
         <el-image class="product-card__img" :src="cover" fit="cover"></el-image>
         <div class="product-card__name">{{ productName }}</div>
-        <el-button class="product-card__btn" type="primary" size="small" round @click="onBtnClick">开始定制</el-button>
+        <!-- <el-button class="product-card__btn" type="primary" size="small" round @click="onBtnClick">开始定制</el-button> -->
     </div>
 </template>
 
@@ -23,9 +23,9 @@ export default defineComponent({
     emits: ["detail"],
     setup(props, context) {
         return {
-            onBtnClick() {
-                context.emit("detail", props.productName);
-            },
+            // onBtnClick() {
+            //     context.emit("detail", props.productName);
+            // },
         };
     },
 });
@@ -43,13 +43,15 @@ export default defineComponent({
     border-radius: 10px;
 
     &__img {
-        width: 322px;
-        height: 256px;
+        // width: 322px;
+        // height: 256px;
+        width: 450px;
+        height: 450px;
     }
     &__name {
         position: absolute;
         left: 14px;
-        top: 220px;
+        top: 400px;
         font-size: 22px;
         color: white;
     }

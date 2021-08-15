@@ -1,10 +1,10 @@
 <template>
     <template v-for="item of category.children" :key="item.id">
-        <el-submenu v-if="item.children && item.children.length" :index="item.id">
+        <el-submenu v-if="item.children && item.children.length" :index="item.id + ''">
             <template #title>{{ item.name }}</template>
             <menu-item :category="item" />
         </el-submenu>
-        <el-menu-item v-else :index="item.id">
+        <el-menu-item v-else :index="item.id + ''">
             <template #title>{{ item.name }}</template>
         </el-menu-item>
     </template>
