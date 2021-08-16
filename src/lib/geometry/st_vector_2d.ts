@@ -47,7 +47,7 @@ export class StVector extends StObject {
     }
 
     length(): number {
-        return Math.sqrt(this.x * this.x + this.y + this.y);
+        return Math.sqrt( Math.pow(this.x, 2) + Math.pow(this.y, 2) );
     }
 
     angle(): number {

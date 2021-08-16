@@ -126,6 +126,7 @@ export default defineComponent({
                 }
             }catch(e) {
                 this.topInfo = (e as Error).message;
+                throw e;
             }
         },
 
@@ -141,6 +142,7 @@ export default defineComponent({
                 }
             }catch(e) {
                 this.topInfo = (e as Error).message;
+                throw e;
             }
         },
 

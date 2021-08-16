@@ -93,24 +93,21 @@ export class StSketchDivision extends StModel implements StIDivison {
      * @param line any line in current division's SPACE
      * @returns
      */
-    divideByLine(line: StSketchLine): StSketchDivision[] | null {
+    divideByLine(line: StSketchLine): StSketchDivision[] {
         const subs: StSketchDivision[] = [];
-
         const sub_rects = this.rect.divideByLine(line);
-
         if (subs.length == 0) {
-            return null;
+            console.log(`Division ${this} cannot be divided by line: ${line}`);
+        }else if (subs.length == 2) {
+            console.log(`Division ${this} is divided by line: ${line}`);
+            // if divide success, delete all accessories
+            for (const acce of this.parts) {
+                acce.delete();
+            }
+        }else{
+            console.error(`More than 2 sub divisions: ${subs.length}`);
+            console.error(`Division ${this} is divided by line: ${line}`);
         }
-
-        if (subs.length != 2) {
-            throw Error(`More than 2 sub divisions: ${subs.length}`);
-        }
-
-        // if divide success, delete all accessories
-        for (const acce of this.parts) {
-            acce.delete();
-        }
-        throw Error("TODO");
         return subs;
     }
 }
@@ -193,6 +190,11 @@ export class StSketchCube extends StModel implements StICube {
         this.rect = StSketchRect.buildRect({ width: this.getWidth(), height: this.getHeight() });
         this.edgeMap = new Map<string, StSketchEdge>();
         this.updateMesh();
+
+        // create the default division
+        const model_opt: StIModelOpt = obj;
+        const div = new StSketchDivision(model_opt);
+        this.divisions.push(div);
     }
 
     updateMesh(): void {
@@ -247,7 +249,7 @@ export class StSketchCube extends StModel implements StICube {
      * @returns the divide board (line)
      */
     addDivideBoard(e0: StSketchEdge, e1: StSketchEdge): StSketchLine {
-        // 1. create a line from the 2 points of input e1 and e0
+        // 1. create a divide-board (line) from the 2 points on the e0 & e1
         const p0 = e0.addPoint(100);
         const vec0 = e0.getVector().rotate(Math.PI / 2);
         const vec = StVector.makeVectorByLength(vec0, StSketchConstant.MAX_LENGTH);
@@ -263,7 +265,7 @@ export class StSketchCube extends StModel implements StICube {
         const line = new StSketchLine(p0, p1);
         this.divideBoard.push(line);
 
-        // 2. traverse all divisions, try to  divide them with input line
+        // 2. traverse all divisions, try to divide them with line
         const cross_poly: StSketchPolygon[] = [];
         for (const div of this.divisions) {
             const subs = div.divideByLine(line);
