@@ -94,6 +94,10 @@ export class StSketchPoint extends StGeometic2D {
         const vec = v1.minus(v0);
         return vec.length();
     }
+    
+    overlaps(p1: StSketchPoint): boolean { 
+        return this.x == p1.x && this.y == p1.y;
+    }
 
     static makeVector(p0: StSketchPoint, p1: StSketchPoint): StVector {
         return new StVector(p1.x - p0.x, p1.y - p0.y);

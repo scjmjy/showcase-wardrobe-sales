@@ -17,12 +17,11 @@
  */
 
 import { StSketchRect } from "../geometry/st_geometric_2d";
-import { StVector } from "../geometry/st_vector_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StContainerType, StDoorType, StPulloutType } from "../utility/st_sketch_type";
+import { StDoorType, StPulloutType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
 
-export { StIModel, StIAccesory, StIMovable, StIPullout, StIDivison, StILevel, StICube };
+export { StIModel, StIAccesory, StIMovable, StIPullout, StIDivison, StILevel, StICube, StIModelOpt, StIDivisionOpt, StICubeOpt };
 
 /**
  * Interface: Biz Model Object, e.g. a wardrobe, a cube, a division.
@@ -175,8 +174,17 @@ interface StICube extends StIModel {
 /**
  * Constructor Option (Parameter)
  */
-export interface StIModelOpt {
+interface StIModelOpt {
     // uuid: string;
+
+    /**
+     * the 3D Position in its parent model. 
+     * 
+     * e.g. if current model is 
+     * - a cube,    its position is in the drobe-unit SPACE.
+     * - a divison, its position is in the drobe-cube SPACE.
+     * 
+     */
     position?: StPoint3;
 
     /**
@@ -191,10 +199,22 @@ export interface StIModelOpt {
     depth?: number;
 }
 
+
+/**
+ * If rect is defined, 
+ * - `position` must be defined. And rect.pts[0] must be overlaps with position.
+ * - `width/height` must be defined. And same to rect.a/b;
+ * 
+ */
+interface StIDivisionOpt extends StIModelOpt {
+    rect?: StSketchRect;
+}
+
+
 /**
  * Constructor Parameter
  */
-export interface StICubeOpt extends StIModelOpt {
+interface StICubeOpt extends StIModelOpt {
     doorType?: StDoorType;
     gapTop?: number;
     gapBottom?: number;
