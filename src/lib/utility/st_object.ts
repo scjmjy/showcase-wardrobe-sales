@@ -21,19 +21,19 @@ export class StObject {
      */
     toString(max_len?: number, simple?: boolean): string {
         //return JSON.stringify(this, jsonIgnoreReplacer);
-        if(simple) {
+        if (simple) {
             return JSON.stringify(this, jsonIgnoreReplacer);
-        }else{
+        } else {
             return stringify(this, {
                 maxLength: max_len || 256,
-                replacer: jsonIgnoreReplacer
+                replacer: jsonIgnoreReplacer,
             });
         }
     }
 
-    assertTrue(v: boolean, msg?:string){
-        if(!v) {
-            throw Error(msg ?  `Error: ${msg}`: "Error: Assert Failure!");
+    assertTrue(v: boolean, msg?: string) {
+        if (!v) {
+            throw Error(msg ? `Error: ${msg}` : "Error: Assert Failure!");
         }
     }
 }

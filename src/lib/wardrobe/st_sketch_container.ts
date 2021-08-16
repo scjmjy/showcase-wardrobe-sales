@@ -8,11 +8,9 @@
  */
 
 import { StSketchRect } from "../geometry/st_geometric_2d";
-import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StObject } from "../utility/st_object";
 import { StContainerType } from "../utility/st_sketch_type";
 import { StIModel } from "./st_model_interface";
-import { StModel } from "./st_model_object";
 
 /**
  * @deprecated [2021-8-6] currently, NOT used. Adding board in cube.

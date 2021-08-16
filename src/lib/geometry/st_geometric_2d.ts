@@ -95,8 +95,8 @@ export class StSketchPoint extends StGeometic2D {
         const vec = v1.minus(v0);
         return vec.length();
     }
-    
-    overlaps(p1: StSketchPoint): boolean { 
+
+    overlaps(p1: StSketchPoint): boolean {
         return this.x == p1.x && this.y == p1.y;
     }
 
@@ -134,8 +134,7 @@ export class StEdgePoint extends StSketchPoint {
     }
 }
 
-export class StSketchLine extends StGeometic2D 
-{
+export class StSketchLine extends StGeometic2D {
     readonly vertex0: StSketchPoint;
     readonly vertex1: StSketchPoint;
 
@@ -213,13 +212,13 @@ export class StSketchEdge extends StSketchLine {
     }
 
     valueEquals(edge: StSketchEdge): boolean {
-        if( super.valueEquals(edge) ){
-            if(this.innerPoints.length == edge.innerPoints.length) {
+        if (super.valueEquals(edge)) {
+            if (this.innerPoints.length == edge.innerPoints.length) {
                 const cnt = this.innerPoints.length;
-                for(let i=0; i<cnt; i++) {
+                for (let i = 0; i < cnt; i++) {
                     const p0 = this.innerPoints[i];
                     const p1 = edge.innerPoints[i];
-                    if(! p0.valueEquals(p1)) {
+                    if (!p0.valueEquals(p1)) {
                         return false;
                     }
                 }
@@ -280,7 +279,7 @@ export class StSketchEdge extends StSketchLine {
         if (offset < 0 || line_len < offset) {
             throw Error(`Point offset ${offset} out of boundary: (0, ${line_len})`);
         }
-        if(offset == 0) {
+        if (offset == 0) {
             return new StVector(0, 0);
         }
         const v0_vec = this.vertex0.getVector();
@@ -305,13 +304,13 @@ export class StSketchEdge extends StSketchLine {
 
     /**
      * If success, an edge-point(EP) on current edge is returned, which has an offset from this.vertex0;
-     * if EP.offset== 0,             it overlaps with this.vertex0; 
-     * if EP.offset== this.length(), it overlaps with this.vertex1; 
-     * 
-     * 
-     * @param line 
-     * @returns 
-     * 
+     * if EP.offset== 0,             it overlaps with this.vertex0;
+     * if EP.offset== this.length(), it overlaps with this.vertex1;
+     *
+     *
+     * @param line
+     * @returns
+     *
      */
     intersectWith(line: StSketchLine): StEdgePoint | null {
         const pt = super.intersectWith(line);
@@ -339,14 +338,14 @@ export class StSketchPolygon extends StGeometic2D {
             throw Error("Polygon points must be more than 3!");
         }
 
-        for(let i=0; i<cnt; i++) {
+        for (let i = 0; i < cnt; i++) {
             const p = points[i];
             // NOTE: do not clone the vertex point!
             // this.vertices.push(p.clone());
             this.vertices.push(p);
-            
-            let idx_next = i+1;
-            if(idx_next >= cnt){
+
+            let idx_next = i + 1;
+            if (idx_next >= cnt) {
                 idx_next = 0;
             }
             const p_next = points[idx_next];
@@ -357,11 +356,11 @@ export class StSketchPolygon extends StGeometic2D {
     valueEquals(poly: StSketchPolygon): boolean {
         // NOTE: currently, DO NOT check edges
         const cnt = this.vertices.length;
-        if(cnt == poly.vertices.length) {
-            for(let i=0; i<cnt; i++) {
+        if (cnt == poly.vertices.length) {
+            for (let i = 0; i < cnt; i++) {
                 const p0 = this.vertices[i];
                 const p1 = poly.vertices[i];
-                if(! p0.valueEquals(p1)) {
+                if (!p0.valueEquals(p1)) {
                     return false;
                 }
             }
@@ -461,7 +460,7 @@ export class StSketchPolygon extends StGeometic2D {
             idx = 0;
         }
         const edge = this.edges[idx];
-        if(!edge) throw Error(`Fail to find edge by index: ${idx}`);
+        if (!edge) throw Error(`Fail to find edge by index: ${idx}`);
         return [idx, edge];
     }
 
@@ -505,7 +504,7 @@ export class StSketchPolygon extends StGeometic2D {
     divideByLine(line: StSketchLine): StSketchPolygon[] {
         console.debug(`divide by line ${line}`);
         const polys: StSketchPolygon[] = [];
-        const pts:   StEdgePoint[] = [];
+        const pts: StEdgePoint[] = [];
         const edges: StSketchEdge[] = [];
         for (const edge of this.edges) {
             const p: StEdgePoint | null = edge.intersectWith(line);
@@ -514,9 +513,9 @@ export class StSketchPolygon extends StGeometic2D {
                 edges.push(edge);
             }
         }
-        return [ 
-            this._createChild(edges[0], pts[0], pts[1], edges[1]), 
-            this._createChild(edges[1], pts[1], pts[0], edges[0]) 
+        return [
+            this._createChild(edges[0], pts[0], pts[1], edges[1]),
+            this._createChild(edges[1], pts[1], pts[0], edges[0]),
         ];
     }
 
@@ -636,14 +635,8 @@ export class StSketchRect extends StSketchPolygon {
         this.b = v1.length();
     }
 
-
     valueEquals(rect: StSketchRect): boolean {
         return super.valueEquals(rect) && this.a == rect.a && this.b == rect.b;
-    }
-
-    toString(): string {
-        const cls_name = this.constructor.name;
-        return `[${cls_name}] start: ${this.getStartPoint()}, a:${this.a}, b:${this.b}`;
     }
 
     /*
@@ -669,7 +662,7 @@ export class StSketchRect extends StSketchPolygon {
 
     /**
      *  build a rectangle at the left side of the input line.
-     *    
+     *
      *   -------- o   vertex1
      *   |       /|\
      *   | Rect   |
@@ -678,22 +671,22 @@ export class StSketchRect extends StSketchPolygon {
      *   |        |
      *   |        |
      *   |_______ o   vertex0
-     *         
-     *      
-     * @param line 
-     * @param thickness 
-     * @returns 
+     *
+     *
+     * @param line
+     * @param thickness
+     * @returns
      */
-    static buildRectByLineAtLeft(line: StSketchLine, thickness: number) : StSketchRect {
+    static buildRectByLineAtLeft(line: StSketchLine, thickness: number): StSketchRect {
         const v0 = line.getVector();
-        const v1 = v0.rotate(Math.PI/2);
+        const v1 = v0.rotate(Math.PI / 2);
         v1.setLength(thickness);
-    
-        const p2 = line.vertex1.clone(); 
-        const p3 = line.vertex0.clone(); 
+
+        const p2 = line.vertex1.clone();
+        const p3 = line.vertex0.clone();
         p2.translate(v1);
         p3.translate(v1);
-        
+
         const pts: StSketchPoint[] = [];
         pts.push(line.vertex0);
         pts.push(line.vertex1);

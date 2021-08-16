@@ -31,11 +31,16 @@ export class StLineBoardMesh extends StOnsiteMesh {
     private readonly poly: StSketchPolygon;
     private readonly depth: number;
 
-    static buildByLine(line: StSketchLine, depth: number, meshLoc: StBoardMeshLocation, thickness?: number): StLineBoardMesh {
-        if(meshLoc != StBoardMeshLocation.LEFT) {
+    static buildByLine(
+        line: StSketchLine,
+        depth: number,
+        meshLoc: StBoardMeshLocation,
+        thickness?: number,
+    ): StLineBoardMesh {
+        if (meshLoc != StBoardMeshLocation.LEFT) {
             throw Error(`Only LEFT Location is supported! Input Location: ${meshLoc}`);
         }
-        const rect : StSketchRect = StSketchRect.buildRectByLineAtLeft(line, thickness || 20);
+        const rect: StSketchRect = StSketchRect.buildRectByLineAtLeft(line, thickness || 20);
         const texture = textureManager.wood(StWoodType.OAK, 0);
         const b1 = new StLineBoardMesh({
             position: new StSketchVector3(0, 0, 0),
@@ -71,11 +76,10 @@ export class StLineBoardMesh extends StOnsiteMesh {
         depth: number;
     }) {
         super(obj);
-        this.poly= obj.poly;
+        this.poly = obj.poly;
         this.depth = obj.depth;
     }
 }
-
 
 /**
  * Onsite 3D object: Tiled Box

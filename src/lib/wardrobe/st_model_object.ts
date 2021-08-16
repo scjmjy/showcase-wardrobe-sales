@@ -9,11 +9,10 @@
 
 import { StSketchRect } from "../geometry/st_geometric_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StObject, StUuidObject } from "../utility/st_object";
+import { StUuidObject } from "../utility/st_object";
 import { StIAccesory, StIModel } from "./st_model_interface";
-import { v4 as uuidv4 } from "uuid";
 import { StSketchMesh } from "./st_mesh_object";
-import { jsonIgnore} from "json-ignore";
+import { jsonIgnore } from "json-ignore";
 
 /**
  * @description A model holds data and method for a biz object.
