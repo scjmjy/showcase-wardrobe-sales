@@ -81,6 +81,12 @@ export class StVector extends StObject {
         return vec;
     }
 
+    /**
+     * rorate in count-clock wise.
+     * 
+     * @param A angle in radians (弧度)
+     * @returns 
+     */
     rotate(A: number): StVector {
         const x = this.x;
         const y = this.y;
@@ -116,6 +122,13 @@ export class StVector extends StObject {
     selfMultiple(v: number): StVector {
         this.x *= v;
         this.y *= v;
+        return this;
+    }
+
+    setLength(len: number): StVector {
+        const l0 = this.length();
+        this.x = this.x * len / l0;
+        this.y = this.y * len / l0;
         return this;
     }
 }

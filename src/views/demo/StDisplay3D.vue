@@ -21,6 +21,7 @@
                 <button class="test" v-on:click="onTestCube('D-')">D-</button>
                 <button class="test" v-on:click="onTestCube('GB+')">GB+</button>
                 <button class="test" v-on:click="onTestCube('GB-')">GB-</button>
+                <button class="test" v-on:click="onTestCube('divide-01')">Divide 01</button>
                 <br />
                 <button class="test" v-on:click="onTestMesh('board-3')">Board: Left-Right</button>
                 <button class="test" v-on:click="onTestMesh('board-1')">B-Position</button>
@@ -148,44 +149,55 @@ export default defineComponent({
         },
 
         onTestCube(opt: string) {
-            const test = cubeTest;
-            switch (opt) {
-                case "create":
-                    test.create_01();
-                    break;
-                case "H+":
-                    test.changeHeight(true);
-                    break;
-                case "H-":
-                    test.changeHeight(false);
-                    break;
-                case "W+":
-                    test.changeWidth(true);
-                    break;
-                case "W-":
-                    test.changeWidth(false);
-                    break;
-                case "D+":
-                    test.changeDepth(true);
-                    break;
-                case "D-":
-                    test.changeDepth(false);
-                    break;
-                case "GB+":
-                    test.changeBottomGap(true);
-                    break;
-                case "GB-":
-                    test.changeBottomGap(false);
-                    break;
-                default:
-                    alert("unknown operation: " + opt);
-                    break;
-            }
-        },
+            try{
+                const test = cubeTest;
+                switch (opt) {
+                        case "create":
+                        test.create_01();
+                        break;
+                    case "H+":
+                        test.changeHeight(true);
+                        break;
+                    case "H-":
+                        test.changeHeight(false);
+                        break;
+                    case "W+":
+                        test.changeWidth(true);
+                        break;
+                    case "W-":
+                        test.changeWidth(false);
+                        break;
+                    case "D+":
+                        test.changeDepth(true);
+                        break;
+                    case "D-":
+                        test.changeDepth(false);
+                        break;
+                    case "GB+":
+                        test.changeBottomGap(true);
+                        break;
+                    case "GB-":
+                        test.changeBottomGap(false);
+                        break;
 
-        async onCacheInfo() {
-            const test = new StSketchCacheTest();
-            this.topInfo = await test.showCacheInfo();
+                    case "divide-01":
+                        this.topInfo = test.divide_01();
+                        break;
+
+                    default:
+                        alert("unknown operation: " + opt);
+                        break;
+                    } 
+                }catch(e) {
+                    this.topInfo = (e as Error).message;
+                    throw e;
+                }
+
+            },
+
+            async onCacheInfo() {
+                const test = new StSketchCacheTest();
+                this.topInfo = await test.showCacheInfo();
         },
     },
 });

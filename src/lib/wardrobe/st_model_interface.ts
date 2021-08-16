@@ -16,12 +16,12 @@
  *
  */
 
-import { StSketchRect } from "../geometry/st_geometric_2d";
+import { StSketchLine, StSketchRect } from "../geometry/st_geometric_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StDoorType, StPulloutType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
 
-export { StIModel, StIAccesory, StIMovable, StIPullout, StIDivison, StILevel, StICube, StIModelOpt, StIDivisionOpt, StICubeOpt };
+export { StIModel, StIAccesory, StIMovable, StIPullout, StIDivison, StILevel, StICube, StIModelOpt, StIDivisionOpt, StICubeOpt, StIDivideBoardOpt };
 
 /**
  * Interface: Biz Model Object, e.g. a wardrobe, a cube, a division.
@@ -208,6 +208,21 @@ interface StIModelOpt {
  */
 interface StIDivisionOpt extends StIModelOpt {
     rect?: StSketchRect;
+}
+
+
+/**
+ * board mesh location, according to the board line
+ */
+export enum StBoardMeshLocation {
+    MIDDLE,     // board mesh is in the middle of the line
+    LEFT,       // board mesh is left of the line
+    RIGHT,
+}
+
+interface StIDivideBoardOpt extends StIModelOpt {
+    line: StSketchLine;
+    meshLoc?: StBoardMeshLocation;
 }
 
 

@@ -14,6 +14,7 @@ import * as geometric from "geometric";
 import { StVector } from "./st_vector_2d";
 
 import * as turf from "@turf/turf";
+import { point } from "@turf/turf";
 
 export enum StPolygonOverlap {
     NONE,
@@ -38,6 +39,8 @@ export abstract class StGeometic2D extends StUuidObject {
     abstract clone(): StGeometic2D;
 
     abstract translate(vec: StVector): void;
+
+    abstract valueEquals(geo: StGeometic2D): boolean;
 }
 
 /**
@@ -99,6 +102,10 @@ export class StSketchPoint extends StGeometic2D {
         return this.x == p1.x && this.y == p1.y;
     }
 
+    valueEquals(pt: StSketchPoint): boolean {
+        return this.x == pt.x && this.y == pt.y;
+    }
+
     static makeVector(p0: StSketchPoint, p1: StSketchPoint): StVector {
         return new StVector(p1.x - p0.x, p1.y - p0.y);
     }
@@ -123,9 +130,14 @@ export class StEdgePoint extends StSketchPoint {
         this.y = pos.y;
         this.offset = offset;
     }
+
+    valueEquals(pt: StEdgePoint): boolean {
+        return super.valueEquals(pt) && this.offset == pt.offset && this.edgeId == pt.edgeId;
+    }
 }
 
-export class StSketchLine extends StGeometic2D {
+export class StSketchLine extends StGeometic2D 
+{
     readonly vertex0: StSketchPoint;
     readonly vertex1: StSketchPoint;
 
@@ -139,6 +151,10 @@ export class StSketchLine extends StGeometic2D {
         //this.p1 = StSketchPoint.copyObj(p1);
         this.vertex0 = v0;
         this.vertex1 = v1;
+    }
+
+    valueEquals(line: StSketchLine): boolean {
+        return this.vertex0.valueEquals(line.vertex0) && this.vertex1.valueEquals(line.vertex1);
     }
 
     toArray(): geometric.Line {
@@ -196,6 +212,23 @@ export class StSketchEdge extends StSketchLine {
 
     constructor(p0: StSketchPoint, p1: StSketchPoint) {
         super(p0, p1);
+    }
+
+    valueEquals(edge: StSketchEdge): boolean {
+        if( super.valueEquals(edge) ){
+            if(this.innerPoints.length == edge.innerPoints.length) {
+                const cnt = this.innerPoints.length;
+                for(let i=0; i<cnt; i++) {
+                    const p0 = this.innerPoints[i];
+                    const p1 = edge.innerPoints[i];
+                    if(! p0.valueEquals(p1)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -307,14 +340,36 @@ export class StSketchPolygon extends StGeometic2D {
         if (cnt < 3) {
             throw Error("Polygon points must be more than 3!");
         }
-        let pre: StSketchPoint = points[cnt - 1];
-        for (const p of points) {
-            // cook: do not clone the vertex point!
-            //this.vertices.push(p.clone());
+
+        for(let i=0; i<cnt; i++) {
+            const p = points[i];
+            // NOTE: do not clone the vertex point!
+            // this.vertices.push(p.clone());
             this.vertices.push(p);
-            this.edges.push(new StSketchEdge(pre, p));
-            pre = p;
+            
+            let idx_next = i+1;
+            if(idx_next >= cnt){
+                idx_next = 0;
+            }
+            const p_next = points[idx_next];
+            this.edges.push(new StSketchEdge(p, p_next));
         }
+    }
+
+    valueEquals(poly: StSketchPolygon): boolean {
+        // NOTE: currently, DO NOT check edges
+        const cnt = this.vertices.length;
+        if(cnt == poly.vertices.length) {
+            for(let i=0; i<cnt; i++) {
+                const p0 = this.vertices[i];
+                const p1 = poly.vertices[i];
+                if(! p0.valueEquals(p1)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     clone(): StSketchPolygon {
@@ -583,6 +638,11 @@ export class StSketchRect extends StSketchPolygon {
         this.b = v1.length();
     }
 
+
+    valueEquals(rect: StSketchRect): boolean {
+        return super.valueEquals(rect) && this.a == rect.a && this.b == rect.b;
+    }
+
     toString(): string {
         const cls_name = this.constructor.name;
         return `[${cls_name}] start: ${this.getStartPoint()}, a:${this.a}, b:${this.b}`;
@@ -607,6 +667,41 @@ export class StSketchRect extends StSketchPolygon {
         const width = opt.width || 2;
         const height = opt.height || 1;
         return this.buildRectByStartPoint(p0, width, height);
+    }
+
+    /**
+     *  build a rectangle at the left side of the input line.
+     *    
+     *   -------- o   vertex1
+     *   |       /|\
+     *   | Rect   |
+     *   |        |----\
+     *   |        |     \ line
+     *   |        |
+     *   |        |
+     *   |_______ o   vertex0
+     *         
+     *      
+     * @param line 
+     * @param thickness 
+     * @returns 
+     */
+    static buildRectByLineAtLeft(line: StSketchLine, thickness: number) : StSketchRect {
+        const v0 = line.getVector();
+        const v1 = v0.rotate(Math.PI/2);
+        v1.setLength(thickness);
+    
+        const p2 = line.vertex1.clone(); 
+        const p3 = line.vertex0.clone(); 
+        p2.translate(v1);
+        p3.translate(v1);
+        
+        const pts: StSketchPoint[] = [];
+        pts.push(line.vertex0);
+        pts.push(line.vertex1);
+        pts.push(p2);
+        pts.push(p3);
+        return new StSketchRect(pts);
     }
 
     static buildByPolygon(poly: StSketchPolygon): StSketchRect {

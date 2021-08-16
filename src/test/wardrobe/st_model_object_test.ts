@@ -1,4 +1,5 @@
-import { StSketchCube } from "@/lib/wardrobe/st_sketch_cube";
+import { StSketchCube, StSketchDivision } from "@/lib/wardrobe/st_sketch_cube";
+import { lineLength } from "geometric";
 
 class StSketchCubeTest {
     cube?: StSketchCube;
@@ -42,6 +43,18 @@ class StSketchCubeTest {
         if (!this.cube) throw Error("No Cube!");
         this.cube.gapBottom += add ? 20 : -20;
         this.cube.updateMesh();
+    }
+
+
+    divide_01(): string {
+        if (!this.cube) throw Error("No Cube!");
+        const div00: StSketchDivision = this.cube._getDivisions()[0];
+        const div00_rect = div00._getRect();
+        const e0 = div00_rect.edges[0];
+        const e2 = div00_rect.edges[2];
+        const line = this.cube.addDivideBoard(e0, e2);
+        this.cube.updateMesh();
+        return `[Success] Divide Line: ${line}`;
     }
 }
 

@@ -97,7 +97,17 @@ class StSketchEdgeTest extends StSketchTest {
 }
 
 
-class StSketchPolygonTest extends StSketchTest {
+class StSketchPolygonTest extends StSketchTest 
+{
+    buildRect01(): string {
+        const pt0 = new StSketchPoint(10, 10);
+        const r0 = StSketchRect.buildRectByStartPoint(pt0, 10, 5);
+        const r1 = StSketchRect.buildByPolygon(r0);
+        this.assertTrue(r0.valueEquals(r1), `Rect0: ${r0}, Rect1: ${r1}`);
+        return `[Success] Rect0: ${r0}, Rect1: ${r1}`;
+    }
+
+
     divide01_byEdgePoints() {
         throw Error("TODO");
     }

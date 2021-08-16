@@ -7,20 +7,16 @@
  *
  */
 
+import StSketchConstant from "../utility/st_sketch_constant";
 import { StSketchEdge, StSketchLine, StSketchPoint, StSketchPolygon, StSketchRect } from "../geometry/st_geometric_2d";
 import { StVector } from "../geometry/st_vector_2d";
 import { StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StIAccesory, StICube, StIDivison, StILevel, StIModel, StIModelOpt, StICubeOpt, StIDivisionOpt } from "./st_model_interface";
-import { StBoardMesh, StBoardType } from "./st_board_mesh";
+import { StIAccesory, StICube, StIDivison, StILevel, StIModel, StIModelOpt, StICubeOpt, StIDivisionOpt, StIDivideBoardOpt, StBoardMeshLocation } from "./st_model_interface";
+import { StBoardMesh, StBoardType, StLineBoardMesh } from "./st_board_mesh";
 import { StDoorType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
 import { StModel, StSketchAccesory } from "./st_model_object";
 import { StWoodType, textureManager } from "../utility/st_texture";
-
-// import turf, { FeatureCollection, Point } from "@turf/turf";
-// import turfhelpers from "@turf/helpers"
-
-import StSketchConstant from "../utility/st_sketch_constant";
 
 export class StSketchDivision extends StModel implements StIDivison {
     /**
@@ -117,8 +113,8 @@ export class StSketchDivision extends StModel implements StIDivison {
         if (sub_rects.length == 0) {
             console.log(`Division Rectangle ${this.rect} cannot be divided by line: ${line}`);
         }else if (sub_rects.length == 2) {
-            const div1 = StSketchDivision.createDivisionByRect(sub_rects[0], this.getPosition());
-            const div2 = StSketchDivision.createDivisionByRect(sub_rects[1])
+            const div1 = StSketchDivision.buildByRect(sub_rects[0], this.getPosition());
+            const div2 = StSketchDivision.buildByRect(sub_rects[1])
             subs.push(div1);
             subs.push(div2);
 
@@ -133,7 +129,14 @@ export class StSketchDivision extends StModel implements StIDivison {
         return subs;
     }
 
-    static createDivisionByRect(poly: StSketchPolygon, pos?: StSketchVector3): StSketchDivision {
+    /**
+     * ONLY for testing
+     */
+    _getRect(): StSketchRect {
+        return this.rect;
+    }
+
+    static buildByRect(poly: StSketchPolygon, pos?: StSketchVector3): StSketchDivision {
         const rect: StSketchRect = StSketchRect.buildByPolygon(poly);
         const pt0 = rect.getStartPoint().getVector();
         if(!pos) {
@@ -174,25 +177,29 @@ export class StSketchLevel extends StModel implements StILevel {
     }
 }
 
-export enum StMeshLocation {
-    MIDDLE,
-    LEFT,
-    RIGHT,
-}
+
 
 /**
  * A board that is parallels to Z axis
  */
 export class StSketchBoardZ extends StModel {
-    constructor(edge: StSketchEdge, depth: number, mesh_loc: StMeshLocation) {
-        super({});
-        throw new Error("Method not implemented.");
+    updateMesh(): void {
+        // [Guilin: 2021-8-16] Currently, re-draw the mesh
+        super.clearMesh();
+        const board_mesh = StLineBoardMesh.buildByLine(this.line, this.getDepth(), StBoardMeshLocation.LEFT);
+        this.meshList.push(board_mesh);
     }
 
-    updateMesh(): void {
-        throw new Error("Method not implemented.");
+    private readonly line: StSketchLine;
+    private readonly meshLoc: StBoardMeshLocation;
+
+    constructor(opt: StIDivideBoardOpt) {
+        super(opt);
+        this.line = opt.line;
+        this.meshLoc = opt.meshLoc || StBoardMeshLocation.LEFT;
     }
 }
+
 
 export class StSketchCube extends StModel implements StICube {
     doorType: StDoorType;
@@ -210,11 +217,11 @@ export class StSketchCube extends StModel implements StICube {
     /**
      * each line is real wooden board.
      */
-    private readonly divideBoard: StSketchLine[] = [];
-    //private readonly divideEdges: StSketchEdge[] = [];
+    private readonly divideBoard: Map<string, StSketchBoardZ> = new Map();
+    // private readonly divideBoard: StSketchLine[] = [];
 
-    // private readonly divideRects: StSketchRect[] = [];  // [2021-8-9] seems useless?
-    private readonly divisions: StSketchDivision[] = [];
+    //private readonly divisions: StSketchDivision[] = [];
+    private readonly divisions: Map<string, StSketchDivision> = new Map();
 
     /**
      * KEY: Mesh ID of a board
@@ -241,11 +248,18 @@ export class StSketchCube extends StModel implements StICube {
         div_opt.position = this.getPosition();
         div_opt.rect = this.rect;
         const div = new StSketchDivision(div_opt);
-        this.divisions.push(div);
+        this.divisions.set(div.uuid, div);
     }
 
     updateMesh(): void {
         this._createCubeFrameBySize();
+        /* for(const div of this.divisions.values()) {
+            div.updateMesh();
+        } */
+    }
+
+    _getDivisions(): StSketchDivision[] {
+        return Array.from(this.divisions.values());
     }
 
     private _createCubeFrameBySize(): void {
@@ -287,7 +301,7 @@ export class StSketchCube extends StModel implements StICube {
     }
 
     /**
-     * point[0]: start for e0.pt[0], offset 10cm;
+     * point[0]: start for e0.pt[0], offset 20 cm;
      * point[1]: make a line(L) that starts from point[0] and vertical to e0. Get the point that L crosses with e1;
      *
      * @param e1
@@ -296,8 +310,8 @@ export class StSketchCube extends StModel implements StICube {
      * @returns the divide board (line)
      */
     addDivideBoard(e0: StSketchEdge, e1: StSketchEdge): StSketchLine {
-        // 1. create a divide-board (line) from the 2 points on the e0 & e1
-        const p0 = e0.addPoint(100);
+        // 1. create a divide-line from the 2 points on the e0 & e1
+        const p0 = e0.addPoint(200);
         const vec0 = e0.getVector().rotate(Math.PI / 2);
         const vec = StVector.makeVectorByLength(vec0, StSketchConstant.MAX_LENGTH);
 
@@ -310,20 +324,50 @@ export class StSketchCube extends StModel implements StICube {
             throw Error(`Fail to find the intersecting point on the 2nd edge: ${e1}`);
         }
         const line = new StSketchLine(p0, p1);
-        this.divideBoard.push(line);
 
         // 2. traverse all divisions, try to divide them with line
+        // delete old division and add new divisions            
         const cross_poly: StSketchPolygon[] = [];
-        for (const div of this.divisions) {
+        const delete_div_ids: string[] = [];
+        const new_divs: StSketchDivision[] = [];
+
+        for (const div of this.divisions.values()) {
             const subs = div.divideByLine(line);
             if (subs == null) {
                 console.log(`## Board ${line} cannot divide division: ${div}`);
                 continue;
             }
             this.assertTrue(subs.length == 2);
-            this.divisions.push(subs[0]);
-            this.divisions.push(subs[1]);
+            delete_div_ids.push(div.uuid);
+            new_divs.push(subs[0]);
+            new_divs.push(subs[1]);
         }
+
+        for(const div of new_divs){
+            this.divisions.set(div.uuid, div);
+            console.log(`Add New Division: ${div} `);
+        }
+
+        for(const id of delete_div_ids){
+            const div = this.divisions.get(id);
+            console.log(`Delete division: ${div}`);
+            this.assertTrue(div != undefined);
+            div?.delete();
+            this.divisions.delete(id);
+        }
+
+        if(delete_div_ids.length <= 0){
+            throw Error(`line (${line}) fails to divide current cube: ${this}`);
+        }
+
+        // 3. create the divide board, based on the above divide-line
+        const board = new StSketchBoardZ( {
+            depth: this.getDepth(),
+            line: line,   
+        });
+        this.divideBoard.set(board.uuid, board);
+        console.log(`Add divide board: ${board}`);
+
         return line;
     }
 

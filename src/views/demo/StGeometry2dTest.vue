@@ -14,9 +14,10 @@
                 <button class="test" v-on:click="onTestEdge('intersect01')">Cross </button>
                 <button class="test" v-on:click="onTestEdge('intersect02')">NONE </button>
                 <button class="test" v-on:click="onTestEdge('intersect03')">On One Edge</button>
-                <br />
-                <label>Divide Polygon: </label>
+                <br/>
+                <label>Polygon: </label>
                 <button class="test" v-on:click="onTestPolygon('divide02')">Cross Line</button>
+                <button class="test" v-on:click="onTestPolygon('rect01')">Rect 01 </button>
             </div>
         </div>
 
@@ -136,6 +137,11 @@ export default defineComponent({
                     case "divide02":
                         this.topInfo = polygonTest.divide02_byCrossLine();
                         break;
+
+                    case "rect01":
+                        this.topInfo = polygonTest.buildRect01();
+                        break;
+
                     default:
                         alert("unknown operation: " + opt);
                         break;
