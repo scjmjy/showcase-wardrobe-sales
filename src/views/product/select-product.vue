@@ -94,7 +94,8 @@ export default defineComponent({
         overflow-y: auto;
     }
     &__products {
-        margin-left: 0px !important;
+        padding: 10px 0px;
+        // margin-left: 0px !important;
         flex: 1;
         overflow-y: auto;
         background-color: var(--el-color-bg);

@@ -46,7 +46,7 @@
                     label="全选"
                     @change="onSelectAllClick"
                 ></state-icon>
-                <state-icon v-model="stateMetals" icon="metals" label="五金" @change="onMetalsChange"></state-icon>
+                <state-icon icon="metals" label="五金" @change="onMetalsClick"></state-icon>
                 <state-icon
                     v-model="stateInOut"
                     icon="parts-indoor"
@@ -66,7 +66,11 @@
                 <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon>
             </div>
             <el-collapse-transition-h>
-                <parts-menu v-if="mode === 'edit' && showMenu" class="product-detail__menu2d"></parts-menu>
+                <parts-menu
+                    v-if="mode === 'edit' && showMenu"
+                    class="product-detail__menu2d"
+                    :type="stateInOut"
+                ></parts-menu>
             </el-collapse-transition-h>
         </template>
         <customize-dlg
@@ -76,6 +80,7 @@
             @cancel="onNewSchemeCancel"
         />
         <offer-dlg v-model="showOfferDlg" title="报价" @confirm="showOfferDlg = false" @cancel="showOfferDlg = false" />
+        <metals-dlg v-model="showMetalsDlg" />
     </div>
 </template>
 
@@ -90,6 +95,7 @@ import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
+import MetalsDlg from "./components/MetalsDlg.vue";
 import PartsMenu from "./components/PartsMenu.vue";
 import { ElMessage } from "element-plus";
 
@@ -99,6 +105,7 @@ export default defineComponent({
         AppHeader,
         CustomizeDlg,
         OfferDlg,
+        MetalsDlg,
         Babylon,
         PartsMenu,
     },
@@ -159,6 +166,7 @@ export default defineComponent({
         const customizeMode = ref<"new" | "continue" | "copy">("new");
         const showCustomizeDlg = ref(false);
         const showOfferDlg = ref(false);
+        const showMetalsDlg = ref(false);
         const creatingNewScheme = ref(false);
 
         async function gotoEditScheme() {
@@ -192,7 +200,7 @@ export default defineComponent({
         const state3D = ref<"active" | "">("");
         const stateRuler = ref<"active" | "">("");
         const stateSelect = ref<"active" | "">("");
-        const stateMetals = ref<"active" | "">("");
+        // const stateMetals = ref<"active" | "">("");
         const stateInOut = ref<"in" | "out">("in");
         const inOutStates = [
             {
@@ -212,7 +220,7 @@ export default defineComponent({
             state3D,
             stateRuler,
             stateSelect,
-            stateMetals,
+            // stateMetals,
             stateInOut,
             inOutStates,
             scheme: require("@/assets/mf/scheme.json"),
@@ -225,6 +233,7 @@ export default defineComponent({
             isOther: computed(() => schemeMode.value === "scheme-other"),
             showCustomizeDlg,
             showOfferDlg,
+            showMetalsDlg,
             customizeDlgTitle,
             creatingNewScheme,
             titles: computed(() => {
@@ -318,12 +327,14 @@ export default defineComponent({
             onSelectAllClick() {
                 // stateSelect.value = stateSelect.value === "active" ? "" : "active";
             },
-            onMetalsChange(val: string) {
+            onMetalsClick(val: string) {
                 // stateMetals.value = stateMetals.value === "active" ? "" : "active";
-                showMenu.value = val === "active" ? true : false;
+                // showMenu.value = val === "active" ? true : false;
+                showMetalsDlg.value = !showMetalsDlg.value;
             },
             onInOutChange(val: string) {
                 // showMenu.value = val === "active" ? true : false;
+                showMenu.value = true;
             },
             onPartsClick(val: string) {
                 showMenu.value = !showMenu.value;
@@ -434,7 +445,7 @@ export default defineComponent({
         position: absolute;
         top: 90px;
         right: 60px;
-        transition: right 0.3s ease;
+        transition: right 0.3s ease-in-out;
     }
     &.menu-opened &__action-top {
         right: 348px;

@@ -29,6 +29,9 @@
                     </el-col>
                 </el-row>
             </div>
+            <el-empty v-if="schemesList.length === 0" description="暂无定制方案" style="height: 100%">
+                <el-button v-if="showServeBtn" size="small" type="dark" round @click="serve">为此客户服务</el-button>
+            </el-empty>
         </div>
     </div>
 </template>
@@ -68,7 +71,9 @@ export default defineComponent({
         const store = useStore();
         const schemesList = reactive([] as SortedSchemes[]);
         const customerId = ref("");
-        const showServeBtn = computed(() => store.state.currentCustomer.customerId.toString() !== customerId.value);
+        const showServeBtn = computed(
+            () => store.state.currentCustomer.customerId.toString() !== customerId.value.toString(),
+        );
         const refMenu = ref<InstanceType<typeof CustomerMenu>>();
         const refSchemeList = ref<HTMLDivElement>();
 

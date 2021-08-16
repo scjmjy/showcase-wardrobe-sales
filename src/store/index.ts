@@ -81,6 +81,7 @@ export default createStore({
         logout({ commit }) {
             return apiProvider.logout().then(() => {
                 commit("SET-USER", undefined);
+                commit("SWITCH-CUSTOMER", undefined);
                 return "ok";
             });
         },

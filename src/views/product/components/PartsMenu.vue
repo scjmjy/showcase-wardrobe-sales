@@ -2,15 +2,15 @@
     <div ref="refDiv" class="parts-menu">
         <div class="parts-menu__left">
             <div class="parts-menu__left-header">{{ typeText }}</div>
-            <div class="parts-menu__left-items">
-                <div v-for="cat in cats" :key="cat.id" class="item" @click="onCatClick(cat)">
-                    {{ cat.name }}
-                </div>
-            </div>
+            <el-row class="parts-menu__left-items" :gutter="20">
+                <el-col v-for="cat in cats" :key="cat.id" :span="12" style="padding: 10px">
+                    <part-cat-card :cat="cat" :active="selectedCat == cat.id" @select="onCatSelect"></part-cat-card>
+                </el-col>
+            </el-row>
         </div>
         <div class="parts-menu__right">
             <div class="parts-menu__right-header">
-                <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoLeft"
+                <el-button class="parts-menu__right-header-back" icon="el-icon-arrow-left" type="text" @click="gotoLeft"
                     >返回</el-button
                 >
                 <span>
@@ -28,6 +28,7 @@
 import { PartCategory, PartCategoryMeta } from "@/api/interface/provider.interface";
 import { computed, defineComponent, PropType, ref } from "vue";
 import apiProvider from "@/api/provider";
+import PartCatCard from "./PartCatCard.vue";
 
 export default defineComponent({
     name: "PartsMenu",
@@ -41,6 +42,9 @@ export default defineComponent({
             default: () => ({}),
         },
     },
+    components: {
+        PartCatCard,
+    },
     setup(props, ctx) {
         const refDiv = ref<HTMLDivElement>();
         const cats = ref<PartCategory[]>([]);
@@ -51,12 +55,22 @@ export default defineComponent({
             }
         });
         const typeText = computed(() => (props.type === "in" ? "内配" : "外配"));
+
+        const selectedCat = ref("");
         return {
             typeText,
             cats,
             catMeta,
             refDiv,
-            onCatClick(cat: PartCategory) {
+            selectedCat,
+            gotoLeft() {
+                refDiv.value?.scrollBy({
+                    behavior: "smooth",
+                    left: -328,
+                });
+            },
+            onCatSelect(cat: PartCategory) {
+                selectedCat.value = cat.id.toString();
                 apiProvider.requestPartCatMeta(cat.id).then((res) => {
                     if (res.ok) {
                         catMeta.value = res.data;
@@ -67,35 +81,34 @@ export default defineComponent({
                     }
                 });
             },
-            gotoLeft() {
-                refDiv.value?.scrollBy({
-                    behavior: "smooth",
-                    left: -328,
-                });
-            },
         };
     },
 });
 </script>
 
 <style scoped lang="scss">
+$menu-width: 328px;
+$header-height: 56px;
 .parts-menu {
     border-radius: 10px 0px 0px 10px;
     box-shadow: -5px 4px 8px rgba(0, 0, 0, 0.07);
     background-color: var(--el-color-bg);
-    $width: 328px;
-    width: $width;
-    max-width: $width;
+    width: $menu-width;
+    max-width: $menu-width;
     overflow: hidden;
 
     &__left {
         display: inline-flex;
         flex-direction: column;
         overflow: hidden;
-        width: $width;
+        width: $menu-width;
         height: 100%;
         &-header {
-            padding: 20px 20px 10px 23px;
+            display: flex;
+            align-items: flex-end;
+            padding-left: 23px;
+            padding-bottom: 10px;
+            height: $header-height;
             color: var(--el-color-black);
             font-size: 26px;
             font-weight: bold;
@@ -104,30 +117,45 @@ export default defineComponent({
         &-items {
             flex: 1;
             white-space: pre-wrap;
+            margin-left: 0px !important;
+            margin-right: 0px !important;
+            padding: 10px !important;
+            overflow-y: auto;
 
-            & .item {
-                display: inline-flex;
-                justify-content: center;
-                align-items: center;
-                width: 50px;
-                height: 50px;
-                border: 1px solid red;
-                margin: 10px;
-            }
+            // & .item {
+            //     display: inline-flex;
+            //     justify-content: center;
+            //     align-items: center;
+            //     width: 50px;
+            //     height: 50px;
+            //     border: 1px solid red;
+            //     margin: 10px;
+            // }
         }
     }
     &__right {
         display: inline-flex;
         flex-direction: column;
         overflow: hidden;
-        width: $width;
+        width: $menu-width;
         height: 100%;
         &-header {
-            padding: 20px 20px 10px 23px;
+            display: flex;
+            align-items: flex-end;
+            padding-left: 10px;
+            padding-bottom: 10px;
+            height: $header-height;
             color: var(--el-color-black);
             font-size: 26px;
             font-weight: bold;
-            box-shadow: 5px 0px 10px 0px rgba(0, 0, 0, 0.16);
+            box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
+
+            &-back {
+                padding: 0px;
+                line-height: normal;
+                min-height: unset;
+                margin-right: 45px;
+            }
         }
         &-items {
             flex: 1;

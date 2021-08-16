@@ -54,6 +54,7 @@ export default defineComponent({
         top: 400px;
         font-size: 22px;
         color: white;
+        text-shadow: 0 0 10px var(--el-color-primary);
     }
     &__btn {
         margin: 16px auto;

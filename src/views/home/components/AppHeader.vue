@@ -112,7 +112,7 @@ export default defineComponent({
 
     width: 100%;
     height: 70px;
-    padding: 0px 40px 0px 10px;
+    padding: 0px 40px 0px 20px;
     position: absolute;
     top: 0;
     left: 0;
@@ -124,10 +124,14 @@ export default defineComponent({
         justify-content: space-between;
         align-items: center;
     }
+    &__left {
+        margin-right: 100px;
+    }
 
     &__back {
         font-size: 26px;
         color: inherit !important;
+        padding-left: 0px !important;
     }
 
     &__icon {
