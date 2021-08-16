@@ -9,12 +9,10 @@
  *
  */
 
-import { sketchUtil, StUuidObject } from "../utility/st_object";
-import * as geometric from "geometric";
+import { StUuidObject } from "../utility/st_object";
 import { StVector } from "./st_vector_2d";
-
+import * as geometric from "geometric";
 import * as turf from "@turf/turf";
-import { point } from "@turf/turf";
 
 export enum StPolygonOverlap {
     NONE,

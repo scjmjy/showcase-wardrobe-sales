@@ -188,6 +188,7 @@ export class StSketchBoardZ extends StModel {
         super.clearMesh();
         const board_mesh = StLineBoardMesh.buildByLine(this.line, this.getDepth(), StBoardMeshLocation.LEFT);
         this.meshList.push(board_mesh);
+        console.log("draw mesh: boardZ");
     }
 
     private readonly line: StSketchLine;
@@ -215,12 +216,13 @@ export class StSketchCube extends StModel implements StICube {
     private readonly rect: StSketchRect;
 
     /**
-     * each line is real wooden board.
+     * each board/line is real wooden board.
      */
     private readonly divideBoard: Map<string, StSketchBoardZ> = new Map();
-    // private readonly divideBoard: StSketchLine[] = [];
 
-    //private readonly divisions: StSketchDivision[] = [];
+    /**
+     * all divisions in this cube
+     */
     private readonly divisions: Map<string, StSketchDivision> = new Map();
 
     /**
@@ -253,12 +255,13 @@ export class StSketchCube extends StModel implements StICube {
 
     updateMesh(): void {
         this._createCubeFrameBySize();
+        // guilin: DO NOT update divisions?
         /* for(const div of this.divisions.values()) {
             div.updateMesh();
         } */
     }
 
-    _getDivisions(): StSketchDivision[] {
+    __getDivisions(): StSketchDivision[] {
         return Array.from(this.divisions.values());
     }
 
@@ -365,6 +368,7 @@ export class StSketchCube extends StModel implements StICube {
             depth: this.getDepth(),
             line: line,   
         });
+        board.updateMesh();
         this.divideBoard.set(board.uuid, board);
         console.log(`Add divide board: ${board}`);
 

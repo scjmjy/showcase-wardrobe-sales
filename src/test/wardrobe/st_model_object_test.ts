@@ -48,7 +48,7 @@ class StSketchCubeTest {
 
     divide_01(): string {
         if (!this.cube) throw Error("No Cube!");
-        const div00: StSketchDivision = this.cube._getDivisions()[0];
+        const div00: StSketchDivision = this.cube.__getDivisions()[0];
         const div00_rect = div00._getRect();
         const e0 = div00_rect.edges[0];
         const e2 = div00_rect.edges[2];
