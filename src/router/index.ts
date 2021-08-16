@@ -17,11 +17,13 @@ import Demo3D from "@/views/demo/demo-3d.vue";
 import DemoDemo3 from "@/views/demo/demo-demo3.vue";
 import StBuild3d from "@/views/demo/StBuild3d.vue";
 import StDisplay3D from "@/views/demo/StDisplay3D.vue";
+import StGeometry2dTest from "@/views/demo/StGeometry2dTest.vue";
 import EditScheme from "@/views/EditScheme.vue";
 
 const routes: Array<RouteRecordRaw> = [
     { path: "/demo/build3d", name: "Build 3D", component: StBuild3d },
     { path: "/demo/display3d", name: "Display 3D", component: StDisplay3D },
+    { path: "/demo/geometry2d", name: "Geometry 2D", component: StGeometry2dTest },
 
     {
         path: "/",

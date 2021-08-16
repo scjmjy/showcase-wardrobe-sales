@@ -9,20 +9,18 @@
 
 import { StSketchEdge, StSketchLine, StSketchPoint, StSketchPolygon, StSketchRect } from "../geometry/st_geometric_2d";
 import { StVector } from "../geometry/st_vector_2d";
-import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StIAccesory, StICube, StICubeOpt, StIDivison, StILevel, StIModel, StIModelOpt } from "./st_model_interface";
+import { StSketchVector3 } from "../geometry/st_geometric_3d";
+import { StIAccesory, StICube, StIDivison, StILevel, StIModel, StIModelOpt, StICubeOpt, StIDivisionOpt } from "./st_model_interface";
 import { StBoardMesh, StBoardType } from "./st_board_mesh";
 import { StDoorType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
 import { StModel, StSketchAccesory } from "./st_model_object";
 import { StWoodType, textureManager } from "../utility/st_texture";
 
-//import turf, { FeatureCollection, Point } from "@turf/turf";
+// import turf, { FeatureCollection, Point } from "@turf/turf";
 // import turfhelpers from "@turf/helpers"
 
 import StSketchConstant from "../utility/st_sketch_constant";
-import { StAccesoryManager } from "../data/st_accesory_manager";
-import { UtilityLayerRenderer } from "babylonjs/Rendering/utilityLayerRenderer";
 
 export class StSketchDivision extends StModel implements StIDivison {
     /**
@@ -60,15 +58,35 @@ export class StSketchDivision extends StModel implements StIDivison {
 
     /**
      *
+     * [Guilin: 2021-8-16] use the input 'rect' to construct the default division. 
+     * 
+     * Reason: a division may be created by a divided sub rectangle, which changes if the divide board moves. 
+     * In this case, we hope the division changes, automatically.
+     * 
      * @param start_point position in the LEVEL/Cube Space ??
      * @param width
      * @param height
      */
-    constructor(obj: StIModelOpt) {
-        super(obj);
-        const size = this.getSize();
-        const pos = this.getPosition();
-        this.rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(pos.x, pos.y), size.x, size.y);
+    constructor(opt: StIDivisionOpt){
+        super(opt);
+        if(opt.rect) {
+            const pt = opt.rect.getStartPoint();
+            if(! opt.position) {
+                throw Error("position is required, if 'rect' is provided!");
+            }
+            const pt_pos = new StSketchPoint(opt.position.x, opt.position.y);
+            if(! pt.overlaps(pt_pos)) {
+                throw Error(`Rectangle start point ${pt} does not overlap with model position ${opt.position}`);
+            }
+            if(!(opt.width == opt.rect.a && opt.height == opt.rect.b) ) {
+                throw Error(`Rectangle a/b does not match with model width/height. \n\t  - Rect: ${opt.rect}), \n\t - Model Width/Height: ${opt.width}/${opt.height}`)
+            }
+            this.rect = opt.rect;
+        }else{
+            const size = this.getSize();
+            const pos = this.getPosition();
+            this.rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(pos.x, pos.y), size.x, size.y);
+        }
     }
 
     updateMesh(): void {
@@ -88,32 +106,52 @@ export class StSketchDivision extends StModel implements StIDivison {
         throw new Error(`Method not implemented. id: ${acce_id}`);
     }
 
-    /**
+   /**
      *
      * @param line any line in current division's SPACE
      * @returns
      */
-    divideByLine(line: StSketchLine): StSketchDivision[] | null {
+    divideByLine(line: StSketchLine): StSketchDivision[] {
         const subs: StSketchDivision[] = [];
-
         const sub_rects = this.rect.divideByLine(line);
+        if (sub_rects.length == 0) {
+            console.log(`Division Rectangle ${this.rect} cannot be divided by line: ${line}`);
+        }else if (sub_rects.length == 2) {
+            const div1 = StSketchDivision.createDivisionByRect(sub_rects[0], this.getPosition());
+            const div2 = StSketchDivision.createDivisionByRect(sub_rects[1])
+            subs.push(div1);
+            subs.push(div2);
 
-        if (subs.length == 0) {
-            return null;
+            // if divide success, delete all accessories
+            for (const acce of this.parts) {
+                acce.delete();
+            }
+        }else{
+            console.error(`More than 2 sub divisions: ${subs.length}`);
+            console.error(`Division ${this} is divided by line: ${line}`);
         }
-
-        if (subs.length != 2) {
-            throw Error(`More than 2 sub divisions: ${subs.length}`);
-        }
-
-        // if divide success, delete all accessories
-        for (const acce of this.parts) {
-            acce.delete();
-        }
-        throw Error("TODO");
         return subs;
     }
+
+    static createDivisionByRect(poly: StSketchPolygon, pos?: StSketchVector3): StSketchDivision {
+        const rect: StSketchRect = StSketchRect.buildByPolygon(poly);
+        const pt0 = rect.getStartPoint().getVector();
+        if(!pos) {
+            pos = new StSketchVector3(pt0.x, pt0.y);
+        }
+        if (!(pt0.x == pos.x && pt0.y == pos.y)) {
+            throw Error(`Position ${pos} does not overlap rectangle 1st point ${pt0}`);
+        }
+        const opt: StIDivisionOpt = {
+            position: pos,
+            width: rect.a,
+            height: rect.b,
+            rect: rect,
+        };
+        return new StSketchDivision(opt);
+    }
 }
+
 
 /**
  * @deprecated by container
@@ -193,6 +231,17 @@ export class StSketchCube extends StModel implements StICube {
         this.rect = StSketchRect.buildRect({ width: this.getWidth(), height: this.getHeight() });
         this.edgeMap = new Map<string, StSketchEdge>();
         this.updateMesh();
+
+        // create the default division
+        // 
+        // [Guilin: 2021-8-12] use 'this.rect' to construct the default division. 
+        // Reason: cube division(s) change(s) if the points of cube rectangle change.
+        // 
+        const div_opt: StIDivisionOpt = obj;
+        div_opt.position = this.getPosition();
+        div_opt.rect = this.rect;
+        const div = new StSketchDivision(div_opt);
+        this.divisions.push(div);
     }
 
     updateMesh(): void {
@@ -247,7 +296,7 @@ export class StSketchCube extends StModel implements StICube {
      * @returns the divide board (line)
      */
     addDivideBoard(e0: StSketchEdge, e1: StSketchEdge): StSketchLine {
-        // 1. create a line from the 2 points of input e1 and e0
+        // 1. create a divide-board (line) from the 2 points on the e0 & e1
         const p0 = e0.addPoint(100);
         const vec0 = e0.getVector().rotate(Math.PI / 2);
         const vec = StVector.makeVectorByLength(vec0, StSketchConstant.MAX_LENGTH);
@@ -263,7 +312,7 @@ export class StSketchCube extends StModel implements StICube {
         const line = new StSketchLine(p0, p1);
         this.divideBoard.push(line);
 
-        // 2. traverse all divisions, try to  divide them with input line
+        // 2. traverse all divisions, try to divide them with line
         const cross_poly: StSketchPolygon[] = [];
         for (const div of this.divisions) {
             const subs = div.divideByLine(line);

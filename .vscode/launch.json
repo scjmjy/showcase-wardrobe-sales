@@ -15,7 +15,7 @@
             "type": "pwa-chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",
-            "url": "http://localhost:9529",
+            "url": "http://localhost:9528/coolsales",
             "webRoot": "${workspaceFolder}"
         }
     ]

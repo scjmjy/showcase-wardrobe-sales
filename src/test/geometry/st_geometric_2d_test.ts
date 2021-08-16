@@ -20,20 +20,20 @@ class StSketchEdgeTest extends StSketchTest {
         
         const p0 = e0.addPoint(3);
         const p1 = new StSketchPoint(3, 100);
-        const edge = new StSketchEdge(p0, p1);
+        const line = new StSketchLine(p0, p1);
         
         const p10  = new StSketchPoint(10, 6);
         const p11  = new StSketchPoint(0,  6);
         const e1   = new StSketchEdge(p10, p11);
 
-        const intersect_point: StSketchPoint| null = edge.intersectWith(e1);
+        const intersect_point: StSketchPoint| null = e1.intersectWith(line); 
         const intersect: StVector = this.assertValid(intersect_point).getVector();
-        console.log(`edge: ${edge}, e1: ${e1} `);
+        console.log(`edge: ${e1}, intersect with line: ${line} `);
         console.log(`Intersecting Point: ${intersect}`);
         this.assertEqual(intersect.x, 3 );
         this.assertEqual(intersect.y, 6 );
         //return intersect.toString();
-        return `Intersection Point: ${intersect}`;
+        return `[Success] Intersection Point: ${intersect}`;
     }
 
     /**
@@ -60,7 +60,7 @@ class StSketchEdgeTest extends StSketchTest {
         const intersect_point: StSketchPoint| null = edge.intersectWith(e1);
         this.assertTrue(intersect_point == null);
 
-        return "NO Intersection !!!"
+        return "[Success] NO Intersection !!!"
     }
 
 
@@ -79,19 +79,19 @@ class StSketchEdgeTest extends StSketchTest {
         
         const p0 = e0.addPoint(3);
         const p1 = new StSketchPoint(4, 6);
-        const edge = new StSketchEdge(p0, p1);
+        const line = new StSketchLine(p0, p1);
         
         const p10  = new StSketchPoint(10, 6);
         const p11  = new StSketchPoint(0,  6);
         const e1   = new StSketchEdge(p10, p11);
 
-        const intersect_point: StSketchPoint| null = edge.intersectWith(e1);
+        const intersect_point: StSketchPoint| null = line.intersectWith(e1);
         const intersect: StVector = this.assertValid(intersect_point).getVector();
-        console.log(`edge: ${edge}, e1: ${e1} `);
+        console.log(`line: ${line}, e1: ${e1} `);
         console.log(`Intersecting Point: ${intersect}`);
         this.assertEqual(intersect.x, 4 );
         this.assertEqual(intersect.y, 6 );
-        return `Intersection Point: ${intersect}`;
+        return `[Success] Intersection Point: ${intersect}`;
     }
 
 }

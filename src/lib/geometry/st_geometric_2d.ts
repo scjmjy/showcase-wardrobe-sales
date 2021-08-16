@@ -94,6 +94,10 @@ export class StSketchPoint extends StGeometic2D {
         const vec = v1.minus(v0);
         return vec.length();
     }
+    
+    overlaps(p1: StSketchPoint): boolean { 
+        return this.x == p1.x && this.y == p1.y;
+    }
 
     static makeVector(p0: StSketchPoint, p1: StSketchPoint): StVector {
         return new StVector(p1.x - p0.x, p1.y - p0.y);
@@ -242,8 +246,11 @@ export class StSketchEdge extends StSketchLine {
      */
     private _calcInnerPoint(offset: number): StVector {
         const line_len = this.length();
-        if (offset <= 0 || line_len <= offset) {
+        if (offset < 0 || line_len < offset) {
             throw Error(`Point offset ${offset} out of boundary: (0, ${line_len})`);
+        }
+        if(offset == 0) {
+            return new StVector(0, 0);
         }
         const v0_vec = this.vertex0.getVector();
         const trans_vec = StVector.makeVectorByLength(this.getVector(), offset);
@@ -265,6 +272,16 @@ export class StSketchEdge extends StSketchLine {
         }
     }
 
+    /**
+     * If success, an edge-point(EP) on current edge is returned, which has an offset from this.vertex0;
+     * if EP.offset== 0,             it overlaps with this.vertex0; 
+     * if EP.offset== this.length(), it overlaps with this.vertex1; 
+     * 
+     * 
+     * @param line 
+     * @returns 
+     * 
+     */
     intersectWith(line: StSketchLine): StEdgePoint | null {
         const pt = super.intersectWith(line);
         if (pt == null) {

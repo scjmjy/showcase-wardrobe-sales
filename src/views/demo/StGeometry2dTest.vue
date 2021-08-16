@@ -1,7 +1,7 @@
 <template>
     <div class="st-tank">
         <div class="st-head">
-            <aside>TODO: 3D Test (Lib: {{ libVersion }}) ...</aside>
+            <aside>Geometry 2D Test: Point, Line, Edge, Polygon (Lib: {{ libVersion }}) ...</aside>
             <textarea v-model="topInfo"> </textarea>
         </div>
 
@@ -10,11 +10,13 @@
                 <button class="camera" v-on:click="onCameraFront()">视角: 正面</button>
             </div>
             <div class="sidebar">
-                <label>TODO: Add Test </label>
-                <button class="test" v-on:click="onTest()">TODO</button>
+                <label>Edge Intersection: </label>
+                <button class="test" v-on:click="onTestEdge('intersect01')">Cross </button>
+                <button class="test" v-on:click="onTestEdge('intersect02')">NONE </button>
+                <button class="test" v-on:click="onTestEdge('intersect03')">On One Edge</button>
                 <br />
-                <label>TODO: Add Test </label>
-                <button class="test" v-on:click="onTest()">TODO</button>
+                <label>Divide Polygon: </label>
+                <button class="test" v-on:click="onTestPolygon('divide02')">Cross Line</button>
             </div>
         </div>
 
@@ -30,10 +32,13 @@
 import { defineComponent } from "vue";
 import StSketchConstant from "@/lib/utility/st_sketch_constant";
 import { St3DEngine, sketchEngine } from "@/lib/utility/st_sketch_engine";
+import { StSketchCacheTest } from "@/lib/data/st_sketch_cache_test";
 import { StISketchRoom } from "@/lib/utility/st_sketch_room_interface";
+import { edgeTest } from "@/test/geometry/st_geometric_2d_test";
+import { polygonTest } from "@/test/geometry/st_geometric_2d_test";
 
 export default defineComponent({
-    name: "st_geometry_2d",
+    name: "StGeometry2dTest",
     components: {},
     props: {
         msg: {
@@ -69,6 +74,7 @@ export default defineComponent({
         const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
         sketchEngine.initialize(St3DEngine.BABYLON_JS, canvas, this.callbackCameraUpdatePos, this.useGizmo);
         this.room = sketchEngine.getRoom();
+        //this.onCameraFront();
     },
 
     methods: {
@@ -101,11 +107,19 @@ export default defineComponent({
             alert("TODO");
         },
 
-        onTest(type: string) {
+        onTestEdge(type: string) {
             try{
                 switch (type) {
-                    case "todo":
-                        throw Error("TODO");
+                    case "intersect01":
+                        this.topInfo = edgeTest.intersect01();
+                        break;
+                    case "intersect02":
+                        this.topInfo = edgeTest.intersect02();
+                        break;
+                    case "intersect03":
+                        this.topInfo = edgeTest.intersect03();
+                        break;
+
                     default:
                         alert(`unknowty mesh ${type}`);
                         break;
@@ -114,6 +128,27 @@ export default defineComponent({
                 this.topInfo = (e as Error).message;
                 throw e;
             }
+        },
+
+        onTestPolygon(opt: string) {
+            try{
+                switch (opt) {
+                    case "divide02":
+                        this.topInfo = polygonTest.divide02_byCrossLine();
+                        break;
+                    default:
+                        alert("unknown operation: " + opt);
+                        break;
+                }
+            }catch(e) {
+                this.topInfo = (e as Error).message;
+                throw e;
+            }
+        },
+
+        async onCacheInfo() {
+            const test = new StSketchCacheTest();
+            this.topInfo = await test.showCacheInfo();
         },
     },
 });
