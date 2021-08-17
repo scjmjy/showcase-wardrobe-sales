@@ -330,15 +330,15 @@ export default class RestProvider extends LocalProvider {
 
     requestParts(
         ptcid: string | number,
-        ptbid: string | number,
-        cid: string | number,
-        mid: string | number,
         page = 1,
         pageSize = 10,
+        ptbid?: string | number,
+        cid?: string | number,
+        mid?: string | number,
     ): Promise<AjaxResponse<Part[]>> {
         return new Promise((resolve) => {
             request({
-                method: "GET",
+                method: "POST",
                 url: "/api/v1/biz/parts",
                 data: {
                     ptcid,

@@ -10,7 +10,8 @@
 
             <el-tabs v-model="selectedCatId" class="parts-menu__left-cats" tab-position="left" @tab-click="onCatChange">
                 <el-tab-pane v-for="cat in cats" :key="cat.id" :label="cat.name" :name="cat.id.toString()">
-                    <cat-tab v-if="selectedCatId == cat.id" :cat="cat" />
+                    <cat-tab :cat="cat" />
+                    <!-- <cat-tab v-if="selectedCatId == cat.id" :cat="cat" /> -->
                 </el-tab-pane>
             </el-tabs>
         </div>
@@ -103,7 +104,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-$menu-width: 328px;
+$menu-width: 428px;
 $header-height: 56px;
 .parts-menu {
     border-radius: 10px;

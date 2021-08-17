@@ -1,0 +1,52 @@
+<template>
+    <div class="part-card u-clickable" :class="{ active: active }">
+        <el-image class="part-card__img" :src="part.pic" fit="contain" @click="$emit('select', part)"></el-image>
+        <div class="part-card__label">{{ part.name }}</div>
+    </div>
+</template>
+
+<script lang="ts">
+import { Part } from "@/api/interface/provider.interface";
+import { defineComponent, PropType } from "vue";
+
+export default defineComponent({
+    name: "PartCard",
+    props: {
+        part: {
+            type: Object as PropType<Part>,
+            default: () => ({}),
+        },
+        active: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    setup() {
+        return {};
+    },
+});
+</script>
+
+<style scoped lang="scss">
+.part-card {
+    &__img {
+        width: 140px;
+        height: 140px;
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: white;
+    }
+    &__label {
+        margin-top: 10px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        color: var(--el-color-black);
+    }
+
+    &.active &__img {
+        border: 3px solid var(--el-color-primary);
+    }
+}
+</style>

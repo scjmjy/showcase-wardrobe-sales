@@ -349,11 +349,11 @@ export default class LocalProvider implements ApiProvider {
     }
     requestParts(
         ptcid: string | number,
-        ptbid: string | number,
-        cid: string | number,
-        mid: string | number,
         page: number,
         pageSize: number,
+        ptbid?: string | number,
+        cid?: string | number,
+        mid?: string | number,
     ): Promise<AjaxResponse<Part[]>> {
         throw new Error("Method not implemented.");
     }

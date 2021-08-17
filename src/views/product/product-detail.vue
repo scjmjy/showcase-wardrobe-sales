@@ -320,7 +320,7 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     // background-color: var(--el-color-bg);
-    background: linear-gradient(#f2f4f5, #eeefef);
+    background: linear-gradient(#f2f4f5, #f1f3f4);
     &__3d {
         // flex: 1;
         // overflow: auto;

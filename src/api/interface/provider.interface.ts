@@ -217,10 +217,10 @@ export default interface ApiProvider {
      */
     requestParts(
         ptcid: string | number,
+        page: number,
+        pageSize: number,
         ptbid: string | number,
         cid: string | number,
         mid: string | number,
-        page: number,
-        pageSize: number,
     ): Promise<AjaxResponse<Part[]>>;
 }
