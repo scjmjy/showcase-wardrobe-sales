@@ -22,6 +22,7 @@
                 <button class="test" v-on:click="onTestCube('GB+')">GB+</button>
                 <button class="test" v-on:click="onTestCube('GB-')">GB-</button>
                 <button class="test" v-on:click="onTestCube('divide-01')">Divide 01</button>
+                <button class="test" v-on:click="onTestCube('divide-02')">Divide 02</button>
                 <br />
                 <button class="test" v-on:click="onTestMesh('board-3')">Board: Left-Right</button>
                 <button class="test" v-on:click="onTestMesh('board-1')">B-Position</button>
@@ -182,6 +183,9 @@ export default defineComponent({
 
                     case "divide-01":
                         this.topInfo = test.divide_01();
+                        break;
+                    case "divide-02":
+                        this.topInfo = test.divide_02();
                         break;
 
                     default:

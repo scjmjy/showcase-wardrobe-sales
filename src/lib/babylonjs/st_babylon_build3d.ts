@@ -1,3 +1,14 @@
+/**
+ * @file    st_babylon_build3d.ts
+ * @author  Guilin
+ *
+ * @description utility to build a 3D geometry in BabaylonJS engine
+ *
+ * ------------------ Logs -----------------------------------------------------
+ * [Guilin 2021-07-29] Created.
+ *
+ */
+
 import { v4 as uuidv4 } from "uuid";
 import StBabylonUtil from "./st_babylon_util";
 import { StSketchPolygon, StSketchRect } from "../geometry/st_geometric_2d";
@@ -70,8 +81,8 @@ export class StBabylonBuild3d implements StIBuild3d {
         myShape.push(myShape[0]);
         const myPath = [new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(0, 0, depthZ / ST_SCALE_FROM_MM)];
         const options = {
-            shape: myShape, // vec3 array with z = 0,
-            path: myPath, // vec3 array
+            shape: myShape, // Vector3 array with z = 0,
+            path: myPath, // vector3 array
             updatable: true,
             cap: BABYLON.Mesh.CAP_ALL,
             sideOrientation: BABYLON.Mesh.DOUBLESIDE,

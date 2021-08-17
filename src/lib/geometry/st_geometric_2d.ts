@@ -229,6 +229,10 @@ export class StSketchLine extends StGeometic2D {
         const cord = pts[0].geometry.coordinates;
         return new StSketchPoint(cord[0], cord[1]).toFixed(4);
     }
+
+    static buildByArray(arr: geometric.Line): StSketchLine {
+        return new StSketchLine(new StSketchPoint(arr[0][0], arr[0][1]), new StSketchPoint(arr[1][0], arr[1][1]));
+    }
 }
 
 /**
@@ -543,10 +547,15 @@ export class StSketchPolygon extends StGeometic2D {
                 edges.push(edge);
             }
         }
-        return [
-            this._createChild(edges[0], pts[0], pts[1], edges[1]),
-            this._createChild(edges[1], pts[1], pts[0], edges[0]),
-        ];
+        if (edges.length == 2) {
+            polys.push(this._createChild(edges[0], pts[0], pts[1], edges[1]));
+            polys.push(this._createChild(edges[1], pts[1], pts[0], edges[0]));
+        } else if (edges.length < 2) {
+            console.debug(`line ${line} fails to divide rect ${this}`);
+        } else {
+            throw Error(`Fatal: ${edges.length}`);
+        }
+        return polys;
     }
 
     /**

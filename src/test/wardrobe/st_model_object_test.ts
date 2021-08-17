@@ -1,3 +1,4 @@
+import { StSketchLine } from "@/lib/geometry/st_geometric_2d";
 import { StSketchCube, StSketchDivision } from "@/lib/wardrobe/st_sketch_cube";
 
 class StSketchCubeTest {
@@ -5,9 +6,9 @@ class StSketchCubeTest {
 
     create_01(): StSketchCube {
         const cube = new StSketchCube({
-            width: 600,
-            height: 1200,
-            depth: 450,
+            width: 1200,
+            height: 1800,
+            depth: 550,
         });
         console.log(`create cube: ${cube.uuid} `);
         this.cube = cube;
@@ -49,21 +50,32 @@ class StSketchCubeTest {
         return `[Success] change bottom gap: ${this.cube.gapBottom} `
     }
 
-
     divide_01(): string {
         if (!this.cube) throw Error("No Cube!");
         const div00: StSketchDivision = this.cube.__getDivisions()[0];
         const div00_rect = div00.__getRect();
         const e0 = div00_rect.edges[0];
         const e2 = div00_rect.edges[2];
-        const line = this.cube.addDivideBoard(e0, e2);
+        const board = this.cube.addDivideBoard(e0, e2);
 
         const e1 = div00_rect.edges[1];
         const e3 = div00_rect.edges[3];
-        const line2 = this.cube.addDivideBoard(e1, e3);
+        const board2 = this.cube.addDivideBoard(e1, e3);
 
         this.cube.updateMesh();
-        return `[Success] Divide Lines: \n\t ${line} \n\t ${line2}`;
+        return `[Success] Divide Boards(Lines): \n\t ${board} \n\t ${board2}`;
+    }
+
+    divide_02(): string {
+        if (!this.cube) throw Error("No Cube!");
+        const line0 = StSketchLine.buildByArray([[0, 1500], [1200, 1500]]);
+        const line1 = StSketchLine.buildByArray([[800, 0],  [800,  1500]]);
+    
+        const b0 = this.cube.addDivideBoardByLine(line0);
+        const b1 = this.cube.addDivideBoardByLine(line1);
+
+        this.cube.updateMesh();
+        return `[Success] Divide Boards(Lines): \n\t ${b0} \n\t ${b1}`;
     }
 }
 

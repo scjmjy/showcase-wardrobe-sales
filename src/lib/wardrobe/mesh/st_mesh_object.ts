@@ -247,7 +247,6 @@ class StCylindarMesh extends StOnsiteMesh {
     readonly radius: number;
     readonly depth: number;
 
-    // constructor(obj: any);
     constructor(obj: {
         position: StSketchVector3;
         space?: BABYLON.Space;
