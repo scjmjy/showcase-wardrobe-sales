@@ -91,7 +91,7 @@ const routes: Array<RouteRecordRaw> = [
         component: DemoDemo3,
     },
     {
-        path: "/editscheme",
+        path: "/demo-editscheme",
         name: "EditScheme",
         component: EditScheme,
     },

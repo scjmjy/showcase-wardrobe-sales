@@ -10,7 +10,14 @@
                 :subTitle="titles.subTitle"
             />
         </transition>
-        <Babylon class="product-detail__3d" :scheme="scheme" @click="showMenu = false" />
+        <Babylon
+            ref="refBabylon"
+            class="product-detail__3d"
+            :scheme="scheme"
+            :selectedPartId="selectedPartId"
+            :getAvailableArea="getAvailableArea"
+            @click="showMenu = false"
+        />
         <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
 
         <el-collapse-transition-h @after-leave="mode = 'edit'">
@@ -36,6 +43,11 @@
                 >返回</el-button
             >
             <div class="product-detail__action-left state-icon-group-v">
+                <!-- TODO: remove the test codes -->
+                <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
+                <state-icon icon="offer" label="添加抽屉" @change="onAddDrawerClick"></state-icon>
+                <state-icon icon="offer" label="添加隔板" @change="onAddShelfClick"></state-icon>
+
                 <state-icon icon="save" label="保存" @change="onSaveClick"></state-icon>
                 <state-icon icon="offer" label="报价" @change="onOfferClick"></state-icon>
             </div>
@@ -98,6 +110,8 @@ import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
 import PartsMenu from "./components/PartsMenu.vue";
 import { ElMessage } from "element-plus";
+import { Area, Position } from "@/lib/scheme";
+import * as util from "@/lib/scheme.util";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -215,15 +229,49 @@ export default defineComponent({
                 label: "外配",
             },
         ];
+        const refBabylon = ref<InstanceType<typeof Babylon>>();
+        let selectedPartId = ref(0);
+        const scheme = ref(util.importSchemeJson("mf/scheme.json"));
+        function getAvailableArea(partId: number): Area[] {
+            partId;
 
+            // TODO: compute the available areas later.
+            const areas = [];
+            let area = new Area(
+                "4cd170f8-291b-4236-b515-b5d27ac1209d",
+                new Position(-350, 1050, -270),
+                new Position(350, 1900, 290),
+            );
+            areas.push(area);
+
+            area = new Area(
+                "ce28f905-a6e1-4f68-9998-ed13f950ea91",
+                new Position(-350, 350, -270),
+                new Position(350, 1900, 290),
+            );
+            areas.push(area);
+
+            return areas;
+        }
         return {
+            scheme,
+            selectedPartId,
+            getAvailableArea,
+            onLogSchemeClick() {
+                console.log("LogScheme: ", scheme);
+            },
+            onAddDrawerClick() {
+                selectedPartId.value = 300005;
+            },
+            onAddShelfClick() {
+                selectedPartId.value = 300001;
+            },
             state3D,
             stateRuler,
             stateSelect,
             // stateMetals,
             stateInOut,
             inOutStates,
-            scheme: require("@/assets/mf/scheme.json"),
             showMenu,
             mode,
             schemeMode,

@@ -42,9 +42,9 @@ export class Item {
     id: string; // uuid唯一标识
     partId: number; // biz_parts_cm id
     manifest: string; // biz_parts_cm manifest url
-    location: Location; // 描述配件如何放置的
+    location: Location | null; // 描述配件如何放置的
 
-    constructor(id: string, partId: number, manifest: string, location: Location) {
+    constructor(id: string, partId: number, manifest: string, location: Location | null = null) {
         this.id = id;
         this.partId = partId;
         this.manifest = manifest;
@@ -85,15 +85,27 @@ export class Door {
     }
 }
 
+export class Part {
+    partId: number; // biz_parts id
+    count: number;
+
+    constructor(partId: number, count: number) {
+        this.partId = partId;
+        this.count = count;
+    }
+}
+
 export class Scheme {
     background: Item[]; // wall(只需要正面墙)，floor
     cubes: Cube[]; // 从左到右排列
     doors: Door[];
+    parts: Part[];
 
-    constructor(background: Item[], cubes: Cube[], doors: Door[]) {
+    constructor(background: Item[], cubes: Cube[], doors: Door[], parts: Part[]) {
         this.background = background;
         this.cubes = cubes;
         this.doors = doors;
+        this.parts = parts;
     }
 }
 

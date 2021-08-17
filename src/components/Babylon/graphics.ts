@@ -5,7 +5,7 @@ import * as GUI from "babylonjs-gui";
 export class Graphics {
     private readonly _canvas: HTMLCanvasElement;
     private readonly _engine: BABYLON.Engine;
-    private _scene!: BABYLON.Scene;
+    public scene!: BABYLON.Scene;
     private _camera!: BABYLON.ArcRotateCamera;
     private _light!: BABYLON.DirectionalLight;
     private _shadowGenerator!: BABYLON.ShadowGenerator;
@@ -35,19 +35,19 @@ export class Graphics {
 
     init(size: number): void {
         // setup scene
-        this._scene = new BABYLON.Scene(this._engine);
-        this._scene.clearColor = BABYLON.Color4.FromHexString("#f2f4f5ff");
-        this._scene.ambientColor = BABYLON.Color3.FromHexString("#ffffff");
-        this._scene.lightsEnabled = true;
-        this._scene.shadowsEnabled = true;
+        this.scene = new BABYLON.Scene(this._engine);
+        this.scene.clearColor = BABYLON.Color4.FromHexString("#f2f4f5ff");
+        this.scene.ambientColor = BABYLON.Color3.FromHexString("#ffffff");
+        this.scene.lightsEnabled = true;
+        this.scene.shadowsEnabled = true;
 
         this._camera = new BABYLON.ArcRotateCamera(
             "MainCamera",
             Math.PI / 2,
             Math.PI / 2,
             size,
-            new BABYLON.Vector3(0, 500, 0),
-            this._scene,
+            new BABYLON.Vector3(0, 1100, 0),
+            this.scene,
         );
         this._camera.maxZ = size * 3.75;
         this._camera.panningSensibility = 100;
@@ -62,7 +62,7 @@ export class Graphics {
         this._camera.lowerRadiusLimit = 800;
         this.lockCamera(false);
 
-        this._light = new BABYLON.DirectionalLight("MainLight", new BABYLON.Vector3(0.5, -1.2, -1.4), this._scene);
+        this._light = new BABYLON.DirectionalLight("MainLight", new BABYLON.Vector3(0.5, -1.2, -1.4), this.scene);
         this._light.position = new BABYLON.Vector3(-2300, 50, 2500);
         this._light.diffuse = new BABYLON.Color3(1.0, 1.0, 1.0);
         this._light.intensity = 0.75;
@@ -78,7 +78,7 @@ export class Graphics {
         this._shadowGenerator.useKernelBlur = false;
 
         // setup environment.
-        const environment = this._scene.createDefaultEnvironment({
+        const environment = this.scene.createDefaultEnvironment({
             createSkybox: false,
             groundSize: size * 2.1,
             skyboxSize: size * 2.1,
@@ -96,10 +96,10 @@ export class Graphics {
         });
         if (environment) environment.setMainColor(BABYLON.Color3.White());
 
-        const backgroundPlane = this._scene.getMeshByName("BackgroundPlane");
+        const backgroundPlane = this.scene.getMeshByName("BackgroundPlane");
         if (backgroundPlane) backgroundPlane.isPickable = false;
 
-        const skyBoxMesh = this._scene.getMeshByName("BackgroundSkybox");
+        const skyBoxMesh = this.scene.getMeshByName("BackgroundSkybox");
         if (skyBoxMesh !== null) {
             skyBoxMesh.isPickable = false;
             this._light.excludedMeshes.push(skyBoxMesh);
@@ -123,13 +123,13 @@ export class Graphics {
     }
 
     dispose(): void {
-        this._scene.dispose();
+        this.scene.dispose();
         this._engine.dispose();
     }
 
     clearScene(): void {
-        while (this._scene.meshes.length > 2) {
-            this._scene.meshes.forEach((mesh) => {
+        while (this.scene.meshes.length > 2) {
+            this.scene.meshes.forEach((mesh) => {
                 // Note: if creating skybox, need to keep it here.
                 if (!mesh.name.startsWith("Background")) {
                     mesh.dispose(true, true);
@@ -145,20 +145,20 @@ export class Graphics {
             combineRatio: 1.0, // Ratio of the combine post-process (combines the SSAO and the scene)
         };
 
-        this._pprenderer = new BABYLON.DefaultRenderingPipeline("default pipeline", true, this._scene, [this._camera]);
+        this._pprenderer = new BABYLON.DefaultRenderingPipeline("default pipeline", true, this.scene, [this._camera]);
         this._pprenderer.samples = 8;
         this._pprenderer.imageProcessing.toneMappingEnabled = true;
         this._pprenderer.fxaaEnabled = false;
 
-        this._ssaorenderer = new BABYLON.SSAORenderingPipeline("ssao", this._scene, ssaoRatio);
+        this._ssaorenderer = new BABYLON.SSAORenderingPipeline("ssao", this.scene, ssaoRatio);
         this._ssaorenderer.fallOff = 0.000001;
         this._ssaorenderer.area = 0.0075;
         this._ssaorenderer.radius = 0.0006;
         this._ssaorenderer.totalStrength = 1.0;
         this._ssaorenderer.base = 0.8;
         this._isSsaoAttached = false;
-        this._scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", this._camera);
-        this._scene.postProcessRenderPipelineManager.enableEffectInPipeline(
+        this.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", this._camera);
+        this.scene.postProcessRenderPipelineManager.enableEffectInPipeline(
             "ssao",
             this._ssaorenderer.SSAOCombineRenderEffect,
             this._camera,
@@ -167,7 +167,7 @@ export class Graphics {
 
     render(): void {
         this._engine.runRenderLoop(() => {
-            this._scene.render();
+            this.scene.render();
         });
 
         window.addEventListener("resize", () => {
@@ -203,12 +203,12 @@ export class Graphics {
 
     // TODO: Handle the transparent objects later.
     private setupInteraction(): void {
-        this._highlightLayer = new BABYLON.HighlightLayer("HighlightLayer", this._scene, {
+        this._highlightLayer = new BABYLON.HighlightLayer("HighlightLayer", this.scene, {
             blurVerticalSize: 1,
             blurHorizontalSize: 1,
         });
 
-        this._scene.onPointerObservable.add((pointerInfo) => {
+        this.scene.onPointerObservable.add((pointerInfo) => {
             switch (pointerInfo.type) {
                 case BABYLON.PointerEventTypes.POINTERDOWN:
                     // if (pointerInfo.pickInfo) console.log("POINTER DOWN: " + pointerInfo.pickInfo.pickedMesh);
@@ -217,7 +217,12 @@ export class Graphics {
                 case BABYLON.PointerEventTypes.POINTERUP:
                     this._isPointerDown = false;
 
-                    if (pointerInfo && pointerInfo.pickInfo && pointerInfo.pickInfo.pickedMesh) {
+                    if (
+                        pointerInfo &&
+                        pointerInfo.pickInfo &&
+                        pointerInfo.pickInfo.pickedMesh &&
+                        !pointerInfo.pickInfo.pickedMesh.name.startsWith("Background")
+                    ) {
                         // const pickedMesh = pointerInfo.pickInfo.pickedMesh;
                         const pickedMesh = this.getRootMesh(pointerInfo.pickInfo.pickedMesh);
 
@@ -244,17 +249,18 @@ export class Graphics {
                 case BABYLON.PointerEventTypes.POINTERMOVE:
                     if (this._isPointerDown) return;
                     {
-                        const ptInfo = this._scene.pick(
-                            this._scene.pointerX,
-                            this._scene.pointerY,
+                        const ptInfo = this.scene.pick(
+                            this.scene.pointerX,
+                            this.scene.pointerY,
                             (mesh) => {
-                                return !mesh.name.startsWith("Background") && mesh.isPickable;
+                                // return !mesh.name.startsWith("Background") && mesh.isPickable;
+                                return mesh.isPickable;
                             },
                             false,
-                            this._scene.cameraToUseForPointers,
+                            this.scene.cameraToUseForPointers,
                         );
 
-                        if (ptInfo && ptInfo.pickedMesh) {
+                        if (ptInfo && ptInfo.pickedMesh && !ptInfo.pickedMesh.name.startsWith("Background")) {
                             //const pickedMesh = ptInfo.pickedMesh;
                             const pickedMesh = this.getRootMesh(ptInfo.pickedMesh);
 
@@ -289,7 +295,7 @@ export class Graphics {
     }
 
     private setupKeyboard(): void {
-        this._scene.onKeyboardObservable.add((kbInfo) => {
+        this.scene.onKeyboardObservable.add((kbInfo) => {
             switch (kbInfo.type) {
                 case BABYLON.KeyboardEventTypes.KEYDOWN:
                     // console.log("KEY DOWN: ", kbInfo.event.key)
@@ -298,23 +304,23 @@ export class Graphics {
                             this._light.setEnabled(!this._light.isEnabled());
                             break;
                         case "2":
-                            this._scene.shadowsEnabled = !this._scene.shadowsEnabled;
+                            this.scene.shadowsEnabled = !this.scene.shadowsEnabled;
                             break;
                         case "3":
                             if (!this._isSsaoAttached) {
                                 this._isSsaoAttached = true;
-                                this._scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(
+                                this.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(
                                     "ssao",
                                     this._camera,
                                 );
-                                this._scene.postProcessRenderPipelineManager.enableEffectInPipeline(
+                                this.scene.postProcessRenderPipelineManager.enableEffectInPipeline(
                                     "ssao",
                                     this._ssaorenderer.SSAOCombineRenderEffect,
                                     this._camera,
                                 );
                             } else {
                                 this._isSsaoAttached = false;
-                                this._scene.postProcessRenderPipelineManager.detachCamerasFromRenderPipeline(
+                                this.scene.postProcessRenderPipelineManager.detachCamerasFromRenderPipeline(
                                     "ssao",
                                     this._camera,
                                 );
@@ -343,7 +349,7 @@ export class Graphics {
 
     private setupGizmo(): void {
         // Initialize GizmoManager
-        this._gizmoManager = new BABYLON.GizmoManager(this._scene);
+        this._gizmoManager = new BABYLON.GizmoManager(this.scene);
 
         // Initialize all gizmos
         this._gizmoManager.positionGizmoEnabled = false;
@@ -469,7 +475,7 @@ export class Graphics {
         const physicsTime = this.createDebugItem(this._debugPanel, "physicsTime");
         const cameraRenderTime = this.createDebugItem(this._debugPanel, "cameraRenderTime");
 
-        this._scene.registerAfterRender(() => {
+        this.scene.registerAfterRender(() => {
             if (this._debugMode) {
                 fps.text = "FPS: " + this._engine.getFps().toFixed();
 
@@ -510,7 +516,7 @@ export class Graphics {
         this._engineInst.captureShaderCompilationTime = isEnabled;
 
         // Scene instrumentation
-        if (this._sceneInst == null) this._sceneInst = new BABYLON.SceneInstrumentation(this._scene);
+        if (this._sceneInst == null) this._sceneInst = new BABYLON.SceneInstrumentation(this.scene);
         this._sceneInst.captureFrameTime = isEnabled;
         this._sceneInst.captureRenderTime = isEnabled;
         this._sceneInst.captureInterFrameTime = isEnabled;
@@ -559,11 +565,11 @@ export class Graphics {
     }
 
     public getMeshByName(name: string): BABYLON.Nullable<BABYLON.AbstractMesh> {
-        return this._scene.getMeshByName(name);
+        return this.scene.getMeshByName(name);
     }
 
     public getMeshesByTags(tags: string): BABYLON.Mesh[] {
-        return this._scene.getMeshesByTags(tags);
+        return this.scene.getMeshesByTags(tags);
     }
 
     public getRootMesh(mesh: BABYLON.AbstractMesh): BABYLON.Nullable<BABYLON.AbstractMesh> {
@@ -588,7 +594,7 @@ export class Graphics {
         scaling: BABYLON.Vector3 = BABYLON.Vector3.One(),
         isPickable = true,
     ) {
-        const loadedList = await BABYLON.SceneLoader.ImportMeshAsync("", url, "", this._scene);
+        const loadedList = await BABYLON.SceneLoader.ImportMeshAsync("", url, "", this.scene);
         if (loadedList.meshes) {
             const rootMesh = loadedList.meshes[0];
             rootMesh.name = name;
@@ -621,13 +627,13 @@ export class Graphics {
         const dummyMesh = BABYLON.MeshBuilder.CreateBox(
             name,
             { width: width, height: height, depth: depth },
-            this._scene,
+            this.scene,
         );
         dummyMesh.position = new BABYLON.Vector3(position.x, position.y + height * 0.5, position.z);
         dummyMesh.rotation = rotation;
         dummyMesh.scaling = scale;
 
-        const dummyMeshMat = new BABYLON.StandardMaterial("dummyMeshMaterial", this._scene);
+        const dummyMeshMat = new BABYLON.StandardMaterial("dummyMeshMaterial", this.scene);
         dummyMeshMat.emissiveColor = new BABYLON.Color3(0.8, 0, 0.8);
         dummyMesh.material = dummyMeshMat;
 
@@ -675,8 +681,8 @@ export class Graphics {
     }
 
     public setBackgroundColor(color: BABYLON.Color4): void {
-        if (this._scene) {
-            this._scene.clearColor = color;
+        if (this.scene) {
+            this.scene.clearColor = color;
         } else {
             console.log("Caution: SetBackgroundColor: called before 3D scene is created!!!");
         }
