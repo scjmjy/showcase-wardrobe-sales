@@ -21,10 +21,11 @@ import {
     StIDivideBoardOpt,
     StBoardMeshLocation,
 } from "./st_model_interface";
-import { StBoardMesh, StBoardType, StLineBoardMesh } from "./st_board_mesh";
+import { StBoardMesh, StBoardType, StLineBoardMesh } from "./mesh/st_board_mesh";
 import { StDoorType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
-import { StModel, StSketchAccesory } from "./st_model_object";
+import { StModel } from "./st_model_object";
+import { StSketchAccesory } from "./st_sketch_accesory";
 import { StWoodType, textureManager } from "../utility/st_texture";
 
 export class StSketchDivision extends StModel implements StIDivison {
@@ -143,7 +144,7 @@ export class StSketchDivision extends StModel implements StIDivison {
     /**
      * ONLY for testing
      */
-    _getRect(): StSketchRect {
+    __getRect(): StSketchRect {
         return this.rect;
     }
 

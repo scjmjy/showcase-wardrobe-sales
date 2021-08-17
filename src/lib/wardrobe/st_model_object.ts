@@ -7,11 +7,10 @@
  *
  */
 
-import { StSketchRect } from "../geometry/st_geometric_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StUuidObject } from "../utility/st_object";
-import { StIAccesory, StIModel } from "./st_model_interface";
-import { StSketchMesh } from "./st_mesh_object";
+import { StIModel } from "./st_model_interface";
+import { StSketchMesh } from "./mesh/st_mesh_object";
 import { jsonIgnore } from "json-ignore";
 
 /**
@@ -197,11 +196,4 @@ export abstract class StModel extends StUuidObject implements StIModel {
     }
 }
 
-export abstract class StSketchAccesory extends StModel implements StIAccesory {
-    getOccupyRect(): StSketchRect {
-        throw new Error("Method not implemented.");
-    }
-    overlapWith(acce: StSketchAccesory): boolean {
-        throw new Error("Method not implemented." + acce.toString());
-    }
-}
+

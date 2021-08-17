@@ -4,17 +4,39 @@
  *
  * ------------------ Logs -----------------------------------------------------
  * [Guilin 2021-08-01] Created.
+ * [Guilin 2021-08-06] Deprecated.
  *
  */
 
 import { StSketchPoint, StSketchLine, StSketchRect } from "../geometry/st_geometric_2d";
-import { StContainerType } from "../utility/st_sketch_type";
-import { StIModel } from "./st_model_interface";
 
 /**
- * A rectangle area (v0.2), which is divided by both horizonal and vertical lines.
+ * @deprecated
+ */
+export enum StContainerType {
+    /**
+     * The container does not have sub-containers.
+     * A division is its only child.
+     */
+    NODE,
+
+    VERTICAL,
+
+    HORIZONAL,
+}
+
+/**
+ * A rectangle area (v0.2), which is divided by both horizonal and vertical lines. 
+ * 
+ * An area may contains sub-areas, so that it can be divided into very small areas.
  *
- * @deprecated [2021-8-6] currently, NOT used. Adding board in cube.
+ * @deprecated [2021-8-6] 
+ *  (1) DO NOT use recursive divided-areas. It makes things complicated.
+ * 
+ *  (2) DO NOT add a horizonal/vertical line into ONE sub-area to seperate it.
+ * REASON: a vertical board may go through the crossing horizonal board, and vice versa. 
+ * In this case, ONE board divides MULTIPLE areas.
+ * 
  */
 export interface StIRectArea {
     rect: StSketchRect;
@@ -30,8 +52,6 @@ export interface StIRectArea {
      */
     addBoard(p0: StSketchPoint, p1: StSketchPoint): string;
 
-    // REASON: a vertical board may go through the crossing horizonal board, and vice versa.
-    //
     // /**
     //  * @param offset from the BOTTOM Edge of the divied rectangle
     //  */
@@ -67,7 +87,18 @@ export interface StIRectArea_v0_1 /*extends StIModel*/ {
 
     type: StContainerType;
 
+    /**
+     * Add a board at the input offset, by dividing the current level.
+     *
+     * [Algorithm]
+     * - find the divide line by offset;
+     * - divide the rectangle by the divide-line;
+     *
+     * @param offset
+     */
     addBoard(offset: number): string;
+
     setBoard(id: string, offset: string): number;
+
     deleteBoard(id: string): void;
 }

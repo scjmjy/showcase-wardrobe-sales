@@ -9,14 +9,14 @@
  *
  */
 
-import { StSketchLine, StSketchPoint, StSketchPolygon, StSketchRect } from "../geometry/st_geometric_2d";
-import { StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StTexture, StWoodType, textureManager } from "../utility/st_texture";
-import { StColor } from "../utility/st_color";
-import { StMaterial } from "../utility/st_material";
+import { StSketchLine, StSketchPoint, StSketchPolygon, StSketchRect } from "../../geometry/st_geometric_2d";
+import { StSketchVector3 } from "../../geometry/st_geometric_3d";
+import { StTexture, StWoodType, textureManager } from "../../utility/st_texture";
+import { StColor } from "../../utility/st_color";
+import { StMaterial } from "../../utility/st_material";
 import { StOnsiteMesh } from "./st_mesh_object";
-import StBabylonUtil from "../babylonjs/st_babylon_util";
-import { StBoardMeshLocation } from "./st_model_interface";
+import StBabylonUtil from "../../babylonjs/st_babylon_util";
+import { StBoardMeshLocation } from "../st_model_interface";
 
 export enum StBoardType {
     FACE,

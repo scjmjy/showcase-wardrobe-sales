@@ -9,7 +9,7 @@
  *
  */
 
-import { StObject } from "../utility/st_object";
+import { sketchUtil, StObject } from "../utility/st_object";
 
 /**
  * A vector does NOT have a UUID. It defines algorithms.
@@ -127,6 +127,12 @@ export class StVector extends StObject {
         const l0 = this.length();
         this.x = (this.x * len) / l0;
         this.y = (this.y * len) / l0;
+        return this;
+    }
+
+    toFixed(digits?: number): StVector {
+        this.x = sketchUtil.toFixed(this.x, digits);
+        this.y = sketchUtil.toFixed(this.y, digits);
         return this;
     }
 }
