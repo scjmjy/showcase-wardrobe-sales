@@ -42,12 +42,13 @@
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
                 >返回</el-button
             >
-                <!-- TODO: remove the test codes -->
+            <!-- TODO: remove the test codes -->
+            <div class="product-detail__action-left state-icon-group-v">
                 <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
                 <state-icon icon="offer" label="添加抽屉" @change="onAddDrawerClick"></state-icon>
                 <state-icon icon="offer" label="添加隔板" @change="onAddShelfClick"></state-icon>
-
-            </div>            <div class="product-detail__action-right state-icon-group-h">
+            </div>
+            <div class="product-detail__action-right state-icon-group-h">
                 <!-- <state-icon
                     v-model="stateSelect"
                     icon="select-all"
