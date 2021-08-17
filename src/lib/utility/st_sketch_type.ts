@@ -46,15 +46,3 @@ export enum StCubePart {
     DOOR,
     PULLOUT,
 }
-
-export enum StContainerType {
-    /**
-     * The container does not have sub-containers.
-     * A division is its only child.
-     */
-    NODE,
-
-    VERTICAL,
-
-    HORIZONAL,
-}

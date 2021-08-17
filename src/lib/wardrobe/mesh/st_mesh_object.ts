@@ -9,17 +9,18 @@
  *
  */
 
-import { StSketchPolygon } from "../geometry/st_geometric_2d";
-import { StSketchVector3, StBoundaryBox, StPoint3 } from "../geometry/st_geometric_3d";
-import { StObject } from "../utility/st_object";
+import { StSketchPolygon } from "../../geometry/st_geometric_2d";
+import { StSketchVector3, StBoundaryBox, StPoint3 } from "../../geometry/st_geometric_3d";
+import { StObject } from "../../utility/st_object";
 import { StIMesh, StIOnsiteMesh, StIPrefabMesh } from "./st_mesh_interface";
-import StSketchConstant from "../utility/st_sketch_constant";
-import { StTexture } from "../utility/st_texture";
-import { StColor } from "../utility/st_color";
-import { StIBuild3d } from "../utility/st_build3d_interface";
-import { StBabylonBuild3d } from "../babylonjs/st_babylon_build3d";
-import { StMaterial } from "../utility/st_material";
-import { sketchEngine } from "../utility/st_sketch_engine";
+import StSketchConstant from "../../utility/st_sketch_constant";
+import { StTexture } from "../../utility/st_texture";
+import { StColor } from "../../utility/st_color";
+import { StIBuild3d } from "../../utility/st_build3d_interface";
+import { StBabylonBuild3d } from "../../babylonjs/st_babylon_build3d";
+import { StMaterial } from "../../utility/st_material";
+import { sketchEngine } from "../../utility/st_sketch_engine";
+import { jsonIgnore } from "json-ignore";
 
 // normal vectors for X, Y, Z
 const NORMAL_X = StSketchConstant.NORMAL_X;
@@ -44,11 +45,18 @@ abstract class StSketchMesh extends StObject implements StIMesh {
     /**
      * mesh is set by createMesh() or loadMesh() in sub-class
      */
+    @jsonIgnore()
     protected mesh?: BABYLON.Mesh;
+
     protected meshId?: string;
 
+    @jsonIgnore()
     protected build3d: StIBuild3d;
+
+    @jsonIgnore()
     protected readonly scene: BABYLON.Scene;
+
+    @jsonIgnore()
     protected readonly space: BABYLON.Space;
 
     /**

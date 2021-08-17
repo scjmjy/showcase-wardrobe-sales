@@ -3,6 +3,7 @@ import request from "@/utils/request";
 import {
     AjaxResponse,
     Customer,
+    GlobalCfg,
     LoginResult,
     Part,
     PartCategory,
@@ -30,13 +31,10 @@ export default class RestProvider extends LocalProvider {
                     resolve({
                         ok: true,
                         status: res.status,
-                        data: {
-                            uid: res.data.uid,
-                            token: res.data.token,
-                        },
+                        data: res.data,
                     });
                 })
-                .catch(() => {
+                .catch((err) => {
                     resolve({
                         ok: false,
                         status: 500,
@@ -65,6 +63,31 @@ export default class RestProvider extends LocalProvider {
                         status: 500,
                         show: "error",
                         msg: "登出错误",
+                    });
+                });
+        });
+    }
+    requestGlobalCfg(): Promise<AjaxResponse<GlobalCfg>> {
+        return new Promise((resolve) => {
+            request({
+                method: "GET",
+                url: "/api/v1/misc/gconfig",
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: {
+                            partsCatExterior: res.data.parts_category_exterior,
+                            partsCatInterior: res.data.parts_category_interior,
+                        },
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        msg: "获取全局配置出错",
                     });
                 });
         });
@@ -224,7 +247,7 @@ export default class RestProvider extends LocalProvider {
         });
     }
 
-    requestSchemes(cid: string | number, page = 1, pageSize = 1): Promise<AjaxResponse<Scheme[]>> {
+    requestSchemes(cid: string | number, page = 1, pageSize = 10): Promise<AjaxResponse<Scheme[]>> {
         return new Promise((resolve) => {
             request({
                 method: "POST",
@@ -307,15 +330,15 @@ export default class RestProvider extends LocalProvider {
 
     requestParts(
         ptcid: string | number,
-        ptbid: string | number,
-        cid: string | number,
-        mid: string | number,
         page = 1,
         pageSize = 10,
+        ptbid?: string | number,
+        cid?: string | number,
+        mid?: string | number,
     ): Promise<AjaxResponse<Part[]>> {
         return new Promise((resolve) => {
             request({
-                method: "GET",
+                method: "POST",
                 url: "/api/v1/biz/parts",
                 data: {
                     ptcid,

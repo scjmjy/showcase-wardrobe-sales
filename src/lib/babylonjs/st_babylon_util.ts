@@ -10,7 +10,6 @@
  */
 
 import * as geometric from "geometric";
-import { StVector } from "../geometry/st_vector_2d";
 import { StSketchVector3 } from "../geometry/st_geometric_3d";
 import StSketchConstant from "../utility/st_sketch_constant";
 import { StSketchPoint } from "../geometry/st_geometric_2d";

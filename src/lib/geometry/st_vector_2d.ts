@@ -9,8 +9,7 @@
  *
  */
 
-import { Vector2 } from "babylonjs/Maths/math.vector";
-import { StObject } from "../utility/st_object";
+import { sketchUtil, StObject } from "../utility/st_object";
 
 /**
  * A vector does NOT have a UUID. It defines algorithms.
@@ -28,8 +27,8 @@ export class StVector extends StObject {
 
     constructor(x?: number, y?: number) {
         super();
-        this.x = x ? x : 0;
-        this.y = y ? y : 0;
+        this.x = x || 0;
+        this.y = y || 0;
     }
 
     clone(): StVector {
@@ -47,7 +46,7 @@ export class StVector extends StObject {
     }
 
     length(): number {
-        return Math.sqrt( Math.pow(this.x, 2) + Math.pow(this.y, 2) );
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
 
     angle(): number {
@@ -55,8 +54,9 @@ export class StVector extends StObject {
         const [x, y] = [this.x, this.y];
         const l = this.length();
         const a = Math.acos(x / l);
-        const ret = (a * 180) / Math.PI; //弧度转角度，方便调试
-        if (y < 0) {
+        const ret = sketchUtil.toFixed((a * 180) / Math.PI, 8); //弧度转角度，方便调试
+
+        if (ret != 0 && y < 0) {
             return 360 - ret;
         }
         return ret;
@@ -64,8 +64,7 @@ export class StVector extends StObject {
 
     arch(): number {
         // Based on: '已知坐标求角度', https://blog.csdn.net/mu399/article/details/81951786
-        const vec = this;
-        const [x, y] = [vec.x, vec.y];
+        const [x, y] = [this.x, this.y];
         const l = this.length();
         const a = Math.acos(x / l);
         if (y < 0) {
@@ -83,9 +82,9 @@ export class StVector extends StObject {
 
     /**
      * rorate in count-clock wise.
-     * 
+     *
      * @param A angle in radians (弧度)
-     * @returns 
+     * @returns
      */
     rotate(A: number): StVector {
         const x = this.x;
@@ -127,8 +126,14 @@ export class StVector extends StObject {
 
     setLength(len: number): StVector {
         const l0 = this.length();
-        this.x = this.x * len / l0;
-        this.y = this.y * len / l0;
+        this.x = (this.x * len) / l0;
+        this.y = (this.y * len) / l0;
+        return this;
+    }
+
+    toFixed(digits?: number): StVector {
+        this.x = sketchUtil.toFixed(this.x, digits);
+        this.y = sketchUtil.toFixed(this.y, digits);
         return this;
     }
 }

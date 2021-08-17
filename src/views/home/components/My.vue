@@ -13,7 +13,7 @@
                     fit="contain"
                 />
                 <span class="my__info-profile__username"> {{ user.userName }} </span>
-                <i class="my__info-profile__location iconfont icon-shop"> 上海·长寿路旗舰店 </i>
+                <i class="my__info-profile__location iconfont icon-shop"> {{ user.organization }} </i>
                 <!-- <el-tag class="app-header__job" type="primary" color="#5EB6B366">店长助理</el-tag> -->
             </div>
             <i class="my__info-settings icon-btn icon-settings" />

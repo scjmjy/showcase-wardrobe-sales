@@ -7,12 +7,11 @@
  *
  */
 
-import { StSketchRect } from "../geometry/st_geometric_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StObject, StUuidObject } from "../utility/st_object";
-import { StIAccesory, StIModel } from "./st_model_interface";
-import { v4 as uuidv4 } from "uuid";
-import { StSketchMesh } from "./st_mesh_object";
+import { StUuidObject } from "../utility/st_object";
+import { StIModel } from "./st_model_interface";
+import { StSketchMesh } from "./mesh/st_mesh_object";
+import { jsonIgnore } from "json-ignore";
 
 /**
  * @description A model holds data and method for a biz object.
@@ -56,7 +55,6 @@ import { StSketchMesh } from "./st_mesh_object";
  *
  */
 export abstract class StModel extends StUuidObject implements StIModel {
-    //readonly uuid: string;
     private position: StPoint3;
     private parent?: StIModel;
     private childen: StIModel[] = [];
@@ -67,6 +65,8 @@ export abstract class StModel extends StUuidObject implements StIModel {
 
     private dirty = false;
     private deleted = false;
+
+    @jsonIgnore()
     protected meshList: StSketchMesh[];
 
     constructor(obj: {
@@ -85,8 +85,6 @@ export abstract class StModel extends StUuidObject implements StIModel {
         this.height = obj.height || 0;
         this.depth = obj.depth || 0;
         this.position = obj.position || new StSketchVector3(0, 0, 0);
-        //this.uuid = uuidv4();
-        //this.sketchMesh = obj.sketchMesh;
         this.meshList = [];
     }
 
@@ -192,14 +190,5 @@ export abstract class StModel extends StUuidObject implements StIModel {
             }
         }
         return null;
-    }
-}
-
-export abstract class StSketchAccesory extends StModel implements StIAccesory {
-    getOccupyRect(): StSketchRect {
-        throw new Error("Method not implemented.");
-    }
-    overlapWith(acce: StSketchAccesory): boolean {
-        throw new Error("Method not implemented." + acce.toString());
     }
 }

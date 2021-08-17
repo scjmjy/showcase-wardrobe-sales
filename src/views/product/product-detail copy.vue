@@ -1,5 +1,5 @@
 <template>
-    <div v-if="product" class="product-detail" :class="{ 'menu-opened': showMenu || mode === 'view' }">
+    <div v-if="product" class="product-detail" :class="{ 'menu-opened': showMenu }">
         <transition name="el-zoom-in-top">
             <app-header
                 v-if="mode === 'view'"
@@ -10,14 +10,7 @@
                 :subTitle="titles.subTitle"
             />
         </transition>
-        <Babylon
-            ref="refBabylon"
-            class="product-detail__3d"
-            :scheme="scheme"
-            :selectedPartId="selectedPartId"
-            :getAvailableArea="getAvailableArea"
-            @click="showMenu = false"
-        />
+        <Babylon class="product-detail__3d" :scheme="scheme" @click="showMenu = false" />
         <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
 
         <el-collapse-transition-h @after-leave="mode = 'edit'">
@@ -42,13 +35,12 @@
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
                 >返回</el-button
             >
-                <!-- TODO: remove the test codes -->
-                <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
-                <state-icon icon="offer" label="添加抽屉" @change="onAddDrawerClick"></state-icon>
-                <state-icon icon="offer" label="添加隔板" @change="onAddShelfClick"></state-icon>
-
-            </div>            <div class="product-detail__action-right state-icon-group-h">
-                <!-- <state-icon
+            <div class="product-detail__action-left state-icon-group-v">
+                <state-icon icon="save" label="保存" @change="onSaveClick"></state-icon>
+                <state-icon icon="offer" label="报价" @change="onOfferClick"></state-icon>
+            </div>
+            <div class="product-detail__action-right state-icon-group-h">
+                <state-icon
                     v-model="stateSelect"
                     icon="select-all"
                     label="全选"
@@ -60,9 +52,7 @@
                     icon="parts-indoor"
                     :states="inOutStates"
                     @change="onInOutChange"
-                ></state-icon> -->
-                <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
-                <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon>
+                ></state-icon>
                 <state-icon
                     icon="parts"
                     label="部件"
@@ -71,13 +61,13 @@
                     @change="onPartsClick"
                 ></state-icon>
             </div>
-            <!-- <div class="product-detail__action-top state-icon-group-v">
+            <div class="product-detail__action-top state-icon-group-v">
                 <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
                 <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon>
-            </div> -->
+            </div>
             <el-collapse-transition-h>
                 <parts-menu
-                    v-show="mode === 'edit' && showMenu"
+                    v-if="mode === 'edit' && showMenu"
                     class="product-detail__menu2d"
                     :type="stateInOut"
                 ></parts-menu>
@@ -108,8 +98,6 @@ import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
 import PartsMenu from "./components/PartsMenu.vue";
 import { ElMessage } from "element-plus";
-import { Area, Position } from "@/lib/scheme";
-import * as util from "@/lib/scheme.util";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -145,6 +133,36 @@ export default defineComponent({
             }
             return p.cid === store.state.currentCustomer.customerId + "" ? "scheme-self" : "scheme-other";
         });
+        // watch(
+        //     () => route.query.productId as string,
+        //     (productId) => {
+        //         if (productId) {
+        //             apiProvider.requestProductDetail(productId).then((res) => {
+        //                 if (res.ok) {
+        //                     Object.assign(product.value, res.data);
+        //                 }
+        //             });
+        //         }
+        //     },
+        //     {
+        //         immediate: true,
+        //     },
+        // );
+        // watch(
+        //     () => route.query.schemeId as string,
+        //     (schemeId) => {
+        //         if (schemeId) {
+        //             apiProvider.requestSchemeDetail(schemeId).then((res) => {
+        //                 if (res.ok) {
+        //                     Object.assign(product.value, res.data);
+        //                 }
+        //             });
+        //         }
+        //     },
+        //     {
+        //         immediate: true,
+        //     },
+        // );
         const customizeMode = ref<"new" | "continue" | "copy">("new");
         const showCustomizeDlg = ref(false);
         const showOfferDlg = ref(false);
@@ -153,7 +171,19 @@ export default defineComponent({
 
         async function gotoEditScheme() {
             showCustomizeDlg.value = false;
+            // await nextTick();
             mode.value = "";
+            // let p = product as Ref<Scheme>;
+            // // if (!p.value) {
+            // //     return;
+            // // }
+            // router.push({
+            //     path: "/scheme-detail",
+            //     query: {
+            //         [p.value.pid ? "schemeId" : "productId"]: p.value.id,
+            //         mode: customizeMode.value,
+            //     },
+            // });
         }
 
         const customizeDlgTitle = computed(() => {
@@ -170,6 +200,7 @@ export default defineComponent({
         const state3D = ref<"active" | "">("");
         const stateRuler = ref<"active" | "">("");
         const stateSelect = ref<"active" | "">("");
+        // const stateMetals = ref<"active" | "">("");
         const stateInOut = ref<"in" | "out">("in");
         const inOutStates = [
             {
@@ -184,49 +215,15 @@ export default defineComponent({
                 label: "外配",
             },
         ];
-        const refBabylon = ref<InstanceType<typeof Babylon>>();
-        let selectedPartId = ref(0);
-        const scheme = ref(util.importSchemeJson("mf/scheme.json"));
-        function getAvailableArea(partId: number): Area[] {
-            partId;
 
-            // TODO: compute the available areas later.
-            const areas = [];
-            let area = new Area(
-                "4cd170f8-291b-4236-b515-b5d27ac1209d",
-                new Position(-350, 1050, -270),
-                new Position(350, 1900, 290),
-            );
-            areas.push(area);
-
-            area = new Area(
-                "ce28f905-a6e1-4f68-9998-ed13f950ea91",
-                new Position(-350, 350, -270),
-                new Position(350, 1900, 290),
-            );
-            areas.push(area);
-
-            return areas;
-        }
         return {
-            scheme,
-            selectedPartId,
-            getAvailableArea,
-            onLogSchemeClick() {
-                console.log("LogScheme: ", scheme);
-            },
-            onAddDrawerClick() {
-                selectedPartId.value = 300005;
-            },
-            onAddShelfClick() {
-                selectedPartId.value = 300001;
-            },
             state3D,
             stateRuler,
             stateSelect,
             // stateMetals,
             stateInOut,
             inOutStates,
+            scheme: require("@/assets/mf/scheme.json"),
             showMenu,
             mode,
             schemeMode,
@@ -276,7 +273,7 @@ export default defineComponent({
                 apiProvider
                     .createNewScheme(
                         "新方案" + Date.now(),
-                        store.state.user.eid,
+                        store.state.user.userId,
                         store.state.currentCustomer.customerId,
                         product.value.id,
                     )
@@ -367,8 +364,8 @@ export default defineComponent({
     align-items: center;
     width: 100%;
     height: 100%;
-    // background-color: var(--el-color-bg);
-    background: linear-gradient(#f2f4f5, #f1f3f4);
+    // background-color: $--color-bg;
+    background-color: var(--el-color-bg);
     &__3d {
         // flex: 1;
         // overflow: auto;
@@ -378,18 +375,11 @@ export default defineComponent({
         flex: 1;
         height: 100%;
         overflow: hidden;
-        position: relative;
-        left: 0px;
-        transition: left 0.3s ease-in-out;
     }
 
     &__action-customize {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        bottom: 0px;
         width: 280px;
-        white-space: nowrap;
+        height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -415,7 +405,7 @@ export default defineComponent({
         position: absolute;
         top: 80px;
         bottom: 200px;
-        right: 15px;
+        right: 0px;
         white-space: nowrap;
     }
     &__info {
@@ -459,9 +449,6 @@ export default defineComponent({
     }
     &.menu-opened &__action-top {
         right: 348px;
-    }
-    &.menu-opened &__3d {
-        left: -170px;
     }
 }
 </style>

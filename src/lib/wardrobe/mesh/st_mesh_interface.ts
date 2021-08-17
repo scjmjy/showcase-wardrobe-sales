@@ -9,9 +9,9 @@
  *
  */
 
-import { StBoundaryBox, StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StTexture } from "../utility/st_texture";
-import { StColor } from "../utility/st_color";
+import { StBoundaryBox, StPoint3, StSketchVector3 } from "../../geometry/st_geometric_3d";
+import { StTexture } from "../../utility/st_texture";
+import { StColor } from "../../utility/st_color";
 
 export { StIMesh, StIPrefabMesh, StIOnsiteMesh };
 

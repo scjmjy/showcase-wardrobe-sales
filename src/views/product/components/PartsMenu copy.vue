@@ -1,19 +1,12 @@
 <template>
     <div ref="refDiv" class="parts-menu">
         <div class="parts-menu__left">
-            <div class="parts-menu__left-header">清单 | 报价 | 保存</div>
-            <!-- <el-row class="parts-menu__left-items" :gutter="20">
+            <div class="parts-menu__left-header">{{ typeText }}</div>
+            <el-row class="parts-menu__left-items" :gutter="20">
                 <el-col v-for="cat in cats" :key="cat.id" :span="12" style="padding: 10px">
-                    <part-cat-card :cat="cat" :active="selectedCatId == cat.id" @select="onCatSelect"></part-cat-card>
+                    <part-cat-card :cat="cat" :active="selectedCat == cat.id" @select="onCatSelect"></part-cat-card>
                 </el-col>
-            </el-row> -->
-
-            <el-tabs v-model="selectedCatId" class="parts-menu__left-cats" tab-position="left" @tab-click="onCatChange">
-                <el-tab-pane v-for="cat in cats" :key="cat.id" :label="cat.name" :name="cat.id.toString()">
-                    <cat-tab :cat="cat" />
-                    <!-- <cat-tab v-if="selectedCatId == cat.id" :cat="cat" /> -->
-                </el-tab-pane>
-            </el-tabs>
+            </el-row>
         </div>
         <div class="parts-menu__right">
             <div class="parts-menu__right-header">
@@ -36,8 +29,6 @@ import { PartCategory, PartCategoryMeta } from "@/api/interface/provider.interfa
 import { computed, defineComponent, PropType, ref } from "vue";
 import apiProvider from "@/api/provider";
 import PartCatCard from "./PartCatCard.vue";
-import CatTab from "./CatTab.vue";
-import { ElTabPane } from "element-plus";
 
 export default defineComponent({
     name: "PartsMenu",
@@ -52,51 +43,43 @@ export default defineComponent({
         },
     },
     components: {
-        CatTab,
-        // PartCatCard,
+        PartCatCard,
     },
     setup(props, ctx) {
         const refDiv = ref<HTMLDivElement>();
         const cats = ref<PartCategory[]>([]);
         const catMeta = ref<PartCategoryMeta>();
-        const selectedCatId = ref("");
         apiProvider.requestPartCategories().then((res) => {
             if (res.ok) {
                 cats.value = res.data || [];
-                if (cats.value.length) {
-                    selectedCatId.value = cats.value[0].id.toString();
-                }
             }
         });
         const typeText = computed(() => (props.type === "in" ? "内配" : "外配"));
 
-        // function requestPartCatMeta() {
-        //     apiProvider.requestPartCatMeta(selectedCatId.value).then((res) => {
-        //         if (res.ok) {
-        //             catMeta.value = res.data;
-        //             // refDiv.value?.scrollBy({
-        //             //     behavior: "smooth",
-        //             //     left: 328,
-        //             // });
-        //         }
-        //     });
-        // }
+        const selectedCat = ref("");
         return {
             typeText,
             cats,
             catMeta,
             refDiv,
-            selectedCatId,
+            selectedCat,
             gotoLeft() {
                 refDiv.value?.scrollBy({
                     behavior: "smooth",
                     left: -328,
                 });
             },
-            onCatChange(tab: any) {
-                // const catId = tab.props.name;
-                // selectedCatId.value = catId;
-                // requestPartCatMeta();
+            onCatSelect(cat: PartCategory) {
+                selectedCat.value = cat.id.toString();
+                apiProvider.requestPartCatMeta(cat.id).then((res) => {
+                    if (res.ok) {
+                        catMeta.value = res.data;
+                        refDiv.value?.scrollBy({
+                            behavior: "smooth",
+                            left: 328,
+                        });
+                    }
+                });
             },
         };
     },
@@ -104,7 +87,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-$menu-width: 428px;
+$menu-width: 328px;
 $header-height: 56px;
 .parts-menu {
     border-radius: 10px;
@@ -131,17 +114,23 @@ $header-height: 56px;
             font-weight: bold;
             box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
         }
-        &-cats {
+        &-items {
             flex: 1;
             white-space: pre-wrap;
             margin-left: 0px !important;
             margin-right: 0px !important;
-            padding: 10px 0px !important;
+            padding: 10px !important;
             overflow-y: auto;
-            :deep(.el-tabs__active-bar.is-left) {
-                left: 0;
-                right: auto;
-            }
+
+            // & .item {
+            //     display: inline-flex;
+            //     justify-content: center;
+            //     align-items: center;
+            //     width: 50px;
+            //     height: 50px;
+            //     border: 1px solid red;
+            //     margin: 10px;
+            // }
         }
     }
     &__right {

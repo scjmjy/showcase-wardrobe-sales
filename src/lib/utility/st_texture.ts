@@ -27,13 +27,6 @@ export class StTexture {
 }
 
 class StTextureManager extends StObject {
-    /*
-    private static readonly _INST = new StTextureManager();
-    static getInstance(){
-        return StTextureManager._INST;
-    }
-    */
-
     private readonly woodOak: string[] = [
         require("@/assets/texture/wood/oak-01.png"),
         require("@/assets/texture/wood/oak-02.jpg"),

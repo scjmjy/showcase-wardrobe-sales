@@ -29,7 +29,7 @@
         <div class="app-header__right">
             <el-image class="app-header__avatar u-circle" src="https://picsum.photos/200" circle fit="contain" />
             <span class="app-header__username"> {{ user.userName }} </span>
-            <el-tag class="app-header__job" type="primary" color="#5EB6B366">店长助理</el-tag>
+            <el-tag class="app-header__job" type="primary" color="#5EB6B366">{{ user.rank }}</el-tag>
             <el-divider direction="vertical"></el-divider>
             <el-button class="app-header__logout" type="text" @click="logout"> 退出 </el-button>
         </div>
@@ -109,7 +109,7 @@ export default defineComponent({
     display: flex;
     justify-content: space-between;
     align-items: center;
-
+    z-index: 100;
     width: 100%;
     height: 70px;
     padding: 0px 40px 0px 20px;

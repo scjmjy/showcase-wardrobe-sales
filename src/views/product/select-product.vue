@@ -2,16 +2,19 @@
     <div class="select-product">
         <app-header class="select-product__header" customer type="dark" />
         <prod-cat-menu class="select-product__menu" @select="onProdCatSelect" @filter="onProdFilter" />
-        <el-row ref="refProdList" class="select-product__products" :gutter="20" justify="space-between">
-            <el-col
-                v-for="(p, index) in products"
-                :key="index"
-                :span="12"
-                style="text-align: center; padding-top: 10px; padding-bottom: 10px"
-            >
-                <product-card :productName="p.name" :cover="p.pic" @detail="onProductClick(p)" />
-            </el-col>
-        </el-row>
+        <el-scrollbar ref="elScrollbar" class="select-product__products" @scroll="onScroll">
+            <el-row ref="elRow" :gutter="20" justify="space-between" style="margin: 0px !important">
+                <el-col
+                    v-for="(p, index) in products"
+                    :key="index"
+                    :span="12"
+                    style="text-align: center; padding-top: 10px; padding-bottom: 10px"
+                >
+                    <product-card :productName="p.name" :cover="p.pic" @detail="onProductClick(p)" />
+                </el-col>
+                <load-more :state="loadState" />
+            </el-row>
+        </el-scrollbar>
         <!-- <el-tabs class="select-product__tabs" tab-position="left">
             <el-tab-pane v-for="(c, index) of products" :key="index" :label="c.categoryName">
                 <product-card
@@ -29,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, DefineComponent } from "vue";
+import { defineComponent, reactive, ref, DefineComponent, onMounted, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import apiProvider from "@/api/provider";
@@ -37,6 +40,9 @@ import ProdCatMenu from "./components/ProdCatMenu.vue";
 import ProductCard from "./components/ProductCard.vue";
 import AppHeader from "../home/components/AppHeader.vue";
 import { Product } from "@/api/interface/provider.interface";
+import { checkReachBottom } from "@/utils/page-scroll";
+import LoadMore, { LOAD_STATE } from "@/components/LoadMore.vue";
+import { ElScrollbar, ElRow } from "element-plus";
 
 export default defineComponent({
     name: "SelectProduct",
@@ -44,26 +50,78 @@ export default defineComponent({
         ProductCard,
         ProdCatMenu,
         AppHeader,
+        LoadMore,
     },
     setup() {
+        let page = 1;
+        let currentCid = "";
         const router = useRouter();
         const store = useStore();
-        const products = reactive([] as Product[]);
-        const refProdList = ref<InstanceType<DefineComponent>>();
+        let products = ref([] as Product[]);
+        const elScrollbar = ref<InstanceType<typeof ElScrollbar>>();
+        const elRow = ref<InstanceType<typeof ElRow>>();
+        // let pageScroll: PageScroll | undefined = undefined;
+        const loadState = ref<LOAD_STATE>("");
+
+        function onScroll() {
+            const el = elScrollbar.value?.$el as HTMLElement;
+            // TODO firstChild is hack
+            checkReachBottom(el.firstChild as HTMLElement, () => {
+                console.log("[OnReachBottom]!!!");
+
+                if (loadState.value !== "nomore" && loadState.value !== "loading") {
+                    page++;
+                    requestProducts();
+                }
+            });
+        }
+
+        function requestProducts(firstCheck = false) {
+            // if (loadState.value === "nomore" || loadState.value === "loading") {
+            //     return;
+            // }
+            loadState.value = "loading";
+            apiProvider.requestProducts(currentCid, page).then((res) => {
+                if (res.ok) {
+                    const result = res.data || [];
+                    if (result.length === 0) {
+                        loadState.value = "nomore";
+                    } else {
+                        loadState.value = "more";
+                    }
+                    products.value = products.value.concat(result);
+                    if (firstCheck) {
+                        nextTick(() => {
+                            onScroll();
+                        });
+                    }
+                } else {
+                    loadState.value = "error";
+                }
+            });
+        }
+        onMounted(() => {
+            // pageScroll = new PageScroll(refProdList.value?.$el, () => {
+            //     // console.log("[OnReachBottom]!!!");
+            //     page++;
+            //     requestProducts();
+            // });
+        });
 
         return {
             products,
-            refProdList,
+            elScrollbar,
+            elRow,
+            loadState,
             onBackClick() {
                 router.back();
             },
             onProdCatSelect(cid: string) {
-                apiProvider.requestProducts(cid).then((res) => {
-                    if (res.ok) {
-                        products.splice(0, products.length, ...(res.data || []));
-                        refProdList.value?.$el.scrollTo({ top: 0, behavior: "smooth" });
-                    }
-                });
+                currentCid = cid;
+                page = 1;
+                loadState.value = "";
+                products.value.length = 0;
+                requestProducts(true);
             },
             onProductClick(product: Product) {
                 store.commit("SET-PAGE-CHANNEL", {
@@ -77,6 +135,7 @@ export default defineComponent({
             onProdFilter(filters: any) {
                 console.log("【onProdFilter】", filters);
             },
+            onScroll,
         };
     },
 });

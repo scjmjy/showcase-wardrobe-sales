@@ -10,7 +10,7 @@
  */
 
 export default class StSketchConstant {
-    static readonly VERSION = "v0.6.0-snapshot";
+    static readonly VERSION = "v0.6.0-RC6";
     static readonly ST_PREFIX = "_st_";
     static readonly SCALE_FROM_MM = 1000;
     static readonly DEFAULT_THICKNESS_MM = 20;

@@ -5,17 +5,28 @@
  * ------------------ Logs -----------------------------------------------------
  * [Guilin 2021-07-28] Created.
  *
+ * [Guilin 2021-08-18] Add divide-board success.
  */
 
 import StSketchConstant from "../utility/st_sketch_constant";
 import { StSketchEdge, StSketchLine, StSketchPoint, StSketchPolygon, StSketchRect } from "../geometry/st_geometric_2d";
 import { StVector } from "../geometry/st_vector_2d";
 import { StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StIAccesory, StICube, StIDivison, StILevel, StIModel, StIModelOpt, StICubeOpt, StIDivisionOpt, StIDivideBoardOpt, StBoardMeshLocation } from "./st_model_interface";
-import { StBoardMesh, StBoardType, StLineBoardMesh } from "./st_board_mesh";
+import {
+    StIAccesory,
+    StICube,
+    StIDivison,
+    StILevel,
+    StICubeOpt,
+    StIDivisionOpt,
+    StIDivideBoardOpt,
+    StBoardMeshLocation,
+} from "./st_model_interface";
+import { StBoardMesh, StBoardType, StLineBoardMesh } from "./mesh/st_board_mesh";
 import { StDoorType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
-import { StModel, StSketchAccesory } from "./st_model_object";
+import { StModel } from "./st_model_object";
+import { StSketchAccesory } from "./st_sketch_accesory";
 import { StWoodType, textureManager } from "../utility/st_texture";
 
 export class StSketchDivision extends StModel implements StIDivison {
@@ -54,31 +65,36 @@ export class StSketchDivision extends StModel implements StIDivison {
 
     /**
      *
-     * [Guilin: 2021-8-16] use the input 'rect' to construct the default division. 
-     * 
-     * Reason: a division may be created by a divided sub rectangle, which changes if the divide board moves. 
+     * [Guilin: 2021-8-16] use the input 'rect' to construct the default division.
+     *
+     * Reason: a division may be created by a divided sub rectangle, which changes if the divide board moves.
      * In this case, we hope the division changes, automatically.
-     * 
+     *
      * @param start_point position in the LEVEL/Cube Space ??
      * @param width
      * @param height
      */
-    constructor(opt: StIDivisionOpt){
+    constructor(opt: StIDivisionOpt) {
         super(opt);
-        if(opt.rect) {
+        if (opt.rect) {
             const pt = opt.rect.getStartPoint();
-            if(! opt.position) {
+            if (!opt.position) {
                 throw Error("position is required, if 'rect' is provided!");
             }
+            /* 
+             * [Guilin: 2021-8-17] division position is free of rectangle vertices.
+             * 
             const pt_pos = new StSketchPoint(opt.position.x, opt.position.y);
-            if(! pt.overlaps(pt_pos)) {
+            if (!pt.overlaps(pt_pos)) {
                 throw Error(`Rectangle start point ${pt} does not overlap with model position ${opt.position}`);
-            }
-            if(!(opt.width == opt.rect.a && opt.height == opt.rect.b) ) {
-                throw Error(`Rectangle a/b does not match with model width/height. \n\t  - Rect: ${opt.rect}), \n\t - Model Width/Height: ${opt.width}/${opt.height}`)
+            }*/
+            if (!(opt.width == opt.rect.a && opt.height == opt.rect.b)) {
+                throw Error(
+                    `Rectangle a/b does not match with model width/height. \n\t  - Rect: ${opt.rect}), \n\t - Model Width/Height: ${opt.width}/${opt.height}`,
+                );
             }
             this.rect = opt.rect;
-        }else{
+        } else {
             const size = this.getSize();
             const pos = this.getPosition();
             this.rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(pos.x, pos.y), size.x, size.y);
@@ -86,7 +102,7 @@ export class StSketchDivision extends StModel implements StIDivison {
     }
 
     updateMesh(): void {
-        throw new Error("Method not implemented.");
+        console.log("TODO: display the available work area ...");
     }
 
     calculateAvailable(acce_info: StIAccesory): StSketchRect[] {
@@ -102,7 +118,7 @@ export class StSketchDivision extends StModel implements StIDivison {
         throw new Error(`Method not implemented. id: ${acce_id}`);
     }
 
-   /**
+    /**
      *
      * @param line any line in current division's SPACE
      * @returns
@@ -112,9 +128,10 @@ export class StSketchDivision extends StModel implements StIDivison {
         const sub_rects = this.rect.divideByLine(line);
         if (sub_rects.length == 0) {
             console.log(`Division Rectangle ${this.rect} cannot be divided by line: ${line}`);
-        }else if (sub_rects.length == 2) {
+        } else if (sub_rects.length == 2) {
+            // NOTE: the divided divisions have the same positions
             const div1 = StSketchDivision.buildByRect(sub_rects[0], this.getPosition());
-            const div2 = StSketchDivision.buildByRect(sub_rects[1])
+            const div2 = StSketchDivision.buildByRect(sub_rects[1], this.getPosition());
             subs.push(div1);
             subs.push(div2);
 
@@ -122,7 +139,7 @@ export class StSketchDivision extends StModel implements StIDivison {
             for (const acce of this.parts) {
                 acce.delete();
             }
-        }else{
+        } else {
             console.error(`More than 2 sub divisions: ${subs.length}`);
             console.error(`Division ${this} is divided by line: ${line}`);
         }
@@ -132,18 +149,15 @@ export class StSketchDivision extends StModel implements StIDivison {
     /**
      * ONLY for testing
      */
-    _getRect(): StSketchRect {
+    __getRect(): StSketchRect {
         return this.rect;
     }
 
     static buildByRect(poly: StSketchPolygon, pos?: StSketchVector3): StSketchDivision {
         const rect: StSketchRect = StSketchRect.buildByPolygon(poly);
         const pt0 = rect.getStartPoint().getVector();
-        if(!pos) {
+        if (!pos) {
             pos = new StSketchVector3(pt0.x, pt0.y);
-        }
-        if (!(pt0.x == pos.x && pt0.y == pos.y)) {
-            throw Error(`Position ${pos} does not overlap rectangle 1st point ${pt0}`);
         }
         const opt: StIDivisionOpt = {
             position: pos,
@@ -154,7 +168,6 @@ export class StSketchDivision extends StModel implements StIDivison {
         return new StSketchDivision(opt);
     }
 }
-
 
 /**
  * @deprecated by container
@@ -177,8 +190,6 @@ export class StSketchLevel extends StModel implements StILevel {
     }
 }
 
-
-
 /**
  * A board that is parallels to Z axis
  */
@@ -188,6 +199,7 @@ export class StSketchBoardZ extends StModel {
         super.clearMesh();
         const board_mesh = StLineBoardMesh.buildByLine(this.line, this.getDepth(), StBoardMeshLocation.LEFT);
         this.meshList.push(board_mesh);
+        console.log("draw mesh: boardZ");
     }
 
     private readonly line: StSketchLine;
@@ -199,7 +211,6 @@ export class StSketchBoardZ extends StModel {
         this.meshLoc = opt.meshLoc || StBoardMeshLocation.LEFT;
     }
 }
-
 
 export class StSketchCube extends StModel implements StICube {
     doorType: StDoorType;
@@ -215,12 +226,13 @@ export class StSketchCube extends StModel implements StICube {
     private readonly rect: StSketchRect;
 
     /**
-     * each line is real wooden board.
+     * each board/line is real wooden board.
      */
     private readonly divideBoard: Map<string, StSketchBoardZ> = new Map();
-    // private readonly divideBoard: StSketchLine[] = [];
 
-    //private readonly divisions: StSketchDivision[] = [];
+    /**
+     * all divisions in this cube
+     */
     private readonly divisions: Map<string, StSketchDivision> = new Map();
 
     /**
@@ -237,37 +249,58 @@ export class StSketchCube extends StModel implements StICube {
         this.thickness = obj.thickness || 20;
         this.rect = StSketchRect.buildRect({ width: this.getWidth(), height: this.getHeight() });
         this.edgeMap = new Map<string, StSketchEdge>();
-        this.updateMesh();
 
         // create the default division
-        // 
-        // [Guilin: 2021-8-12] use 'this.rect' to construct the default division. 
+        //
+        // [Guilin: 2021-8-12] use 'this.rect' to construct the default division.
         // Reason: cube division(s) change(s) if the points of cube rectangle change.
-        // 
-        const div_opt: StIDivisionOpt = obj;
-        div_opt.position = this.getPosition();
-        div_opt.rect = this.rect;
+        //
+        const div_opt: StIDivisionOpt = this._calcArea();
         const div = new StSketchDivision(div_opt);
         this.divisions.set(div.uuid, div);
     }
 
+    private _calcArea(): StIDivisionOpt {
+        const THICK_2BD = this.thickness * 2;
+        const pt = new StSketchPoint(this.thickness, this.thickness + this.gapBottom);
+        const a = this.getWidth() - THICK_2BD;
+        const b = this.getHeight() - this.gapBottom - this.gapTop - THICK_2BD;
+        const rect = StSketchRect.buildRectByStartPoint(pt, a, b);
+
+        const div_opt: StIDivisionOpt = {
+            position: this.getPosition(),
+            width: rect.a,
+            height: rect.b,
+            depth: this.getDepth() - this.thickness,
+            rect: rect,
+        };
+        return div_opt;
+    }
+
     updateMesh(): void {
         this._createCubeFrameBySize();
-        /* for(const div of this.divisions.values()) {
+
+        // [Guilin: 8-16] DO NOT update divisions and boards
+        /*
+        for(const div of this.divisions.values()) {
             div.updateMesh();
+        }
+
+        for(const bd of this.divideBoard.values()) {
+            bd.updateMesh();
         } */
     }
 
-    _getDivisions(): StSketchDivision[] {
+    __getDivisions(): StSketchDivision[] {
         return Array.from(this.divisions.values());
     }
 
     private _createCubeFrameBySize(): void {
-        // [Guilin: 2021-8-1] Currently, re-draw all the 5 faces. TODO-IN-FUTURE: redraw the changed faces and boards.
-        for (const m of this.meshList) {
-            m.deleteMesh();
-        }
-        this.meshList.slice(0, this.meshList.length);
+        // [Guilin: 2021-8-1] Currently, re-draw all the 5 faces.
+        // TODO-IN-FUTURE: redraw the changed faces and boards.
+
+        super.clearMesh();
+
         const back_texture = textureManager.wood(StWoodType.PINE, 0);
         const [w, h, d] = this.getSize().toArray();
         const TH = this.thickness;
@@ -306,7 +339,7 @@ export class StSketchCube extends StModel implements StICube {
      *
      * @param e1
      * @param e2
-     * 
+     *
      * @returns the divide board (line)
      */
     addDivideBoard(e0: StSketchEdge, e1: StSketchEdge): StSketchLine {
@@ -326,7 +359,8 @@ export class StSketchCube extends StModel implements StICube {
         const line = new StSketchLine(p0, p1);
 
         // 2. traverse all divisions, try to divide them with line
-        // delete old division and add new divisions            
+        // delete old division and add new divisions
+        console.log(`#### divide cube with line: ${line}`);
         const cross_poly: StSketchPolygon[] = [];
         const delete_div_ids: string[] = [];
         const new_divs: StSketchDivision[] = [];
@@ -334,7 +368,7 @@ export class StSketchCube extends StModel implements StICube {
         for (const div of this.divisions.values()) {
             const subs = div.divideByLine(line);
             if (subs == null) {
-                console.log(`## Board ${line} cannot divide division: ${div}`);
+                //console.log(`## Board ${line} cannot divide division: ${div}`);
                 continue;
             }
             this.assertTrue(subs.length == 2);
@@ -343,30 +377,31 @@ export class StSketchCube extends StModel implements StICube {
             new_divs.push(subs[1]);
         }
 
-        for(const div of new_divs){
+        for (const div of new_divs) {
             this.divisions.set(div.uuid, div);
-            console.log(`Add New Division: ${div} `);
+            //console.log(`#### Add New Division: ${div} `);
         }
 
-        for(const id of delete_div_ids){
+        for (const id of delete_div_ids) {
             const div = this.divisions.get(id);
-            console.log(`Delete division: ${div}`);
+            //console.log(`#### Delete division: ${div}`);
             this.assertTrue(div != undefined);
             div?.delete();
             this.divisions.delete(id);
         }
 
-        if(delete_div_ids.length <= 0){
+        if (delete_div_ids.length <= 0) {
             throw Error(`line (${line}) fails to divide current cube: ${this}`);
         }
 
         // 3. create the divide board, based on the above divide-line
-        const board = new StSketchBoardZ( {
+        const board = new StSketchBoardZ({
             depth: this.getDepth(),
-            line: line,   
+            line: line,
         });
+        board.updateMesh();
         this.divideBoard.set(board.uuid, board);
-        console.log(`Add divide board: ${board}`);
+        console.log(`Add divide-board: ${board}`);
 
         return line;
     }
@@ -378,30 +413,6 @@ export class StSketchCube extends StModel implements StICube {
     deleteDivide(line: string): StSketchLine {
         throw new Error("Method not implemented.");
     }
-
-    /* from old front-3d: addLevel
-    *
-        const height = this.getHeight() - this.gapTop - offset_y;
-        const cnt = this.levels.length;
-        if (cnt == 0) {
-            // if cnt==0, add the 1st level, there is NO previous level.
-            if (offset_y != this.gapBottom) {
-                throw Error("Level 0 is NOT bottom: " + offset_y);
-            }
-        } else if (cnt > 0) {
-            const range = this._getLevelRange();
-            if (offset_y < range[0] || range[1] < offset_y) {
-                console.error("Level Offset Y %d out of Range: %s", offset_y, range.toString());
-                throw Error("Offset Y of New Level is NOT correct: " + offset_y);
-            }
-            const pre_level = this.levels[cnt - 1];
-            const pre_level_height = pre_level.getHeight() - height;
-            pre_level.setHeight(pre_level_height);
-        }
-        const level = new StCubeLevel(offset_y, height, this.width);
-        this.levels.push(level);
-        console.debug("Add Top Level. Offset Y: %d, Height: %d", offset_y, height);
-    */
 
     changeTexture(txt_id: string): void {
         throw new Error("Method not implemented.");

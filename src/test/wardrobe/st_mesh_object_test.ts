@@ -2,8 +2,8 @@ import { StSketchPoint, StSketchPolygon, StSketchRect } from "@/lib/geometry/st_
 import { StVector } from "@/lib/geometry/st_vector_2d";
 import { StSketchVector3 } from "@/lib/geometry/st_geometric_3d";
 import { StTexture, StWoodType, textureManager } from "@/lib/utility/st_texture";
-import { StPillarMesh } from "@/lib/wardrobe/st_mesh_object";
-import { StBoardMesh } from "@/lib/wardrobe/st_board_mesh";
+import { StPillarMesh } from "@/lib/wardrobe/mesh/st_mesh_object";
+import { StBoardMesh } from "@/lib/wardrobe/mesh/st_board_mesh";
 
 export class StMeshObjectTest {
     createPillar_01(): void {
@@ -11,7 +11,7 @@ export class StMeshObjectTest {
             [0, 0],
             [200, 0],
             [100, 100],
-            [0, 0],
+            //[0, 0],
         ]);
 
         new StPillarMesh({
