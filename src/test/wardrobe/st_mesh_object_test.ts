@@ -11,7 +11,7 @@ export class StMeshObjectTest {
             [0, 0],
             [200, 0],
             [100, 100],
-            [0, 0],
+            //[0, 0],
         ]);
 
         new StPillarMesh({

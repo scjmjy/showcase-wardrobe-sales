@@ -50,13 +50,13 @@ class StSketchUtil {
     }
 
     toFixed(value: number, digits?: number): number {
-        if(!digits) {
-            digits = 2;
+        if (!digits) {
+            digits = 4;
         }
         const A = Math.pow(10, digits);
         const V = value * A;
         return Math.round(V) / A;
-    }        
+    }
 }
 
 export const sketchUtil = new StSketchUtil();

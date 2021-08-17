@@ -27,8 +27,8 @@ export class StVector extends StObject {
 
     constructor(x?: number, y?: number) {
         super();
-        this.x = x ? x : 0;
-        this.y = y ? y : 0;
+        this.x = x || 0;
+        this.y = y || 0;
     }
 
     clone(): StVector {
@@ -54,8 +54,9 @@ export class StVector extends StObject {
         const [x, y] = [this.x, this.y];
         const l = this.length();
         const a = Math.acos(x / l);
-        const ret = (a * 180) / Math.PI; //弧度转角度，方便调试
-        if (y < 0) {
+        const ret = sketchUtil.toFixed((a * 180) / Math.PI, 8); //弧度转角度，方便调试
+
+        if (ret != 0 && y < 0) {
             return 360 - ret;
         }
         return ret;

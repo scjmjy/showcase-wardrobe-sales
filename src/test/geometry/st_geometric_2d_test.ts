@@ -1,7 +1,5 @@
 import { StSketchEdge, StSketchLine, StSketchPoint, StSketchRect } from "@/lib/geometry/st_geometric_2d";
 import { StVector } from "@/lib/geometry/st_vector_2d";
-import { StringDictionary } from "babylonjs/Legacy/legacy";
-import { UtilityLayerRenderer } from "babylonjs/Rendering/utilityLayerRenderer";
 import { StSketchTest } from "./st_sketch_test";
 
 class StSketchEdgeTest extends StSketchTest { 

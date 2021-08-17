@@ -46,4 +46,3 @@ export enum StCubePart {
     DOOR,
     PULLOUT,
 }
-

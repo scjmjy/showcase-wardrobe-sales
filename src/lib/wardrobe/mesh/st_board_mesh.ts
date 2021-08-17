@@ -121,7 +121,6 @@ export class StBoardMesh extends StOnsiteMesh {
     readonly depth: number;
     readonly type: StBoardType;
 
-    // constructor(obj: any);
     constructor(obj: {
         position: StSketchVector3;
         space?: BABYLON.Space;

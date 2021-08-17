@@ -187,8 +187,6 @@ interface StICube extends StIModel {
  * Constructor Option (Parameter)
  */
 interface StIModelOpt {
-    // uuid: string;
-
     /**
      * the 3D Position in its parent model.
      *

@@ -55,7 +55,6 @@ import { jsonIgnore } from "json-ignore";
  *
  */
 export abstract class StModel extends StUuidObject implements StIModel {
-    //readonly uuid: string;
     private position: StPoint3;
     private parent?: StIModel;
     private childen: StIModel[] = [];
@@ -86,8 +85,6 @@ export abstract class StModel extends StUuidObject implements StIModel {
         this.height = obj.height || 0;
         this.depth = obj.depth || 0;
         this.position = obj.position || new StSketchVector3(0, 0, 0);
-        //this.uuid = uuidv4();
-        //this.sketchMesh = obj.sketchMesh;
         this.meshList = [];
     }
 
@@ -195,5 +192,3 @@ export abstract class StModel extends StUuidObject implements StIModel {
         return null;
     }
 }
-
-
