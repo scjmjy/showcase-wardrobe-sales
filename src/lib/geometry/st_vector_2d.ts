@@ -9,8 +9,7 @@
  *
  */
 
-import { Vector2 } from "babylonjs/Maths/math.vector";
-import { StObject } from "../utility/st_object";
+import { sketchUtil, StObject } from "../utility/st_object";
 
 /**
  * A vector does NOT have a UUID. It defines algorithms.
@@ -47,7 +46,7 @@ export class StVector extends StObject {
     }
 
     length(): number {
-        return Math.sqrt( Math.pow(this.x, 2) + Math.pow(this.y, 2) );
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
 
     angle(): number {
@@ -64,8 +63,7 @@ export class StVector extends StObject {
 
     arch(): number {
         // Based on: '已知坐标求角度', https://blog.csdn.net/mu399/article/details/81951786
-        const vec = this;
-        const [x, y] = [vec.x, vec.y];
+        const [x, y] = [this.x, this.y];
         const l = this.length();
         const a = Math.acos(x / l);
         if (y < 0) {
@@ -81,6 +79,12 @@ export class StVector extends StObject {
         return vec;
     }
 
+    /**
+     * rorate in count-clock wise.
+     *
+     * @param A angle in radians (弧度)
+     * @returns
+     */
     rotate(A: number): StVector {
         const x = this.x;
         const y = this.y;
@@ -116,6 +120,19 @@ export class StVector extends StObject {
     selfMultiple(v: number): StVector {
         this.x *= v;
         this.y *= v;
+        return this;
+    }
+
+    setLength(len: number): StVector {
+        const l0 = this.length();
+        this.x = (this.x * len) / l0;
+        this.y = (this.y * len) / l0;
+        return this;
+    }
+
+    toFixed(digits?: number): StVector {
+        this.x = sketchUtil.toFixed(this.x, digits);
+        this.y = sketchUtil.toFixed(this.y, digits);
         return this;
     }
 }

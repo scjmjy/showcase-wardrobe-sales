@@ -9,19 +9,76 @@
  *
  */
 
-import { StSketchPoint, StSketchRect } from "../geometry/st_geometric_2d";
-import { StVector } from "../geometry/st_vector_2d";
-import { StSketchVector3 } from "../geometry/st_geometric_3d";
-import { StTexture, StWoodType, textureManager } from "../utility/st_texture";
-import { StColor } from "../utility/st_color";
-import { StMaterial } from "../utility/st_material";
+import { StSketchLine, StSketchPoint, StSketchPolygon, StSketchRect } from "../../geometry/st_geometric_2d";
+import { StSketchVector3 } from "../../geometry/st_geometric_3d";
+import { StTexture, StWoodType, textureManager } from "../../utility/st_texture";
+import { StColor } from "../../utility/st_color";
+import { StMaterial } from "../../utility/st_material";
 import { StOnsiteMesh } from "./st_mesh_object";
-import StBabylonUtil from "../babylonjs/st_babylon_util";
+import StBabylonUtil from "../../babylonjs/st_babylon_util";
+import { StBoardMeshLocation } from "../st_model_interface";
 
 export enum StBoardType {
     FACE,
     VERTCAL,
     HORIZONAL,
+}
+
+/**
+ * a board that parallels with Z axis
+ */
+export class StLineBoardMesh extends StOnsiteMesh {
+    private readonly poly: StSketchPolygon;
+    private readonly depth: number;
+
+    static buildByLine(
+        line: StSketchLine,
+        depth: number,
+        meshLoc: StBoardMeshLocation,
+        thickness?: number,
+    ): StLineBoardMesh {
+        if (meshLoc != StBoardMeshLocation.LEFT) {
+            throw Error(`Only LEFT Location is supported! Input Location: ${meshLoc}`);
+        }
+        const rect: StSketchRect = StSketchRect.buildRectByLineAtLeft(line, thickness || 20);
+        const texture = textureManager.wood(StWoodType.OAK, 0);
+        const b1 = new StLineBoardMesh({
+            position: new StSketchVector3(0, 0, 0),
+            depth: depth,
+            texture: texture,
+            poly: rect,
+        });
+        b1.createMesh();
+        return b1;
+    }
+
+    createMesh(): string {
+        const mat_name = "_st_mat_003";
+        const mat_texture = this.texture;
+        const mat = new StMaterial({
+            name: mat_name,
+            texture: mat_texture,
+        });
+        [this.meshId, this.mesh] = this.build3d.extrudeShape(this.poly, this.depth, mat);
+        if (!this.mesh) throw Error("Fail to create mesh");
+
+        this.onAddedMesh();
+        return this.meshId;
+    }
+
+    constructor(obj: {
+        position: StSketchVector3;
+        space?: BABYLON.Space;
+        color?: StColor;
+        type?: StBoardType;
+        texture?: StTexture;
+        poly: StSketchPolygon;
+        depth: number;
+    }) {
+        super(obj);
+        this.poly = obj.poly;
+        this.depth = obj.depth;
+    }
 }
 
 /**
