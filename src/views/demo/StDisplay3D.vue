@@ -152,32 +152,32 @@ export default defineComponent({
             try{
                 const test = cubeTest;
                 switch (opt) {
-                        case "create":
-                        test.create_01();
+                    case "create":
+                        this.topInfo = `[Created Cube] ${test.create_01()}`;
                         break;
                     case "H+":
-                        test.changeHeight(true);
+                        this.topInfo = test.changeHeight(true);
                         break;
                     case "H-":
-                        test.changeHeight(false);
+                        this.topInfo = test.changeHeight(false);
                         break;
                     case "W+":
-                        test.changeWidth(true);
+                        this.topInfo = test.changeWidth(true);
                         break;
                     case "W-":
-                        test.changeWidth(false);
+                        this.topInfo = test.changeWidth(false);
                         break;
                     case "D+":
-                        test.changeDepth(true);
+                        this.topInfo = test.changeDepth(true);
                         break;
                     case "D-":
-                        test.changeDepth(false);
+                        this.topInfo = test.changeDepth(false);
                         break;
                     case "GB+":
-                        test.changeBottomGap(true);
+                        this.topInfo = test.changeBottomGap(true);
                         break;
                     case "GB-":
-                        test.changeBottomGap(false);
+                        this.topInfo = test.changeBottomGap(false);
                         break;
 
                     case "divide-01":
@@ -189,7 +189,7 @@ export default defineComponent({
                         break;
                     } 
                 }catch(e) {
-                    this.topInfo = (e as Error).message;
+                    this.topInfo = "[ERROR] " + (e as Error).message;
                     throw e;
                 }
 

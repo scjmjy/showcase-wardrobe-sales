@@ -80,10 +80,13 @@ export class StSketchDivision extends StModel implements StIDivison {
             if (!opt.position) {
                 throw Error("position is required, if 'rect' is provided!");
             }
+            /* 
+             * [Guilin: 2021-8-17] division position is free of rectangle vertices.
+             * 
             const pt_pos = new StSketchPoint(opt.position.x, opt.position.y);
             if (!pt.overlaps(pt_pos)) {
                 throw Error(`Rectangle start point ${pt} does not overlap with model position ${opt.position}`);
-            }
+            }*/
             if (!(opt.width == opt.rect.a && opt.height == opt.rect.b)) {
                 throw Error(
                     `Rectangle a/b does not match with model width/height. \n\t  - Rect: ${opt.rect}), \n\t - Model Width/Height: ${opt.width}/${opt.height}`,
@@ -98,7 +101,7 @@ export class StSketchDivision extends StModel implements StIDivison {
     }
 
     updateMesh(): void {
-        throw new Error("Method not implemented.");
+        console.log("TODO: display the available work area ...");
     }
 
     calculateAvailable(acce_info: StIAccesory): StSketchRect[] {
@@ -125,8 +128,9 @@ export class StSketchDivision extends StModel implements StIDivison {
         if (sub_rects.length == 0) {
             console.log(`Division Rectangle ${this.rect} cannot be divided by line: ${line}`);
         } else if (sub_rects.length == 2) {
+            // NOTE: the divided divisions have the same positions
             const div1 = StSketchDivision.buildByRect(sub_rects[0], this.getPosition());
-            const div2 = StSketchDivision.buildByRect(sub_rects[1]);
+            const div2 = StSketchDivision.buildByRect(sub_rects[1], this.getPosition());
             subs.push(div1);
             subs.push(div2);
 
@@ -153,9 +157,6 @@ export class StSketchDivision extends StModel implements StIDivison {
         const pt0 = rect.getStartPoint().getVector();
         if (!pos) {
             pos = new StSketchVector3(pt0.x, pt0.y);
-        }
-        if (!(pt0.x == pos.x && pt0.y == pos.y)) {
-            throw Error(`Position ${pos} does not overlap rectangle 1st point ${pt0}`);
         }
         const opt: StIDivisionOpt = {
             position: pos,
@@ -247,25 +248,47 @@ export class StSketchCube extends StModel implements StICube {
         this.thickness = obj.thickness || 20;
         this.rect = StSketchRect.buildRect({ width: this.getWidth(), height: this.getHeight() });
         this.edgeMap = new Map<string, StSketchEdge>();
-        this.updateMesh();
+
+        //this.updateMesh();
 
         // create the default division
         //
         // [Guilin: 2021-8-12] use 'this.rect' to construct the default division.
         // Reason: cube division(s) change(s) if the points of cube rectangle change.
         //
-        const div_opt: StIDivisionOpt = obj;
-        div_opt.position = this.getPosition();
-        div_opt.rect = this.rect;
+        const div_opt: StIDivisionOpt = this._calcArea();
         const div = new StSketchDivision(div_opt);
         this.divisions.set(div.uuid, div);
     }
 
+    private _calcArea(): StIDivisionOpt {
+        const THICK_2BD = this.thickness * 2;
+        const pt = new StSketchPoint(this.thickness, this.thickness + this.gapBottom);
+        const a = this.getWidth() - THICK_2BD; 
+        const b = this.getHeight() - this.gapBottom - this.gapTop - THICK_2BD;
+        const rect = StSketchRect.buildRectByStartPoint(pt, a, b);
+
+        const div_opt: StIDivisionOpt = {
+            position: this.getPosition(),
+            width: rect.a,
+            height: rect.b,
+            depth: this.getDepth() - this.thickness,
+            rect: rect, 
+        }; 
+        return div_opt;
+    }
+
     updateMesh(): void {
         this._createCubeFrameBySize();
-        // guilin: DO NOT update divisions?
-        /* for(const div of this.divisions.values()) {
+        
+        // [Guilin: 8-16] DO NOT update divisions and boards
+        /*
+        for(const div of this.divisions.values()) {
             div.updateMesh();
+        }
+
+        for(const bd of this.divideBoard.values()) {
+            bd.updateMesh();
         } */
     }
 

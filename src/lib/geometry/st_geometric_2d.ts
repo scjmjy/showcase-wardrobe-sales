@@ -552,7 +552,7 @@ export class StSketchPolygon extends StGeometic2D {
         pt_arr.push(p0, p1);
         let edge = e1;
         for (; edge != e0; ) {
-            console.debug(`## process edge: ${edge}`);
+            //console.debug(`## process edge: ${edge}`);
             pt_arr.push(edge.vertex1);
             [, edge] = this._getNextEdge(edge.uuid);
         }
@@ -589,6 +589,7 @@ export class StSketchPolygon extends StGeometic2D {
         return new StSketchPolygon(ll);
     }
 }
+
 
 /**
  * The 4 points of the sketch rectangle,
@@ -708,17 +709,4 @@ export class StSketchRect extends StSketchPolygon {
         return new StSketchRect(arr);
     }
 
-    // /**
-    //  * order the rectangle pionts in counter-clock wise
-    //  */
-    // static formulatePoints(points: StSketchPoint[]): void {
-    //     let min_x = points[0].x;
-    //     let min_y = points[0].y;
-    //     for (const p of points) {
-    //         if (p.x < min_x) min_x = p.x;
-    //         if (p.y < min_y) min_y = p.y;
-    //     }
-    //     // ...
-    //     console.warn("todo: formulate the 4 ponits of the rectangle...");
-    // }
 }
