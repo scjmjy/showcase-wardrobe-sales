@@ -358,9 +358,10 @@ export class StSketchCube extends StModel implements StICube {
             throw Error(`Fail to find the intersecting point on the 2nd edge: ${e1}`);
         }
         const line = new StSketchLine(p0, p1);
-
+        
         // 2. traverse all divisions, try to divide them with line
         // delete old division and add new divisions
+        console.log(`#### divide cube with line: ${line}`);
         const cross_poly: StSketchPolygon[] = [];
         const delete_div_ids: string[] = [];
         const new_divs: StSketchDivision[] = [];
@@ -368,7 +369,7 @@ export class StSketchCube extends StModel implements StICube {
         for (const div of this.divisions.values()) {
             const subs = div.divideByLine(line);
             if (subs == null) {
-                console.log(`## Board ${line} cannot divide division: ${div}`);
+                //console.log(`## Board ${line} cannot divide division: ${div}`);
                 continue;
             }
             this.assertTrue(subs.length == 2);
@@ -379,12 +380,12 @@ export class StSketchCube extends StModel implements StICube {
 
         for (const div of new_divs) {
             this.divisions.set(div.uuid, div);
-            console.log(`Add New Division: ${div} `);
+            //console.log(`#### Add New Division: ${div} `);
         }
 
         for (const id of delete_div_ids) {
             const div = this.divisions.get(id);
-            console.log(`Delete division: ${div}`);
+            //console.log(`#### Delete division: ${div}`);
             this.assertTrue(div != undefined);
             div?.delete();
             this.divisions.delete(id);
@@ -401,7 +402,7 @@ export class StSketchCube extends StModel implements StICube {
         });
         board.updateMesh();
         this.divideBoard.set(board.uuid, board);
-        console.log(`Add divide board: ${board}`);
+        console.log(`Add divide-board: ${board}`);
 
         return line;
     }

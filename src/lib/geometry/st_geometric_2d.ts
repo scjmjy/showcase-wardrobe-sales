@@ -9,7 +9,7 @@
  *
  */
 
-import { StUuidObject } from "../utility/st_object";
+import { sketchUtil, StUuidObject } from "../utility/st_object";
 import { StVector } from "./st_vector_2d";
 import * as geometric from "geometric";
 import * as turf from "@turf/turf";
@@ -104,6 +104,12 @@ export class StSketchPoint extends StGeometic2D {
         return this.x == pt.x && this.y == pt.y;
     }
 
+    toFixed(digits?: number): StSketchPoint {
+        this.x = sketchUtil.toFixed(this.x, digits);
+        this.y = sketchUtil.toFixed(this.y, digits);
+        return this;
+    }
+
     static makeVector(p0: StSketchPoint, p1: StSketchPoint): StVector {
         return new StVector(p1.x - p0.x, p1.y - p0.y);
     }
@@ -117,14 +123,14 @@ export class StSketchPoint extends StGeometic2D {
                 min = [i, p];
             }
         }
-        console.log(`## find LEFT-BOTTOM: ${min}`);
+        //console.log(`## find LEFT-BOTTOM: ${min}`);
         const pt_arr2: StSketchPoint[] = [];
         for (let i = 0; i < cnt; i++) {
             const idx = (i + min[0]) % cnt;
             const pt = pt_arr[idx];
             pt_arr2.push(pt);
         }
-        console.log(`## ordered points: ${pt_arr2}`);
+        //console.log(`## ordered points: ${pt_arr2}`);
         return pt_arr2;
     }
 }
@@ -217,7 +223,7 @@ export class StSketchLine extends StGeometic2D {
             return null;
         }
         const cord = pts[0].geometry.coordinates;
-        return new StSketchPoint(cord[0], cord[1]);
+        return new StSketchPoint(cord[0], cord[1]).toFixed(4);
     }
 }
 
@@ -304,7 +310,7 @@ export class StSketchEdge extends StSketchLine {
         }
         const v0_vec = this.vertex0.getVector();
         const trans_vec = StVector.makeVectorByLength(this.getVector(), offset);
-        return v0_vec.add(trans_vec);
+        return v0_vec.add(trans_vec).toFixed();
     }
 
     private _getInnerPoint(id: string): StEdgePoint {
@@ -708,5 +714,4 @@ export class StSketchRect extends StSketchPolygon {
         arr.push(p3);
         return new StSketchRect(arr);
     }
-
 }

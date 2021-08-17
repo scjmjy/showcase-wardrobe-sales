@@ -57,8 +57,13 @@ class StSketchCubeTest {
         const e0 = div00_rect.edges[0];
         const e2 = div00_rect.edges[2];
         const line = this.cube.addDivideBoard(e0, e2);
+
+        const e1 = div00_rect.edges[1];
+        const e3 = div00_rect.edges[3];
+        const line2 = this.cube.addDivideBoard(e1, e3);
+
         this.cube.updateMesh();
-        return `[Success] Divide Line: ${line}`;
+        return `[Success] Divide Lines: \n\t ${line} \n\t ${line2}`;
     }
 }
 

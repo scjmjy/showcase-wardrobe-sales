@@ -51,7 +51,7 @@ class StSketchUtil {
 
     toFixed(value: number, digits?: number): number {
         if(!digits) {
-            digits = 2;
+            digits = 4;
         }
         const A = Math.pow(10, digits);
         const V = value * A;
