@@ -1,8 +1,8 @@
 /**
  * @file    st_sketch_container.ts
  * @author 	Guilin
- * 
- * @description a container can be divided by a horizonal or vertical board. 
+ *
+ * @description a container can be divided by a horizonal or vertical board.
  *              A division / cube is a contrainer.
  *
  * ------------------ Logs -----------------------------------------------------
@@ -32,10 +32,7 @@ class StSketchContainer extends StModel implements StIRectArea {
 
     type: StContainerType;
 
-    constructor(opt: {
-        rect: StSketchRect;
-        type?: StContainerType;
-    }) {
+    constructor(opt: { rect: StSketchRect; type?: StContainerType }) {
         super({});
         this.rect = opt.rect;
         this.type = opt.type || StContainerType.NODE;
@@ -50,7 +47,6 @@ class StSketchContainer extends StModel implements StIRectArea {
     setBoardOffset(id: string, offset: number): StIRectArea {
         throw new Error("Method not implemented.");
     }
-
 
     addChild(ch: StIModel): void {
         let child: StIModel | undefined;
@@ -74,8 +70,6 @@ class StSketchContainer extends StModel implements StIRectArea {
         }
         super.addChild(ch);
     }
-
-
 
     setBoard(id: string, offset: string): number {
         throw new Error("Method not implemented.");

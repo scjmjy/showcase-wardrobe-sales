@@ -54,7 +54,7 @@ export class StVector extends StObject {
         const [x, y] = [this.x, this.y];
         const l = this.length();
         const a = Math.acos(x / l);
-        const ret = sketchUtil.toFixed( (a * 180) / Math.PI, 8); //弧度转角度，方便调试
+        const ret = sketchUtil.toFixed((a * 180) / Math.PI, 8); //弧度转角度，方便调试
 
         if (ret != 0 && y < 0) {
             return 360 - ret;

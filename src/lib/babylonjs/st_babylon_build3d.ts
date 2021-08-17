@@ -67,7 +67,7 @@ export class StBabylonBuild3d implements StIBuild3d {
         //console.log(`## extrude ${depthZ} mm, for polygon: ${polygon} `);
         const myShape = StBabylonUtil.toScaledVector3(polygon.vertices);
         // [Guilin: 2021-8-17] BABYLON.MeshBuilder.ExtrudeShape() requires the shape is a loop of points (the 1st and last points are same).
-        myShape.push(myShape[0]); 
+        myShape.push(myShape[0]);
         const myPath = [new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(0, 0, depthZ / ST_SCALE_FROM_MM)];
         const options = {
             shape: myShape, // vec3 array with z = 0,

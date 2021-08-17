@@ -7,6 +7,8 @@
  * ------------------ logs -----------------------------------------------------
  * [guilin 2021-7-21] created.
  *
+ * [Guilin 2021-08-18] A polygon is divided with turf;
+ *
  */
 
 import { sketchUtil, StUuidObject } from "../utility/st_object";
@@ -30,7 +32,7 @@ export const sketchAxis = new StSketchAxis();
 
 export abstract class StGeometic2D extends StUuidObject {
     /**
-     * used by geometrics
+     * used by lib 'geometrics'
      */
     abstract toArray(): Array<number | Array<number>>;
 
@@ -38,6 +40,10 @@ export abstract class StGeometic2D extends StUuidObject {
 
     abstract translate(vec: StVector): void;
 
+    /**
+     * TRUE if the geomertic object has the same coordinates
+     * @param geo
+     */
     abstract valueEquals(geo: StGeometic2D): boolean;
 }
 
@@ -170,8 +176,6 @@ export class StSketchLine extends StGeometic2D {
      */
     constructor(v0: StSketchPoint, v1: StSketchPoint) {
         super();
-        //this.p0 = StSketchPoint.copyObj(p0);
-        //this.p1 = StSketchPoint.copyObj(p1);
         this.vertex0 = v0;
         this.vertex1 = v1;
     }
@@ -595,7 +599,6 @@ export class StSketchPolygon extends StGeometic2D {
         return new StSketchPolygon(ll);
     }
 }
-
 
 /**
  * The 4 points of the sketch rectangle,

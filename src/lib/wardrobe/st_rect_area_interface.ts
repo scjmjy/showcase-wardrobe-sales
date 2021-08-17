@@ -26,17 +26,17 @@ export enum StContainerType {
 }
 
 /**
- * A rectangle area (v0.2), which is divided by both horizonal and vertical lines. 
- * 
+ * A rectangle area (v0.2), which is divided by both horizonal and vertical lines.
+ *
  * An area may contains sub-areas, so that it can be divided into very small areas.
  *
- * @deprecated [2021-8-6] 
+ * @deprecated [2021-8-6]
  *  (1) DO NOT use recursive divided-areas. It makes things complicated.
- * 
+ *
  *  (2) DO NOT add a horizonal/vertical line into ONE sub-area to seperate it.
- * REASON: a vertical board may go through the crossing horizonal board, and vice versa. 
+ * REASON: a vertical board may go through the crossing horizonal board, and vice versa.
  * In this case, ONE board divides MULTIPLE areas.
- * 
+ *
  */
 export interface StIRectArea {
     rect: StSketchRect;

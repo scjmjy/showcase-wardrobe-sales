@@ -5,6 +5,7 @@
  * ------------------ Logs -----------------------------------------------------
  * [Guilin 2021-07-28] Created.
  *
+ * [Guilin 2021-08-18] Add divide-board success.
  */
 
 import StSketchConstant from "../utility/st_sketch_constant";
@@ -249,8 +250,6 @@ export class StSketchCube extends StModel implements StICube {
         this.rect = StSketchRect.buildRect({ width: this.getWidth(), height: this.getHeight() });
         this.edgeMap = new Map<string, StSketchEdge>();
 
-        //this.updateMesh();
-
         // create the default division
         //
         // [Guilin: 2021-8-12] use 'this.rect' to construct the default division.
@@ -264,7 +263,7 @@ export class StSketchCube extends StModel implements StICube {
     private _calcArea(): StIDivisionOpt {
         const THICK_2BD = this.thickness * 2;
         const pt = new StSketchPoint(this.thickness, this.thickness + this.gapBottom);
-        const a = this.getWidth() - THICK_2BD; 
+        const a = this.getWidth() - THICK_2BD;
         const b = this.getHeight() - this.gapBottom - this.gapTop - THICK_2BD;
         const rect = StSketchRect.buildRectByStartPoint(pt, a, b);
 
@@ -273,14 +272,14 @@ export class StSketchCube extends StModel implements StICube {
             width: rect.a,
             height: rect.b,
             depth: this.getDepth() - this.thickness,
-            rect: rect, 
-        }; 
+            rect: rect,
+        };
         return div_opt;
     }
 
     updateMesh(): void {
         this._createCubeFrameBySize();
-        
+
         // [Guilin: 8-16] DO NOT update divisions and boards
         /*
         for(const div of this.divisions.values()) {
@@ -297,11 +296,11 @@ export class StSketchCube extends StModel implements StICube {
     }
 
     private _createCubeFrameBySize(): void {
-        // [Guilin: 2021-8-1] Currently, re-draw all the 5 faces. TODO-IN-FUTURE: redraw the changed faces and boards.
-        for (const m of this.meshList) {
-            m.deleteMesh();
-        }
-        this.meshList.slice(0, this.meshList.length);
+        // [Guilin: 2021-8-1] Currently, re-draw all the 5 faces.
+        // TODO-IN-FUTURE: redraw the changed faces and boards.
+
+        super.clearMesh();
+
         const back_texture = textureManager.wood(StWoodType.PINE, 0);
         const [w, h, d] = this.getSize().toArray();
         const TH = this.thickness;
@@ -358,7 +357,7 @@ export class StSketchCube extends StModel implements StICube {
             throw Error(`Fail to find the intersecting point on the 2nd edge: ${e1}`);
         }
         const line = new StSketchLine(p0, p1);
-        
+
         // 2. traverse all divisions, try to divide them with line
         // delete old division and add new divisions
         console.log(`#### divide cube with line: ${line}`);
