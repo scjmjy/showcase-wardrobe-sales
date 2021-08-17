@@ -1,5 +1,5 @@
 <template>
-    <el-menu class="customer-menu" :default-active="defaultActive" :uniqueOpened="true">
+    <el-menu ref="elMenu" class="customer-menu" :default-active="defaultActive" :uniqueOpened="true" @scroll="onScroll">
         <el-menu-item v-for="(customer, index) of customers" :key="index" :index="customer.cid.toString()">
             <span class="customer-menu__avatar">{{ getFirstWord(customer.name) }}</span>
             <div class="customer-menu__name">
@@ -7,36 +7,77 @@
                 <span style="font-size: 18px">1888****888</span>
             </div>
         </el-menu-item>
+        <load-more :state="loadState" type="smoke" />
     </el-menu>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent, reactive, ref, nextTick } from "vue";
 import apiProvider from "@/api/provider";
 import { Customer } from "@/api/interface/provider.interface";
 import variables from "@/assets/scss/variables.scss";
 import { useStore } from "vuex";
+import { checkReachBottom } from "@/utils/page-scroll";
+import LoadMore, { LOAD_STATE } from "@/components/LoadMore.vue";
+import { StateType } from "@/store";
+import { ElMenu } from "element-plus";
 
 export default defineComponent({
+    name: "CustomerMenu",
+    components: {
+        LoadMore,
+    },
     setup(props, context) {
-        props;
-        const store = useStore();
+        const loadState = ref<LOAD_STATE>("");
+        let page = 1;
+        const store = useStore<StateType>();
         const defaultActive = ref("" as number | string);
         const customers = reactive([] as Customer[]);
-        apiProvider.requestCustomerList(store.state.user.userId).then((res) => {
-            if (res.ok) {
-                customers.push(...(res.data || []));
-                if (customers.length > 0) {
-                    if (store.state.currentCustomer.customerId) {
-                        defaultActive.value = store.state.currentCustomer.customerId.toString();
+        function requestCustomers(emit = false) {
+            loadState.value = "loading";
+            apiProvider.requestCustomerList(store.state.user.eid, page).then((res) => {
+                if (res.ok) {
+                    const result = res.data || [];
+                    if (result.length === 0) {
+                        loadState.value = "nomore";
                     } else {
-                        defaultActive.value = customers[0].cid.toString();
+                        loadState.value = "more";
                     }
-                    context.emit("select", defaultActive.value);
+                    customers.push(...result);
+                    if (customers.length > 0) {
+                        if (store.state.currentCustomer.customerId) {
+                            defaultActive.value = store.state.currentCustomer.customerId.toString();
+                        } else {
+                            defaultActive.value = customers[0].cid.toString();
+                        }
+                        if (emit) {
+                            context.emit("select", defaultActive.value);
+                        }
+                    }
+                    nextTick(() => {
+                        onScroll();
+                    });
                 }
-            }
-        });
+            });
+        }
+        requestCustomers(true);
+
+        const elMenu = ref<InstanceType<typeof ElMenu>>();
+        function onScroll() {
+            const el = elMenu.value?.$el as HTMLElement;
+            checkReachBottom(el, () => {
+                console.log("[OnReachBottom]!!!");
+
+                if (loadState.value !== "nomore" && loadState.value !== "loading") {
+                    page++;
+                    requestCustomers();
+                }
+            });
+        }
+
         return {
+            elMenu,
+            loadState,
             customers,
             variables,
             defaultActive,
@@ -46,6 +87,7 @@ export default defineComponent({
             getFirstWord(name: string) {
                 return name ? name[0] : "";
             },
+            onScroll,
         };
     },
 });

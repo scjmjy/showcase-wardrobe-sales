@@ -14,6 +14,9 @@ import SvgIcon from "@/assets/icons";
 import ElCollapseTransitionH from "@/components/ElCollapseTransitionH.vue";
 import StateIcon from "@/components/StateIcon.vue";
 
+// for dev
+import "@/assets/scss/dev.scss";
+
 const app = createApp(App);
 app.component(ElCollapseTransitionH.name, ElCollapseTransitionH);
 app.component(StateIcon.name, StateIcon);

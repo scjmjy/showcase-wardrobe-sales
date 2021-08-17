@@ -7,7 +7,15 @@ export class Customer {
     constructor(public customerId = "", public customerName = "", public phoneNumber = "") {}
 }
 export class User {
-    constructor(public userId = "", public userName = "", public token = "") {}
+    constructor(
+        public userId = 0,
+        public userName = "",
+        public token = "",
+        public eid = 0,
+        public accountName = "",
+        public organization = "",
+        public rank = "",
+    ) {}
 
     save(): string | undefined {
         return jscookie.set(TokenKey, JSON.stringify(this));

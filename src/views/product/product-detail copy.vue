@@ -1,5 +1,5 @@
 <template>
-    <div v-if="product" class="product-detail" :class="{ 'menu-opened': showMenu || mode === 'view' }">
+    <div v-if="product" class="product-detail" :class="{ 'menu-opened': showMenu }">
         <transition name="el-zoom-in-top">
             <app-header
                 v-if="mode === 'view'"
@@ -35,8 +35,12 @@
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
                 >返回</el-button
             >
+            <div class="product-detail__action-left state-icon-group-v">
+                <state-icon icon="save" label="保存" @change="onSaveClick"></state-icon>
+                <state-icon icon="offer" label="报价" @change="onOfferClick"></state-icon>
+            </div>
             <div class="product-detail__action-right state-icon-group-h">
-                <!-- <state-icon
+                <state-icon
                     v-model="stateSelect"
                     icon="select-all"
                     label="全选"
@@ -48,9 +52,7 @@
                     icon="parts-indoor"
                     :states="inOutStates"
                     @change="onInOutChange"
-                ></state-icon> -->
-                <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
-                <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon>
+                ></state-icon>
                 <state-icon
                     icon="parts"
                     label="部件"
@@ -59,13 +61,13 @@
                     @change="onPartsClick"
                 ></state-icon>
             </div>
-            <!-- <div class="product-detail__action-top state-icon-group-v">
+            <div class="product-detail__action-top state-icon-group-v">
                 <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
                 <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon>
-            </div> -->
+            </div>
             <el-collapse-transition-h>
                 <parts-menu
-                    v-show="mode === 'edit' && showMenu"
+                    v-if="mode === 'edit' && showMenu"
                     class="product-detail__menu2d"
                     :type="stateInOut"
                 ></parts-menu>
@@ -131,6 +133,36 @@ export default defineComponent({
             }
             return p.cid === store.state.currentCustomer.customerId + "" ? "scheme-self" : "scheme-other";
         });
+        // watch(
+        //     () => route.query.productId as string,
+        //     (productId) => {
+        //         if (productId) {
+        //             apiProvider.requestProductDetail(productId).then((res) => {
+        //                 if (res.ok) {
+        //                     Object.assign(product.value, res.data);
+        //                 }
+        //             });
+        //         }
+        //     },
+        //     {
+        //         immediate: true,
+        //     },
+        // );
+        // watch(
+        //     () => route.query.schemeId as string,
+        //     (schemeId) => {
+        //         if (schemeId) {
+        //             apiProvider.requestSchemeDetail(schemeId).then((res) => {
+        //                 if (res.ok) {
+        //                     Object.assign(product.value, res.data);
+        //                 }
+        //             });
+        //         }
+        //     },
+        //     {
+        //         immediate: true,
+        //     },
+        // );
         const customizeMode = ref<"new" | "continue" | "copy">("new");
         const showCustomizeDlg = ref(false);
         const showOfferDlg = ref(false);
@@ -139,7 +171,19 @@ export default defineComponent({
 
         async function gotoEditScheme() {
             showCustomizeDlg.value = false;
+            // await nextTick();
             mode.value = "";
+            // let p = product as Ref<Scheme>;
+            // // if (!p.value) {
+            // //     return;
+            // // }
+            // router.push({
+            //     path: "/scheme-detail",
+            //     query: {
+            //         [p.value.pid ? "schemeId" : "productId"]: p.value.id,
+            //         mode: customizeMode.value,
+            //     },
+            // });
         }
 
         const customizeDlgTitle = computed(() => {
@@ -156,6 +200,7 @@ export default defineComponent({
         const state3D = ref<"active" | "">("");
         const stateRuler = ref<"active" | "">("");
         const stateSelect = ref<"active" | "">("");
+        // const stateMetals = ref<"active" | "">("");
         const stateInOut = ref<"in" | "out">("in");
         const inOutStates = [
             {
@@ -228,7 +273,7 @@ export default defineComponent({
                 apiProvider
                     .createNewScheme(
                         "新方案" + Date.now(),
-                        store.state.user.eid,
+                        store.state.user.userId,
                         store.state.currentCustomer.customerId,
                         product.value.id,
                     )
@@ -319,8 +364,8 @@ export default defineComponent({
     align-items: center;
     width: 100%;
     height: 100%;
-    // background-color: var(--el-color-bg);
-    background: linear-gradient(#f2f4f5, #eeefef);
+    // background-color: $--color-bg;
+    background-color: var(--el-color-bg);
     &__3d {
         // flex: 1;
         // overflow: auto;
@@ -330,18 +375,11 @@ export default defineComponent({
         flex: 1;
         height: 100%;
         overflow: hidden;
-        position: relative;
-        left: 0px;
-        transition: left 0.3s ease-in-out;
     }
 
     &__action-customize {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        bottom: 0px;
         width: 280px;
-        white-space: nowrap;
+        height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -367,7 +405,7 @@ export default defineComponent({
         position: absolute;
         top: 80px;
         bottom: 200px;
-        right: 15px;
+        right: 0px;
         white-space: nowrap;
     }
     &__info {
@@ -411,9 +449,6 @@ export default defineComponent({
     }
     &.menu-opened &__action-top {
         right: 348px;
-    }
-    &.menu-opened &__3d {
-        left: -170px;
     }
 }
 </style>

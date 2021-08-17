@@ -2,6 +2,7 @@ import ApiProvider, {
     AjaxResponse,
     CategoryFilter,
     Customer,
+    GlobalCfg,
     LoginResult,
     Part,
     PartCategory,
@@ -19,6 +20,10 @@ export default class LocalProvider implements ApiProvider {
             data: {
                 uid: 1,
                 token: "fake-token-" + username + passwd + code + uuid,
+                eid: 1,
+                name: username,
+                organization: "上海",
+                rank: "经理",
             },
         });
     }
@@ -28,6 +33,9 @@ export default class LocalProvider implements ApiProvider {
             ok: true,
             data: "logout success",
         });
+    }
+    requestGlobalCfg(): Promise<AjaxResponse<GlobalCfg>> {
+        throw new Error("Method not implemented.");
     }
     // getCaptchaImage(): Promise<AjaxResponse<CaptchaResult>> {
     //     return Promise.resolve({

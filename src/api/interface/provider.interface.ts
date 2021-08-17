@@ -11,7 +11,12 @@ export interface AjaxResponse<T> {
 
 export interface LoginResult {
     uid: number;
+    eid: number;
     token: string;
+    name: string;
+    organization: string;
+    rank: string;
+    accountName?: string;
 }
 // export interface CaptchaResult {
 //     uuid: number;
@@ -134,6 +139,16 @@ export interface Part {
     unit: string;
     mutime?: string;
 }
+
+export type PartIdList = string[];
+
+export interface GlobalCfg {
+    // 内饰配件ID列表
+    partsCatInterior: PartIdList;
+    // 外观配件ID列表
+    partsCatExterior: PartIdList;
+}
+
 export default interface ApiProvider {
     /**
      * 登录接口
@@ -144,6 +159,8 @@ export default interface ApiProvider {
      */
     login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>>;
     logout(): Promise<AjaxResponse<string>>;
+
+    requestGlobalCfg(): Promise<AjaxResponse<GlobalCfg>>;
 
     // getCaptchaImage(): Promise<AjaxResponse<CaptchaResult>>;
 

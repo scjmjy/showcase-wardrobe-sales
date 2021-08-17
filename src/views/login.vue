@@ -39,6 +39,7 @@ import { defineComponent } from "vue";
 import md5 from "md5";
 import store from "@/store";
 import router from "@/router";
+import { AjaxResponse, LoginResult } from "@/api/interface/provider.interface";
 
 export default defineComponent({
     name: "Login",
@@ -96,13 +97,16 @@ export default defineComponent({
             this.loginLoading = true;
             store
                 .dispatch("login", auth)
-                .then((res) => {
-                    console.log("LOG-INFO login: ", res);
-                    router.push("/");
-                })
-                .catch(() => {
-                    // this.getCode();
-                    this.$message.error("登录失败，请输入正确的用户名、密码或验证码");
+                .then((res: AjaxResponse<LoginResult>) => {
+                    if (res.ok) {
+                        router.push("/");
+                    } else if (res.show) {
+                        this.$message({
+                            type: res.show,
+                            message: res.msg,
+                        });
+                        // this.$message.error("登录失败，请输入正确的用户名、密码或验证码");
+                    }
                 })
                 .finally(() => {
                     this.loginLoading = false;

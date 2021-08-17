@@ -134,29 +134,20 @@ router.beforeEach(async (to, from, next) => {
     if (!isLoggedIn) {
         next({ path: "/login" });
     } else {
-        // const hasConfig = !!store.getters.globalCfg;
-        const hasConfig = true;
+        const hasConfig = store.state.globalCfg !== undefined;
         if (hasConfig) {
             next();
         } else {
-            // $apiProvider(RestProvider) 依赖于 Vue app
-            nextTick(() => {
-                store
-                    .dispatch("config")
-                    .then((res) => {
-                        next();
-                        // next({ ...to, replace: true }); // hack方法 确保addRoutes已完成
-                    })
-                    .catch(async (err) => {
-                        console.log("config:", err);
-
-                        // remove token and go to login page to re-login
-                        await store.dispatch("logout");
-                        next("/login");
-                        // next(`/login?redirect=${to.path}`);
-                    })
-                    .catch(() => {});
-            });
+            return store
+                .dispatch("config")
+                .then((res) => {
+                    next();
+                    // next({ ...to, replace: true }); // hack方法 确保addRoutes已完成
+                })
+                .catch(async (err) => {
+                    next("/login");
+                    // next(`/login?redirect=${to.path}`);
+                });
         }
         // next();
     }

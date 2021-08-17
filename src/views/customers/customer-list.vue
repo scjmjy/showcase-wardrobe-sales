@@ -3,49 +3,55 @@
         <app-header class="customer-list__header" type="dark" customer :back="menu ? '返回' : ''" />
         <customer-menu v-if="menu" ref="refMenu" class="customer-list__menu" @select="onCustomerSelect" />
         <div ref="refSchemeList" class="customer-list__schemes">
-            <div v-for="(schemes, index) of schemesList" :key="index" style="padding: 10px 0px">
-                <div v-if="customerId" class="customer-list__info">
-                    <strong class="customer-list__info-label">方案创建时间：</strong>
-                    <span class="customer-list__info-value">{{ schemes.date }}</span>
-                    <el-button v-if="showServeBtn && index === 0" size="small" type="dark" round @click="serve"
-                        >为此客户服务</el-button
-                    >
-                </div>
-                <el-row :gutter="20">
-                    <el-col
-                        v-if="!showServeBtn && customerId && index === 0"
-                        :span="colSpan"
-                        style="text-align: center; padding-top: 10px; padding-bottom: 10px"
-                    >
-                        <new-scheme-card @new="newScheme" />
-                    </el-col>
-                    <el-col
-                        v-for="(s, index) in schemes.schemes"
-                        :key="index"
-                        :span="colSpan"
-                        style="text-align: center; padding-top: 10px; padding-bottom: 10px"
-                    >
-                        <scheme-card :offer="!showServeBtn" :scheme="s" @detail="gotoDetail" />
-                    </el-col>
-                </el-row>
-            </div>
-            <el-empty v-if="schemesList.length === 0" description="暂无定制方案" style="height: 100%">
+            <div class="customer-list__info">
+                <strong class="customer-list__info-label">{{ customerName }}</strong>
                 <el-button v-if="showServeBtn" size="small" type="dark" round @click="serve">为此客户服务</el-button>
+            </div>
+            <el-empty v-if="showServeBtn && schemeList.length === 0" description="暂无定制方案" style="flex: 1">
             </el-empty>
+            <el-row
+                v-else
+                ref="elRow"
+                class="customer-list__list"
+                :gutter="20"
+                :justify="schemeList.length ? '' : 'center'"
+                :align="schemeList.length ? '' : 'middle'"
+                @scroll="onScroll"
+            >
+                <el-col
+                    v-if="!showServeBtn && customerId"
+                    :span="colSpan"
+                    style="text-align: center; padding-top: 10px; padding-bottom: 10px"
+                >
+                    <new-scheme-card @new="newScheme" />
+                </el-col>
+                <el-col
+                    v-for="(s, index) in schemeList"
+                    :key="index"
+                    :span="colSpan"
+                    style="text-align: center; padding-top: 10px; padding-bottom: 10px"
+                >
+                    <scheme-card :offer="!showServeBtn" :scheme="s" @detail="gotoDetail" />
+                </el-col>
+                <load-more v-if="schemeList.length" :state="loadState" />
+            </el-row>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from "vue";
+import { computed, defineComponent, reactive, ref, nextTick } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 import apiProvider from "@/api/provider";
 import CustomerMenu from "./components/CustomerMenu.vue";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import { Scheme } from "@/api/interface/provider.interface";
 import SchemeCard from "./components/SchemeCard.vue";
 import NewSchemeCard from "./components/NewSchemeCard.vue";
-import { useStore } from "vuex";
+import LoadMore, { LOAD_STATE } from "@/components/LoadMore.vue";
+import { ElRow } from "element-plus";
+import { checkReachBottom } from "@/utils/page-scroll";
 
 interface SortedSchemes {
     date: string;
@@ -65,11 +71,14 @@ export default defineComponent({
         AppHeader,
         SchemeCard,
         NewSchemeCard,
+        LoadMore,
     },
     setup(props) {
+        const loadState = ref<LOAD_STATE>("");
+        let page = 1;
         const router = useRouter();
         const store = useStore();
-        const schemesList = reactive([] as SortedSchemes[]);
+        const schemeList = ref([] as Scheme[]);
         const customerId = ref("");
         const showServeBtn = computed(
             () => store.state.currentCustomer.customerId.toString() !== customerId.value.toString(),
@@ -77,32 +86,51 @@ export default defineComponent({
         const refMenu = ref<InstanceType<typeof CustomerMenu>>();
         const refSchemeList = ref<HTMLDivElement>();
 
-        function onCustomerSelect(cid: string) {
-            customerId.value = cid;
-            apiProvider.requestSchemes(cid).then((res) => {
-                if (res.ok) {
-                    const schemeList = res.data || [];
-                    schemeList.sort((a, b) => {
-                        return new Date(b.ptime).getTime() - new Date(a.ptime).getTime();
-                    });
-                    const sortedSchemesList: SortedSchemes[] = [];
-                    let sortedSchemes: SortedSchemes | undefined = undefined;
-                    for (const scheme of schemeList) {
-                        const date = new Date(scheme.ptime).toLocaleDateString();
-                        if (!sortedSchemes || sortedSchemes.date !== date) {
-                            sortedSchemes = {
-                                date: date,
-                                schemes: [scheme],
-                            };
-                            sortedSchemesList.push(sortedSchemes);
-                        } else {
-                            sortedSchemes.schemes.push(scheme);
-                        }
-                    }
-                    schemesList.splice(0, schemesList.length, ...sortedSchemesList);
-                    refSchemeList.value?.scrollTo({ top: 0, behavior: "smooth" });
+        const elRow = ref<InstanceType<typeof ElRow>>();
+        function onScroll() {
+            const el = elRow.value?.$el as HTMLElement | undefined;
+            if (!el) {
+                return;
+            }
+            checkReachBottom(el, () => {
+                console.log("[OnReachBottom]!!!");
+
+                if (loadState.value !== "nomore" && loadState.value !== "loading") {
+                    page++;
+                    requestSchemes();
                 }
             });
+        }
+
+        function requestSchemes() {
+            loadState.value = "loading";
+            apiProvider.requestSchemes(customerId.value, page).then((res) => {
+                if (res.ok) {
+                    const result = res.data || [];
+                    if (result.length === 0) {
+                        loadState.value = "nomore";
+                    } else {
+                        loadState.value = "more";
+                    }
+                    schemeList.value.push(...result);
+                    schemeList.value.sort((a, b) => {
+                        return new Date(b.ptime).getTime() - new Date(a.ptime).getTime();
+                    });
+                    // refSchemeList.value?.scrollTo({ top: 0, behavior: "smooth" });
+
+                    nextTick(() => {
+                        onScroll();
+                    });
+                }
+            });
+        }
+
+        function onCustomerSelect(cid: string) {
+            schemeList.value = [];
+            customerId.value = cid;
+            page = 1;
+            loadState.value = "";
+            requestSchemes();
         }
 
         if (!props.menu) {
@@ -110,10 +138,16 @@ export default defineComponent({
             onCustomerSelect(customerId.value);
         }
         return {
+            loadState,
+            elRow,
             refMenu,
             refSchemeList,
-            schemesList,
+            schemeList,
             customerId,
+            customerName: computed(() => {
+                const customer = refMenu.value?.getFullCustomer(customerId.value);
+                return customer ? customer.name : "";
+            }),
             showServeBtn,
             colSpan: computed(() => (props.menu ? 8 : 6)),
             onBackClick() {
@@ -144,6 +178,7 @@ export default defineComponent({
                     path: "/product-detail",
                 });
             },
+            onScroll,
         };
     },
 });
@@ -162,9 +197,11 @@ export default defineComponent({
     }
     &__schemes {
         flex: 1;
-        overflow-y: auto;
+        overflow-y: hidden;
         padding: 10px 20px;
         background-color: var(--el-color-bg);
+        display: flex;
+        flex-direction: column;
     }
     &__info {
         display: flex;
@@ -174,12 +211,17 @@ export default defineComponent({
             font-size: 26px;
             color: #172021;
             font-weight: bold;
+            margin-right: 20px;
         }
         &-value {
             font-size: 26px;
             color: #172021;
             margin-right: 35px;
         }
+    }
+    &__list {
+        flex: 1;
+        overflow-y: auto;
     }
 }
 </style>
