@@ -14,7 +14,7 @@
         <el-config-provider :locale="locale">
             <router-view v-slot="{ Component }">
                 <transition mode="out-in" name="el-zoom-in-center">
-                    <keep-alive include="SelectProduct">
+                    <keep-alive include="SelectProduct,CustomerList">
                         <component :is="Component" />
                     </keep-alive>
                 </transition>
