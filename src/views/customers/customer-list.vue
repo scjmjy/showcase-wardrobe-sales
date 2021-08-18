@@ -182,9 +182,7 @@ export default defineComponent({
         };
     },
     beforeRouteEnter(to, from, next) {
-        console.log("【CustomerList:beforeRouteEnter");
         next((vue) => {
-            console.log("【CustomerList:beforeRouteEnter", vue);
             // @ts-ignore
             vue.$refs.refMenu.resetLoadstate();
 

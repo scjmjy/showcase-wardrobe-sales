@@ -31,21 +31,33 @@ export default defineComponent({
     setup(props, context) {
         const loadState = ref<LOAD_STATE>("");
         let page = 1;
+        const PAGE_SIZE = 10;
+        let FULL_STATE: "full" | "not-full" = "full";
+        let lastestScrollY = 0;
         const store = useStore<StateType>();
         const defaultActive = ref("" as number | string);
         const customers = reactive([] as Customer[]);
         function requestCustomers(emit = false) {
             loadState.value = "loading";
-            apiProvider.requestCustomerList(store.state.user.eid, page).then((res) => {
+            apiProvider.requestCustomerList(store.state.user.eid, page, PAGE_SIZE).then((res) => {
                 if (res.ok) {
                     const result = res.data || [];
                     if (result.length === 0) {
                         loadState.value = "nomore";
-                    } else {
+                        page--;
+                        FULL_STATE = "full";
+                    } else if (result.length < PAGE_SIZE) {
+                        loadState.value = "nomore";
+                        FULL_STATE = "not-full";
+                    } else if (result.length === PAGE_SIZE) {
+                        FULL_STATE = "full";
                         loadState.value = "more";
                     }
-                    customers.push(...result);
-                    if (customers.length > 0) {
+                    // customers.push(...result);
+                    if (result.length) {
+                        customers.splice((page - 1) * PAGE_SIZE, PAGE_SIZE, ...result);
+                    }
+                    if (customers.length > 0 && !defaultActive.value && page === 1) {
                         if (store.state.currentCustomer.customerId) {
                             defaultActive.value = store.state.currentCustomer.customerId.toString();
                         } else {
@@ -64,13 +76,16 @@ export default defineComponent({
         requestCustomers(true);
 
         const elMenu = ref<InstanceType<typeof ElMenu>>();
-        function onScroll() {
+        function onScroll(e?: Event) {
             const el = elMenu.value?.$el as HTMLElement;
+            lastestScrollY = el.scrollTop;
             checkReachBottom(el, () => {
                 console.log("[OnReachBottom]!!!");
 
                 if (loadState.value !== "nomore" && loadState.value !== "loading") {
-                    page++;
+                    if (FULL_STATE === "full") {
+                        page++;
+                    }
                     requestCustomers();
                 }
             });
@@ -99,12 +114,19 @@ export default defineComponent({
             },
             onScroll,
             resetLoadstate() {
+                console.log("【CustomerMenu:resetLoadstate】");
                 if (loadState.value === "nomore") {
                     loadState.value = "more";
-                    page = 1;
-                    customers.length = 0;
-                    requestCustomers();
-                    console.log("【CustomerMenu:resetLoadstate】");
+                    // page = 1;
+                    // customers.length = 0;
+                    // requestCustomers();
+                    const el = elMenu.value?.$el as HTMLElement;
+                    el.scrollTo({
+                        top: lastestScrollY,
+                    });
+
+                    onScroll();
+                    console.log("【CustomerMenu:resetLoadstate】-onScroll");
                 }
             },
         };

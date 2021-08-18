@@ -2,5 +2,5 @@ import dayjs from "dayjs";
 
 export function formatPlain(date: dayjs.Dayjs | Date): string {
     const d = date instanceof Date ? dayjs(date) : date;
-    return d.format("YYYYMMDDHH");
+    return d.format("YYYYMMDDHHmm");
 }
