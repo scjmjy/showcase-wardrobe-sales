@@ -46,7 +46,8 @@
                 <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
                 <state-icon icon="offer" label="添加抽屉" @change="onAddDrawerClick"></state-icon>
                 <state-icon icon="offer" label="添加隔板" @change="onAddShelfClick"></state-icon>
-                <state-icon icon="offer" label="添加门"   @change="onAddDoorClick"></state-icon>
+                <state-icon icon="offer" label="合页门"   @change='onAddDoorClick("left")'></state-icon>
+                <state-icon icon="offer" label="滑门"   @change='onAddDoorClick("slide")'></state-icon>
             </div>
             <div class="product-detail__action-right state-icon-group-h">
                 <!-- <state-icon
@@ -212,6 +213,7 @@ export default defineComponent({
         return {
             scheme,
             selectedPartId,
+            refBabylon,
             getAvailableArea,
             onLogSchemeClick() {
                 console.log("LogScheme: ", scheme);
@@ -222,15 +224,37 @@ export default defineComponent({
             onAddShelfClick() {
                 selectedPartId.value = 300001;
             },
-            onAddDoorClick() {
+            onAddDoorClick(type: string) {
                 debugger
-                // TODO: 
-                // 1. select cubes
-                // 2. select door
-                const door_part_id = -1;
-                const door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
-                const door_type = 1;
-                const door_cubes: string[] = [];
+                // 测试: addDoorApi()
+                let door_part_id = -1;
+                let door_type = 1;
+                let door_mf_url = "";
+                let door_cubes: string[] = []; 
+                switch(type){
+                    case 'left':
+                        // 合页门 (type: 1)
+                        door_type = 1;
+                        door_mf_url = "43b3e66e-c416-4602-bb76-97a172138737.json";
+                        door_cubes =  [
+                            '4cd170f8-291b-4236-b515-b5d27ac1209d', 
+                        ];
+                        break;
+                    case 'slide':
+                        // 滑门 (type: 2). 需要指定2个连续的cube
+                        door_type = 2;
+                        door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
+                        door_cubes =  [
+                            '4cd170f8-291b-4236-b515-b5d27ac1209d', 
+                            'ce28f905-a6e1-4f68-9998-ed13f950ea91' 
+                        ];
+                        break;
+                    case 'right':
+                        door_type = -1;
+                        throw Error("TODO: a door is fixed at RIGHT");
+                    default:
+                        throw Error(`Error: unkonwn door type: ${type}`);
+                }
                 const door = new Door('', door_part_id, door_mf_url, door_type, door_cubes);
                 console.log(`Add a door with param: ${door}`);
                 if(refBabylon.value) {
@@ -239,6 +263,7 @@ export default defineComponent({
                     console.error('refBabylon.value is not defined!');
                 }
             },
+
             onXXXClick() {
                 // TODO Cll Babylon.vue function
                 // refBabylon.value?.changeWallApi()
