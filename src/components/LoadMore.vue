@@ -6,8 +6,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, Prop, PropType } from "vue";
-
-export type LOAD_STATE = "loading" | "more" | "nomore" | "error" | "";
+import { LOAD_STATE } from "@/utils/page-scroll";
 
 export default defineComponent({
     name: "LoadMore",

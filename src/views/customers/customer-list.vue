@@ -49,9 +49,9 @@ import AppHeader from "@/views/home/components/AppHeader.vue";
 import { Scheme } from "@/api/interface/provider.interface";
 import SchemeCard from "./components/SchemeCard.vue";
 import NewSchemeCard from "./components/NewSchemeCard.vue";
-import LoadMore, { LOAD_STATE } from "@/components/LoadMore.vue";
+import LoadMore from "@/components/LoadMore.vue";
 import { ElRow } from "element-plus";
-import { checkReachBottom } from "@/utils/page-scroll";
+import { checkReachBottom, LOAD_STATE } from "@/utils/page-scroll";
 
 interface SortedSchemes {
     date: string;

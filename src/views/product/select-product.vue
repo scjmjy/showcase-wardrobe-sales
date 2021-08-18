@@ -40,8 +40,8 @@ import ProdCatMenu from "./components/ProdCatMenu.vue";
 import ProductCard from "./components/ProductCard.vue";
 import AppHeader from "../home/components/AppHeader.vue";
 import { Product } from "@/api/interface/provider.interface";
-import { checkReachBottom } from "@/utils/page-scroll";
-import LoadMore, { LOAD_STATE } from "@/components/LoadMore.vue";
+import { checkReachBottom, LOAD_STATE } from "@/utils/page-scroll";
+import LoadMore from "@/components/LoadMore.vue";
 import { ElScrollbar, ElRow } from "element-plus";
 
 export default defineComponent({

@@ -85,8 +85,8 @@ import PartCard from "./PartCard.vue";
 import MaterialItem from "./MaterialItem.vue";
 import ColorItem from "./ColorItem.vue";
 import PartCatCard from "./PartCatCard.vue";
-import LoadMore, { LOAD_STATE } from "@/components/LoadMore.vue";
-import { checkReachBottom } from "@/utils/page-scroll";
+import LoadMore from "@/components/LoadMore.vue";
+import { checkReachBottom, LOAD_STATE } from "@/utils/page-scroll";
 import { ElRow } from "element-plus";
 
 export default defineComponent({
