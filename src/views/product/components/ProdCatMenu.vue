@@ -180,6 +180,7 @@ export default defineComponent({
         .el-submenu__title {
             color: var(--el-color-primary);
             font-weight: bold;
+            font-size: 22px;
         }
     }
     .el-submenu-3 {
@@ -187,6 +188,8 @@ export default defineComponent({
     }
     .el-menu-item-1 {
         background-color: white;
+        color: black;
+        font-weight: bold;
     }
     .el-menu-item-2 {
         background-color: white;
@@ -211,11 +214,13 @@ export default defineComponent({
     .el-menu-item.is-active {
         color: var(--el-color-primary);
         background-color: var(--el-color-primary-light-5) !important;
-        // &::before {
-        //     content: "xx";
-        //     position: relative;
-        //     left: -20px;
-        // }
+        position: relative;
+        &::before {
+            font-family: "element-icons" !important;
+            position: absolute;
+            content: "\e720";
+            left: 15px;
+        }
     }
 }
 </style>
