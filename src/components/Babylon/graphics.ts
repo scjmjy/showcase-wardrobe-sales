@@ -208,7 +208,7 @@ export class Graphics {
             blurHorizontalSize: 1,
         });
 
-        this.scene.onPointerObservable.add((pointerInfo) => {
+        this.scene.onPointerObservable.add((pointerInfo: BABYLON.PointerInfo) => {
             switch (pointerInfo.type) {
                 case BABYLON.PointerEventTypes.POINTERDOWN:
                     // if (pointerInfo.pickInfo) console.log("POINTER DOWN: " + pointerInfo.pickInfo.pickedMesh);
@@ -295,7 +295,7 @@ export class Graphics {
     }
 
     private setupKeyboard(): void {
-        this.scene.onKeyboardObservable.add((kbInfo) => {
+        this.scene.onKeyboardObservable.add((kbInfo: BABYLON.KeyboardInfo) => {
             switch (kbInfo.type) {
                 case BABYLON.KeyboardEventTypes.KEYDOWN:
                     // console.log("KEY DOWN: ", kbInfo.event.key)

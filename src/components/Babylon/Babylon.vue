@@ -7,10 +7,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import * as BABYLON from "babylonjs";
-import * as graphics from "./graphics";
+import { Graphics } from "./graphics";
 import { Scheme, Cube, Item, Door, Part, Position, RelativeItem, Location, Area } from "@/lib/scheme";
 import * as util from "../../lib/scheme.util";
-import * as bizdata from "./bizdata";
+import { BizData } from "./bizdata";
 import { v4 as uuidv4 } from "uuid";
 import { drobeUtil } from "@/lib/drobe.util";
 
@@ -53,12 +53,17 @@ export default defineComponent({
     },
     data() {
         return {
-            bizdata: {} as bizdata.BizData,
-            graphics: {} as graphics.Graphics,
+            bizdata: {} as BizData,
             availableAreas: [] as BABYLON.Mesh[],
             floor: {} as BABYLON.Mesh,
             wall: {} as BABYLON.Mesh,
         };
+    },
+    computed: {
+        graphics() {
+            const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+            return new Graphics(canvas);
+        },
     },
     watch: {
         selectedPartId: {
@@ -75,10 +80,8 @@ export default defineComponent({
         },
     },
     async mounted() {
-        this.bizdata = new bizdata.BizData(this.scheme);
+        this.bizdata = new BizData(this.scheme);
 
-        const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-        this.graphics = new graphics.Graphics(canvas);
         // set the scene size as 7500 mm.
         this.graphics.init(7500 * this.bizdata.SceneUnit);
         this.graphics.render();
@@ -165,7 +168,7 @@ export default defineComponent({
          * @param newDoor 新增加的Door
          */
         addDoorApi(newDoor: Door): string {
-            return drobeUtil.addDoor(this.graphics as graphics.Graphics, this.scheme, newDoor);
+            return drobeUtil.addDoor(this.graphics, this.scheme, newDoor);
         },
 
         /**
@@ -369,7 +372,7 @@ export default defineComponent({
         },
 
         setupInteraction() {
-            this.graphics.scene.onPointerObservable.add((pointerInfo) => {
+            this.graphics.scene.onPointerObservable.add((pointerInfo: BABYLON.PointerInfo) => {
                 switch (pointerInfo.type) {
                     case BABYLON.PointerEventTypes.POINTERDOWN:
                         if (pointerInfo && pointerInfo.pickInfo && pointerInfo.pickInfo.pickedMesh) {
@@ -429,7 +432,7 @@ export default defineComponent({
         },
 
         setupKeyboard(): void {
-            this.graphics.scene.onKeyboardObservable.add((kbInfo) => {
+            this.graphics.scene.onKeyboardObservable.add((kbInfo: BABYLON.KeyboardInfo) => {
                 switch (kbInfo.type) {
                     case BABYLON.KeyboardEventTypes.KEYDOWN:
                         // console.log("KEY DOWN: ", kbInfo.event.key)
