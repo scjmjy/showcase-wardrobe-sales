@@ -46,6 +46,7 @@
                 <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
                 <state-icon icon="offer" label="添加抽屉" @change="onAddDrawerClick"></state-icon>
                 <state-icon icon="offer" label="添加隔板" @change="onAddShelfClick"></state-icon>
+                <state-icon icon="offer" label="添加门"   @change="onAddDoorClick"></state-icon>
             </div>
             <div class="product-detail__action-right state-icon-group-h">
                 <!-- <state-icon
@@ -108,7 +109,7 @@ import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
 import PartsMenu from "./components/PartsMenu.vue";
 import { ElMessage } from "element-plus";
-import { Area, Position } from "@/lib/scheme";
+import { Area, Door, Position } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
 
 export default defineComponent({
@@ -220,6 +221,23 @@ export default defineComponent({
             },
             onAddShelfClick() {
                 selectedPartId.value = 300001;
+            },
+            onAddDoorClick() {
+                debugger
+                // TODO: 
+                // 1. select cubes
+                // 2. select door
+                const door_part_id = -1;
+                const door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
+                const door_type = 1;
+                const door_cubes: string[] = [];
+                const door = new Door('', door_part_id, door_mf_url, door_type, door_cubes);
+                console.log(`Add a door with param: ${door}`);
+                if(refBabylon.value) {
+                    refBabylon.value.addDoorApi(door);
+                }else{
+                    console.error('refBabylon.value is not defined!');
+                }
             },
             onXXXClick() {
                 // TODO Cll Babylon.vue function

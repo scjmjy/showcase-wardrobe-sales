@@ -129,11 +129,14 @@ export default defineComponent({
         changeItemApi(itemId: string, newPartId: number, newManifest: string): void {},
 
         /**
-         * 增加一个合页门或者滑门
+         * 增加一个合页门或者滑门. 
+         * 
+         * newDoor 中的id在调用的时候无需传入，该API会创建并返回这个UUID。
+         * 
          * @param newDoor 新增加的Door
          */
-        addDoorApi(newDoor: Door): void {
-            drobeUtil.addDoor(this.graphics as graphics.Graphics, this.scheme, newDoor);
+        addDoorApi(newDoor: Door): string {
+            return drobeUtil.addDoor(this.graphics as graphics.Graphics, this.scheme, newDoor);
         },
 
         /**

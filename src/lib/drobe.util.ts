@@ -91,8 +91,11 @@ class DrobeUtil extends StObject
      * Add a door for cubes, which is described in object `door`;
      * @param scheme 
      * @param door 
+     * 
+     * @returns UUID of the newly added door
      */
-    addDoor(graphics:Graphics, scheme: Scheme, door: Door): void {
+    addDoor(graphics:Graphics, scheme: Scheme, door: Door): string {
+        door.id = uuidv4();
         const door_pos = new BABYLON.Vector3(0, 0, 400); // todo: calculate position
         const door_name = door.id;
         const door_mf = HmPartManifest.buildFromUrl(door.manifest);
@@ -100,6 +103,8 @@ class DrobeUtil extends StObject
         const door_model = door_mf.models[0];
         graphics.importMesh(door_model.url, door_name, door_pos);
         console.log(`add door success: ${door}`);
+
+        return door.id;
     }
     
 
