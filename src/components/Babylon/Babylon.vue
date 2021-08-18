@@ -12,6 +12,8 @@ import { Scheme, Cube, Item, Door, Part, Position, RelativeItem, Location, Area 
 import * as util from "../../lib/scheme.util";
 import * as bizdata from "./bizdata";
 import { v4 as uuidv4 } from "uuid";
+import { drobeUtil } from "@/lib/drobe.util";
+
 
 export default defineComponent({
     name: "Babylon",
@@ -83,6 +85,9 @@ export default defineComponent({
         this.setupKeyboard();
 
         this.loadScheme();
+
+        // guilin: test: add a door
+        // drobeUtil.test_addDoor(this.graphics as graphics.Graphics, this.scheme );
     },
     methods: {
         /**
@@ -127,7 +132,9 @@ export default defineComponent({
          * 增加一个合页门或者滑门
          * @param newDoor 新增加的Door
          */
-        addDoorApi(newDoor: Door): void {},
+        addDoorApi(newDoor: Door): void {
+            drobeUtil.addDoor(this.graphics as graphics.Graphics, this.scheme, newDoor);
+        },
 
         /**
          * 移除合页门或者滑门
