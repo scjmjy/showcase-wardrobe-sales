@@ -168,7 +168,7 @@ export default defineComponent({
          * @param newDoor 新增加的Door
          */
         addDoorApi(newDoor: Door): string {
-            return drobeUtil.addDoor(this.graphics, this.scheme, newDoor);
+            return drobeUtil.addDoor(this.graphics, this.bizdata as BizData, newDoor);
         },
 
         /**

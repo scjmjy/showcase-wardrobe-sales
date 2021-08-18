@@ -16,6 +16,7 @@ import { Door, Position, Scheme } from "@/lib/scheme";
 import { StObject } from "@/lib/utility/st_object";
 import { StSketchVector3 } from "./geometry/st_geometric_3d";
 import { v4 as uuidv4 } from "uuid";
+import { BizData } from "@/components/Babylon/bizdata";
 
 export class HmBoundingBox {
     startPoint: Position;
@@ -66,14 +67,17 @@ export class HmPartManifest extends StObject {
 }
 
 class DrobeUtil extends StObject {
-    test_addDoor(graphics: Graphics, scheme: Scheme): void {
+    /* 
+    test_addDoor(graphics: Graphics, bizdata: BizData): void {
         const door_part_id = -1;
         const door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
         const door_type = 1;
         const door_cubes: string[] = [];
         const door = new Door(uuidv4(), door_part_id, door_mf_url, door_type, door_cubes);
         this.addDoor(graphics, scheme, door);
-    }
+    } */
+
+
 
     /**
      * Add a door for cubes, which is described in object `door`;
@@ -82,16 +86,34 @@ class DrobeUtil extends StObject {
      *
      * @returns UUID of the newly added door
      */
-    addDoor(graphics: Graphics, scheme: Scheme, door: Door): string {
+    addDoor(graphics: Graphics, bizdata: BizData, door: Door): string {
+        //const door_pos = new BABYLON.Vector3(0, 0, 400); // todo: calculate position
+        const door_pos = new BABYLON.Vector3(0, 0, 500); 
+
+        if(door.doorType == 1) {
+            this.assertTrue(door.cubes.length == 1, `ONLY ONE cube is needed to add a HINGE DOOR: ${door}`);
+            const cube_data = bizdata.FindCubeDataById(door.cubes[0]);
+            if(!cube_data) {
+                throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
+            }
+            door_pos.x += cube_data.origin.x;
+            door_pos.z = cube_data.depth/2;
+        }else if(door.doorType == 2) {
+            this.assertTrue(door.cubes.length == 2, `TWO cubes are needed to add a SLIDE DOOR: ${door}`);
+            const cube_data = bizdata.FindCubeDataById(door.cubes[0]);
+            if(!cube_data) {
+                throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
+            }
+            door_pos.z = cube_data.depth/2;
+        }else {
+            throw Error(`unknow door type: ${door}`);
+        }
+
         door.id = uuidv4();
-        const door_pos = new BABYLON.Vector3(0, 0, 400); // todo: calculate position
         const door_name = door.id;
         const door_mf = HmPartManifest.buildFromUrl(door.manifest);
-
-        const door_model = door_mf.models[0];
-        graphics.importMesh(door_model.url, door_name, door_pos);
+        graphics.importMesh(door_mf.models[0].url, door_name, door_pos);
         console.log(`add door success: ${door}`);
-
         return door.id;
     }
 

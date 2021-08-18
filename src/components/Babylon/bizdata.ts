@@ -66,4 +66,9 @@ export class BizData {
     FindPartById(id: number): Part | undefined {
         return this.scheme.parts.find((part: { partId: number }) => part.partId === id);
     }
+
+    FindCubeDataById(id: string) : CubeData | undefined {
+        const data = this.cubeMap.get(id);
+        return data;
+    }
 }
