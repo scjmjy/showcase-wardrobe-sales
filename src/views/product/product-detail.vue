@@ -15,6 +15,8 @@
             class="product-detail__3d"
             :scheme="scheme"
             :selectedPartId="selectedPartId"
+            :selectedWallId="selectedWallId"
+            :selectedFloorId="selectedFloorId"
             :getAvailableArea="getAvailableArea"
         />
         <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
@@ -48,6 +50,8 @@
                 <state-icon icon="offer" label="添加隔板" @change="onAddShelfClick"></state-icon>
                 <state-icon icon="offer" label="合页门"   @change='onAddDoorClick("left")'></state-icon>
                 <state-icon icon="offer" label="滑门"   @change='onAddDoorClick("slide")'></state-icon>
+                <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick"></state-icon>
+                <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick"></state-icon>
             </div>
             <div class="product-detail__action-right state-icon-group-h">
                 <!-- <state-icon
@@ -188,6 +192,8 @@ export default defineComponent({
         ];
         const refBabylon = ref<InstanceType<typeof Babylon>>();
         let selectedPartId = ref(0);
+        let selectedFloorId = ref(0);
+        let selectedWallId = ref(0);
         const scheme = ref(util.importSchemeJson("mf/scheme.json"));
         function getAvailableArea(partId: number): Area[] {
             partId;
@@ -211,9 +217,11 @@ export default defineComponent({
             return areas;
         }
         return {
+            refBabylon,
             scheme,
             selectedPartId,
-            refBabylon,
+            selectedWallId,
+            selectedFloorId,
             getAvailableArea,
             onLogSchemeClick() {
                 console.log("LogScheme: ", scheme);
@@ -263,7 +271,32 @@ export default defineComponent({
                     console.error('refBabylon.value is not defined!');
                 }
             },
-
+            onUpdateWallClick() {
+                if(selectedWallId.value === 0 )
+                    selectedWallId.value = 100001;
+                else if(selectedWallId.value === 100001 )
+                    selectedWallId.value = 100002;
+                else if(selectedWallId.value === 100002 )
+                    selectedWallId.value = 100003;
+                else if(selectedWallId.value === 100003 )
+                    selectedWallId.value = 100004;
+                else if(selectedWallId.value === 100004 )
+                    selectedWallId.value = 100001;                    
+                refBabylon.value?.changeWallApi( selectedWallId.value )
+            },
+            onUpdateFloorClick() {
+                if(selectedFloorId.value === 0 )
+                    selectedFloorId.value = 110001;
+                else if(selectedFloorId.value === 110001 )
+                    selectedFloorId.value = 110002;
+                else if(selectedFloorId.value === 110002 )
+                    selectedFloorId.value = 110003;
+                else if(selectedFloorId.value === 110003 )
+                    selectedFloorId.value = 110004;
+                else if(selectedFloorId.value === 110004 )
+                    selectedFloorId.value = 110001;                    
+                refBabylon.value?.changeFloorApi( selectedFloorId.value )
+            },
             onXXXClick() {
                 // TODO Cll Babylon.vue function
                 // refBabylon.value?.changeWallApi()

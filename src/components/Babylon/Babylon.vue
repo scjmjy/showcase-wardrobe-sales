@@ -56,6 +56,8 @@ export default defineComponent({
             bizdata: {} as bizdata.BizData,
             graphics: {} as graphics.Graphics,
             availableAreas: [] as BABYLON.Mesh[],
+            floor: {} as BABYLON.Mesh,
+            wall: {} as BABYLON.Mesh,
         };
     },
     watch: {
@@ -88,19 +90,40 @@ export default defineComponent({
 
         // guilin: test: add a door
         // drobeUtil.test_addDoor(this.graphics as graphics.Graphics, this.scheme );
+        // this.setupWallandFloor();
     },
     methods: {
         /**
          * 修改墙面
          * @param newPartId
          */
-        changeWallApi(newPartId: number, newManifest: string): void {},
+        changeWallApi(newPartId: number): void {
+            // debugger
+            this.wall = BABYLON.MeshBuilder.CreateBox("Background_Wall", { width: 5000.0, height: 3000.1, depth: 0.1 }, this.graphics.scene as BABYLON.Scene);
+            this.wall.translate(new BABYLON.Vector3(0, -3750, 780), -.4);
+            var wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
+            wall_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255);
+            var temp = this.bizdata.partManifestMap.get(newPartId.toString());
+            wall_material.diffuseTexture = new BABYLON.Texture( String(temp), this.graphics.scene as BABYLON.Scene);  
+            this.wall.material = wall_material
+            this.wall.isPickable = false
+        },
 
         /**
          * 修改地板
          * @param newPartId
          */
-        changeFloorApi(newPartId: number, newManifest: string): void {},
+        changeFloorApi(newPartId: number): void {
+            // debugger
+            this.floor = BABYLON.MeshBuilder.CreateBox("Background_Floor", { width: 5000.0, height: 0.1, depth: 2000.0 }, this.graphics.scene as BABYLON.Scene);
+            this.floor.translate(new BABYLON.Vector3(0, -20, -1820), -.4);
+            var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
+            floor_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255)            
+            var temp = this.bizdata.partManifestMap.get(newPartId.toString());
+            floor_material.diffuseTexture = new BABYLON.Texture( String(temp), this.graphics.scene as BABYLON.Scene);  
+            this.floor.material = floor_material
+            this.floor.isPickable = false
+        },
 
         /**
          * 修改单元柜的材质或颜色
@@ -129,7 +152,7 @@ export default defineComponent({
         changeItemApi(itemId: string, newPartId: number, newManifest: string): void {},
 
         /**
-         * 增加一个合页门或者滑门. 
+         * 增加一个合页门或者滑门
          * 
          * Usage: 
          *   1. select cubes in 3D canvas; 
@@ -137,7 +160,7 @@ export default defineComponent({
          *   3. create 'Door' object without uuid; 
          *   4. call this API;
          * 
-         * NOTE: newDoor 中的id在调用的时候无需传入，该API会创建并返回这个UUID。
+         * NOTE: newDoor 中的id在调用的时候无需传入，该API会创建并返回这个UUID
          * 
          * @param newDoor 新增加的Door
          */
@@ -420,6 +443,26 @@ export default defineComponent({
                         break;
                 }
             });
+        },
+
+        setupWallandFloor(): void {
+            // Floor
+            this.floor = BABYLON.MeshBuilder.CreateBox("Background_Floor", { width: 5000.0, height: 0.1, depth: 2000.0 }, this.graphics.scene as BABYLON.Scene);
+            this.floor.translate(new BABYLON.Vector3(0, -20, -1820), -.4);
+            var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
+            floor_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255)
+            floor_material.diffuseTexture = new BABYLON.Texture("https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/dc5eb19b-2879-47fe-a517-720b39e0f445.jpg", this.graphics.scene as BABYLON.Scene);  
+            this.floor.material = floor_material
+            this.floor.isPickable = false
+
+            // Wall
+            this.wall = BABYLON.MeshBuilder.CreateBox("Background_Wall", { width: 5000.0, height: 3000.1, depth: 0.1 }, this.graphics.scene as BABYLON.Scene);
+            this.wall.translate(new BABYLON.Vector3(0, -3750, 780), -.4);
+            var wall_material = new BABYLON.StandardMaterial("groundMaterial", this.graphics.scene as BABYLON.Scene);
+            wall_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255)
+            wall_material.diffuseTexture = new BABYLON.Texture("https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/d8282dee-13f2-4884-99c0-5d56962d95ac.jpg", this.graphics.scene as BABYLON.Scene);  
+            this.wall.material = wall_material
+            this.wall.isPickable = false
         }
     },
 });
