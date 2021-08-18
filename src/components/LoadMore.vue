@@ -1,5 +1,5 @@
 <template>
-    <div class="load-more" :class="type" v-loading="state === 'loading'">
+    <div class="load-more" :class="type" v-loading="state === 'loading'" @click="onClick">
         {{ stateText }}
     </div>
 </template>
@@ -21,7 +21,8 @@ export default defineComponent({
             default: "primary",
         },
     },
-    setup(props) {
+    emits: ["loadmore"],
+    setup(props, ctx) {
         const stateText = computed(() => {
             switch (props.state) {
                 case "loading":
@@ -29,7 +30,7 @@ export default defineComponent({
                 case "nomore":
                     return "-- 没有更多了 --";
                 case "more":
-                    return "↑上拉加载更多↑";
+                    return "↑点击加载更多↑";
 
                 default:
                     return "";
@@ -37,6 +38,11 @@ export default defineComponent({
         });
         return {
             stateText,
+            onClick() {
+                if (props.state === "more") {
+                    ctx.emit("loadmore");
+                }
+            },
         };
     },
 });

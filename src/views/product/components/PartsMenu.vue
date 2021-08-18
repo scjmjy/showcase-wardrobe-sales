@@ -59,7 +59,7 @@ export default defineComponent({
         const refDiv = ref<HTMLDivElement>();
         const cats = ref<PartCategory[]>([]);
         const catMeta = ref<PartCategoryMeta>();
-        const selectedCatId = ref("1");
+        const selectedCatId = ref("");
         apiProvider.requestPartCategories().then((res) => {
             if (res.ok) {
                 cats.value = res.data || [];

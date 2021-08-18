@@ -28,6 +28,7 @@ export default defineComponent({
             default: "",
         },
     },
+    emits: ["update:modelValue", "change"],
     setup(props, ctx) {
         return {
             active: computed(() => props.modelValue === props.color.id.toString()),
@@ -38,6 +39,7 @@ export default defineComponent({
                 const myId = props.color.id.toString();
                 const val = props.modelValue === myId ? "" : myId;
                 ctx.emit("update:modelValue", val);
+                ctx.emit("change", val);
             },
         };
     },

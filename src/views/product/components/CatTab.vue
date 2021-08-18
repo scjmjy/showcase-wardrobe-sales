@@ -62,10 +62,10 @@
         </el-collapse-transition>
         <div class="cat-tab__meta-title">{{ partTitle }}</div>
         <el-row ref="elRow" class="cat-tab__parts" :gutter="20" @scroll="onScroll">
-            <el-col v-for="part in parts" :key="part.id" :span="12">
+            <el-col v-for="part in parts" :key="part.id" :span="12" style="max-height: 180px">
                 <part-card :part="part"> </part-card>
             </el-col>
-            <load-more :state="loadState" />
+            <load-more :state="loadState" @loadmore="onScroll" />
         </el-row>
     </div>
 </template>
@@ -251,10 +251,10 @@ export default defineComponent({
                 }
                 reloadParts();
             },
-            onColorChange(color: MetaColor) {
-                reloadParts;
+            onColorChange(colorId: string) {
+                reloadParts();
             },
-            onMatChange(mat: MetaMaterial) {
+            onMatChange(matId: string) {
                 reloadParts();
             },
             async onFilterToggleClick() {
@@ -262,7 +262,8 @@ export default defineComponent({
                 // await nextTick();
                 setTimeout(() => {
                     onScroll();
-                }, 100);
+                    console.log("【onFilterToggleClick-timeout 200ms】");
+                }, 200);
             },
             onScroll,
         };
@@ -290,7 +291,7 @@ export default defineComponent({
         color: var(--el-color-black);
     }
     &__parts {
-        flex: 1;
+        // flex: 1;
         overflow-y: auto;
     }
 }

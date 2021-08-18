@@ -17,12 +17,14 @@ export default defineComponent({
             default: () => ({}),
         },
     },
+    emits: ["update:modelValue", "change"],
     setup(props, ctx) {
         return {
             onImgClick() {
                 const myId = props.material.id.toString();
                 const val = ctx.attrs.modelValue === myId ? "" : myId;
                 ctx.emit("update:modelValue", val);
+                ctx.emit("change", val);
             },
         };
     },
