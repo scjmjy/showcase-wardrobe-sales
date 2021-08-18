@@ -2,11 +2,11 @@
     <el-menu ref="elMenu" class="prod-cat-menu" @select="onProdCatSelect" :default-active="defaultActive">
         <!-- :default-openeds="defaultOpeneds" -->
         <template v-for="cat of productCats" :key="cat.id">
-            <el-submenu v-if="cat.children && cat.children.length" :index="cat.id + ''">
+            <el-submenu v-if="cat.children && cat.children.length" :index="cat.id + ''" :class="'el-submenu-' + level">
                 <template #title>{{ cat.name }}</template>
-                <menu-item :category="cat" />
+                <menu-item :category="cat" :level="level + 1" />
             </el-submenu>
-            <el-menu-item v-else :index="cat.id + ''">
+            <el-menu-item v-else :index="cat.id + ''" :class="'el-menu-item-' + level">
                 <template #title>{{ cat.name }}</template>
             </el-menu-item>
         </template>
@@ -88,6 +88,12 @@ export default defineComponent({
     components: {
         MenuItem,
     },
+    props: {
+        level: {
+            type: Number,
+            default: 1,
+        },
+    },
     emits: ["select", "filter"],
     setup(props, context) {
         const elMenu = ref<InstanceType<typeof ElMenu>>();
@@ -148,5 +154,68 @@ export default defineComponent({
 <style scoped lang="scss">
 .prod-cat-menu {
     width: 260px;
+    background-color: white;
+    :deep(.el-menu) {
+        background-color: white;
+    }
+}
+</style>
+
+<style lang="scss">
+.prod-cat-menu {
+    .el-submenu__title {
+        i {
+            color: var(--el-color-primary);
+            font-weight: bold;
+            font-size: 16px;
+        }
+    }
+    .el-submenu-1 {
+        .el-submenu__title {
+            color: black;
+            font-weight: bold;
+        }
+    }
+    .el-submenu-2 {
+        .el-submenu__title {
+            color: var(--el-color-primary);
+            font-weight: bold;
+        }
+    }
+    .el-submenu-3 {
+        background-color: white;
+    }
+    .el-menu-item-1 {
+        background-color: white;
+    }
+    .el-menu-item-2 {
+        background-color: white;
+        color: var(--el-color-primary);
+        font-weight: bold;
+        font-size: 22px;
+    }
+    .el-menu-item-3 {
+        color: black;
+        background-color: white;
+        font-size: 22px;
+    }
+    .el-submenu-2.is-opened {
+        .el-menu {
+            background-color: #e8e8e8;
+
+            .el-menu-item {
+                background-color: #e8e8e8;
+            }
+        }
+    }
+    .el-menu-item.is-active {
+        color: var(--el-color-primary);
+        background-color: var(--el-color-primary-light-5) !important;
+        // &::before {
+        //     content: "xx";
+        //     position: relative;
+        //     left: -20px;
+        // }
+    }
 }
 </style>
