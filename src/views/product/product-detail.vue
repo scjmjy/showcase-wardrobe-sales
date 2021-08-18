@@ -234,41 +234,45 @@ export default defineComponent({
             },
             onAddDoorClick(type: string) {
                 debugger
+                if(!refBabylon.value) {
+                    console.error('refBabylon.value is not defined!');
+                    throw Error('refBabylon.value is not defined!');
+                }
+
                 // 测试: addDoorApi()
                 let door_part_id = -1;
-                let door_type = 1;
                 let door_mf_url = "";
                 let door_cubes: string[] = []; 
                 switch(type){
                     case 'left':
-                        // 合页门 (type: 1)
-                        door_type = 1;
+                        // 合页门 (type: 1): add 2 doors for both cubes
                         door_mf_url = "43b3e66e-c416-4602-bb76-97a172138737.json";
                         door_cubes =  [
                             '4cd170f8-291b-4236-b515-b5d27ac1209d', 
                         ];
+                        refBabylon.value!.addDoorApi(new Door('', door_part_id, door_mf_url, 1, door_cubes));
+
+                        door_cubes =  [
+                            'ce28f905-a6e1-4f68-9998-ed13f950ea91' 
+                        ];
+                        refBabylon.value!.addDoorApi(new Door('', door_part_id, door_mf_url, 1, door_cubes));
                         break;
+
                     case 'slide':
                         // 滑门 (type: 2). 需要指定2个连续的cube
-                        door_type = 2;
                         door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
                         door_cubes =  [
                             '4cd170f8-291b-4236-b515-b5d27ac1209d', 
                             'ce28f905-a6e1-4f68-9998-ed13f950ea91' 
                         ];
+                        refBabylon.value!.addDoorApi(new Door('', door_part_id, door_mf_url, 2, door_cubes));
                         break;
+
                     case 'right':
-                        door_type = -1;
                         throw Error("TODO: a door is fixed at RIGHT");
+
                     default:
                         throw Error(`Error: unkonwn door type: ${type}`);
-                }
-                const door = new Door('', door_part_id, door_mf_url, door_type, door_cubes);
-                console.log(`Add a door with param: ${door}`);
-                if(refBabylon.value) {
-                    refBabylon.value.addDoorApi(door);
-                }else{
-                    console.error('refBabylon.value is not defined!');
                 }
             },
             onUpdateWallClick() {

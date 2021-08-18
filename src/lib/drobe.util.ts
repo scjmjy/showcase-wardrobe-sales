@@ -113,7 +113,7 @@ class DrobeUtil extends StObject {
         const door_name = door.id;
         const door_mf = HmPartManifest.buildFromUrl(door.manifest);
         graphics.importMesh(door_mf.models[0].url, door_name, door_pos);
-        console.log(`add door success: ${door}`);
+        console.log(`add door at ${door_pos}: ${door}`);
         return door.id;
     }
 
