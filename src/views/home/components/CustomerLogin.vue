@@ -139,6 +139,14 @@ export default defineComponent({
             margin-top: 49px;
             font-size: 26px !important;
             font-weight: bold !important;
+            :deep(.el-radio__inner) {
+                width: 28px;
+                height: 28px;
+            }
+            :deep(.el-radio__inner::after) {
+                width: 8px;
+                height: 8px;
+            }
         }
         &__btn {
             margin-top: 50px;

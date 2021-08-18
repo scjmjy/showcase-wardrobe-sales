@@ -1,8 +1,15 @@
 export type OnReachBottom = () => void;
 
+const OFFSET = 40;
+
 export function checkReachBottom(el: HTMLElement, onReachBottom: OnReachBottom) {
     const { scrollTop, clientHeight, scrollHeight } = el;
-    const reachBottom = scrollTop + clientHeight >= scrollHeight;
+    if (clientHeight === 0 && scrollHeight === 0) {
+        return;
+    }
+    console.log("clientHeight", scrollTop, clientHeight, scrollHeight);
+
+    const reachBottom = scrollTop + clientHeight + OFFSET >= scrollHeight;
     if (reachBottom) {
         onReachBottom();
     }

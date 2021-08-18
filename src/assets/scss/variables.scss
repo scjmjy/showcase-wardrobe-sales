@@ -77,14 +77,14 @@ $--tag: map.merge(
     $--tag
 );
 
-$--radio: () !default;
-$--radio: map.merge(
-    (
-        "input-height": 28px,
-        "input-width": 28px,
-    ),
-    $--radio
-);
+// $--radio: () !default;
+// $--radio: map.merge(
+//     (
+//         "input-height": 28px,
+//         "input-width": 28px,
+//     ),
+//     $--radio
+// );
 
 :export {
     colorPrimary: $--color-primary;

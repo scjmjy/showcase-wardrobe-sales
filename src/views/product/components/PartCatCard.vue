@@ -1,11 +1,12 @@
 <template>
-    <div class="part-cat-card u-clickable" :class="{ active: active }">
-        <el-image class="part-cat-card__img" :src="cat.pic" fit="contain" @click="$emit('select', cat)"></el-image>
+    <div class="part-cat-card" :class="{ active: active }">
+        <el-image class="part-cat-card__img u-clickable" :src="cat.pic" fit="contain" @click="onImgClick"></el-image>
         <div class="part-cat-card__label">{{ cat.name }}</div>
     </div>
 </template>
 
 <script lang="ts">
+import { computed } from "vue";
 import { PartCategory } from "@/api/interface/provider.interface";
 import { defineComponent, PropType } from "vue";
 
@@ -16,22 +17,32 @@ export default defineComponent({
             type: Object as PropType<PartCategory>,
             default: () => ({}),
         },
-        active: {
-            type: Boolean,
-            default: false,
+        modelValue: {
+            type: String,
+            default: "",
         },
     },
-    setup() {
-        return {};
+    setup(props, ctx) {
+        return {
+            active: computed(() => props.modelValue === props.cat.id.toString()),
+            onImgClick() {
+                ctx.emit("update:modelValue", props.cat.id.toString());
+            },
+        };
     },
 });
 </script>
 
 <style scoped lang="scss">
 .part-cat-card {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    vertical-align: top;
+    margin: 10px;
     &__img {
-        width: 140px;
-        height: 140px;
+        width: 80px;
+        height: 80px;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         border-radius: 10px;
         overflow: hidden;

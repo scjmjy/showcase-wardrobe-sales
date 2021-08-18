@@ -1,19 +1,27 @@
 <template>
-    <div>
-        <div>子类 <el-button type="text" @click="showFilter = !showFilter">收起/弹出</el-button></div>
+    <div class="cat-tab">
+        <div class="cat-tab__children">
+            筛选
+            <el-button
+                type="text"
+                circle
+                :icon="showFilter ? 'el-icon-caret-bottom' : 'el-icon-caret-right'"
+                @click="onFilterToggleClick"
+            ></el-button>
+        </div>
         <el-collapse-transition>
             <div v-show="showFilter">
-                <div
+                <part-cat-card
                     v-for="item in children"
                     :key="item.id"
-                    class="dev-item"
-                    :class="{ 'is-selected': selectedChildCatId == item.id }"
+                    :cat="item"
+                    v-model="selectedChildCatId"
                     @click="onChildCatClick(item)"
                 >
                     {{ item.name }}
-                </div>
+                </part-cat-card>
                 <template v-if="catMeta">
-                    <el-divider>品牌</el-divider>
+                    <!-- <el-divider>品牌</el-divider>
                     <div
                         v-for="brand in catMeta.brands"
                         :key="brand.id"
@@ -22,35 +30,42 @@
                         @click="onBrandClick(brand)"
                     >
                         {{ brand.name }}
-                    </div>
-                    <el-divider>颜色</el-divider>
-                    <div
-                        v-for="color in catMeta.colors"
-                        :key="color.id"
-                        class="dev-item"
-                        :class="{ 'is-selected': selectedColorIds.includes(color.id.toString()) }"
-                        @click="onColorClick(color)"
-                    >
-                        {{ color.name }}
-                    </div>
-                    <el-divider>材质</el-divider>
-                    <div
-                        v-for="mat in catMeta.materials"
-                        :key="mat.id"
-                        class="dev-item"
-                        :class="{ 'is-selected': selectedMatIds.includes(mat.id.toString()) }"
-                        @click="onMatClick(mat)"
-                    >
-                        {{ mat.name }}
-                    </div>
+                    </div> -->
+                    <div class="cat-tab__meta-title">材质</div>
+                    <el-scrollbar style="height: auto" always>
+                        <div style="white-space: nowrap">
+                            <material-item
+                                v-for="mat in catMeta.materials"
+                                :key="mat.id"
+                                v-model="selectedMatId"
+                                :material="mat"
+                                @change="onMatChange(mat)"
+                            >
+                            </material-item>
+                        </div>
+                    </el-scrollbar>
+                    <div class="cat-tab__meta-title">颜色</div>
+                    <el-scrollbar style="height: auto" always>
+                        <div style="white-space: nowrap">
+                            <color-item
+                                v-for="color in catMeta.colors"
+                                :key="color.id"
+                                v-model="selectedColorId"
+                                :color="color"
+                                @change="onColorChange(color)"
+                            >
+                            </color-item>
+                        </div>
+                    </el-scrollbar>
                 </template>
             </div>
         </el-collapse-transition>
-        <el-divider>部件</el-divider>
-        <el-row :gutter="20">
+        <div class="cat-tab__meta-title">{{ partTitle }}</div>
+        <el-row ref="elRow" class="cat-tab__parts" :gutter="20" @scroll="onScroll">
             <el-col v-for="part in parts" :key="part.id" :span="12">
                 <part-card :part="part"> </part-card>
             </el-col>
+            <load-more :state="loadState" />
         </el-row>
     </div>
 </template>
@@ -67,32 +82,62 @@ import {
 import { computed, defineComponent, nextTick, PropType, ref, watch } from "vue";
 import apiProvider from "@/api/provider";
 import PartCard from "./PartCard.vue";
+import MaterialItem from "./MaterialItem.vue";
+import ColorItem from "./ColorItem.vue";
+import PartCatCard from "./PartCatCard.vue";
+import LoadMore, { LOAD_STATE } from "@/components/LoadMore.vue";
+import { checkReachBottom } from "@/utils/page-scroll";
+import { ElRow } from "element-plus";
 
 export default defineComponent({
     name: "CatTab",
     components: {
         PartCard,
+        MaterialItem,
+        ColorItem,
+        PartCatCard,
+        LoadMore,
     },
     props: {
+        active: {
+            type: Boolean,
+            default: false,
+        },
         cat: {
             type: Object as PropType<ProductCategory>,
             default: () => ({}),
         },
     },
     setup(props) {
+        const loadState = ref<LOAD_STATE>("");
         let page = 1;
         const catMeta = ref<PartCategoryMeta>();
         const parts = ref<Part[]>([]);
         const selectedChildCatId = ref("");
         const selectedBrandIds = ref<string[]>([]);
-        const selectedColorIds = ref<string[]>([]);
-        const selectedMatIds = ref<string[]>([]);
+        const selectedColorId = ref("");
+        const selectedMatId = ref("");
         const showFilter = ref(true);
 
         const children = props.cat.children || [];
-
         if (children.length > 0) {
             selectedChildCatId.value = children[0].id.toString();
+        }
+
+        const elRow = ref<InstanceType<typeof ElRow>>();
+        function onScroll() {
+            const el = elRow.value?.$el as HTMLElement | undefined;
+            if (!el) {
+                return;
+            }
+            checkReachBottom(el, () => {
+                console.log("[OnReachBottom]!!!");
+
+                if (loadState.value !== "nomore" && loadState.value !== "loading") {
+                    page++;
+                    requestParts();
+                }
+            });
         }
 
         function requestPartCatMeta() {
@@ -105,25 +150,65 @@ export default defineComponent({
                     catMeta.value = res.data;
 
                     nextTick(() => {
-                        requestParts();
+                        reloadParts();
                     });
                 }
             });
         }
-        requestPartCatMeta();
 
         function requestParts() {
             const catId = selectedChildCatId.value || props.cat.id;
             const brandId = selectedBrandIds.value[0];
-            const colorId = selectedColorIds.value[0];
-            const matId = selectedMatIds.value[0];
+            const colorId = selectedColorId.value;
+            const matId = selectedMatId.value;
+            loadState.value = "loading";
             apiProvider.requestParts(catId, page, 10, brandId, colorId, matId).then((res) => {
                 if (res.ok) {
-                    const result = res.data || [];
+                    // const result = res.data || [];
+                    const result: Part[] = [];
+                    for (let index = 0; index < 2; index++) {
+                        result.push({
+                            id: 2,
+                            name: "双滑门",
+                            depth: 40,
+                            width: 1500,
+                            height: 2360,
+                            manifest:
+                                "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/mf/bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json",
+                            pic: "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/parts/91f119c0-c9db-46be-a974-135451a90c3b.jpg",
+                            price: "1250",
+                            unit: "元/扇",
+                            mutime: "",
+                        });
+                    }
+                    if (result.length === 0) {
+                        loadState.value = "nomore";
+                    } else {
+                        loadState.value = "more";
+                    }
                     parts.value.push(...result);
+                    nextTick(() => {
+                        onScroll();
+                    });
                 }
             });
         }
+
+        function reloadParts() {
+            page = 1;
+            parts.value.length = 0;
+            requestParts();
+        }
+
+        watch(
+            () => props.active,
+            (active) => {
+                if (active) {
+                    requestPartCatMeta();
+                }
+            },
+            { immediate: true },
+        );
         // watch(
         //     () => props.cat.id,
         //     () => {
@@ -134,14 +219,25 @@ export default defineComponent({
         //     },
         // );
         return {
+            loadState,
+            elRow,
             showFilter,
             selectedChildCatId,
             selectedBrandIds,
-            selectedColorIds,
-            selectedMatIds,
+            selectedColorId,
+            selectedMatId,
             catMeta,
             parts,
             children: computed(() => props.cat.children || []),
+            partTitle: computed(() => {
+                if (props.cat.children && props.cat.children.length > 0) {
+                    const currentSelectedChild = props.cat.children.find(
+                        (c) => c.id.toString() === selectedChildCatId.value,
+                    );
+                    return currentSelectedChild?.name;
+                }
+                return props.cat.name;
+            }),
             onChildCatClick(c: ProductCategory) {
                 selectedChildCatId.value = c.id.toString();
                 requestPartCatMeta();
@@ -153,35 +249,49 @@ export default defineComponent({
                 } else {
                     selectedBrandIds.value.splice(index, 1);
                 }
-                page = 1;
-                parts.value.length = 0;
-                requestParts();
+                reloadParts();
             },
-            onColorClick(color: MetaColor) {
-                const index = selectedColorIds.value.findIndex((id) => id == color.id.toString());
-                if (index === -1) {
-                    selectedColorIds.value.push(color.id.toString());
-                } else {
-                    selectedColorIds.value.splice(index, 1);
-                }
-                page = 1;
-                parts.value.length = 0;
-                requestParts();
+            onColorChange(color: MetaColor) {
+                reloadParts;
             },
-            onMatClick(mat: MetaMaterial) {
-                const index = selectedMatIds.value.findIndex((id) => id == mat.id.toString());
-                if (index === -1) {
-                    selectedMatIds.value.push(mat.id.toString());
-                } else {
-                    selectedMatIds.value.splice(index, 1);
-                }
-                page = 1;
-                parts.value.length = 0;
-                requestParts();
+            onMatChange(mat: MetaMaterial) {
+                reloadParts();
             },
+            async onFilterToggleClick() {
+                showFilter.value = !showFilter.value;
+                // await nextTick();
+                setTimeout(() => {
+                    onScroll();
+                }, 100);
+            },
+            onScroll,
         };
     },
 });
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+.cat-tab {
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    &__children {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 22px;
+        font-weight: bold;
+    }
+    &__meta-title {
+        margin-top: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        color: var(--el-color-black);
+    }
+    &__parts {
+        flex: 1;
+        overflow-y: auto;
+    }
+}
+</style>

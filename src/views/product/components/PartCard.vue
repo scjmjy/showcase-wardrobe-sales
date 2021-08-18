@@ -1,6 +1,11 @@
 <template>
-    <div class="part-card u-clickable" :class="{ active: active }">
-        <el-image class="part-card__img" :src="part.pic" fit="contain" @click="$emit('select', part)"></el-image>
+    <div class="part-card" :class="{ active: active }">
+        <el-image
+            class="part-card__img u-clickable"
+            :src="part.pic"
+            fit="contain"
+            @click="$emit('select', part)"
+        ></el-image>
         <div class="part-card__label">{{ part.name }}</div>
     </div>
 </template>
@@ -29,6 +34,11 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .part-card {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    vertical-align: top;
+    margin: 10px;
     &__img {
         width: 140px;
         height: 140px;

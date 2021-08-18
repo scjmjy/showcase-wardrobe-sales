@@ -10,7 +10,7 @@
 
             <el-tabs v-model="selectedCatId" class="parts-menu__left-cats" tab-position="left" @tab-click="onCatChange">
                 <el-tab-pane v-for="cat in cats" :key="cat.id" :label="cat.name" :name="cat.id.toString()">
-                    <cat-tab :cat="cat" />
+                    <cat-tab :active="selectedCatId === cat.id.toString()" :cat="cat" />
                     <!-- <cat-tab v-if="selectedCatId == cat.id" :cat="cat" /> -->
                 </el-tab-pane>
             </el-tabs>
@@ -59,7 +59,7 @@ export default defineComponent({
         const refDiv = ref<HTMLDivElement>();
         const cats = ref<PartCategory[]>([]);
         const catMeta = ref<PartCategoryMeta>();
-        const selectedCatId = ref("");
+        const selectedCatId = ref("1");
         apiProvider.requestPartCategories().then((res) => {
             if (res.ok) {
                 cats.value = res.data || [];
@@ -94,6 +94,8 @@ export default defineComponent({
                 });
             },
             onCatChange(tab: any) {
+                console.log("tab", tab.instance);
+
                 // const catId = tab.props.name;
                 // selectedCatId.value = catId;
                 // requestPartCatMeta();
@@ -114,6 +116,12 @@ $header-height: 56px;
     max-width: $menu-width;
     overflow: hidden;
 
+    :deep(.el-tabs__content) {
+        height: 100%;
+    }
+    :deep(.el-tab-pane) {
+        height: 100%;
+    }
     &__left {
         display: inline-flex;
         flex-direction: column;
@@ -141,6 +149,7 @@ $header-height: 56px;
             :deep(.el-tabs__active-bar.is-left) {
                 left: 0;
                 right: auto;
+                min-height: 40px;
             }
         }
     }

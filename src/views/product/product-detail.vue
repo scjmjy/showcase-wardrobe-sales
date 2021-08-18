@@ -16,7 +16,6 @@
             :scheme="scheme"
             :selectedPartId="selectedPartId"
             :getAvailableArea="getAvailableArea"
-            @click="showMenu = false"
         />
         <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
 
@@ -222,6 +221,10 @@ export default defineComponent({
             onAddShelfClick() {
                 selectedPartId.value = 300001;
             },
+            onXXXClick() {
+                // TODO Cll Babylon.vue function
+                // refBabylon.value?.changeWallApi()
+            },
             state3D,
             stateRuler,
             stateSelect,
@@ -414,8 +417,8 @@ export default defineComponent({
     }
     &__menu2d {
         position: absolute;
-        top: 80px;
-        bottom: 200px;
+        top: 40px;
+        bottom: 140px;
         right: 15px;
         white-space: nowrap;
     }
@@ -450,7 +453,7 @@ export default defineComponent({
     &__action-right {
         position: absolute;
         right: 60px;
-        bottom: 60px;
+        bottom: 20px;
     }
     &__action-top {
         position: absolute;
