@@ -131,7 +131,13 @@ export default defineComponent({
         /**
          * 增加一个合页门或者滑门. 
          * 
-         * newDoor 中的id在调用的时候无需传入，该API会创建并返回这个UUID。
+         * Usage: 
+         *   1. select cubes in 3D canvas; 
+         *   2. select a door in 2D list;
+         *   3. create 'Door' object without uuid; 
+         *   4. call this API;
+         * 
+         * NOTE: newDoor 中的id在调用的时候无需传入，该API会创建并返回这个UUID。
          * 
          * @param newDoor 新增加的Door
          */
