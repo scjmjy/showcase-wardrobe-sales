@@ -1,5 +1,5 @@
 <template>
-    <el-menu ref="elMenu" class="prod-cat-menu" @select="onProdCatSelect" :default-active="defaultActive">
+    <el-menu ref="elMenu" v-bind="$attrs" class="prod-cat-menu" :default-active="defaultActive">
         <!-- :default-openeds="defaultOpeneds" -->
         <template v-for="cat of productCats" :key="cat.id">
             <el-submenu v-if="cat.children && cat.children.length" :index="cat.id + ''" :class="'el-submenu-' + level">
@@ -94,18 +94,17 @@ export default defineComponent({
             default: 1,
         },
     },
-    emits: ["select", "filter"],
     setup(props, context) {
         const elMenu = ref<InstanceType<typeof ElMenu>>();
         const defaultActive = ref("" as number | string);
         const defaultOpeneds = ref([] as string[]);
 
         const productCats = reactive([] as ProductCategory[]);
-        const currentProdCat = ref<ProductCategory | undefined>();
-        function onProdCatSelect(cid: string | number) {
-            currentProdCat.value = productCats.find((pc) => pc.id === cid);
-            context.emit("select", cid);
-        }
+        // const currentProdCat = ref<ProductCategory | undefined>();
+        // function onProdCatSelect(cid: string | number) {
+        //     currentProdCat.value = productCats.find((pc) => pc.id === cid);
+        //     context.emit("select", cid);
+        // }
         apiProvider.requestProductCategories().then((res) => {
             if (res.ok) {
                 productCats.push(...(res.data || []));
@@ -121,7 +120,8 @@ export default defineComponent({
                     });
 
                     defaultActive.value = findDefaultActiveProdCat(productCats);
-                    onProdCatSelect(defaultActive.value || "");
+                    // onProdCatSelect(defaultActive.value || "");
+                    context.emit("select", defaultActive.value);
                 }
             }
         });
@@ -135,7 +135,7 @@ export default defineComponent({
         // };
         return {
             elMenu,
-            currentProdCat,
+            // currentProdCat,
             productCats,
             variables,
             defaultActive,
@@ -145,7 +145,7 @@ export default defineComponent({
                 style.selected = !style.selected;
                 // context.emit("filter", computeFilters());
             },
-            onProdCatSelect,
+            // onProdCatSelect,
         };
     },
 });

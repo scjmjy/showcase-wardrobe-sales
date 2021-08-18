@@ -181,6 +181,21 @@ export default defineComponent({
             onScroll,
         };
     },
+    beforeRouteEnter(to, from, next) {
+        console.log("【CustomerList:beforeRouteEnter");
+        next((vue) => {
+            console.log("【CustomerList:beforeRouteEnter", vue);
+            // @ts-ignore
+            vue.$refs.refMenu.resetLoadstate();
+
+            // if (vue.$data.loadState.value === "nomore") {
+            //     vue.$data.loadState.value = "more";
+            //     vue.$data.onScroll();
+            //     console.log("【CustomerMenu:beforeRouteEnter");
+            // }
+        });
+        // ...
+    },
 });
 </script>
 

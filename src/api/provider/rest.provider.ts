@@ -263,7 +263,7 @@ export default class RestProvider extends LocalProvider {
                         ok: true,
                         status: res.status,
                         data: res.data.map((item: Scheme) => {
-                            item.cover = ["https://dummyimage.com/200x300&text=TODO"];
+                            item.cover = [item.pic || "https://dummyimage.com/200x300&text=TODO"];
                             return item;
                         }),
                     });

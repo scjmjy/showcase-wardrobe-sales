@@ -4,7 +4,7 @@
             <span class="customer-menu__avatar">{{ getFirstWord(customer.name) }}</span>
             <div class="customer-menu__name">
                 <span class="u-line-1">{{ customer.name }}</span>
-                <span style="font-size: 18px">1888****888</span>
+                <span style="font-size: 18px">{{ customer.phone || "" }}</span>
             </div>
         </el-menu-item>
         <load-more :state="loadState" type="smoke" />
@@ -17,6 +17,7 @@ import apiProvider from "@/api/provider";
 import { Customer } from "@/api/interface/provider.interface";
 import variables from "@/assets/scss/variables.scss";
 import { useStore } from "vuex";
+// import { onBeforeRouteUpdate } from "vue-router";
 import { checkReachBottom } from "@/utils/page-scroll";
 import LoadMore, { LOAD_STATE } from "@/components/LoadMore.vue";
 import { StateType } from "@/store";
@@ -74,6 +75,15 @@ export default defineComponent({
                 }
             });
         }
+        // onBeforeRouteUpdate(async (to, from) => {
+        //     console.log("【CustomerMenu:onBeforeRouteUpdate】");
+
+        //     if (loadState.value === "nomore") {
+        //         loadState.value = "more";
+        //         onScroll();
+        //         console.log("【CustomerMenu:onBeforeRouteUpdate】onScroll");
+        //     }
+        // });
 
         return {
             elMenu,
@@ -88,6 +98,15 @@ export default defineComponent({
                 return name ? name[0] : "";
             },
             onScroll,
+            resetLoadstate() {
+                if (loadState.value === "nomore") {
+                    loadState.value = "more";
+                    page = 1;
+                    customers.length = 0;
+                    requestCustomers();
+                    console.log("【CustomerMenu:resetLoadstate】");
+                }
+            },
         };
     },
 });

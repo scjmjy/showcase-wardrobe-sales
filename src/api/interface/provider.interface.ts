@@ -95,6 +95,7 @@ export interface Scheme {
     composition: string;
     offer: string;
     ptime: string;
+    pic?: string;
     cover: string[];
 }
 

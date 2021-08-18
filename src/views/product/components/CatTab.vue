@@ -183,6 +183,7 @@ export default defineComponent({
                     }
                     if (result.length === 0) {
                         loadState.value = "nomore";
+                        page--;
                     } else {
                         loadState.value = "more";
                     }
