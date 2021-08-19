@@ -15,6 +15,7 @@ import { sketchUtil, StUuidObject } from "../utility/st_object";
 import { StVector } from "./st_vector_2d";
 import * as geometric from "geometric";
 import * as turf from "@turf/turf";
+import { StSketchVector3 } from "./st_geometric_3d";
 
 export enum StPolygonOverlap {
     NONE,
@@ -114,6 +115,10 @@ export class StSketchPoint extends StGeometic2D {
         this.x = sketchUtil.toFixed(this.x, digits);
         this.y = sketchUtil.toFixed(this.y, digits);
         return this;
+    }
+
+    static buildFromVector(v: StVector): StSketchPoint {
+        return new StSketchPoint(v.x, v.y);
     }
 
     static makeVector(p0: StSketchPoint, p1: StSketchPoint): StVector {
@@ -439,8 +444,19 @@ export class StSketchPolygon extends StGeometic2D {
         return this.vertices[idx];
     }
 
+    getPosition(idx: number): StVector {
+        return this.vertices[idx].getVector();
+    }
+
+    /**
+     * [Guilin 8-19] Maybe, call getStartPosition() to return a vector is better.
+     */
     getStartPoint(): StSketchPoint {
         return this.vertices[0];
+    }
+
+    getStartPosition(): StVector {
+        return this.vertices[0].getVector();
     }
 
     findEdge(edge_id: string): StSketchEdge | null {
@@ -726,4 +742,27 @@ export class StSketchRect extends StSketchPolygon {
         arr.push(p3);
         return new StSketchRect(arr);
     }
+
+    static calcAvailableRect(host: StSketchRect, occupied: StSketchRect[], part_size: StVector ): StSketchRect[] {
+        const width = host.a;
+        const fixed_rects: StSketchRect[] = [];
+        occupied.forEach(e => {
+            fixed_rects.push(e);
+        })
+		// [Cook: 2021-7-19 ] add the last LOGICAL 'rectangle' whose height is ZERO, to calculate the top SPACE in the following for loop
+		fixed_rects.push(StSketchRect.buildRectByStartPoint(host.getPoint(3), host.a, 0));
+
+        const array: StSketchRect[] = [];
+        let start_pt = host.getStartPosition();
+        for(const fixed_rect of fixed_rects) {
+			const height = fixed_rect.getStartPosition().y - start_pt.y;
+			const rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(start_pt.x, start_pt.y), width, height);
+			if(rect.a >= part_size.x && rect.b >= part_size.y ){
+				array.push(rect);
+			}
+			start_pt = fixed_rect.getPoint(3).getVector();
+		}
+		return array; 
+    }
+    
 }

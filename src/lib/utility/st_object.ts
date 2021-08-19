@@ -36,6 +36,12 @@ export class StObject {
             throw Error(msg ? `Error: ${msg}` : "Error: Assert Failure!");
         }
     }
+
+    assertValid(v: any, msg?: string) {
+        if (!v) {
+            throw Error(msg ? `Error: ${msg}` : "Error: Assert Failure!");
+        }
+    }
 }
 
 export class StUuidObject extends StObject {

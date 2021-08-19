@@ -12,11 +12,13 @@ import * as BABYLON from "babylonjs";
 import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/components/Babylon/graphics";
-import { Door, Position, Scheme } from "@/lib/scheme";
+import { Area, Door, Position, Scheme } from "@/lib/scheme";
 import { StObject } from "@/lib/utility/st_object";
 import { StSketchVector3 } from "./geometry/st_geometric_3d";
 import { v4 as uuidv4 } from "uuid";
-import { BizData } from "@/components/Babylon/bizdata";
+import { BizData, CubeData } from "@/components/Babylon/bizdata";
+import { StSketchPoint, StSketchRect } from "./geometry/st_geometric_2d";
+import { StVector } from "./geometry/st_vector_2d";
 
 export class HmBoundingBox {
     startPoint: Position;
@@ -75,8 +77,102 @@ class DrobeUtil extends StObject {
         const door_cubes: string[] = [];
         const door = new Door(uuidv4(), door_part_id, door_mf_url, door_type, door_cubes);
         this.addDoor(graphics, scheme, door);
-    } */
+    } 
 
+    // [guilin] code from front-3d
+   	calcAvailableRect(acce_data: StIAccesoryData) : Array<StSketchRect> {
+		const width = this.rect.a;
+		let start_pt = this.rect.getStartPoint();
+		const array = [];
+		const fixed_rects = [];
+		for(const fixed_part of this.parts) {
+			fixed_rects.push(fixed_part.rect);
+			console.log(`## get existing fixed-rect: ${fixed_part.rect}`);
+		}
+
+		// [Cook: 2021-7-19 ] add the last LOGICAL 'rectangle' whose height is ZERO, to calculate the top SPACE in the following for loop
+		fixed_rects.push(StSketchRect.buildRectByStartPoint(this.rect.getPoint(3), this.rect.a, 0));
+
+		for(const fixed_rect of fixed_rects) {
+			const height = fixed_rect.getStartPoint().y - start_pt.y;
+			const rect = StSketchRect.buildRectByStartPoint(start_pt, width, height);
+			if(rect.a >= acce_data.width  && rect.b >= acce_data.height){
+				array.push(rect);
+			}
+			start_pt = fixed_rect.getPoint(3);
+		}
+		return array;
+	} 
+    */
+
+
+    /**
+     * Find Cube's LEFT-BOTTOM corner in WORLD space
+     */
+    private _findCubeLeftBottom(cube: CubeData): StVector {
+        return new StVector(cube.origin.x - cube.width/2, cube.origin.y);
+    }
+
+
+    private _buildCubeRect(cube: CubeData): StSketchRect {
+        const start_pt = StSketchPoint.buildFromVector( this._findCubeLeftBottom(cube) );
+        return StSketchRect.buildRectByStartPoint(start_pt, cube.width, cube.height);
+    }
+
+    private _findCubeOccupied(bizdata: BizData, id: string, cube: CubeData): StSketchRect[] {
+        const rects: StSketchRect[] = [];
+        const items = bizdata.FindCubeItems(id);
+        const cube_lb = this._findCubeLeftBottom(cube);
+        if(items == null || items.length == 0)  {
+            console.log(`Find NONE occupied rect!`);
+            return rects;
+        }
+        items.forEach(e => {
+            const mf = HmPartManifest.buildFromUrl(e.manifest);
+            this.assertValid(e.location);  
+            this.assertValid(e.location!.startPos);
+            // calulate the part's LEFT-BOTTOM in WORLD Space.
+            const vec = new StVector(e.location!.startPos!.x, e.location!.startPos!.y);
+            vec.selfAdd(cube_lb);
+            const pt = StSketchPoint.buildFromVector(vec);
+            const r = StSketchRect.buildRectByStartPoint(pt, mf.size.x, mf.size.y);
+            rects.push(r);
+        });
+        
+        console.log(`Find occupied rects: ${rects.length}`);
+        return rects;
+    }
+
+    private _convertRectToArea( areas: Area[], rects: StSketchRect[], depth:number, cube_id: string ) : Area[] {
+        rects.forEach( r => {
+            const p0 = r.getStartPosition();
+            const p1 = r.getPosition(3);
+            const area = new Area(
+                cube_id, 
+                new Position(p0.x, p0.y, depth/2 * -1), 
+                new Position(p1.x, p1.y, depth/2 ) );
+            areas.push(area);
+        });
+        return areas;
+    }
+
+
+    /**
+     * Search all cubes for all the available areas
+     */
+    getAvailableArea(bizdata: BizData, part: HmPartManifest ): Area[] {
+        const areas: Area[] = [];
+        const part_size = new StVector(part.size.x, part.size.y);
+        for(const cube_id of bizdata.cubeMap.keys()) {
+            const cube = bizdata.cubeMap.get(cube_id)!;
+            const host = this._buildCubeRect(cube);
+            const occupied = this._findCubeOccupied(bizdata, cube_id, cube);
+            const rects = StSketchRect.calcAvailableRect(host, occupied, part_size);
+            this._convertRectToArea(areas, rects, cube.depth, cube_id);
+        }
+        console.log(`Get ${areas.length} available areas: ${areas}`);
+        return areas;
+    }
 
 
     /**
@@ -87,7 +183,6 @@ class DrobeUtil extends StObject {
      * @returns UUID of the newly added door
      */
     addDoor(graphics: Graphics, bizdata: BizData, door: Door): string {
-        //const door_pos = new BABYLON.Vector3(0, 0, 400); // todo: calculate position
         const door_pos = new BABYLON.Vector3(0, 0, 500); 
 
         if(door.doorType == 1) {
@@ -117,9 +212,6 @@ class DrobeUtil extends StObject {
         return door.id;
     }
 
-    addSingleDoor() {}
-
-    addDoubleDoor() {}
 }
 
 export const drobeUtil = new DrobeUtil();

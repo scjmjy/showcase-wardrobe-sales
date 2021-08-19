@@ -1,6 +1,6 @@
 import { Scheme, Cube, Item, Part } from "@/lib/scheme";
 
-type CubeData = {
+export type CubeData = {
     origin: { x: number; y: number; z: number }; // center-down, in mm.
     width: number;
     height: number;
@@ -70,5 +70,17 @@ export class BizData {
     FindCubeDataById(id: string) : CubeData | undefined {
         const data = this.cubeMap.get(id);
         return data;
+    }
+
+    FindCubeItems(id: string): Item[] | null {
+        let cube: Cube | null = null ;
+        for(const c of this.scheme.cubes) {
+            if(c.id == id) {
+                cube = c;
+                break;
+            }
+        }
+        if(!cube) return null;
+        return cube.items;
     }
 }
