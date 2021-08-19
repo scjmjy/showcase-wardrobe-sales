@@ -11,14 +11,14 @@
 import * as BABYLON from "babylonjs";
 import * as GUI from "babylonjs-gui";
 
-import { Graphics } from "@/components/Babylon/graphics";
+import { Graphics } from "@/lib/graphics";
 import { Area, Door, Position, Scheme } from "@/lib/scheme";
 import { StObject } from "@/lib/utility/st_object";
 import { StSketchVector3 } from "./geometry/st_geometric_3d";
 import { v4 as uuidv4 } from "uuid";
-import { BizData, CubeData } from "@/components/Babylon/bizdata";
-import { StSketchPoint, StSketchRect } from "./geometry/st_geometric_2d";
+import { BizData, CubeData } from "@/lib/bizdata";
 import { StVector } from "./geometry/st_vector_2d";
+import { StSketchPoint, StSketchRect } from "./geometry/st_geometric_2d";
 
 export class HmBoundingBox {
     startPoint: Position;
