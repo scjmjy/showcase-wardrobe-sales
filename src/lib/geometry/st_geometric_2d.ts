@@ -18,6 +18,8 @@ import * as turf from "@turf/turf";
 import { StSketchVector3 } from "./st_geometric_3d";
 import stringify from "json-stringify-pretty-compact";
 import { jsonIgnoreReplacer } from "json-ignore";
+import StSketchConstant from "../utility/st_sketch_constant";
+import { RecastJSCrowd } from "babylonjs/Navigation/Plugins/recastJSPlugin";
 
 export enum StPolygonOverlap {
     NONE,
@@ -754,10 +756,15 @@ export class StSketchRect extends StSketchPolygon {
         return new StSketchRect(arr);
     }
 
-    static calcAvailableRect(host: StSketchRect, occupied: StSketchRect[], part_size: StVector ): StSketchRect[] {
+    static calcAvailableRect(host: StSketchRect, occupied: StSketchRect[], part_size: StVector, opt?: {minHeight:number} ): StSketchRect[] {
         console.log(`## host rect: ${host}, occupied: ${occupied}, part_size: ${part_size}`);
         const width = host.a;
+        const min_height = opt?.minHeight || StSketchConstant.MIN_DIVISION_HEIGHT_MM;
         const fixed_rects: StSketchRect[] = [];
+        if(width < part_size.x) {
+            console.log(`host width is too small: ${width} mm`);
+            return [];
+        }
         occupied.forEach(e => {
             fixed_rects.push(e);
         })
@@ -777,12 +784,12 @@ export class StSketchRect extends StSketchPolygon {
         let start_pt = host.getStartPosition();
         for(const fixed_rect of fixed_rects) {
 			const height = fixed_rect.getStartPosition().y - start_pt.y;
-			const rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(start_pt.x, start_pt.y), width, height);
-			if(rect.a >= part_size.x && rect.b >= part_size.y ){
-                console.log(`#### Find rect: ${rect}`);
-				array.push(rect);
-			}
 			start_pt = fixed_rect.getPoint(3).getVector();
+            if(height < min_height || height < part_size.y) {
+                continue;
+            }
+			const rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(start_pt.x, start_pt.y), width, height);
+            array.push(rect);
 		}
         console.log(`find available rects: cnt: ${array.length}  ----\n ${array}`);
 		return array; 
