@@ -21,7 +21,7 @@
             :selectedPartId="selectedPartId"
             :selectedWallId="selectedWallId"
             :selectedFloorId="selectedFloorId"
-            :getAvailableArea="getAvailableArea"
+            :getAvailableArea2="getAvailableArea"
         />
         <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
 

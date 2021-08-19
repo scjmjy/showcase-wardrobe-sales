@@ -55,6 +55,9 @@ export class HmPartManifest extends StObject {
     }
 
     static buildFromUrl(part_url: string): HmPartManifest {
+        if(part_url.indexOf('mf/') == 0) {
+            return require("@/assets/" + part_url);
+        }
         const mf = require("@/assets/mf/" + part_url);
         const obj: HmPartManifest = mf;
         return obj;
@@ -156,11 +159,20 @@ class DrobeUtil extends StObject {
         return areas;
     }
 
+    getAvailableAreaById(bizdata: BizData, part_id: string ): Area[] {
+        const mf_url = bizdata.partManifestMap.get(`${part_id}`);
+        if(! mf_url) {
+            throw Error(`NO manifest is found by ID; ${part_id}`);
+        }
+        return this.getAvailableAreaByMfUrl(bizdata, mf_url);
+    }
 
     /**
      * Search all cubes for all the available areas
      */
-    getAvailableArea(bizdata: BizData, part: HmPartManifest ): Area[] {
+    getAvailableAreaByMfUrl(bizdata: BizData, part_mf_url: string ): Area[] {
+        const part: HmPartManifest = HmPartManifest.buildFromUrl(part_mf_url);
+        console.debug(`calculate available areas for part: ${part}`);
         const areas: Area[] = [];
         const part_size = new StVector(part.size.x, part.size.y);
         for(const cube_id of bizdata.cubeMap.keys()) {
