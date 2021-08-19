@@ -170,6 +170,7 @@ export default defineComponent({
                 });
             },
             gotoDetail(scheme: Scheme) {
+                scheme.cid = customerId.value;
                 store.commit("SET-PAGE-CHANNEL", {
                     key: "productDetailData",
                     value: scheme,

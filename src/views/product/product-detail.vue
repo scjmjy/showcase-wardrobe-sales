@@ -71,7 +71,7 @@
                     :states="inOutStates"
                     @change="onInOutChange"
                 ></state-icon>
-                <state-icon v-model="state3D" icon="empty" @change="on3DClick"></state-icon>
+                <!-- <state-icon v-model="state3D" icon="empty" @change="on3DClick"></state-icon> -->
                 <!-- <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
                 <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon> -->
                 <!-- <state-icon
@@ -82,6 +82,8 @@
                     @change="onPartsClick"
                 ></state-icon> -->
             </div>
+            <gooey-menu v-model="gooeyMenuOpened" class="product-detail__gooeyMenu" :items="gooeyMenuItems" />
+
             <!-- <div class="product-detail__action-top state-icon-group-v">
                 <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
                 <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon>
@@ -122,6 +124,7 @@ import PartsMenu from "./components/PartsMenu.vue";
 import { ElMessage } from "element-plus";
 import { Area, Door, Position } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
+import GooeyMenu, { MenuItem } from "@/components/GooeyMenu.vue";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -132,6 +135,7 @@ export default defineComponent({
         MetalsDlg,
         Babylon,
         PartsMenu,
+        GooeyMenu,
     },
     setup() {
         const route = useRoute();
@@ -155,7 +159,9 @@ export default defineComponent({
             if (isProduct(p)) {
                 return "scheme-new";
             }
-            return p.cid === store.state.currentCustomer.customerId + "" ? "scheme-self" : "scheme-other";
+            return p.cid.toString() === store.state.currentCustomer.customerId.toString() + ""
+                ? "scheme-self"
+                : "scheme-other";
         });
         const customizeMode = ref<"new" | "continue" | "copy">("new");
         const showCustomizeDlg = ref(false);
@@ -222,7 +228,20 @@ export default defineComponent({
 
             return areas;
         }
+        const gooeyMenuItems = ref<MenuItem[]>([
+            {
+                value: "d3",
+                icon: "d3",
+            },
+            {
+                value: "ruler",
+                icon: "ruler",
+            },
+        ]);
+        const gooeyMenuOpened = ref(false);
         return {
+            gooeyMenuItems,
+            gooeyMenuOpened,
             refBabylon,
             scheme,
             selectedPartId,
@@ -520,6 +539,11 @@ export default defineComponent({
             margin-top: 20px;
             margin-bottom: 20px;
         }
+    }
+    &__gooeyMenu {
+        position: absolute;
+        left: 140px;
+        bottom: 98px;
     }
     &__action-test {
         position: absolute;
