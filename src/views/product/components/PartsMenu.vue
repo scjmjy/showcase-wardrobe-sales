@@ -3,7 +3,7 @@
         <div class="parts-menu__left">
             <div class="parts-menu__left-header">
                 <div>
-                    <el-button v-if="tabStack.length" type="text" @click="onUpLevelClick">上一层</el-button>
+                    <!-- <el-button v-if="tabStack.length" type="text" @click="onUpLevelClick">上一层</el-button> -->
                 </div>
                 <div>
                     <el-button type="text">清单</el-button>
@@ -29,8 +29,11 @@
                 tab-position="left"
                 @tab-click="onCatChange"
             >
-                <el-tab-pane v-for="tab in activeTabs" :key="tab.name" :label="tab.label" :name="tab.name">
-                    <component :is="tab.component" v-bind="tab.bind" v-on="tab.on" />
+                <el-tab-pane v-for="(tab, index) in activeTabs" :key="tab.name" :label="tab.label" :name="tab.name">
+                    <template v-if="index === 0" #label>
+                        <div class="parts-menu__tab-bgLabel">{{ tab.label }}</div>
+                    </template>
+                    <component :is="tab.component" :up="tabStack.length" v-bind="tab.bind" v-on="tab.on" />
                 </el-tab-pane>
             </el-tabs>
         </div>
@@ -132,7 +135,11 @@ export default defineComponent({
             () => activeCats.value,
             (cats) => {
                 tabStack.value.length = 0;
-                selectedTabName.value = "bg";
+                if (topLevelTabs.value.length >= 2) {
+                    selectedTabName.value = topLevelTabs.value[1].name;
+                } else {
+                    selectedTabName.value = "bg";
+                }
             },
         );
 
@@ -143,16 +150,22 @@ export default defineComponent({
             bind: {},
         };
 
-        /**
-         * @param cat 在 CatsList 里被点击的某个分类
-         * @param cats cat 的兄弟节点
-         */
-        function onCatItemClick(cat: ProductCategory, cats: ProductCategory[]) {
-            console.log("【partsTab】", cat);
-            const tabs = cats.map((c) => {
+        function onUpLevelClick() {
+            tabStack.value.pop();
+            const tabs = tabStack.value[tabStack.value.length - 1] || topLevelTabs.value;
+            if (tabs.length >= 2) {
+                selectedTabName.value = tabs[1].name;
+            } else {
+                selectedTabName.value = "bg";
+            }
+        }
+        function cats2Tabs(cats: ProductCategory[]): TabType[] {
+            return cats.map((c) => {
                 let component = "";
                 let bind = {};
-                let on = {};
+                let on: any = {
+                    up: onUpLevelClick,
+                };
                 if (c.leaf) {
                     component = "CatTab";
                     bind = {
@@ -165,9 +178,7 @@ export default defineComponent({
                         cats: c.children || [],
                     };
 
-                    on = {
-                        click: onCatItemClick,
-                    };
+                    on.click = onCatItemClick;
                 }
                 return {
                     name: c.id.toString(),
@@ -177,23 +188,43 @@ export default defineComponent({
                     on,
                 };
             });
+        }
+        /**
+         * @param cat 在 CatsList 里被点击的某个分类
+         * @param cats cat 的兄弟节点
+         */
+        function onCatItemClick(cat: ProductCategory, cats: ProductCategory[]) {
+            console.log("【partsTab】", cat);
+            const tabs = cats2Tabs(cats);
             selectedTabName.value = cat.id.toString();
             tabStack.value.push([bgTab, ...tabs]);
         }
 
         const topLevelTabs = computed<TabType[]>(() => {
-            const partsTab = {
-                name: "parts",
-                label: typeText.value,
-                component: "CatsList",
-                bind: {
-                    cats: activeCats.value,
-                },
-                on: {
-                    click: onCatItemClick,
-                },
-            };
-            return [bgTab, partsTab];
+            // const partsTab = {
+            //     name: "parts",
+            //     label: typeText.value,
+            //     component: "CatsList",
+            //     bind: {
+            //         cats: activeCats.value,
+            //     },
+            //     on: {
+            //         click: onCatItemClick,
+            //     },
+            // };
+            const partsTabs = cats2Tabs(activeCats.value);
+            // const partsTab = {
+            //     name: "parts",
+            //     label: typeText.value,
+            //     component: "CatsList",
+            //     bind: {
+            //         cats: activeCats.value,
+            //     },
+            //     on: {
+            //         click: onCatItemClick,
+            //     },
+            // };
+            return [bgTab, ...partsTabs];
         });
 
         const activeTabs = computed(() => {
@@ -206,6 +237,7 @@ export default defineComponent({
             cats,
             activeCats,
             activeTabs,
+            topLevelTabs,
             tabStack,
             catMeta,
             refDiv,
@@ -223,11 +255,7 @@ export default defineComponent({
                 // selectedCatId.value = catId;
                 // requestPartCatMeta();
             },
-            onUpLevelClick() {
-                tabStack.value.pop();
-                const tabs = tabStack.value[tabStack.value.length - 1];
-                selectedTabName.value = "bg";
-            },
+            onUpLevelClick,
         };
     },
 });
@@ -279,9 +307,26 @@ $header-height: 56px;
             :deep(.el-tabs__active-bar.is-left) {
                 left: 0;
                 right: auto;
+                width: 5px;
                 min-height: 40px;
             }
+
+            :deep(.el-tabs__nav-scroll) {
+                width: 82px;
+            }
+            :deep(.el-tabs__nav-wrap::after) {
+                width: 5px;
+                left: 0px;
+                background-color: var(--el-color-primary-light-8);
+            }
+            // :deep(.el-tabs__item:first-child) {
+            //     border-bottom: 1px solid gray;
+            // }
         }
+    }
+    &__tab-bgLabel {
+        border-bottom: 2px solid gray;
+        line-height: 30px;
     }
     &__right {
         display: inline-flex;
@@ -312,6 +357,7 @@ $header-height: 56px;
         }
     }
     &__trigger {
+        z-index: 10;
         position: absolute;
         bottom: 0px;
         left: 0px;
@@ -327,10 +373,6 @@ $header-height: 56px;
         &:active {
             background-color: var(--el-color-primary-dark);
         }
-    }
-
-    :deep(.el-tabs__nav-scroll) {
-        width: 82px;
     }
 }
 </style>

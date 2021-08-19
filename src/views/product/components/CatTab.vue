@@ -1,7 +1,8 @@
 <template>
     <div class="cat-tab">
+        <el-button v-if="up" type="text" size="small" @click="$emit('up')">上一层</el-button>
         <div class="cat-tab__children">
-            筛选
+            <span>筛选</span>
             <el-button
                 type="text"
                 circle
@@ -60,7 +61,7 @@
                 </template>
             </div>
         </el-collapse-transition>
-        <div class="cat-tab__meta-title">{{ partTitle }}</div>
+        <div class="cat-tab__parts-title">{{ partTitle }}</div>
         <el-row ref="elRow" class="cat-tab__parts" :gutter="20" @scroll="onScroll">
             <el-col v-for="part in parts" :key="part.id" :span="12" style="max-height: 180px">
                 <part-card :part="part"> </part-card>
@@ -99,6 +100,10 @@ export default defineComponent({
         LoadMore,
     },
     props: {
+        up: {
+            type: Boolean,
+            default: false,
+        },
         active: {
             type: Boolean,
             default: false,
@@ -108,6 +113,7 @@ export default defineComponent({
             default: () => ({}),
         },
     },
+    emits: ["up"],
     setup(props) {
         const loadState = ref<LOAD_STATE>("");
         let page = 1;
@@ -245,6 +251,13 @@ export default defineComponent({
         font-size: 16px;
         font-weight: bold;
         color: var(--el-color-black);
+    }
+    &__parts-title {
+        margin-top: 20px;
+        font-size: 22px;
+        font-weight: bold;
+        color: var(--el-color-black);
+        text-align: center;
     }
     &__parts {
         // flex: 1;

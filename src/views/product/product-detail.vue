@@ -182,7 +182,7 @@ export default defineComponent({
         const state3D = ref<"active" | "">("");
         const stateRuler = ref<"active" | "">("");
         const stateSelect = ref<"active" | "">("");
-        const stateInOut = ref<"in" | "out">("in");
+        const stateInOut = ref<"in" | "out">("out");
         const inOutStates = [
             {
                 state: "in",
