@@ -7,10 +7,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import * as BABYLON from "babylonjs";
-import { Graphics } from "./graphics";
+import { Graphics } from "@/lib/graphics";
 import { Scheme, Cube, Item, Door, Part, Position, RelativeItem, Location, Area } from "@/lib/scheme";
-import * as util from "../../lib/scheme.util";
-import { BizData } from "./bizdata";
+import * as util from "@/lib/scheme.util";
+import { BizData } from "@/lib/bizdata";
 import { v4 as uuidv4 } from "uuid";
 import { drobeUtil } from "@/lib/drobe.util";
 
