@@ -108,7 +108,6 @@ export default defineComponent({
          * @param newPartId
          */
         changeWallApi(newPartId: number): void {
-            this.wall.translate(new BABYLON.Vector3(0, -3750, 780), -0.4);
             const wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             var temp = this.bizdata.partManifestMap.get(newPartId.toString());
@@ -122,7 +121,6 @@ export default defineComponent({
          * @param newPartId
          */
         changeFloorApi(newPartId: number): void {
-            this.floor.translate(new BABYLON.Vector3(0, -20, -1820), -0.4);
             var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             var temp = this.bizdata.partManifestMap.get(newPartId.toString());
