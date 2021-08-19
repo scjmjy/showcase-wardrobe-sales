@@ -23,6 +23,7 @@
     "dayjs": "^1.10.6",
     "earcut": "^2.2.2",
     "element-plus": "^1.0.2-beta.70",
+    "eventemitter2": "^6.4.4",
     "geometric": "^2.2.6",
     "js-cookie": "^3.0.0",
     "json-ignore": "^0.4.0",

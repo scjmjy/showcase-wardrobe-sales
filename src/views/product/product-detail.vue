@@ -22,6 +22,7 @@
             :selectedWallId="selectedWallId"
             :selectedFloorId="selectedFloorId"
             :getAvailableArea2="getAvailableArea"
+            :eventEmit="eventHandle"
         />
         <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
 
@@ -122,6 +123,7 @@ import PartsMenu from "./components/PartsMenu.vue";
 import { ElMessage } from "element-plus";
 import { Area, Door, Position } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
+import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -222,6 +224,26 @@ export default defineComponent({
 
             return areas;
         }
+        function eventHandle(event: Event) {
+            switch (event.type) {
+                case EventType.OBJECT_SELECTED:
+                    {
+                        const objectSelectedEvent = event as ObjectSelectedEvent;
+                        if (objectSelectedEvent !== undefined) {
+                            console.log(objectSelectedEvent);
+                        }
+                    }
+                    break;
+                case EventType.OBJECT_UNSELECTED:
+                    {
+                        const objectUnselectedEvent = event as ObjectUnselectedEvent;
+                        if (objectUnselectedEvent !== undefined) {
+                            console.log(objectUnselectedEvent);
+                        }
+                    }
+                    break;
+            }
+        }
         return {
             refBabylon,
             scheme,
@@ -229,6 +251,7 @@ export default defineComponent({
             selectedWallId,
             selectedFloorId,
             getAvailableArea,
+            eventHandle,
             onLogSchemeClick() {
                 console.log("LogScheme: ", scheme);
             },
