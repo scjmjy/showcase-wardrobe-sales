@@ -22,11 +22,13 @@ export default defineComponent({
             default: "",
         },
     },
+    emits: ["update:modelValue", "click"],
     setup(props, ctx) {
         return {
             active: computed(() => props.modelValue === props.cat.id.toString()),
             onImgClick() {
                 ctx.emit("update:modelValue", props.cat.id.toString());
+                ctx.emit("click", props.cat);
             },
         };
     },

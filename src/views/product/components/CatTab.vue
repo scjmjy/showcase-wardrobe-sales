@@ -79,14 +79,14 @@ import {
     PartCategoryMeta,
     ProductCategory,
 } from "@/api/interface/provider.interface";
-import { computed, defineComponent, nextTick, PropType, ref, watch } from "vue";
+import { computed, defineComponent, nextTick, onMounted, PropType, ref, watch } from "vue";
 import apiProvider from "@/api/provider";
 import PartCard from "./PartCard.vue";
 import MaterialItem from "./MaterialItem.vue";
 import ColorItem from "./ColorItem.vue";
 import PartCatCard from "./PartCatCard.vue";
 import LoadMore from "@/components/LoadMore.vue";
-import { checkReachBottom, LOAD_STATE } from "@/utils/page-scroll";
+import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 import { ElRow } from "element-plus";
 
 export default defineComponent({
@@ -125,21 +125,23 @@ export default defineComponent({
         }
 
         const elRow = ref<InstanceType<typeof ElRow>>();
-        function onScroll() {
-            const el = elRow.value?.$el as HTMLElement | undefined;
-            if (!el) {
-                return;
-            }
-            checkReachBottom(el, () => {
-                console.log("[OnReachBottom]!!!");
+        let pageScroll: PageScroll<Part> | undefined;
 
-                if (loadState.value !== "nomore" && loadState.value !== "loading") {
-                    page++;
-                    requestParts();
-                }
-            });
+        function requestApi(page: number, pageSize: number) {
+            const catId = selectedChildCatId.value || props.cat.id;
+            const brandId = selectedBrandIds.value[0];
+            const colorId = selectedColorId.value;
+            const matId = selectedMatId.value;
+            return apiProvider.requestParts(catId, page, pageSize, brandId, colorId, matId);
         }
-
+        function onScroll(e?: Event) {
+            pageScroll?.onScroll();
+        }
+        onMounted(() => {
+            const el = elRow.value?.$el as HTMLElement;
+            pageScroll = new PageScroll(el, requestApi, loadState, parts);
+            pageScroll.requestPage();
+        });
         function requestPartCatMeta() {
             const catId = selectedChildCatId.value || props.cat.id;
             if (catId === undefined) {
@@ -150,55 +152,10 @@ export default defineComponent({
                     catMeta.value = res.data;
 
                     nextTick(() => {
-                        reloadParts();
+                        pageScroll?.reload();
                     });
                 }
             });
-        }
-
-        function requestParts() {
-            const catId = selectedChildCatId.value || props.cat.id;
-            const brandId = selectedBrandIds.value[0];
-            const colorId = selectedColorId.value;
-            const matId = selectedMatId.value;
-            loadState.value = "loading";
-            apiProvider.requestParts(catId, page, 10, brandId, colorId, matId).then((res) => {
-                if (res.ok) {
-                    // const result = res.data || [];
-                    const result: Part[] = [];
-                    for (let index = 0; index < 2; index++) {
-                        result.push({
-                            id: 2,
-                            name: "双滑门",
-                            depth: 40,
-                            width: 1500,
-                            height: 2360,
-                            manifest:
-                                "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/mf/bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json",
-                            pic: "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/parts/91f119c0-c9db-46be-a974-135451a90c3b.jpg",
-                            price: "1250",
-                            unit: "元/扇",
-                            mutime: "",
-                        });
-                    }
-                    if (result.length === 0) {
-                        loadState.value = "nomore";
-                        page--;
-                    } else {
-                        loadState.value = "more";
-                    }
-                    parts.value.push(...result);
-                    nextTick(() => {
-                        onScroll();
-                    });
-                }
-            });
-        }
-
-        function reloadParts() {
-            page = 1;
-            parts.value.length = 0;
-            requestParts();
         }
 
         watch(
@@ -250,20 +207,18 @@ export default defineComponent({
                 } else {
                     selectedBrandIds.value.splice(index, 1);
                 }
-                reloadParts();
+                pageScroll?.reload();
             },
             onColorChange(colorId: string) {
-                reloadParts();
+                pageScroll?.reload();
             },
             onMatChange(matId: string) {
-                reloadParts();
+                pageScroll?.reload();
             },
             async onFilterToggleClick() {
                 showFilter.value = !showFilter.value;
-                // await nextTick();
                 setTimeout(() => {
-                    onScroll();
-                    console.log("【onFilterToggleClick-timeout 200ms】");
+                    pageScroll?.reloadCurrentPage();
                 }, 200);
             },
             onScroll,

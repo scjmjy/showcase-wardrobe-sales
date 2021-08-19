@@ -40,7 +40,7 @@ import ProdCatMenu from "./components/ProdCatMenu.vue";
 import ProductCard from "./components/ProductCard.vue";
 import AppHeader from "../home/components/AppHeader.vue";
 import { Product } from "@/api/interface/provider.interface";
-import { checkReachBottom, LOAD_STATE } from "@/utils/page-scroll";
+import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 import LoadMore from "@/components/LoadMore.vue";
 import { ElScrollbar, ElRow } from "element-plus";
 
@@ -57,55 +57,21 @@ export default defineComponent({
         let currentCid = "";
         const router = useRouter();
         const store = useStore();
-        let products = ref([] as Product[]);
+        let products = ref<Product[]>([]);
         const elScrollbar = ref<InstanceType<typeof ElScrollbar>>();
         const elRow = ref<InstanceType<typeof ElRow>>();
-        // let pageScroll: PageScroll | undefined = undefined;
         const loadState = ref<LOAD_STATE>("");
-
-        function onScroll() {
-            const el = elScrollbar.value?.$el as HTMLElement;
-            // TODO firstChild is hack
-            checkReachBottom(el.firstChild as HTMLElement, () => {
-                console.log("[OnReachBottom]!!!");
-
-                if (loadState.value !== "nomore" && loadState.value !== "loading") {
-                    page++;
-                    requestProducts();
-                }
-            });
+        let pageScroll: PageScroll<Product> | undefined;
+        function requestApi(page: number, pageSize: number) {
+            return apiProvider.requestProducts(currentCid, page, pageSize);
         }
-
-        function requestProducts(firstCheck = false) {
-            // if (loadState.value === "nomore" || loadState.value === "loading") {
-            //     return;
-            // }
-            loadState.value = "loading";
-            apiProvider.requestProducts(currentCid, page).then((res) => {
-                if (res.ok) {
-                    const result = res.data || [];
-                    if (result.length === 0) {
-                        loadState.value = "nomore";
-                    } else {
-                        loadState.value = "more";
-                    }
-                    products.value = products.value.concat(result);
-                    if (firstCheck) {
-                        nextTick(() => {
-                            onScroll();
-                        });
-                    }
-                } else {
-                    loadState.value = "error";
-                }
-            });
+        function onScroll(e?: Event) {
+            pageScroll?.onScroll();
         }
         onMounted(() => {
-            // pageScroll = new PageScroll(refProdList.value?.$el, () => {
-            //     // console.log("[OnReachBottom]!!!");
-            //     page++;
-            //     requestProducts();
-            // });
+            const el = elScrollbar.value?.$el as HTMLElement;
+            pageScroll = new PageScroll(el, requestApi, loadState, products);
+            pageScroll.requestPage();
         });
 
         return {
@@ -118,10 +84,7 @@ export default defineComponent({
             },
             onProdCatSelect(cid: string) {
                 currentCid = cid;
-                page = 1;
-                loadState.value = "";
-                products.value.length = 0;
-                requestProducts(true);
+                pageScroll?.reload();
             },
             onProductClick(product: Product) {
                 store.commit("SET-PAGE-CHANNEL", {

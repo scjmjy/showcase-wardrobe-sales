@@ -12,13 +12,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, nextTick } from "vue";
+import { defineComponent, reactive, ref, nextTick, onMounted } from "vue";
 import apiProvider from "@/api/provider";
 import { Customer } from "@/api/interface/provider.interface";
 import variables from "@/assets/scss/variables.scss";
 import { useStore } from "vuex";
 // import { onBeforeRouteUpdate } from "vue-router";
-import { checkReachBottom, LOAD_STATE } from "@/utils/page-scroll";
+import PageScroll, { checkReachBottom, LOAD_STATE } from "@/utils/page-scroll";
 import LoadMore from "@/components/LoadMore.vue";
 import { StateType } from "@/store";
 import { ElMenu } from "element-plus";
@@ -29,67 +29,36 @@ export default defineComponent({
         LoadMore,
     },
     setup(props, context) {
-        const loadState = ref<LOAD_STATE>("");
-        let page = 1;
-        const PAGE_SIZE = 10;
-        let FULL_STATE: "full" | "not-full" = "full";
-        let lastestScrollY = 0;
         const store = useStore<StateType>();
-        const defaultActive = ref("" as number | string);
-        const customers = reactive([] as Customer[]);
-        function requestCustomers(emit = false) {
-            loadState.value = "loading";
-            apiProvider.requestCustomerList(store.state.user.eid, page, PAGE_SIZE).then((res) => {
-                if (res.ok) {
-                    const result = res.data || [];
-                    if (result.length === 0) {
-                        loadState.value = "nomore";
-                        page--;
-                        FULL_STATE = "full";
-                    } else if (result.length < PAGE_SIZE) {
-                        loadState.value = "nomore";
-                        FULL_STATE = "not-full";
-                    } else if (result.length === PAGE_SIZE) {
-                        FULL_STATE = "full";
-                        loadState.value = "more";
-                    }
-                    // customers.push(...result);
-                    if (result.length) {
-                        customers.splice((page - 1) * PAGE_SIZE, PAGE_SIZE, ...result);
-                    }
-                    if (customers.length > 0 && !defaultActive.value && page === 1) {
-                        if (store.state.currentCustomer.customerId) {
-                            defaultActive.value = store.state.currentCustomer.customerId.toString();
-                        } else {
-                            defaultActive.value = customers[0].cid.toString();
-                        }
-                        if (emit) {
-                            context.emit("select", defaultActive.value);
-                        }
-                    }
-                    nextTick(() => {
-                        onScroll();
-                    });
-                }
-            });
-        }
-        requestCustomers(true);
-
         const elMenu = ref<InstanceType<typeof ElMenu>>();
+        const customers = ref<Customer[]>([]);
+        const loadState = ref<LOAD_STATE>("");
+        const defaultActive = ref<number | string>("");
+        let lastestScrollY = 0;
+        let pageScroll: PageScroll<Customer> | undefined;
+        function requestApi(page: number, pageSize: number) {
+            return apiProvider.requestCustomerList(store.state.user.eid, page, pageSize);
+        }
+        function afterDataHander(page: number) {
+            if (customers.value.length > 0 && !defaultActive.value && page === 1) {
+                if (store.state.currentCustomer.customerId) {
+                    defaultActive.value = store.state.currentCustomer.customerId.toString();
+                } else {
+                    defaultActive.value = customers.value[0].cid.toString();
+                }
+                context.emit("select", defaultActive.value);
+            }
+        }
         function onScroll(e?: Event) {
             const el = elMenu.value?.$el as HTMLElement;
             lastestScrollY = el.scrollTop;
-            checkReachBottom(el, () => {
-                console.log("[OnReachBottom]!!!");
-
-                if (loadState.value !== "nomore" && loadState.value !== "loading") {
-                    if (FULL_STATE === "full") {
-                        page++;
-                    }
-                    requestCustomers();
-                }
-            });
+            pageScroll?.onScroll();
         }
+        onMounted(() => {
+            const el = elMenu.value?.$el as HTMLElement;
+            pageScroll = new PageScroll(el, requestApi, loadState, customers, undefined, afterDataHander);
+            pageScroll.requestPage();
+        });
         // onBeforeRouteUpdate(async (to, from) => {
         //     console.log("【CustomerMenu:onBeforeRouteUpdate】");
 
@@ -107,27 +76,18 @@ export default defineComponent({
             variables,
             defaultActive,
             getFullCustomer(cid: string) {
-                return customers.find((c) => c.cid.toString() === cid);
+                return customers.value.find((c) => c.cid.toString() === cid);
             },
             getFirstWord(name: string) {
                 return name ? name[0] : "";
             },
             onScroll,
             resetLoadstate() {
-                console.log("【CustomerMenu:resetLoadstate】");
-                if (loadState.value === "nomore") {
-                    loadState.value = "more";
-                    // page = 1;
-                    // customers.length = 0;
-                    // requestCustomers();
-                    const el = elMenu.value?.$el as HTMLElement;
-                    el.scrollTo({
-                        top: lastestScrollY,
-                    });
-
-                    onScroll();
-                    console.log("【CustomerMenu:resetLoadstate】-onScroll");
-                }
+                const el = elMenu.value?.$el as HTMLElement;
+                el.scrollTo({
+                    top: lastestScrollY,
+                });
+                pageScroll?.reloadCurrentPage();
             },
         };
     },

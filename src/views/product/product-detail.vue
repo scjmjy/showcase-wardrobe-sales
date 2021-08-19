@@ -1,5 +1,9 @@
 <template>
-    <div v-if="product" class="product-detail" :class="{ 'menu-opened': showMenu || mode === 'view' }">
+    <div
+        v-if="product"
+        class="product-detail"
+        :class="{ 'slide-left-3d': showMenu || mode === 'view', 'menu-opened': showMenu }"
+    >
         <transition name="el-zoom-in-top">
             <app-header
                 v-if="mode === 'view'"
@@ -44,50 +48,52 @@
                 >返回</el-button
             >
             <!-- TODO: remove the test codes -->
-            <div class="product-detail__action-left state-icon-group-v">
+            <div class="product-detail__action-test state-icon-group-h">
                 <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
                 <state-icon icon="offer" label="添加抽屉" @change="onAddDrawerClick"></state-icon>
                 <state-icon icon="offer" label="添加隔板" @change="onAddShelfClick"></state-icon>
-                <state-icon icon="offer" label="合页门"   @change='onAddDoorClick("left")'></state-icon>
-                <state-icon icon="offer" label="滑门"   @change='onAddDoorClick("slide")'></state-icon>
+                <state-icon icon="offer" label="合页门" @change="onAddDoorClick('left')"></state-icon>
+                <state-icon icon="offer" label="滑门" @change="onAddDoorClick('slide')"></state-icon>
                 <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick"></state-icon>
                 <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick"></state-icon>
             </div>
-            <div class="product-detail__action-right state-icon-group-h">
+            <div class="product-detail__action-left state-icon-group-h">
                 <!-- <state-icon
                     v-model="stateSelect"
                     icon="select-all"
                     label="全选"
                     @change="onSelectAllClick"
                 ></state-icon>
-                <state-icon icon="metals" label="五金" @change="onMetalsClick"></state-icon>
+                <state-icon icon="metals" label="五金" @change="onMetalsClick"></state-icon> -->
                 <state-icon
                     v-model="stateInOut"
                     icon="parts-indoor"
                     :states="inOutStates"
                     @change="onInOutChange"
-                ></state-icon> -->
-                <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
-                <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon>
-                <state-icon
+                ></state-icon>
+                <state-icon v-model="state3D" icon="empty" @change="on3DClick"></state-icon>
+                <!-- <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
+                <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon> -->
+                <!-- <state-icon
                     icon="parts"
                     label="部件"
                     iconColor="white"
                     iconBg="#5EB6B3"
                     @change="onPartsClick"
-                ></state-icon>
+                ></state-icon> -->
             </div>
             <!-- <div class="product-detail__action-top state-icon-group-v">
                 <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
                 <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon>
             </div> -->
-            <el-collapse-transition-h>
-                <parts-menu
-                    v-show="mode === 'edit' && showMenu"
-                    class="product-detail__menu2d"
-                    :type="stateInOut"
-                ></parts-menu>
-            </el-collapse-transition-h>
+            <!-- <el-collapse-transition-h>
+            </el-collapse-transition-h> -->
+            <parts-menu
+                v-show="mode === 'edit'"
+                v-model:opened="showMenu"
+                class="product-detail__menu2d"
+                :type="stateInOut"
+            ></parts-menu>
         </template>
         <customize-dlg
             v-model="showCustomizeDlg"
@@ -187,7 +193,7 @@ export default defineComponent({
 
             {
                 state: "out",
-                label: "外配",
+                label: "外观",
             },
         ];
         const refBabylon = ref<InstanceType<typeof Babylon>>();
@@ -233,42 +239,35 @@ export default defineComponent({
                 selectedPartId.value = 300001;
             },
             onAddDoorClick(type: string) {
-                debugger
-                if(!refBabylon.value) {
-                    console.error('refBabylon.value is not defined!');
-                    throw Error('refBabylon.value is not defined!');
+                debugger;
+                if (!refBabylon.value) {
+                    console.error("refBabylon.value is not defined!");
+                    throw Error("refBabylon.value is not defined!");
                 }
 
                 // 测试: addDoorApi()
                 let door_part_id = -1;
                 let door_mf_url = "";
-                let door_cubes: string[] = []; 
-                switch(type){
-                    case 'left':
+                let door_cubes: string[] = [];
+                switch (type) {
+                    case "left":
                         // 合页门 (type: 1): add 2 doors for both cubes
                         door_mf_url = "43b3e66e-c416-4602-bb76-97a172138737.json";
-                        door_cubes =  [
-                            '4cd170f8-291b-4236-b515-b5d27ac1209d', 
-                        ];
-                        refBabylon.value!.addDoorApi(new Door('', door_part_id, door_mf_url, 1, door_cubes));
+                        door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
+                        refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, 1, door_cubes));
 
-                        door_cubes =  [
-                            'ce28f905-a6e1-4f68-9998-ed13f950ea91' 
-                        ];
-                        refBabylon.value!.addDoorApi(new Door('', door_part_id, door_mf_url, 1, door_cubes));
+                        door_cubes = ["ce28f905-a6e1-4f68-9998-ed13f950ea91"];
+                        refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, 1, door_cubes));
                         break;
 
-                    case 'slide':
+                    case "slide":
                         // 滑门 (type: 2). 需要指定2个连续的cube
                         door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
-                        door_cubes =  [
-                            '4cd170f8-291b-4236-b515-b5d27ac1209d', 
-                            'ce28f905-a6e1-4f68-9998-ed13f950ea91' 
-                        ];
-                        refBabylon.value!.addDoorApi(new Door('', door_part_id, door_mf_url, 2, door_cubes));
+                        door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d", "ce28f905-a6e1-4f68-9998-ed13f950ea91"];
+                        refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, 2, door_cubes));
                         break;
 
-                    case 'right':
+                    case "right":
                         throw Error("TODO: a door is fixed at RIGHT");
 
                     default:
@@ -276,30 +275,20 @@ export default defineComponent({
                 }
             },
             onUpdateWallClick() {
-                if(selectedWallId.value === 0 )
-                    selectedWallId.value = 100001;
-                else if(selectedWallId.value === 100001 )
-                    selectedWallId.value = 100002;
-                else if(selectedWallId.value === 100002 )
-                    selectedWallId.value = 100003;
-                else if(selectedWallId.value === 100003 )
-                    selectedWallId.value = 100004;
-                else if(selectedWallId.value === 100004 )
-                    selectedWallId.value = 100001;                    
-                refBabylon.value?.changeWallApi( selectedWallId.value )
+                if (selectedWallId.value === 0) selectedWallId.value = 100001;
+                else if (selectedWallId.value === 100001) selectedWallId.value = 100002;
+                else if (selectedWallId.value === 100002) selectedWallId.value = 100003;
+                else if (selectedWallId.value === 100003) selectedWallId.value = 100004;
+                else if (selectedWallId.value === 100004) selectedWallId.value = 100001;
+                refBabylon.value?.changeWallApi(selectedWallId.value);
             },
             onUpdateFloorClick() {
-                if(selectedFloorId.value === 0 )
-                    selectedFloorId.value = 110001;
-                else if(selectedFloorId.value === 110001 )
-                    selectedFloorId.value = 110002;
-                else if(selectedFloorId.value === 110002 )
-                    selectedFloorId.value = 110003;
-                else if(selectedFloorId.value === 110003 )
-                    selectedFloorId.value = 110004;
-                else if(selectedFloorId.value === 110004 )
-                    selectedFloorId.value = 110001;                    
-                refBabylon.value?.changeFloorApi( selectedFloorId.value )
+                if (selectedFloorId.value === 0) selectedFloorId.value = 110001;
+                else if (selectedFloorId.value === 110001) selectedFloorId.value = 110002;
+                else if (selectedFloorId.value === 110002) selectedFloorId.value = 110003;
+                else if (selectedFloorId.value === 110003) selectedFloorId.value = 110004;
+                else if (selectedFloorId.value === 110004) selectedFloorId.value = 110001;
+                refBabylon.value?.changeFloorApi(selectedFloorId.value);
             },
             onXXXClick() {
                 // TODO Cll Babylon.vue function
@@ -453,6 +442,7 @@ export default defineComponent({
     height: 100%;
     // background-color: var(--el-color-bg);
     background: linear-gradient(#f2f4f5, #f1f3f4);
+    overflow: hidden;
     &__3d {
         // flex: 1;
         // overflow: auto;
@@ -497,10 +487,11 @@ export default defineComponent({
     }
     &__menu2d {
         position: absolute;
-        top: 40px;
-        bottom: 140px;
-        right: 15px;
+        top: 0px;
+        bottom: 0px;
+        right: -345px;
         white-space: nowrap;
+        transition: right 0.3s ease;
     }
     &__info {
         position: absolute;
@@ -530,6 +521,11 @@ export default defineComponent({
             margin-bottom: 20px;
         }
     }
+    &__action-test {
+        position: absolute;
+        left: 120px;
+        top: 10px;
+    }
     &__action-right {
         position: absolute;
         right: 60px;
@@ -541,11 +537,14 @@ export default defineComponent({
         right: 60px;
         transition: right 0.3s ease-in-out;
     }
-    &.menu-opened &__action-top {
-        right: 348px;
-    }
-    &.menu-opened &__3d {
+    // &.slide-left-3d &__action-top {
+    //     right: 348px;
+    // }
+    &.slide-left-3d &__3d {
         left: -170px;
+    }
+    &.menu-opened &__menu2d {
+        right: 0px;
     }
 }
 </style>

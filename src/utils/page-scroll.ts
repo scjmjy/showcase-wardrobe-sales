@@ -32,8 +32,9 @@ export default class PageScroll<T> {
     //     });
     // }
     currentPage = 0;
-    el: HTMLElement | undefined;
+    nextRequestPage = 1;
     constructor(
+        public el: HTMLElement,
         public requestApi: RequestApi<T>,
         public loadState: Ref<LOAD_STATE>,
         public dataArray: Ref<T[]>,
@@ -43,18 +44,24 @@ export default class PageScroll<T> {
         public reachBottomOffset = 40,
     ) {}
     requestPage() {
+        // nomore 说明 currentPage 还没有满足 pageSize 个数据，所以不用 + 1
         this.loadState.value = "loading";
-        const nextPage = this.currentPage + 1;
-        this.requestApi(nextPage, this.pageSize).then((res) => {
+        this.requestApi(this.nextRequestPage, this.pageSize).then((res) => {
             if (res.ok) {
                 let result = res.data || [];
-                if (result.length === 0) {
+                /*if (result.length === 0) {
+                    // 说明 nextRequestPage 有 0 个数据，所以是 nomore
+                    this.currentPage = nextRequestPage;
                     this.loadState.value = "nomore";
-                } else if (result.length < this.pageSize) {
+                } else */ if (result.length < this.pageSize) {
+                    // 说明 nextRequestPage 不足 pageSize 个数据，所以也是 nomore, nextRequestPage 不用 + 1
+                    this.currentPage = this.nextRequestPage;
                     this.loadState.value = "nomore";
                 } else if (result.length === this.pageSize) {
+                    this.currentPage = this.nextRequestPage;
                     this.loadState.value = "more";
-                    this.currentPage = nextPage;
+                    // 说明 nextRequestPage 正好是 pageSize 个数据，所以 nextRequestPage + 1 可能还有数据
+                    this.nextRequestPage++;
                 }
                 if (this.beforeDataHandler) {
                     result = this.beforeDataHandler(result);
@@ -64,7 +71,7 @@ export default class PageScroll<T> {
                 }
                 this.afterDataHandler && this.afterDataHandler(this.currentPage);
                 nextTick(() => {
-                    this.onScroll(this.el);
+                    this.onScroll();
                 });
             } else {
                 this.loadState.value = "error";
@@ -73,16 +80,19 @@ export default class PageScroll<T> {
     }
     reload() {
         this.currentPage = 0;
+        this.nextRequestPage = 1;
         this.dataArray.value.length = 0;
         this.loadState.value = "";
         this.requestPage();
     }
-    onScroll(el?: HTMLElement) {
-        if (!el) {
-            return;
+    reloadCurrentPage() {
+        if (this.loadState.value !== "loading") {
+            this.loadState.value = "more";
+            this.onScroll();
         }
-        this.el = el;
-        checkReachBottom(el, () => {
+    }
+    onScroll() {
+        checkReachBottom(this.el, () => {
             if (this.loadState.value !== "nomore" && this.loadState.value !== "loading") {
                 this.requestPage();
             }

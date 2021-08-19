@@ -311,31 +311,31 @@ export default class RestProvider extends LocalProvider {
                 },
             })
                 .then((res) => {
-                    const mat = {
-                        id: 1,
-                        name: "密度板",
-                        pic: "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/material/d7b9590c-2849-469e-929d-44789d2575f0.jpg",
-                    };
-                    const color = {
-                        id: 4,
-                        name: "米色",
-                        hex: "#F5F5DC",
-                        pic: "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool//img/8C76049B8FE944D8BBAAE3825ED8A591.jpg",
-                    };
-                    const brand = {
-                        id: 1,
-                        name: "其他",
-                        logo: "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool//img/8C76049B8FE944D8BBAAE3825ED8A591.jpg",
-                    };
+                    // const mat = {
+                    //     id: 1,
+                    //     name: "密度板",
+                    //     pic: "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/material/d7b9590c-2849-469e-929d-44789d2575f0.jpg",
+                    // };
+                    // const color = {
+                    //     id: 4,
+                    //     name: "米色",
+                    //     hex: "#F5F5DC",
+                    //     pic: "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool//img/8C76049B8FE944D8BBAAE3825ED8A591.jpg",
+                    // };
+                    // const brand = {
+                    //     id: 1,
+                    //     name: "其他",
+                    //     logo: "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool//img/8C76049B8FE944D8BBAAE3825ED8A591.jpg",
+                    // };
                     resolve({
                         ok: true,
                         status: res.status,
-                        // data: res.data,
-                        data: {
-                            brands: new Array(10).fill(0).map((b, index) => Object.assign({}, brand, { id: index })),
-                            materials: new Array(10).fill(0).map((m, index) => Object.assign({}, mat, { id: index })),
-                            colors: new Array(10).fill(0).map((c, index) => Object.assign({}, color, { id: index })),
-                        },
+                        data: res.data,
+                        // data: {
+                        //     brands: new Array(10).fill(0).map((b, index) => Object.assign({}, brand, { id: index })),
+                        //     materials: new Array(10).fill(0).map((m, index) => Object.assign({}, mat, { id: index })),
+                        //     colors: new Array(10).fill(0).map((c, index) => Object.assign({}, color, { id: index })),
+                        // },
                     });
                 })
                 .catch(() => {

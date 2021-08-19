@@ -141,7 +141,7 @@ export interface Part {
     mutime?: string;
 }
 
-export type PartIdList = string[];
+export type PartIdList = (string | number)[];
 
 export interface GlobalCfg {
     // 内饰配件ID列表

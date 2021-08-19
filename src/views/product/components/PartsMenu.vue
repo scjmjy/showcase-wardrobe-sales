@@ -1,17 +1,36 @@
 <template>
     <div ref="refDiv" class="parts-menu">
         <div class="parts-menu__left">
-            <div class="parts-menu__left-header">清单 | 报价 | 保存</div>
+            <div class="parts-menu__left-header">
+                <div>
+                    <el-button v-if="tabStack.length" type="text" @click="onUpLevelClick">上一层</el-button>
+                </div>
+                <div>
+                    <el-button type="text">清单</el-button>
+                    <el-button type="text">报价</el-button>
+                    <el-button type="text">保存</el-button>
+                </div>
+                <div></div>
+            </div>
             <!-- <el-row class="parts-menu__left-items" :gutter="20">
                 <el-col v-for="cat in cats" :key="cat.id" :span="12" style="padding: 10px">
                     <part-cat-card :cat="cat" :active="selectedCatId == cat.id" @select="onCatSelect"></part-cat-card>
                 </el-col>
             </el-row> -->
 
-            <el-tabs v-model="selectedCatId" class="parts-menu__left-cats" tab-position="left" @tab-click="onCatChange">
-                <el-tab-pane v-for="cat in cats" :key="cat.id" :label="cat.name" :name="cat.id.toString()">
+            <!-- <el-tabs v-model="selectedCatId" class="parts-menu__left-cats" tab-position="left" @tab-click="onCatChange">
+                <el-tab-pane v-for="cat in activeCats" :key="cat.id" :label="cat.name" :name="cat.id.toString()">
                     <cat-tab :active="selectedCatId === cat.id.toString()" :cat="cat" />
-                    <!-- <cat-tab v-if="selectedCatId == cat.id" :cat="cat" /> -->
+                </el-tab-pane>
+            </el-tabs> -->
+            <el-tabs
+                v-model="selectedTabName"
+                class="parts-menu__left-cats"
+                tab-position="left"
+                @tab-click="onCatChange"
+            >
+                <el-tab-pane v-for="tab in activeTabs" :key="tab.name" :label="tab.label" :name="tab.name">
+                    <component :is="tab.component" v-bind="tab.bind" v-on="tab.on" />
                 </el-tab-pane>
             </el-tabs>
         </div>
@@ -28,16 +47,37 @@
             <div class="parts-menu__right-color"></div>
             <div class="parts-menu__right-items"></div>
         </div>
+        <i
+            class="parts-menu__trigger"
+            :class="{
+                'el-icon-arrow-left': !opened,
+                'el-icon-arrow-right': opened,
+            }"
+            type="text"
+            @click="$emit('update:opened', !opened)"
+        ></i>
     </div>
 </template>
 
 <script lang="ts">
-import { PartCategory, PartCategoryMeta } from "@/api/interface/provider.interface";
-import { computed, defineComponent, PropType, ref } from "vue";
+import { PartCategory, PartCategoryMeta, ProductCategory } from "@/api/interface/provider.interface";
+import { computed, defineComponent, PropType, ref, watch } from "vue";
+import { useStore } from "vuex";
 import apiProvider from "@/api/provider";
 import PartCatCard from "./PartCatCard.vue";
 import CatTab from "./CatTab.vue";
 import { ElTabPane } from "element-plus";
+import { StateType } from "@/store";
+import PartBgTab from "./PartBgTab.vue";
+import CatsList from "./CatsList.vue";
+
+interface TabType {
+    component: string;
+    name: string;
+    label: string;
+    bind?: any;
+    on?: any;
+}
 
 export default defineComponent({
     name: "PartsMenu",
@@ -50,43 +90,126 @@ export default defineComponent({
             type: Object as PropType<PartCategory>,
             default: () => ({}),
         },
+        opened: {
+            type: Boolean,
+            default: false,
+        },
     },
     components: {
         CatTab,
+        PartBgTab,
+        CatsList,
         // PartCatCard,
     },
+    emits: ["update:opened"],
     setup(props, ctx) {
+        const store = useStore<StateType>();
         const refDiv = ref<HTMLDivElement>();
         const cats = ref<PartCategory[]>([]);
         const catMeta = ref<PartCategoryMeta>();
-        const selectedCatId = ref("");
+        const selectedTabName = ref("bg");
         apiProvider.requestPartCategories().then((res) => {
             if (res.ok) {
                 cats.value = res.data || [];
-                if (cats.value.length) {
-                    selectedCatId.value = cats.value[0].id.toString();
-                }
             }
         });
-        const typeText = computed(() => (props.type === "in" ? "内配" : "外配"));
+        const typeText = computed(() => (props.type === "in" ? "内配" : "外观"));
+        const inCats = computed(() => {
+            if (!store.state.globalCfg) {
+                return [];
+            }
+            return cats.value.filter((c) => store.state.globalCfg?.partsCatInterior.includes(c.id));
+        });
+        const outCats = computed(() => {
+            if (!store.state.globalCfg) {
+                return [];
+            }
+            return cats.value.filter((c) => store.state.globalCfg?.partsCatExterior.includes(c.id));
+        });
+        const activeCats = computed(() => (props.type === "in" ? inCats.value : outCats.value));
+        const tabStack = ref<TabType[][]>([]);
+        watch(
+            () => activeCats.value,
+            (cats) => {
+                tabStack.value.length = 0;
+                selectedTabName.value = "bg";
+            },
+        );
 
-        // function requestPartCatMeta() {
-        //     apiProvider.requestPartCatMeta(selectedCatId.value).then((res) => {
-        //         if (res.ok) {
-        //             catMeta.value = res.data;
-        //             // refDiv.value?.scrollBy({
-        //             //     behavior: "smooth",
-        //             //     left: 328,
-        //             // });
-        //         }
-        //     });
-        // }
+        const bgTab = {
+            name: "bg",
+            label: "背景",
+            component: "PartBgTab",
+            bind: {},
+        };
+
+        /**
+         * @param cat 在 CatsList 里被点击的某个分类
+         * @param cats cat 的兄弟节点
+         */
+        function onCatItemClick(cat: ProductCategory, cats: ProductCategory[]) {
+            console.log("【partsTab】", cat);
+            const tabs = cats.map((c) => {
+                let component = "";
+                let bind = {};
+                let on = {};
+                if (c.leaf) {
+                    component = "CatTab";
+                    bind = {
+                        cat: c,
+                        active: true,
+                    };
+                } else {
+                    component = "CatsList";
+                    bind = {
+                        cats: c.children || [],
+                    };
+
+                    on = {
+                        click: onCatItemClick,
+                    };
+                }
+                return {
+                    name: c.id.toString(),
+                    label: c.name,
+                    component,
+                    bind,
+                    on,
+                };
+            });
+            selectedTabName.value = cat.id.toString();
+            tabStack.value.push([bgTab, ...tabs]);
+        }
+
+        const topLevelTabs = computed<TabType[]>(() => {
+            const partsTab = {
+                name: "parts",
+                label: typeText.value,
+                component: "CatsList",
+                bind: {
+                    cats: activeCats.value,
+                },
+                on: {
+                    click: onCatItemClick,
+                },
+            };
+            return [bgTab, partsTab];
+        });
+
+        const activeTabs = computed(() => {
+            const len = tabStack.value.length;
+            return tabStack.value[len - 1] || topLevelTabs.value;
+        });
+
         return {
             typeText,
             cats,
+            activeCats,
+            activeTabs,
+            tabStack,
             catMeta,
             refDiv,
-            selectedCatId,
+            selectedTabName,
             gotoLeft() {
                 refDiv.value?.scrollBy({
                     behavior: "smooth",
@@ -100,6 +223,11 @@ export default defineComponent({
                 // selectedCatId.value = catId;
                 // requestPartCatMeta();
             },
+            onUpLevelClick() {
+                tabStack.value.pop();
+                const tabs = tabStack.value[tabStack.value.length - 1];
+                selectedTabName.value = "bg";
+            },
         };
     },
 });
@@ -109,7 +237,8 @@ export default defineComponent({
 $menu-width: 428px;
 $header-height: 56px;
 .parts-menu {
-    border-radius: 10px;
+    // border-radius: 10px 0px 0px 10px;
+    position: relative;
     box-shadow: 0px 10px 18px rgba(0, 0, 0, 0.07);
     background-color: var(--el-color-bg);
     width: $menu-width;
@@ -130,7 +259,8 @@ $header-height: 56px;
         height: 100%;
         &-header {
             display: flex;
-            align-items: flex-end;
+            justify-content: space-between;
+            align-items: center;
             padding-left: 23px;
             padding-bottom: 10px;
             height: $header-height;
@@ -180,6 +310,27 @@ $header-height: 56px;
         &-items {
             flex: 1;
         }
+    }
+    &__trigger {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        color: white;
+        font-size: 40px;
+        padding: 30px 20px;
+        text-align: center;
+        background-color: var(--el-color-primary);
+
+        &:hover {
+            background-color: var(--el-color-primary-light-3);
+        }
+        &:active {
+            background-color: var(--el-color-primary-dark);
+        }
+    }
+
+    :deep(.el-tabs__nav-scroll) {
+        width: 82px;
     }
 }
 </style>
