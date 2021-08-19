@@ -16,6 +16,10 @@ import { StVector } from "./st_vector_2d";
 import * as geometric from "geometric";
 import * as turf from "@turf/turf";
 import { StSketchVector3 } from "./st_geometric_3d";
+import stringify from "json-stringify-pretty-compact";
+import { jsonIgnoreReplacer } from "json-ignore";
+import StSketchConstant from "../utility/st_sketch_constant";
+import { RecastJSCrowd } from "babylonjs/Navigation/Plugins/recastJSPlugin";
 
 export enum StPolygonOverlap {
     NONE,
@@ -652,6 +656,15 @@ export class StSketchRect extends StSketchPolygon {
     valueEquals(rect: StSketchRect): boolean {
         return super.valueEquals(rect) && this.a == rect.a && this.b == rect.b;
     }
+    
+    toString(max_len?: number, simple?: boolean): string {
+        // return super.toString(max_len, simple);
+        const vv = { vertices: this.vertices};
+        return stringify(vv, {
+            maxLength: max_len || 256,
+            replacer: jsonIgnoreReplacer,
+        });
+    }
 
     /*
      * [Guiln: 2021-8-11] If a line divides a rectangle, the children may NOT be rectangles.
@@ -743,25 +756,42 @@ export class StSketchRect extends StSketchPolygon {
         return new StSketchRect(arr);
     }
 
-    static calcAvailableRect(host: StSketchRect, occupied: StSketchRect[], part_size: StVector ): StSketchRect[] {
+    static calcAvailableRect(host: StSketchRect, occupied: StSketchRect[], part_size: StVector, opt?: {minHeight:number} ): StSketchRect[] {
+        console.log(`## host rect: ${host}, occupied: ${occupied}, part_size: ${part_size}`);
         const width = host.a;
+        const min_height = opt?.minHeight || StSketchConstant.MIN_DIVISION_HEIGHT_MM;
         const fixed_rects: StSketchRect[] = [];
+        if(width < part_size.x) {
+            console.log(`host width is too small: ${width} mm`);
+            return [];
+        }
         occupied.forEach(e => {
             fixed_rects.push(e);
         })
 		// [Cook: 2021-7-19 ] add the last LOGICAL 'rectangle' whose height is ZERO, to calculate the top SPACE in the following for loop
 		fixed_rects.push(StSketchRect.buildRectByStartPoint(host.getPoint(3), host.a, 0));
 
+        fixed_rects.sort((n1, n2) => {
+            const v1 = n1.getStartPosition();
+            const v2 = n2.getStartPosition();
+            if(v1.y > v2.y) return 1;
+            if(v1.y < v2.y) return -1;
+            return 0;
+        });
+
+        console.log(`## fixed rectangles (sorted): ${fixed_rects}`);
         const array: StSketchRect[] = [];
         let start_pt = host.getStartPosition();
         for(const fixed_rect of fixed_rects) {
 			const height = fixed_rect.getStartPosition().y - start_pt.y;
-			const rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(start_pt.x, start_pt.y), width, height);
-			if(rect.a >= part_size.x && rect.b >= part_size.y ){
-				array.push(rect);
-			}
 			start_pt = fixed_rect.getPoint(3).getVector();
+            if(height < min_height || height < part_size.y) {
+                continue;
+            }
+			const rect = StSketchRect.buildRectByStartPoint(new StSketchPoint(start_pt.x, start_pt.y), width, height);
+            array.push(rect);
 		}
+        console.log(`find available rects: cnt: ${array.length}  ----\n ${array}`);
 		return array; 
     }
     

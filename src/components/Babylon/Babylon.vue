@@ -46,7 +46,7 @@ export default defineComponent({
             type: Function,
             default: () => {},
         },
-        getAvailableArea: {
+        getAvailableArea2: {
             type: Function,
             default: () => {},
         },
@@ -73,7 +73,8 @@ export default defineComponent({
                 console.log("SelectedPartId: ", newSelectedPartId);
 
                 if (newSelectedPartId != 0) {
-                    const availableArea = this.getAvailableArea(newSelectedPartId);
+                    const availableArea = this.getAvailableArea2(newSelectedPartId);
+                    // const availableArea = this.getAvailableArea(newSelectedPartId);
                     this.ShowAvailableArea(newSelectedPartId, availableArea);
                 }
             },
@@ -360,6 +361,11 @@ export default defineComponent({
                     this.availableAreas.push(availableArea);
                 }
             });
+        },
+
+        getAvailableArea(partId: string): Area[] {
+            const biz: BizData = this.bizdata as BizData;
+            return drobeUtil.getAvailableAreaById(biz, partId);
         },
 
         clearAvailableAreas(): void {
