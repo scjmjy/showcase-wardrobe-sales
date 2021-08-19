@@ -7,12 +7,14 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import * as BABYLON from "babylonjs";
+import * as GUI from 'babylonjs-gui';
 import { Graphics } from "@/lib/graphics";
 import { Scheme, Cube, Item, Door, Part, Position, RelativeItem, Location, Area } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
 import { BizData } from "@/lib/bizdata";
 import { v4 as uuidv4 } from "uuid";
 import { drobeUtil } from "@/lib/drobe.util";
+import { PopupGUI } from "@/lib/hm_gui";
 
 
 export default defineComponent({
@@ -64,6 +66,10 @@ export default defineComponent({
             const canvas = document.getElementById("canvas") as HTMLCanvasElement;
             return new Graphics(canvas);
         },
+
+        gui(){
+            return new PopupGUI();
+        }
     },
     watch: {
         selectedPartId: {
@@ -94,7 +100,7 @@ export default defineComponent({
 
         // guilin: test: add a door
         // drobeUtil.test_addDoor(this.graphics as graphics.Graphics, this.scheme );
-        // this.setupWallandFloor();
+        this.setupWallandFloor();
     },
     methods: {
         /**
@@ -102,15 +108,11 @@ export default defineComponent({
          * @param newPartId
          */
         changeWallApi(newPartId: number): void {
-            // debugger
-            this.wall = BABYLON.MeshBuilder.CreateBox("Background_Wall", { width: 5000.0, height: 3000.1, depth: 0.1 }, this.graphics.scene as BABYLON.Scene);
-            this.wall.translate(new BABYLON.Vector3(0, -3750, 780), -.4);
-            var wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
+            const wall_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255);
             var temp = this.bizdata.partManifestMap.get(newPartId.toString());
-            wall_material.diffuseTexture = new BABYLON.Texture( String(temp), this.graphics.scene as BABYLON.Scene);  
+            wall_material.diffuseTexture = new BABYLON.Texture( String(temp), this.graphics.scene as BABYLON.Scene);
             this.wall.material = wall_material
-            this.wall.isPickable = false
         },
 
         /**
@@ -118,15 +120,11 @@ export default defineComponent({
          * @param newPartId
          */
         changeFloorApi(newPartId: number): void {
-            // debugger
-            this.floor = BABYLON.MeshBuilder.CreateBox("Background_Floor", { width: 5000.0, height: 0.1, depth: 2000.0 }, this.graphics.scene as BABYLON.Scene);
-            this.floor.translate(new BABYLON.Vector3(0, -20, -1820), -.4);
-            var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
+            const floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255)            
             var temp = this.bizdata.partManifestMap.get(newPartId.toString());
             floor_material.diffuseTexture = new BABYLON.Texture( String(temp), this.graphics.scene as BABYLON.Scene);  
             this.floor.material = floor_material
-            this.floor.isPickable = false
         },
 
         /**
@@ -382,6 +380,7 @@ export default defineComponent({
                 switch (pointerInfo.type) {
                     case BABYLON.PointerEventTypes.POINTERDOWN:
                         if (pointerInfo && pointerInfo.pickInfo && pointerInfo.pickInfo.pickedMesh) {
+                            this.gui.display(this.graphics, pointerInfo.pickInfo.pickedMesh);
                             const meshName = pointerInfo.pickInfo.pickedMesh.name;
                             if (meshName.startsWith("BackgroundArea")) {
                                 // Hit the available area.
@@ -432,6 +431,9 @@ export default defineComponent({
                                 }
                             }
                         }
+                        else{
+                            this.gui.display(this.graphics, null);
+                        }
                         break;
                 }
             });
@@ -460,7 +462,7 @@ export default defineComponent({
             this.floor.translate(new BABYLON.Vector3(0, -20, -1820), -.4);
             var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255)
-            floor_material.diffuseTexture = new BABYLON.Texture("https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/dc5eb19b-2879-47fe-a517-720b39e0f445.jpg", this.graphics.scene as BABYLON.Scene);  
+            floor_material.diffuseTexture = new BABYLON.Texture("https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/floor/dc5eb19b-2879-47fe-a517-720b39e0f445.jpg", this.graphics.scene as BABYLON.Scene);  
             this.floor.material = floor_material
             this.floor.isPickable = false
 
@@ -469,7 +471,7 @@ export default defineComponent({
             this.wall.translate(new BABYLON.Vector3(0, -3750, 780), -.4);
             var wall_material = new BABYLON.StandardMaterial("groundMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255)
-            wall_material.diffuseTexture = new BABYLON.Texture("https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/d8282dee-13f2-4884-99c0-5d56962d95ac.jpg", this.graphics.scene as BABYLON.Scene);  
+            wall_material.diffuseTexture = new BABYLON.Texture("https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/wall/e125f1e1-c7d3-45e8-9b65-9b036e4fd5b2.jpg", this.graphics.scene as BABYLON.Scene);  
             this.wall.material = wall_material
             this.wall.isPickable = false
         }
