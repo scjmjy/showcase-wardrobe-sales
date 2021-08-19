@@ -23,13 +23,18 @@ export class RelativeItem {
 }
 
 export class Location {
-    locationType: number; // 1 - 世界坐标系
-    // 2 - 中间位置（抽屉、隔板、挂衣杆等）
-    // 3 - 两侧位置（镜子）
-    // 4 - 基于其他item的相对位置
-    startPos: Position | null; // locationType=1，世界坐标系的位置
-    // locationType=2或3，Cube坐标系的位置
-    relativeItem: RelativeItem | null; // locationType=4, 相对于哪个item
+    // 1 - 中间位置（抽屉、隔板、挂衣杆等）
+    // 2 - 两侧位置（镜子）
+    // 3 - 基于其他item的相对位置
+    // 4 - 世界坐标系
+    locationType: number;
+
+    // locationType=1或2，Cube坐标系的位置
+    // locationType=4，世界坐标系的位置
+    startPos: Position | null;
+
+    // locationType=3, 相对于哪个item
+    relativeItem: RelativeItem | null;
 
     constructor(locationType: number, startPos: Position | null, relativeItem: RelativeItem | null) {
         this.locationType = locationType;

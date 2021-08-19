@@ -7,13 +7,14 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import * as BABYLON from "babylonjs";
-import { Graphics } from "@/lib/graphics";
+import { Graphics, GraphicsEvent } from "@/lib/graphics";
 import { Scheme, Cube, Item, Door, Part, Position, RelativeItem, Location, Area } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
-import { BizData } from "@/lib/bizdata";
+import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
 import { drobeUtil } from "@/lib/drobe.util";
-
+import * as event from "@/lib/biz.event";
+import { PopupGUI } from "@/lib/hm_gui";
 
 export default defineComponent({
     name: "Babylon",
@@ -64,6 +65,10 @@ export default defineComponent({
             const canvas = document.getElementById("canvas") as HTMLCanvasElement;
             return new Graphics(canvas);
         },
+
+        gui() {
+            return new PopupGUI();
+        },
     },
     watch: {
         selectedPartId: {
@@ -89,12 +94,13 @@ export default defineComponent({
 
         this.setupInteraction();
         this.setupKeyboard();
+        this.handleGraphicsEvent(this.graphics);
 
         this.loadScheme();
 
         // guilin: test: add a door
         // drobeUtil.test_addDoor(this.graphics as graphics.Graphics, this.scheme );
-        // this.setupWallandFloor();
+        this.setupWallandFloor();
     },
     methods: {
         /**
@@ -102,15 +108,12 @@ export default defineComponent({
          * @param newPartId
          */
         changeWallApi(newPartId: number): void {
-            // debugger
-            this.wall = BABYLON.MeshBuilder.CreateBox("Background_Wall", { width: 5000.0, height: 3000.1, depth: 0.1 }, this.graphics.scene as BABYLON.Scene);
-            this.wall.translate(new BABYLON.Vector3(0, -3750, 780), -.4);
-            var wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
-            wall_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255);
+            const wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
+            wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             var temp = this.bizdata.partManifestMap.get(newPartId.toString());
-            wall_material.diffuseTexture = new BABYLON.Texture( String(temp), this.graphics.scene as BABYLON.Scene);  
-            this.wall.material = wall_material
-            this.wall.isPickable = false
+            wall_material.diffuseTexture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
+            this.wall.material = wall_material;
+            this.wall.isPickable = false;
         },
 
         /**
@@ -118,15 +121,12 @@ export default defineComponent({
          * @param newPartId
          */
         changeFloorApi(newPartId: number): void {
-            // debugger
-            this.floor = BABYLON.MeshBuilder.CreateBox("Background_Floor", { width: 5000.0, height: 0.1, depth: 2000.0 }, this.graphics.scene as BABYLON.Scene);
-            this.floor.translate(new BABYLON.Vector3(0, -20, -1820), -.4);
             var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
-            floor_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255)            
+            floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             var temp = this.bizdata.partManifestMap.get(newPartId.toString());
-            floor_material.diffuseTexture = new BABYLON.Texture( String(temp), this.graphics.scene as BABYLON.Scene);  
-            this.floor.material = floor_material
-            this.floor.isPickable = false
+            floor_material.diffuseTexture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
+            this.floor.material = floor_material;
+            this.floor.isPickable = false;
         },
 
         /**
@@ -157,15 +157,15 @@ export default defineComponent({
 
         /**
          * 增加一个合页门或者滑门
-         * 
-         * Usage: 
-         *   1. select cubes in 3D canvas; 
+         *
+         * Usage:
+         *   1. select cubes in 3D canvas;
          *   2. select a door in 2D list;
-         *   3. create 'Door' object without uuid; 
+         *   3. create 'Door' object without uuid;
          *   4. call this API;
-         * 
+         *
          * NOTE: newDoor 中的id在调用的时候无需传入，该API会创建并返回这个UUID
-         * 
+         *
          * @param newDoor 新增加的Door
          */
         addDoorApi(newDoor: Door): string {
@@ -239,6 +239,100 @@ export default defineComponent({
          */
         clearItemsApi(): void {},
 
+        handleGraphicsEvent(graphics: Graphics) {
+            graphics.eventDispatcher.on(GraphicsEvent.EXTERNAL_EVENT_OBJECT_ONSELECTED, (data: any) => {
+                // console.log("Object selected: ", data.name);
+
+                const info = data.name.split("_");
+                const objectType = info[0];
+                const id = info[1];
+                switch (info[0]) {
+                    case ObjectType.CUBE:
+                        {
+                            const cube = this.bizdata.findCubeById(id);
+                            if (cube !== undefined) {
+                                const category = "柜体";
+                                const objectSelectedEvent = new event.ObjectSelectedEvent(category, cube.partId, cube);
+                                this.eventEmit(objectSelectedEvent);
+                            }
+                        }
+                        break;
+                    case ObjectType.ITEM:
+                        {
+                            const item = this.bizdata.findItemById(id);
+                            if (item !== undefined) {
+                                const category = "配件";
+                                const objectSelectedEvent = new event.ObjectSelectedEvent(category, item.partId, item);
+                                this.eventEmit(objectSelectedEvent);
+                            }
+                        }
+                        break;
+                    case ObjectType.DOOR:
+                        {
+                            const door = this.bizdata.findDoorById(id);
+                            if (door !== undefined) {
+                                const category = "门";
+                                const objectSelectedEvent = new event.ObjectSelectedEvent(category, door.partId, door);
+                                this.eventEmit(objectSelectedEvent);
+                            }
+                        }
+                        break;
+                }
+            });
+
+            graphics.eventDispatcher.on(GraphicsEvent.EXTERNAL_EVENT_OBJECT_ONUNSELECTED, (data: any) => {
+                // console.log("Object unselected: ", data.name);
+
+                const info = data.name.split("_");
+                const objectType = info[0];
+                const id = info[1];
+                switch (info[0]) {
+                    case ObjectType.CUBE:
+                        {
+                            const cube = this.bizdata.findCubeById(id);
+                            if (cube !== undefined) {
+                                const category = "柜体";
+                                const objectUnselectedEvent = new event.ObjectUnselectedEvent(
+                                    category,
+                                    cube.partId,
+                                    cube,
+                                );
+                                this.eventEmit(objectUnselectedEvent);
+                            }
+                        }
+                        break;
+                    case ObjectType.ITEM:
+                        {
+                            const item = this.bizdata.findItemById(id);
+                            if (item !== undefined) {
+                                const category = "配件";
+                                const objectUnselectedEvent = new event.ObjectUnselectedEvent(
+                                    category,
+                                    item.partId,
+                                    item,
+                                );
+                                this.eventEmit(objectUnselectedEvent);
+                            }
+                        }
+                        break;
+                    case ObjectType.DOOR:
+                        {
+                            const door = this.bizdata.findDoorById(id);
+                            if (door !== undefined) {
+                                const category = "门";
+                                const objectUnselectedEvent = new event.ObjectUnselectedEvent(
+                                    category,
+                                    door.partId,
+                                    door,
+                                );
+                                this.eventEmit(objectUnselectedEvent);
+                            }
+                        }
+                        break;
+                }
+            });
+        },
+
         loadScheme() {
             const cubeSizeArr: any[] = [];
             const cubeIdArr: string[] = [];
@@ -283,9 +377,10 @@ export default defineComponent({
                         cubeOrigin.y + model.position.y,
                         cubeOrigin.z + model.position.z,
                     );
+                    const cubeName = ObjectType.CUBE + "_" + cubeId;
                     this.graphics.importMesh(
                         model.url,
-                        cubeId,
+                        cubeName,
                         modelPos,
                         BABYLON.Vector3.Zero(),
                         BABYLON.Vector3.One(),
@@ -313,7 +408,9 @@ export default defineComponent({
                                                 itemOrigin.y + model.position.y,
                                                 itemOrigin.z + model.position.z,
                                             );
-                                            this.graphics.importMesh(model.url, item.id, modelPos);
+
+                                            const itemName = ObjectType.ITEM + "_" + item.id;
+                                            this.graphics.importMesh(model.url, itemName, modelPos);
                                         });
                                     }
                                 }
@@ -382,6 +479,7 @@ export default defineComponent({
                 switch (pointerInfo.type) {
                     case BABYLON.PointerEventTypes.POINTERDOWN:
                         if (pointerInfo && pointerInfo.pickInfo && pointerInfo.pickInfo.pickedMesh) {
+                            this.gui.display(this.graphics, pointerInfo.pickInfo.pickedMesh);
                             const meshName = pointerInfo.pickInfo.pickedMesh.name;
                             if (meshName.startsWith("BackgroundArea")) {
                                 // Hit the available area.
@@ -426,11 +524,13 @@ export default defineComponent({
                                         null,
                                     );
                                     const newItem = new Item(itemId, Number(partId), manifest, location);
-                                    this.bizdata.AddItem(newItem, cubeId);
+                                    this.bizdata.addItem(newItem, cubeId);
 
                                     this.clearAvailableAreas();
                                 }
                             }
+                        } else {
+                            this.gui.display(this.graphics, null);
                         }
                         break;
                 }
@@ -456,23 +556,37 @@ export default defineComponent({
 
         setupWallandFloor(): void {
             // Floor
-            this.floor = BABYLON.MeshBuilder.CreateBox("Background_Floor", { width: 5000.0, height: 0.1, depth: 2000.0 }, this.graphics.scene as BABYLON.Scene);
-            this.floor.translate(new BABYLON.Vector3(0, -20, -1820), -.4);
+            this.floor = BABYLON.MeshBuilder.CreateBox(
+                "Background_Floor",
+                { width: 5000.0, height: 0.1, depth: 2000.0 },
+                this.graphics.scene as BABYLON.Scene,
+            );
+            this.floor.translate(new BABYLON.Vector3(0, -20, -1820), -0.4);
             var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
-            floor_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255)
-            floor_material.diffuseTexture = new BABYLON.Texture("https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/dc5eb19b-2879-47fe-a517-720b39e0f445.jpg", this.graphics.scene as BABYLON.Scene);  
-            this.floor.material = floor_material
-            this.floor.isPickable = false
+            floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
+            floor_material.diffuseTexture = new BABYLON.Texture(
+                "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/dc5eb19b-2879-47fe-a517-720b39e0f445.jpg",
+                this.graphics.scene as BABYLON.Scene,
+            );
+            this.floor.material = floor_material;
+            this.floor.isPickable = false;
 
             // Wall
-            this.wall = BABYLON.MeshBuilder.CreateBox("Background_Wall", { width: 5000.0, height: 3000.1, depth: 0.1 }, this.graphics.scene as BABYLON.Scene);
-            this.wall.translate(new BABYLON.Vector3(0, -3750, 780), -.4);
+            this.wall = BABYLON.MeshBuilder.CreateBox(
+                "Background_Wall",
+                { width: 5000.0, height: 3000.1, depth: 0.1 },
+                this.graphics.scene as BABYLON.Scene,
+            );
+            this.wall.translate(new BABYLON.Vector3(0, -3750, 780), -0.4);
             var wall_material = new BABYLON.StandardMaterial("groundMaterial", this.graphics.scene as BABYLON.Scene);
-            wall_material.emissiveColor = new BABYLON.Color3(255/255, 255/255, 255/255)
-            wall_material.diffuseTexture = new BABYLON.Texture("https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/d8282dee-13f2-4884-99c0-5d56962d95ac.jpg", this.graphics.scene as BABYLON.Scene);  
-            this.wall.material = wall_material
-            this.wall.isPickable = false
-        }
+            wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
+            wall_material.diffuseTexture = new BABYLON.Texture(
+                "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/d8282dee-13f2-4884-99c0-5d56962d95ac.jpg",
+                this.graphics.scene as BABYLON.Scene,
+            );
+            this.wall.material = wall_material;
+            this.wall.isPickable = false;
+        },
     },
 });
 </script>

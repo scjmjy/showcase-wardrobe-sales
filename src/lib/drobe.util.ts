@@ -16,7 +16,7 @@ import { Area, Door, Position, Scheme } from "@/lib/scheme";
 import { StObject } from "@/lib/utility/st_object";
 import { StSketchVector3 } from "./geometry/st_geometric_3d";
 import { v4 as uuidv4 } from "uuid";
-import { BizData, CubeData } from "@/lib/bizdata";
+import { BizData, CubeData } from "@/lib/biz.data";
 import { StVector } from "./geometry/st_vector_2d";
 import { StSketchPoint, StSketchRect } from "./geometry/st_geometric_2d";
 
@@ -124,7 +124,7 @@ class DrobeUtil extends StObject {
 
     private _findCubeOccupied(bizdata: BizData, id: string, cube: CubeData): StSketchRect[] {
         const rects: StSketchRect[] = [];
-        const items = bizdata.FindCubeItems(id);
+        const items = bizdata.findCubeItems(id);
         const cube_lb = this._findCubeLeftBottom(cube);
         if(items == null || items.length == 0)  {
             console.log(`Find NONE occupied rect!`);
@@ -199,7 +199,7 @@ class DrobeUtil extends StObject {
 
         if(door.doorType == 1) {
             this.assertTrue(door.cubes.length == 1, `ONLY ONE cube is needed to add a HINGE DOOR: ${door}`);
-            const cube_data = bizdata.FindCubeDataById(door.cubes[0]);
+            const cube_data = bizdata.findCubeDataById(door.cubes[0]);
             if(!cube_data) {
                 throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
             }
@@ -207,7 +207,7 @@ class DrobeUtil extends StObject {
             door_pos.z = cube_data.depth/2;
         }else if(door.doorType == 2) {
             this.assertTrue(door.cubes.length == 2, `TWO cubes are needed to add a SLIDE DOOR: ${door}`);
-            const cube_data = bizdata.FindCubeDataById(door.cubes[0]);
+            const cube_data = bizdata.findCubeDataById(door.cubes[0]);
             if(!cube_data) {
                 throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
             }

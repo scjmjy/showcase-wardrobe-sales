@@ -1,11 +1,22 @@
 import * as BABYLON from "babylonjs";
 import * as GUI from "babylonjs-gui";
 // import * as Materials from "babylonjs-materials"
+import { EventEmitter2 } from "eventemitter2";
+
+const EXTERNAL_EVENT_OBJECT_ONSELECTED = "graphics.external.object.onselected";
+const EXTERNAL_EVENT_OBJECT_ONUNSELECTED = "graphics.external.object.onunselected";
+
+export const GraphicsEvent = {
+    EXTERNAL_EVENT_OBJECT_ONSELECTED,
+    EXTERNAL_EVENT_OBJECT_ONUNSELECTED,
+};
 
 export class Graphics {
+    public scene!: BABYLON.Scene;
+    public eventDispatcher: EventEmitter2;
+
     private readonly _canvas: HTMLCanvasElement;
     private readonly _engine: BABYLON.Engine;
-    public scene!: BABYLON.Scene;
     private _camera!: BABYLON.ArcRotateCamera;
     private _light!: BABYLON.DirectionalLight;
     private _shadowGenerator!: BABYLON.ShadowGenerator;
@@ -31,6 +42,14 @@ export class Graphics {
     constructor(canvasElement: HTMLCanvasElement) {
         this._canvas = canvasElement;
         this._engine = new BABYLON.Engine(this._canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
+        this.eventDispatcher = new EventEmitter2({
+            wildcard: true, // set this to `true` to use wildcards
+            // delimiter: '.',        // the delimiter used to segment namespaces, defaults to `.`
+            newListener: true, // set this to `true` to avoid conflicts on the same page
+            maxListeners: 20, // the maximum amount of listeners that can be assigned to an event
+            verboseMemoryLeak: false, // show event name in memory leak message when more than maximum amount of listeners is assigned, default false
+        });
     }
 
     init(size: number): void {
@@ -129,7 +148,7 @@ export class Graphics {
 
     clearScene(): void {
         while (this.scene.meshes.length > 2) {
-            this.scene.meshes.forEach((mesh) => {
+            this.scene.meshes.forEach((mesh: BABYLON.AbstractMesh) => {
                 // Note: if creating skybox, need to keep it here.
                 if (!mesh.name.startsWith("Background")) {
                     mesh.dispose(true, true);
@@ -225,20 +244,24 @@ export class Graphics {
                     ) {
                         // const pickedMesh = pointerInfo.pickInfo.pickedMesh;
                         const pickedMesh = this.getRootMesh(pointerInfo.pickInfo.pickedMesh);
-
-                        if (this._currentMesh !== null) {
-                            if (pickedMesh !== this._currentMesh) {
+                        if (pickedMesh !== this._currentMesh) {
+                            if (this._currentMesh !== null) {
                                 this.removeHighlightMesh(this._currentMesh);
-
-                                this._currentMesh = pickedMesh;
-                                this.highlightMesh(this._currentMesh, this._selectedColor);
                             }
-                        } else {
+
                             this._currentMesh = pickedMesh;
                             this.highlightMesh(this._currentMesh, this._selectedColor);
+
+                            this.eventDispatcher.emit(GraphicsEvent.EXTERNAL_EVENT_OBJECT_ONSELECTED, {
+                                name: this._currentMesh?.name,
+                            });
                         }
                     } else {
                         if (this._currentMesh) {
+                            this.eventDispatcher.emit(GraphicsEvent.EXTERNAL_EVENT_OBJECT_ONUNSELECTED, {
+                                name: this._currentMesh.name,
+                            });
+
                             this.removeHighlightMesh(this._currentMesh);
                             this._currentMesh = null;
                         }
