@@ -2,7 +2,7 @@ import * as BABYLON from "babylonjs";
 import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
-import { BizData, CubeData } from "@/lib/biz.data";
+import { BizData, CubeData, ObjectType } from "@/lib/biz.data";
 
 
 export class PopupGUI {
@@ -11,7 +11,7 @@ export class PopupGUI {
     private _deletePanel: BABYLON.Nullable<GUI.Rectangle> = null;
     private _deleteButton!: GUI.Button;
 
-    private displayPanel(graphics: Graphics, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>): void {
+    private displayPanel(graphics: Graphics, bizdata: BizData, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>): void {
         //  hide GUI when click empty area
         if (mesh == null){
             if (this._deletePanel) {
@@ -43,13 +43,21 @@ export class PopupGUI {
             this._deleteButton.onPointerUpObservable.add(() => {
                 if (mesh != null) {
                     // hide the popup ui.
-                    this.displayPanel(graphics, null);
+                    this.displayPanel(graphics, bizdata, null);
                     this._deleteButton.isVisible = false;
-                    // Todo, use common delete function to delete items
-                    if(mesh.parent)
-                        mesh.parent.dispose();
-                    else
-                        mesh.dispose();
+
+                    const info = mesh.name.split("_");
+                    const objectType = info[0];
+                    const objectID = info[1];
+                    mesh.dispose();
+                    switch(objectType) {
+                        case ObjectType.ITEM :
+                            bizdata.removeItem(objectID);
+                            break;
+                        case ObjectType.DOOR :
+                            bizdata.removeDoor(objectID);
+                            break;
+                    }
                     mesh = null;
                 }
             });
@@ -57,7 +65,7 @@ export class PopupGUI {
         this._deletePanel.linkWithMesh(mesh);
     }
 
-    public display(graphics: Graphics, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
-        this.displayPanel(graphics, pickedMesh);
+    public display(graphics: Graphics, bizdata: BizData, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
+        this.displayPanel(graphics, bizdata, pickedMesh);
     }
 }

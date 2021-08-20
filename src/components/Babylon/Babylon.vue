@@ -513,7 +513,7 @@ export default defineComponent({
                 switch (pointerInfo.type) {
                     case BABYLON.PointerEventTypes.POINTERDOWN:
                         if (pointerInfo && pointerInfo.pickInfo && pointerInfo.pickInfo.pickedMesh) {
-                            this.gui.display(this.graphics, pointerInfo.pickInfo.pickedMesh);
+                            this.gui.display(this.graphics, this.bizdata as BizData, this.graphics.getRootMesh(pointerInfo.pickInfo.pickedMesh));
                             const meshName = pointerInfo.pickInfo.pickedMesh.name;
                             if (meshName.startsWith("BackgroundArea")) {
                                 // Hit the available area.
@@ -570,7 +570,7 @@ export default defineComponent({
                                 }
                             }
                         } else {
-                            this.gui.display(this.graphics, null);
+                            this.gui.display(this.graphics, this.bizdata as BizData, null);
                         }
                         break;
                 }

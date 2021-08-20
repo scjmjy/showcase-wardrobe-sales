@@ -74,7 +74,7 @@ export class Graphics {
         this._camera.pinchDeltaPercentage = 0.0001;
         this._camera.lowerAlphaLimit = 0;
         this._camera.upperAlphaLimit = Math.PI;
-        this._camera.lowerBetaLimit = Math.PI / 3;
+        this._camera.lowerBetaLimit = Math.PI / 2;
         this._camera.upperBetaLimit = Math.PI / 2;
         // Control the zoom limit.
         this._camera.upperRadiusLimit = 12000;
@@ -462,7 +462,7 @@ export class Graphics {
         } else {
             this._camera.lowerAlphaLimit = 0;
             this._camera.upperAlphaLimit = Math.PI;
-            this._camera.lowerBetaLimit = Math.PI / 3;
+            this._camera.lowerBetaLimit = Math.PI / 2;
             this._camera.upperBetaLimit = Math.PI / 2;
             this._camera.upperRadiusLimit = 12000;
             this._camera.lowerRadiusLimit = 800;
