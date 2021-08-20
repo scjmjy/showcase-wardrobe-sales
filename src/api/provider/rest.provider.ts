@@ -2,6 +2,9 @@ import store from "@/store";
 import request from "@/utils/request";
 import {
     AjaxResponse,
+    Background,
+    BackgroundType,
+    CreateSchemeResult,
     Customer,
     GlobalCfg,
     LoginResult,
@@ -214,9 +217,9 @@ export default class RestProvider extends LocalProvider {
         name: string,
         eid: string | number,
         cid: string | number,
-        pid: string | number,
+        pid?: string | number,
         sid?: string | number,
-    ): Promise<AjaxResponse<string | number>> {
+    ): Promise<AjaxResponse<CreateSchemeResult>> {
         return new Promise((resolve) => {
             request({
                 method: "POST",
@@ -241,7 +244,7 @@ export default class RestProvider extends LocalProvider {
                         ok: false,
                         status: 500,
                         show: "error",
-                        msg: "创建新方案出错",
+                        msg: "创建方案出错",
                     });
                 });
         });
@@ -274,6 +277,29 @@ export default class RestProvider extends LocalProvider {
                         status: 500,
                         show: "error",
                         msg: "获取客户方案列表出错",
+                    });
+                });
+        });
+    }
+    requestSchemeDetail(sid: string | number): Promise<AjaxResponse<Scheme>> {
+        return new Promise((resolve) => {
+            request({
+                method: "GET",
+                url: "/api/v1/biz/scheme/" + sid,
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取方案详情出错",
                     });
                 });
         });
@@ -383,6 +409,35 @@ export default class RestProvider extends LocalProvider {
                         status: 500,
                         show: "error",
                         msg: "获取配件列表出错",
+                    });
+                });
+        });
+    }
+
+    requestBackgrounds(btype: BackgroundType, page: number, pageSize = 10): Promise<AjaxResponse<Background[]>> {
+        return new Promise((resolve) => {
+            request({
+                method: "POST",
+                url: "/api/v1/biz/backgrounds",
+                data: {
+                    btype,
+                    page,
+                    pageSize,
+                },
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取背景出错",
                     });
                 });
         });

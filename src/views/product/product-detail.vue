@@ -30,12 +30,17 @@
         <el-collapse-transition-h @after-leave="mode = 'edit'">
             <div v-if="mode === 'view'" class="product-detail__action-customize">
                 <div>
-                    <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="creatingNewScheme"
+                    <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
                         >开始定制</el-button
                     >
                     <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
                     <el-button type="primary" round v-if="isSelf && !product.offer" @click="offer">报价</el-button>
-                    <el-button type="primary" round v-if="isSelf || isOther" @click="copyScheme"
+                    <el-button
+                        type="primary"
+                        round
+                        v-if="isSelf || isOther"
+                        @click="copyScheme"
+                        :loading="loadingCopying"
                         >由此方案定制</el-button
                     >
                 </div>
@@ -52,8 +57,6 @@
             <!-- TODO: remove the test codes -->
             <div class="product-detail__action-test state-icon-group-h">
                 <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
-                <state-icon icon="offer" label="添加抽屉" @change="onAddDrawerClick"></state-icon>
-                <state-icon icon="offer" label="添加隔板" @change="onAddShelfClick"></state-icon>
                 <state-icon icon="offer" label="合页门" @change="onAddDoorClick('left')"></state-icon>
                 <state-icon icon="offer" label="滑门" @change="onAddDoorClick('slide')"></state-icon>
                 <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick"></state-icon>
@@ -105,8 +108,8 @@
         <customize-dlg
             v-model="showCustomizeDlg"
             :title="customizeDlgTitle"
-            @confirm="onNewSchemeConfirm"
-            @cancel="onNewSchemeCancel"
+            @confirm="onCustomizeConfirm"
+            @cancel="onCustomizeCancel"
         />
         <offer-dlg v-model="showOfferDlg" title="报价" @confirm="showOfferDlg = false" @cancel="showOfferDlg = false" />
         <metals-dlg v-model="showMetalsDlg" />
@@ -173,7 +176,8 @@ export default defineComponent({
         const showCustomizeDlg = ref(false);
         const showOfferDlg = ref(false);
         const showMetalsDlg = ref(false);
-        const creatingNewScheme = ref(false);
+        const loadingCreating = ref(false);
+        const loadingCopying = ref(false);
 
         async function gotoEditScheme() {
             showCustomizeDlg.value = false;
@@ -215,8 +219,8 @@ export default defineComponent({
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
         const scheme = ref(util.importSchemeJson("mf/scheme.json"));
-        function getAvailableArea(partId: number): Area[] {
-            partId;
+        function getAvailableArea(part: PartType): Area[] {
+            part;
 
             // TODO: compute the available areas later.
             const areas = [];
@@ -278,6 +282,9 @@ export default defineComponent({
                         const objectSelectedEvent = event as ObjectSelectedEvent;
                         if (objectSelectedEvent !== undefined) {
                             console.log(objectSelectedEvent);
+                            const catId = 7;
+                            const partId = 19;
+                            refPartsMenu.value?.pushTabStack(catId, partId);
                         }
                     }
                     break;
@@ -306,12 +313,6 @@ export default defineComponent({
             onLogSchemeClick() {
                 console.log("LogScheme: ", scheme);
             },
-            onAddDrawerClick() {
-                selectedPartId.value = 300005;
-            },
-            onAddShelfClick() {
-                selectedPartId.value = 300001;
-            },
             onAddDoorClick(type: string) {
                 debugger;
                 if (!refBabylon.value) {
@@ -325,20 +326,29 @@ export default defineComponent({
                 let door_cubes: string[] = [];
                 switch (type) {
                     case "left":
-                        // 合页门 (type: 1): add 2 doors for both cubes
-                        door_mf_url = "43b3e66e-c416-4602-bb76-97a172138737.json";
-                        door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
-                        refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, 1, door_cubes));
+                        {
+                            const catId = 3;
+                            // 合页门 (type: 1): add 2 doors for both cubes
+                            door_mf_url = "43b3e66e-c416-4602-bb76-97a172138737.json";
+                            door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
+                            refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 1, door_cubes));
 
-                        door_cubes = ["ce28f905-a6e1-4f68-9998-ed13f950ea91"];
-                        refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, 1, door_cubes));
+                            door_cubes = ["ce28f905-a6e1-4f68-9998-ed13f950ea91"];
+                            refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 1, door_cubes));
+                        }
                         break;
 
                     case "slide":
-                        // 滑门 (type: 2). 需要指定2个连续的cube
-                        door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
-                        door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d", "ce28f905-a6e1-4f68-9998-ed13f950ea91"];
-                        refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, 2, door_cubes));
+                        {
+                            // 滑门 (type: 2). 需要指定2个连续的cube
+                            door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
+                            door_cubes = [
+                                "4cd170f8-291b-4236-b515-b5d27ac1209d",
+                                "ce28f905-a6e1-4f68-9998-ed13f950ea91",
+                            ];
+                            const catId = 2;
+                            refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 2, door_cubes));
+                        }
                         break;
 
                     case "right":
@@ -385,7 +395,8 @@ export default defineComponent({
             showOfferDlg,
             showMetalsDlg,
             customizeDlgTitle,
-            creatingNewScheme,
+            loadingCreating,
+            loadingCopying,
             titles: computed(() => {
                 const { customerName } = store.state.currentCustomer;
                 let productName = "";
@@ -410,8 +421,6 @@ export default defineComponent({
             },
             newScheme() {
                 customizeMode.value = "new";
-                // TODO uncomment
-                // showCustomizeDlg.value = true;
                 if (!store.state.currentCustomer.customerId) {
                     ElMessage({
                         type: "warning",
@@ -419,29 +428,7 @@ export default defineComponent({
                     });
                     return;
                 }
-                creatingNewScheme.value = true;
-                apiProvider
-                    .createNewScheme(
-                        "新方案" + Date.now(),
-                        store.state.user.eid,
-                        store.state.currentCustomer.customerId,
-                        product.value.id,
-                    )
-                    .then((res) => {
-                        if (res.ok) {
-                            gotoEditScheme();
-                        } else if (res.show) {
-                            ElMessage({
-                                type: res.show,
-                                message: res.msg,
-                            });
-                        }
-                    })
-                    .finally(() => {
-                        creatingNewScheme.value = false;
-                    });
-                // TODO remove
-                // gotoEditScheme();
+                showCustomizeDlg.value = true;
             },
             continueEditScheme() {
                 customizeMode.value = "continue";
@@ -456,15 +443,61 @@ export default defineComponent({
                     return;
                 }
                 customizeMode.value = "copy";
-                // TODO uncomment
-                // showCustomizeDlg.value = true;
-                // TODO remove
-                gotoEditScheme();
+                showCustomizeDlg.value = true;
             },
-            onNewSchemeConfirm() {
-                gotoEditScheme();
+            onCustomizeConfirm() {
+                const cid = store.state.currentCustomer.customerId;
+                if (customizeMode.value === "new") {
+                    loadingCreating.value = true;
+                    const p = product.value as Product;
+                    apiProvider
+                        .createNewScheme(p.name, store.state.user.eid, cid, p.id)
+                        .then((res) => {
+                            if (res.ok && res.data) {
+                                apiProvider.requestSchemeDetail(res.data.id).then((res) => {
+                                    if (res.ok && res.data) {
+                                        product.value = res.data;
+                                        product.value.cid = cid;
+                                        gotoEditScheme();
+                                    }
+                                });
+                            } else if (res.show) {
+                                ElMessage({
+                                    type: res.show,
+                                    message: res.msg,
+                                });
+                            }
+                        })
+                        .finally(() => {
+                            loadingCreating.value = false;
+                        });
+                } else if (customizeMode.value === "copy") {
+                    loadingCopying.value = true;
+                    const scheme = product.value as Scheme;
+                    apiProvider
+                        .createNewScheme(scheme.product, store.state.user.eid, cid, undefined, scheme.id)
+                        .then((res) => {
+                            if (res.ok && res.data) {
+                                apiProvider.requestSchemeDetail(res.data.id).then((res) => {
+                                    if (res.ok && res.data) {
+                                        product.value = res.data;
+                                        product.value.cid = cid;
+                                        gotoEditScheme();
+                                    }
+                                });
+                            } else if (res.show) {
+                                ElMessage({
+                                    type: res.show,
+                                    message: res.msg,
+                                });
+                            }
+                        })
+                        .finally(() => {
+                            loadingCopying.value = false;
+                        });
+                }
             },
-            onNewSchemeCancel() {
+            onCustomizeCancel() {
                 showCustomizeDlg.value = false;
             },
             gotoBack() {
@@ -614,7 +647,7 @@ export default defineComponent({
     &__action-left {
         position: absolute;
         left: 60px;
-        bottom: 60px;
+        bottom: 30px;
         :deep(.el-button) {
             display: block;
             margin-left: 0 !important;
@@ -625,7 +658,7 @@ export default defineComponent({
     &__gooeyMenu {
         position: absolute;
         left: 140px;
-        bottom: 98px;
+        bottom: 68px;
     }
     &__action-test {
         position: absolute;

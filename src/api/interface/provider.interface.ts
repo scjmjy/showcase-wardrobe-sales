@@ -85,7 +85,7 @@ export interface Customer {
 }
 
 export interface Scheme {
-    id: string;
+    id: number | string;
     name: string;
     cid: string;
     customer: string;
@@ -99,12 +99,17 @@ export interface Scheme {
     cover: string[];
 }
 
+export interface CreateSchemeResult {
+    id: number | string;
+}
+
 export interface PartCategory {
     id: string | number;
     name: string;
     pic?: string;
     leaf?: boolean;
     children?: PartCategory[];
+    btype?: BackgroundType;
 }
 
 /**
@@ -183,6 +188,17 @@ export interface GlobalCfg {
     partsCatExterior: PartIdList;
 }
 
+export enum BackgroundType {
+    WALL = 1,
+    FLOOR = 2,
+}
+
+export interface Background {
+    name: string;
+    id: string;
+    pic: string;
+}
+
 export default interface ApiProvider {
     /**
      * 登录接口
@@ -231,9 +247,9 @@ export default interface ApiProvider {
         name: string,
         eid: string | number,
         cid: string | number,
-        pid: string | number,
+        pid?: string | number,
         sid?: string | number,
-    ): Promise<AjaxResponse<string | number>>;
+    ): Promise<AjaxResponse<CreateSchemeResult>>;
 
     requestPartCategories(): Promise<AjaxResponse<PartCategory[]>>;
     /**
@@ -257,4 +273,6 @@ export default interface ApiProvider {
         cid: string | number,
         mid: string | number,
     ): Promise<AjaxResponse<Part[]>>;
+
+    requestBackgrounds(btype: BackgroundType, page: number, pageSize: number): Promise<AjaxResponse<Background[]>>;
 }

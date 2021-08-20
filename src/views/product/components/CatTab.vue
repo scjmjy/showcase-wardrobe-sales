@@ -1,6 +1,6 @@
 <template>
     <div class="cat-tab">
-        <el-button v-if="up" type="text" size="small" @click="$emit('up')">上一层</el-button>
+        <el-button v-if="up" type="text" size="small" @click="onUpClick">上一层</el-button>
         <div class="cat-tab__children">
             <span>筛选</span>
             <el-button
@@ -62,12 +62,16 @@
             </div>
         </el-collapse-transition>
         <div class="cat-tab__parts-title">{{ partTitle }}</div>
-        <el-row ref="elRow" class="cat-tab__parts" :gutter="20" @scroll="onScroll">
-            <el-col v-for="part in parts" :key="part.id" :span="12" style="max-height: 180px">
+        <div ref="refScroll" class="cat-tab__parts" @scroll="onScroll">
+            <part-card v-for="part in parts" :key="part.id" :part="part" @click="onPartClick"> </part-card>
+            <load-more :state="loadState" @loadmore="onScroll" />
+        </div>
+        <!-- <el-row ref="elRow" class="cat-tab__parts" :gutter="20" @scroll="onScroll">
+            <el-col v-for="part in parts" :key="part.id" :span="12">
                 <part-card :part="part" @click="onPartClick"> </part-card>
             </el-col>
             <load-more :state="loadState" @loadmore="onScroll" />
-        </el-row>
+        </el-row> -->
     </div>
 </template>
 
@@ -77,8 +81,8 @@ import {
     MetaColor,
     MetaMaterial,
     Part,
+    PartCategory,
     PartCategoryMeta,
-    ProductCategory,
 } from "@/api/interface/provider.interface";
 import { computed, defineComponent, nextTick, onMounted, PropType, ref, watch } from "vue";
 import apiProvider from "@/api/provider";
@@ -109,7 +113,7 @@ export default defineComponent({
             default: false,
         },
         cat: {
-            type: Object as PropType<ProductCategory>,
+            type: Object as PropType<PartCategory>,
             default: () => ({}),
         },
     },
@@ -131,6 +135,7 @@ export default defineComponent({
         }
 
         const elRow = ref<InstanceType<typeof ElRow>>();
+        const refScroll = ref<HTMLDivElement>();
         let pageScroll: PageScroll<Part> | undefined;
 
         function requestApi(page: number, pageSize: number) {
@@ -144,7 +149,8 @@ export default defineComponent({
             pageScroll?.onScroll();
         }
         onMounted(() => {
-            const el = elRow.value?.$el as HTMLElement;
+            // const el = elRow.value?.$el as HTMLElement;
+            const el = refScroll.value as HTMLElement;
             pageScroll = new PageScroll(el, requestApi, loadState, parts);
             pageScroll.requestPage();
         });
@@ -185,6 +191,7 @@ export default defineComponent({
         return {
             loadState,
             elRow,
+            refScroll,
             showFilter,
             selectedChildCatId,
             selectedBrandIds,
@@ -202,7 +209,7 @@ export default defineComponent({
                 }
                 return props.cat.name;
             }),
-            onChildCatClick(c: ProductCategory) {
+            onChildCatClick(c: PartCategory) {
                 selectedChildCatId.value = c.id.toString();
                 requestPartCatMeta();
             },
@@ -231,6 +238,10 @@ export default defineComponent({
             onPartClick(part: Part) {
                 ctx.emit("part", part, props.cat);
             },
+            onUpClick() {
+                // const isBg = !!props.cat.btype;
+                ctx.emit("up");
+            },
         };
     },
 });
@@ -257,10 +268,11 @@ export default defineComponent({
     }
     &__parts-title {
         margin-top: 20px;
+        margin-bottom: 10px;
         font-size: 22px;
         font-weight: bold;
         color: var(--el-color-black);
-        text-align: center;
+        // text-align: center;
     }
     &__parts {
         // flex: 1;

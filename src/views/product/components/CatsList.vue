@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="up" style="text-align: center">
-            <el-button type="text" size="small" @click="$emit('up')">上一层</el-button>
+            <el-button type="text" size="small" @click="onUpClick">上一层</el-button>
         </div>
         <part-cat-card v-for="cat in cats" :key="cat.id" :cat="cat" @click="onCatClick">
             {{ cat.name }}
@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { ProductCategory } from "@/api/interface/provider.interface";
+import { PartCategory } from "@/api/interface/provider.interface";
 import PartCatCard from "./PartCatCard.vue";
 
 export default defineComponent({
@@ -22,7 +22,7 @@ export default defineComponent({
             default: false,
         },
         cats: {
-            type: Array as PropType<ProductCategory[]>,
+            type: Array as PropType<PartCategory[]>,
             default: () => [],
         },
     },
@@ -32,8 +32,12 @@ export default defineComponent({
     },
     setup(props, ctx) {
         return {
-            onCatClick(cat: ProductCategory) {
+            onCatClick(cat: PartCategory) {
                 ctx.emit("click", cat, props.cats);
+            },
+            onUpClick() {
+                // const isBg = props.cats.find((c) => !!c.btype);
+                ctx.emit("up");
             },
         };
     },

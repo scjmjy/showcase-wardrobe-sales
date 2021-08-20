@@ -12,7 +12,7 @@ export function importSchemeJson(url: string) {
 
     const background: Item[] = [];
     mf.manifest.background.forEach((element: any) => {
-        const item = new Item(element.id, element.partId, element.manifest);
+        const item = new Item(element.id, element.partId, element.manifest, null);
         background.push(item);
     });
 
@@ -51,11 +51,11 @@ export function importSchemeJson(url: string) {
             }
 
             const location = new Location(item.location.locationType, startPos, relativeItem);
-            const newItem = new Item(item.id, item.partId, item.manifest, location);
+            const newItem = new Item(item.id, item.partId, item.manifest, item.catId, location);
             items.push(newItem);
         });
 
-        const newCube = new Cube(cube.id, cube.partId, cube.manifest, items);
+        const newCube = new Cube(cube.id, cube.partId, cube.manifest, cube.catId, items);
         cubes.push(newCube);
     });
 
@@ -66,7 +66,7 @@ export function importSchemeJson(url: string) {
             doorCubes.push(cube);
         });
 
-        const newDoor = new Door(door.id, door.partId, door.manifest, door.doorType, doorCubes);
+        const newDoor = new Door(door.id, door.partId, door.manifest, door.catId, door.doorType, doorCubes);
         doors.push(newDoor);
     });
 

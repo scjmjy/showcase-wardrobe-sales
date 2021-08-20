@@ -18,7 +18,7 @@ import { Customer } from "@/api/interface/provider.interface";
 import variables from "@/assets/scss/variables.scss";
 import { useStore } from "vuex";
 // import { onBeforeRouteUpdate } from "vue-router";
-import PageScroll, { checkReachBottom, LOAD_STATE } from "@/utils/page-scroll";
+import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 import LoadMore from "@/components/LoadMore.vue";
 import { StateType } from "@/store";
 import { ElMenu } from "element-plus";
