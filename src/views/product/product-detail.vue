@@ -59,6 +59,7 @@
                 <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
                 <state-icon icon="offer" label="合页门" @change="onAddDoorClick('left')"></state-icon>
                 <state-icon icon="offer" label="滑门" @change="onAddDoorClick('slide')"></state-icon>
+                <state-icon icon="offer" label="清除门" @change="onDeleteClick('door')"></state-icon>
                 <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick"></state-icon>
                 <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick"></state-icon>
             </div>
@@ -312,6 +313,22 @@ export default defineComponent({
             eventHandle,
             onLogSchemeClick() {
                 console.log("LogScheme: ", scheme);
+            },
+
+            onDeleteClick(part_type: string) {
+                debugger;
+                if (!refBabylon.value) {
+                    console.error("refBabylon.value is not defined!");
+                    throw Error("refBabylon.value is not defined!");
+                }
+
+                switch (part_type) {
+                    case 'door':
+                        refBabylon.value!.removeDoorsApi();
+                        break;
+                    default: 
+                        throw Error(`unknown part type: ${part_type}`);
+                }
             },
             onAddDoorClick(type: string) {
                 debugger;
