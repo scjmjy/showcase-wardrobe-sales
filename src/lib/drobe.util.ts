@@ -55,12 +55,22 @@ export class HmPartManifest extends StObject {
     }
 
     static buildFromUrl(part_url: string): HmPartManifest {
-        if(part_url.indexOf('mf/') == 0) {
-            return require("@/assets/" + part_url);
+        let obj: HmPartManifest;
+        if (part_url.indexOf("mf/") == 0) {
+            obj = require("@/assets/" + part_url);
+        }else{
+            obj = require("@/assets/mf/" + part_url) as HmPartManifest;
         }
-        const mf = require("@/assets/mf/" + part_url);
-        const obj: HmPartManifest = mf;
-        return obj;
+        
+        // [guilin: 8-20] 'obj' is NOT an HmPartManifest object! 
+        // Reason: `${obj}` -- >  [object Object] 
+        // return obj;
+        const mf = new HmPartManifest( {
+            bbox: obj.bbox,
+            size: obj.size,
+            models: obj.models
+        });
+        return mf;
     }
 
     constructor(opt: { bbox?: HmBoundingBox; size: StSketchVector3; models: HmModel[] }) {
@@ -108,17 +118,20 @@ class DrobeUtil extends StObject {
 	} 
     */
 
-
     /**
-     * Find Cube's LEFT-BOTTOM corner in WORLD space
+     * Find Cube's LEFT-BOTTOM corner in LOCAL/WORLD space
      */
-    private _findCubeLeftBottom(cube: CubeData): StVector {
-        return new StVector(cube.origin.x - cube.width/2, cube.origin.y);
+    private _findCubeLeftBottom(cube: CubeData, local: boolean = true): StVector {
+        if(local) {
+            return new StVector(-1 * cube.width / 2, 0);;
+        }else{
+            // WORLD space
+            return new StVector(cube.origin.x - cube.width / 2, cube.origin.y);
+        }
     }
 
-
-    private _buildCubeRect(cube: CubeData): StSketchRect {
-        const start_pt = StSketchPoint.buildFromVector( this._findCubeLeftBottom(cube) );
+    private _buildCubeRect(cube: CubeData, local: boolean = true): StSketchRect {
+        const start_pt = StSketchPoint.buildFromVector(this._findCubeLeftBottom(cube, local));
         return StSketchRect.buildRectByStartPoint(start_pt, cube.width, cube.height);
     }
 
@@ -126,13 +139,13 @@ class DrobeUtil extends StObject {
         const rects: StSketchRect[] = [];
         const items = bizdata.findCubeItems(id);
         const cube_lb = this._findCubeLeftBottom(cube);
-        if(items == null || items.length == 0)  {
+        if (items == null || items.length == 0) {
             console.log(`Find NONE occupied rect!`);
             return rects;
         }
-        items.forEach(e => {
+        items.forEach((e) => {
             const mf = HmPartManifest.buildFromUrl(e.manifest);
-            this.assertValid(e.location);  
+            this.assertValid(e.location);
             this.assertValid(e.location!.startPos);
             // calulate the part's LEFT-BOTTOM in WORLD Space.
             const vec = new StVector(e.location!.startPos!.x, e.location!.startPos!.y);
@@ -141,27 +154,28 @@ class DrobeUtil extends StObject {
             const r = StSketchRect.buildRectByStartPoint(pt, mf.size.x, mf.size.y);
             rects.push(r);
         });
-        
+
         console.log(`Find occupied rects: ${rects.length}`);
         return rects;
     }
 
-    private _convertRectToArea( areas: Area[], rects: StSketchRect[], depth:number, cube_id: string ) : Area[] {
-        rects.forEach( r => {
-            const p0 = r.getStartPosition();
-            const p1 = r.getPosition(3);
+    private _convertRectToArea(areas: Area[], rects: StSketchRect[], depth: number, cube_id: string): Area[] {
+        rects.forEach((r) => {
+            const p0 = r.getPosition(0);
+            const p1 = r.getPosition(2);
             const area = new Area(
-                cube_id, 
-                new Position(p0.x, p0.y, depth/2 * -1), 
-                new Position(p1.x, p1.y, depth/2 ) );
+                cube_id,
+                new Position(p0.x, p0.y, (depth / 2) * -1),
+                new Position(p1.x, p1.y, depth / 2),
+            );
             areas.push(area);
         });
         return areas;
     }
 
-    getAvailableAreaById(bizdata: BizData, part_id: string ): Area[] {
+    getAvailableAreaById(bizdata: BizData, part_id: string): Area[] {
         const mf_url = bizdata.partManifestMap.get(`${part_id}`);
-        if(! mf_url) {
+        if (!mf_url) {
             throw Error(`NO manifest is found by ID; ${part_id}`);
         }
         return this.getAvailableAreaByMfUrl(bizdata, mf_url);
@@ -170,22 +184,21 @@ class DrobeUtil extends StObject {
     /**
      * Search all cubes for all the available areas
      */
-    getAvailableAreaByMfUrl(bizdata: BizData, part_mf_url: string ): Area[] {
-        const part: HmPartManifest = HmPartManifest.buildFromUrl(part_mf_url);
+    getAvailableAreaByMfUrl(bizdata: BizData, part_mf_url: string): Area[] {
+        const part: HmPartManifest = HmPartManifest.buildFromUrl(part_mf_url) as HmPartManifest;
         console.debug(`calculate available areas for part: ${part}`);
         const areas: Area[] = [];
         const part_size = new StVector(part.size.x, part.size.y);
-        for(const cube_id of bizdata.cubeMap.keys()) {
+        for (const cube_id of bizdata.cubeMap.keys()) {
             const cube = bizdata.cubeMap.get(cube_id)!;
             const host = this._buildCubeRect(cube);
             const occupied = this._findCubeOccupied(bizdata, cube_id, cube);
             const rects = StSketchRect.calcAvailableRect(host, occupied, part_size);
             this._convertRectToArea(areas, rects, cube.depth, cube_id);
         }
-        console.log(`Get ${areas.length} available areas: ${areas}`);
+        console.log(`Get ${areas.length} available areas: ${StObject.buildArrayString(areas)}`);
         return areas;
     }
-
 
     /**
      * Add a door for cubes, which is described in object `door`;
@@ -195,24 +208,24 @@ class DrobeUtil extends StObject {
      * @returns UUID of the newly added door
      */
     addDoor(graphics: Graphics, bizdata: BizData, door: Door): string {
-        const door_pos = new BABYLON.Vector3(0, 0, 500); 
+        const door_pos = new BABYLON.Vector3(0, 0, 500);
 
-        if(door.doorType == 1) {
+        if (door.doorType == 1) {
             this.assertTrue(door.cubes.length == 1, `ONLY ONE cube is needed to add a HINGE DOOR: ${door}`);
             const cube_data = bizdata.findCubeDataById(door.cubes[0]);
-            if(!cube_data) {
+            if (!cube_data) {
                 throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
             }
             door_pos.x += cube_data.origin.x;
-            door_pos.z = cube_data.depth/2;
-        }else if(door.doorType == 2) {
+            door_pos.z = cube_data.depth / 2;
+        } else if (door.doorType == 2) {
             this.assertTrue(door.cubes.length == 2, `TWO cubes are needed to add a SLIDE DOOR: ${door}`);
             const cube_data = bizdata.findCubeDataById(door.cubes[0]);
-            if(!cube_data) {
+            if (!cube_data) {
                 throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
             }
-            door_pos.z = cube_data.depth/2;
-        }else {
+            door_pos.z = cube_data.depth / 2;
+        } else {
             throw Error(`unknow door type: ${door}`);
         }
 
@@ -223,7 +236,6 @@ class DrobeUtil extends StObject {
         console.log(`add door at ${door_pos}: ${door}`);
         return door.id;
     }
-
 }
 
 export const drobeUtil = new DrobeUtil();

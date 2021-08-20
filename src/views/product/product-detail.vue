@@ -57,8 +57,6 @@
             <!-- TODO: remove the test codes -->
             <div class="product-detail__action-test state-icon-group-h">
                 <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
-                <state-icon icon="offer" label="添加抽屉" @change="onAddDrawerClick"></state-icon>
-                <state-icon icon="offer" label="添加隔板" @change="onAddShelfClick"></state-icon>
                 <state-icon icon="offer" label="合页门" @change="onAddDoorClick('left')"></state-icon>
                 <state-icon icon="offer" label="滑门" @change="onAddDoorClick('slide')"></state-icon>
                 <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick"></state-icon>
@@ -221,8 +219,8 @@ export default defineComponent({
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
         const scheme = ref(util.importSchemeJson("mf/scheme.json"));
-        function getAvailableArea(partId: number): Area[] {
-            partId;
+        function getAvailableArea(part: PartType): Area[] {
+            part;
 
             // TODO: compute the available areas later.
             const areas = [];
@@ -315,12 +313,6 @@ export default defineComponent({
             onLogSchemeClick() {
                 console.log("LogScheme: ", scheme);
             },
-            onAddDrawerClick() {
-                selectedPartId.value = 300005;
-            },
-            onAddShelfClick() {
-                selectedPartId.value = 300001;
-            },
             onAddDoorClick(type: string) {
                 debugger;
                 if (!refBabylon.value) {
@@ -334,20 +326,29 @@ export default defineComponent({
                 let door_cubes: string[] = [];
                 switch (type) {
                     case "left":
-                        // 合页门 (type: 1): add 2 doors for both cubes
-                        door_mf_url = "43b3e66e-c416-4602-bb76-97a172138737.json";
-                        door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
-                        refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, 1, door_cubes));
+                        {
+                            const catId = 3;
+                            // 合页门 (type: 1): add 2 doors for both cubes
+                            door_mf_url = "43b3e66e-c416-4602-bb76-97a172138737.json";
+                            door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
+                            refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 1, door_cubes));
 
-                        door_cubes = ["ce28f905-a6e1-4f68-9998-ed13f950ea91"];
-                        refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, 1, door_cubes));
+                            door_cubes = ["ce28f905-a6e1-4f68-9998-ed13f950ea91"];
+                            refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 1, door_cubes));
+                        }
                         break;
 
                     case "slide":
-                        // 滑门 (type: 2). 需要指定2个连续的cube
-                        door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
-                        door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d", "ce28f905-a6e1-4f68-9998-ed13f950ea91"];
-                        refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, 2, door_cubes));
+                        {
+                            // 滑门 (type: 2). 需要指定2个连续的cube
+                            door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
+                            door_cubes = [
+                                "4cd170f8-291b-4236-b515-b5d27ac1209d",
+                                "ce28f905-a6e1-4f68-9998-ed13f950ea91",
+                            ];
+                            const catId = 2;
+                            refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 2, door_cubes));
+                        }
                         break;
 
                     case "right":
