@@ -1,5 +1,5 @@
 <template>
-    <div class="part-card" :class="{ active: active }">
+    <div ref="refEl" class="part-card" :class="{ active: active }">
         <el-image
             class="part-card__img u-clickable"
             :src="part.pic"
@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { Part } from "@/api/interface/provider.interface";
-import { defineComponent, PropType } from "vue";
+import { computed, defineComponent, inject, onMounted, PropType, ref, Ref, watch } from "vue";
 
 export default defineComponent({
     name: "PartCard",
@@ -21,14 +21,35 @@ export default defineComponent({
             type: Object as PropType<Part>,
             default: () => ({}),
         },
-        active: {
-            type: Boolean,
-            default: false,
-        },
+        // active: {
+        //     type: Boolean,
+        //     default: false,
+        // },
     },
     emits: ["click"],
-    setup() {
-        return {};
+    setup(props) {
+        const refEl = ref<HTMLDivElement>();
+        const selectedPartId = inject<Ref<number>>("selectedPartId", ref(0));
+        const active = computed(() => props.part.id == selectedPartId.value);
+        onMounted(() => {
+            watch(
+                () => active.value,
+                (isActive) => {
+                    if (isActive) {
+                        console.log("【scrollIntoView】");
+                        refEl.value?.scrollIntoView({ behavior: "smooth" });
+                    }
+                },
+                {
+                    immediate: true,
+                },
+            );
+        });
+        return {
+            refEl,
+            selectedPartId,
+            active,
+        };
     },
 });
 </script>

@@ -1,28 +1,34 @@
 <template>
-    <div class="material-item">
-        <el-image class="material-item__img u-clickable" :src="material.pic" @click="onImgClick"></el-image>
-        <el-radio v-bind="$attrs" :label="material.id.toString()" @change="onImgClick">{{ material.name }}</el-radio>
+    <div class="img-radio-item">
+        <el-image class="img-radio-item__img u-clickable" :src="option.url" @click="onClick"></el-image>
+        <el-radio v-bind="$attrs" :label="option.value" @change="onClick">{{ option.label }}</el-radio>
     </div>
 </template>
 
 <script lang="ts">
-import { MetaMaterial } from "@/api/interface/provider.interface";
+import { LabelValue } from "@/api/interface/common.interfact";
 import { defineComponent, PropType } from "vue";
 
+export interface ImgRadioItemType {
+    label: string;
+    value: string | number;
+    url: string;
+}
+
 export default defineComponent({
-    name: "MaterialItem",
+    name: "ImgRadioItem",
     props: {
-        material: {
-            type: Object as PropType<MetaMaterial>,
+        option: {
+            type: Object as PropType<LabelValue>,
             default: () => ({}),
         },
     },
     emits: ["update:modelValue", "change"],
     setup(props, ctx) {
         return {
-            onImgClick() {
-                const myId = props.material.id.toString();
-                const val = ctx.attrs.modelValue === myId ? "" : myId;
+            onClick() {
+                const myVal = props.option.value;
+                const val = ctx.attrs.modelValue === myVal ? "" : myVal;
                 ctx.emit("update:modelValue", val);
                 ctx.emit("change", val);
             },
@@ -32,7 +38,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.material-item {
+.img-radio-item {
     display: inline-flex;
     flex-direction: column;
     align-items: center;

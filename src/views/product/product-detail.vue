@@ -30,12 +30,17 @@
         <el-collapse-transition-h @after-leave="mode = 'edit'">
             <div v-if="mode === 'view'" class="product-detail__action-customize">
                 <div>
-                    <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="creatingNewScheme"
+                    <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
                         >开始定制</el-button
                     >
                     <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
                     <el-button type="primary" round v-if="isSelf && !product.offer" @click="offer">报价</el-button>
-                    <el-button type="primary" round v-if="isSelf || isOther" @click="copyScheme"
+                    <el-button
+                        type="primary"
+                        round
+                        v-if="isSelf || isOther"
+                        @click="copyScheme"
+                        :loading="loadingCopying"
                         >由此方案定制</el-button
                     >
                 </div>
@@ -105,8 +110,8 @@
         <customize-dlg
             v-model="showCustomizeDlg"
             :title="customizeDlgTitle"
-            @confirm="onNewSchemeConfirm"
-            @cancel="onNewSchemeCancel"
+            @confirm="onCustomizeConfirm"
+            @cancel="onCustomizeCancel"
         />
         <offer-dlg v-model="showOfferDlg" title="报价" @confirm="showOfferDlg = false" @cancel="showOfferDlg = false" />
         <metals-dlg v-model="showMetalsDlg" />
@@ -173,7 +178,8 @@ export default defineComponent({
         const showCustomizeDlg = ref(false);
         const showOfferDlg = ref(false);
         const showMetalsDlg = ref(false);
-        const creatingNewScheme = ref(false);
+        const loadingCreating = ref(false);
+        const loadingCopying = ref(false);
 
         async function gotoEditScheme() {
             showCustomizeDlg.value = false;
@@ -278,6 +284,9 @@ export default defineComponent({
                         const objectSelectedEvent = event as ObjectSelectedEvent;
                         if (objectSelectedEvent !== undefined) {
                             console.log(objectSelectedEvent);
+                            const catId = 7;
+                            const partId = 19;
+                            refPartsMenu.value?.pushTabStack(catId, partId);
                         }
                     }
                     break;
@@ -385,7 +394,8 @@ export default defineComponent({
             showOfferDlg,
             showMetalsDlg,
             customizeDlgTitle,
-            creatingNewScheme,
+            loadingCreating,
+            loadingCopying,
             titles: computed(() => {
                 const { customerName } = store.state.currentCustomer;
                 let productName = "";
@@ -410,8 +420,6 @@ export default defineComponent({
             },
             newScheme() {
                 customizeMode.value = "new";
-                // TODO uncomment
-                // showCustomizeDlg.value = true;
                 if (!store.state.currentCustomer.customerId) {
                     ElMessage({
                         type: "warning",
@@ -419,29 +427,7 @@ export default defineComponent({
                     });
                     return;
                 }
-                creatingNewScheme.value = true;
-                apiProvider
-                    .createNewScheme(
-                        "新方案" + Date.now(),
-                        store.state.user.eid,
-                        store.state.currentCustomer.customerId,
-                        product.value.id,
-                    )
-                    .then((res) => {
-                        if (res.ok) {
-                            gotoEditScheme();
-                        } else if (res.show) {
-                            ElMessage({
-                                type: res.show,
-                                message: res.msg,
-                            });
-                        }
-                    })
-                    .finally(() => {
-                        creatingNewScheme.value = false;
-                    });
-                // TODO remove
-                // gotoEditScheme();
+                showCustomizeDlg.value = true;
             },
             continueEditScheme() {
                 customizeMode.value = "continue";
@@ -456,15 +442,61 @@ export default defineComponent({
                     return;
                 }
                 customizeMode.value = "copy";
-                // TODO uncomment
-                // showCustomizeDlg.value = true;
-                // TODO remove
-                gotoEditScheme();
+                showCustomizeDlg.value = true;
             },
-            onNewSchemeConfirm() {
-                gotoEditScheme();
+            onCustomizeConfirm() {
+                const cid = store.state.currentCustomer.customerId;
+                if (customizeMode.value === "new") {
+                    loadingCreating.value = true;
+                    const p = product.value as Product;
+                    apiProvider
+                        .createNewScheme(p.name, store.state.user.eid, cid, p.id)
+                        .then((res) => {
+                            if (res.ok && res.data) {
+                                apiProvider.requestSchemeDetail(res.data.id).then((res) => {
+                                    if (res.ok && res.data) {
+                                        product.value = res.data;
+                                        product.value.cid = cid;
+                                        gotoEditScheme();
+                                    }
+                                });
+                            } else if (res.show) {
+                                ElMessage({
+                                    type: res.show,
+                                    message: res.msg,
+                                });
+                            }
+                        })
+                        .finally(() => {
+                            loadingCreating.value = false;
+                        });
+                } else if (customizeMode.value === "copy") {
+                    loadingCopying.value = true;
+                    const scheme = product.value as Scheme;
+                    apiProvider
+                        .createNewScheme(scheme.product, store.state.user.eid, cid, undefined, scheme.id)
+                        .then((res) => {
+                            if (res.ok && res.data) {
+                                apiProvider.requestSchemeDetail(res.data.id).then((res) => {
+                                    if (res.ok && res.data) {
+                                        product.value = res.data;
+                                        product.value.cid = cid;
+                                        gotoEditScheme();
+                                    }
+                                });
+                            } else if (res.show) {
+                                ElMessage({
+                                    type: res.show,
+                                    message: res.msg,
+                                });
+                            }
+                        })
+                        .finally(() => {
+                            loadingCopying.value = false;
+                        });
+                }
             },
-            onNewSchemeCancel() {
+            onCustomizeCancel() {
                 showCustomizeDlg.value = false;
             },
             gotoBack() {
@@ -614,7 +646,7 @@ export default defineComponent({
     &__action-left {
         position: absolute;
         left: 60px;
-        bottom: 60px;
+        bottom: 30px;
         :deep(.el-button) {
             display: block;
             margin-left: 0 !important;
@@ -625,7 +657,7 @@ export default defineComponent({
     &__gooeyMenu {
         position: absolute;
         left: 140px;
-        bottom: 98px;
+        bottom: 68px;
     }
     &__action-test {
         position: absolute;

@@ -37,7 +37,7 @@
                 </el-tab-pane>
             </el-tabs>
         </div>
-        <div class="parts-menu__right">
+        <!-- <div class="parts-menu__right">
             <div class="parts-menu__right-header">
                 <el-button class="parts-menu__right-header-back" icon="el-icon-arrow-left" type="text" @click="gotoLeft"
                     >返回</el-button
@@ -49,7 +49,7 @@
             <div class="parts-menu__right-material"></div>
             <div class="parts-menu__right-color"></div>
             <div class="parts-menu__right-items"></div>
-        </div>
+        </div>-->
         <i
             class="parts-menu__trigger"
             :class="{
@@ -64,13 +64,14 @@
 
 <script lang="ts">
 import {
+    BackgroundType,
     findSiblingCats,
     Part,
     PartCategory,
     PartCategoryMeta,
     ProductCategory,
 } from "@/api/interface/provider.interface";
-import { computed, defineComponent, PropType, ref, watch } from "vue";
+import { computed, defineComponent, PropType, provide, ref, watch } from "vue";
 import { useStore } from "vuex";
 import apiProvider from "@/api/provider";
 import PartCatCard from "./PartCatCard.vue";
@@ -84,6 +85,7 @@ interface TabType {
     component: string;
     name: string;
     label: string;
+    cat?: PartCategory;
     bind?: any;
     on?: any;
 }
@@ -151,7 +153,7 @@ export default defineComponent({
             },
         );
 
-        const bgTab = {
+        const bgTab: TabType = {
             name: "bg",
             label: "背景",
             component: "PartBgTab",
@@ -198,6 +200,7 @@ export default defineComponent({
                     component,
                     bind,
                     on,
+                    cat: c,
                 };
             });
         }
@@ -244,6 +247,10 @@ export default defineComponent({
             return tabStack.value[len - 1] || topLevelTabs.value;
         });
 
+        const selectedPartId = ref(0);
+
+        provide("selectedPartId", selectedPartId);
+
         return {
             typeText,
             cats,
@@ -268,13 +275,17 @@ export default defineComponent({
                 // requestPartCatMeta();
             },
             onUpLevelClick,
-            pushTabStack(catId: string | number) {
+            pushTabStack(catId: string | number, partId: string | number) {
                 const siblings = findSiblingCats(catId, cats.value);
                 if (siblings) {
                     const tabs = cats2Tabs(siblings);
-                    selectedTabName.value = tabs[0].name;
+                    // const activeTab = tabs.find((t) => t.cat.id.toString() === catId.toString());
+                    // selectedTabName.value = activeTab.name;
+                    selectedTabName.value = catId.toString();
                     tabs.unshift(bgTab);
                     tabStack.value.push(tabs);
+
+                    selectedPartId.value = +partId;
                 }
             },
         };
@@ -306,12 +317,11 @@ $header-height: 56px;
         overflow: hidden;
         width: $menu-width;
         height: 100%;
+        vertical-align: top;
         &-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-left: 23px;
-            padding-bottom: 10px;
             height: $header-height;
             color: var(--el-color-black);
             font-size: 26px;
@@ -349,34 +359,34 @@ $header-height: 56px;
         border-bottom: 2px solid gray;
         line-height: 30px;
     }
-    &__right {
-        display: inline-flex;
-        flex-direction: column;
-        overflow: hidden;
-        width: $menu-width;
-        height: 100%;
-        &-header {
-            display: flex;
-            align-items: flex-end;
-            padding-left: 10px;
-            padding-bottom: 10px;
-            height: $header-height;
-            color: var(--el-color-black);
-            font-size: 26px;
-            font-weight: bold;
-            box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
+    // &__right {
+    //     display: inline-flex;
+    //     flex-direction: column;
+    //     overflow: hidden;
+    //     width: $menu-width;
+    //     height: 100%;
+    //     &-header {
+    //         display: flex;
+    //         align-items: flex-end;
+    //         padding-left: 10px;
+    //         padding-bottom: 10px;
+    //         height: $header-height;
+    //         color: var(--el-color-black);
+    //         font-size: 26px;
+    //         font-weight: bold;
+    //         box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
 
-            &-back {
-                padding: 0px;
-                line-height: normal;
-                min-height: unset;
-                margin-right: 45px;
-            }
-        }
-        &-items {
-            flex: 1;
-        }
-    }
+    //         &-back {
+    //             padding: 0px;
+    //             line-height: normal;
+    //             min-height: unset;
+    //             margin-right: 45px;
+    //         }
+    //     }
+    //     &-items {
+    //         flex: 1;
+    //     }
+    // }
     &__trigger {
         z-index: 10;
         position: absolute;

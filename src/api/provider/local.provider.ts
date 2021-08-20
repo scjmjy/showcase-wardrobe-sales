@@ -1,6 +1,9 @@
 import ApiProvider, {
     AjaxResponse,
+    Background,
+    BackgroundType,
     CategoryFilter,
+    CreateSchemeResult,
     Customer,
     GlobalCfg,
     LoginResult,
@@ -336,9 +339,9 @@ export default class LocalProvider implements ApiProvider {
         name: string,
         eid: string | number,
         cid: string | number,
-        pid: string | number,
+        pid?: string | number,
         sid?: string | number,
-    ): Promise<AjaxResponse<string | number>> {
+    ): Promise<AjaxResponse<CreateSchemeResult>> {
         throw new Error("Method not implemented.");
     }
     requestPartCategories(): Promise<AjaxResponse<PartCategory[]>> {
@@ -355,6 +358,9 @@ export default class LocalProvider implements ApiProvider {
         cid?: string | number,
         mid?: string | number,
     ): Promise<AjaxResponse<Part[]>> {
+        throw new Error("Method not implemented.");
+    }
+    requestBackgrounds(btype: BackgroundType, page: number, pageSize: number): Promise<AjaxResponse<Background[]>> {
         throw new Error("Method not implemented.");
     }
 }
