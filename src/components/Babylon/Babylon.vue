@@ -98,8 +98,7 @@ export default defineComponent({
                 console.log("SelectedPartId: ", newSelectedPartId);
 
                 if (newSelectedPartId != 0) {
-                    const availableArea = this.getAvailableArea2(newSelectedPartId);
-                    // const availableArea = this.getAvailableArea(newSelectedPartId);
+                    const availableArea = this.getAvailableArea(newSelectedPartId);
                     this.ShowAvailableArea(newSelectedPartId, availableArea);
                 }
             },
