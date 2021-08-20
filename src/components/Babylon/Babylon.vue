@@ -96,7 +96,8 @@ export default defineComponent({
             handler(newPart: PartType) {
                 if (newPart.id !== undefined) {
                     console.log("[Watch selectedPart] ", newPart);
-                    const availableArea = this.getAvailableArea2(newPart);
+                    const part_id:string = `${newPart.id}`;
+                    const availableArea = this.getAvailableArea(part_id);
                     this.ShowAvailableArea(newPart, availableArea);
                 }
             },

@@ -18,7 +18,6 @@ import { StSketchVector3 } from "./geometry/st_geometric_3d";
 import { BizData, CubeData } from "@/lib/biz.data";
 import { StVector } from "./geometry/st_vector_2d";
 import { StSketchPoint, StSketchRect } from "./geometry/st_geometric_2d";
-import { Gizmo } from "babylonjs/Gizmos/gizmo";
 
 export class HmBoundingBox {
     startPoint: Position;
