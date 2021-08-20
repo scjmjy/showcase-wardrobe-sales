@@ -547,7 +547,7 @@ export default defineComponent({
                                         );
 
                                         const itemName = ObjectType.ITEM + "_" + itemId;
-                                        this.graphics.importMesh(model.url, itemId, modelPos);
+                                        this.graphics.importMesh(model.url, itemName, modelPos);
                                     });
 
                                     // TODO: only handle the case of locationType==1.
