@@ -493,6 +493,11 @@ export default defineComponent({
             return drobeUtil.getAvailableAreaById(biz, partId);
         },
 
+        getAvailableAreaByPart(part: PartType): Area[] {
+            const biz: BizData = this.bizdata as BizData;
+            return drobeUtil.getAvailableAreaByPart(biz, part);
+        },
+
         clearAvailableAreas(): void {
             if (this.availableAreas === undefined) return;
 

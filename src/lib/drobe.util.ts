@@ -172,6 +172,17 @@ class DrobeUtil extends StObject {
         return areas;
     }
 
+    getAvailableAreaByPart(bizdata: BizData, part: {
+            id: number;
+            width: number;
+            height: number;
+            depth: number;
+            manifest: string;
+            catId: number; 
+    }): Area[] {
+        throw Error("TODO");
+    }
+
     getAvailableAreaById(bizdata: BizData, part_id: string): Area[] {
         const mf_url = bizdata.partManifestMap.get(`${part_id}`);
         if (!mf_url) {
