@@ -15,10 +15,10 @@ import { Graphics } from "@/lib/graphics";
 import { Area, Door, Position, Scheme } from "@/lib/scheme";
 import { StObject } from "@/lib/utility/st_object";
 import { StSketchVector3 } from "./geometry/st_geometric_3d";
-import { v4 as uuidv4 } from "uuid";
 import { BizData, CubeData } from "@/lib/biz.data";
 import { StVector } from "./geometry/st_vector_2d";
 import { StSketchPoint, StSketchRect } from "./geometry/st_geometric_2d";
+import { Gizmo } from "babylonjs/Gizmos/gizmo";
 
 export class HmBoundingBox {
     startPoint: Position;
@@ -200,6 +200,33 @@ class DrobeUtil extends StObject {
         return areas;
     }
 
+
+    /**
+     * 
+     * @param graphics 
+     * @param bizdata 
+     * @param ids  is NOT proviced, delete all doors
+     */
+    removeDoors(graphics: Graphics, bizdata: BizData, ids?: string[]): void {
+        if(!ids || ids.length == 0) {
+            ids = bizdata.getAllDoorsId();
+            console.log(`to remove all doors. Count: ${ids.length} -- ${ids}`)
+        }        
+        for(const id of ids ) {
+            this._removeDoor(graphics, bizdata, id);
+        }
+    }
+
+    private _removeDoor(graphics: Graphics, bizdata: BizData, id: string): void {
+         const door = bizdata.removeDoor(id);
+         if(door) {
+            console.log(`Remove door: ${StObject.buildString(door)}`)
+         }else{
+            console.log(`Err: Door is NOT found: ${id}`);
+         }
+    }
+    
+
     /**
      * Add a door for cubes, which is described in object `door`;
      * @param scheme
@@ -229,7 +256,7 @@ class DrobeUtil extends StObject {
             throw Error(`unknow door type: ${door}`);
         }
 
-        door.id = uuidv4();
+        bizdata.addDoor(door);
         const door_name = door.id;
         const door_mf = HmPartManifest.buildFromUrl(door.manifest);
         graphics.importMesh(door_mf.models[0].url, door_name, door_pos);

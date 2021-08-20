@@ -203,7 +203,9 @@ export default defineComponent({
          * 移除合页门或者滑门
          * @param doorIds 被移除门的uuid列表
          */
-        removeDoorsApi(doorIds: string[]): void {},
+        removeDoorsApi(doorIds?: string[]): void {
+            drobeUtil.removeDoors(this.graphics, this.bizdata as BizData, doorIds);
+        },
 
         /**
          * 修改合页门或滑门的材质或颜色
