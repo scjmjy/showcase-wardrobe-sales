@@ -15,6 +15,11 @@ export type CubeData = {
     depth: number;
 };
 
+export type CubeItem = {
+    cube: Cube | undefined;
+    item: Item | undefined;
+};
+
 export class BizData {
     private scheme: Scheme;
 
@@ -98,8 +103,36 @@ export class BizData {
         }
     }
 
+    removeItem(itemId: string): void {
+        const cubeItem = this.findCubeItemByItemId(itemId);
+        if (cubeItem.cube !== undefined && cubeItem.item !== undefined) {
+            const idx = cubeItem.cube.items.findIndex((item: { id: string }) => item.id === itemId);
+            cubeItem.cube.items.splice(idx, 1);
+
+            const part = this.findPartById(cubeItem.item.partId);
+            if (part !== undefined) {
+                part.count -= 1;
+            }
+        }
+    }
+
     findCubeById(id: string): Cube | undefined {
         return this.scheme.cubes.find((cube: { id: string }) => cube.id === id);
+    }
+
+    findCubeItemByItemId(itemId: string): CubeItem {
+        let retCube = undefined;
+        let retItem = undefined;
+        this.scheme.cubes.some((cube: { items: Item[] }) => {
+            const item = cube.items.find((item: { id: string }) => item.id === itemId);
+            if (item !== undefined) {
+                retItem = item;
+                retCube = cube;
+                return true;
+            }
+        });
+
+        return { cube: retCube, item: retItem };
     }
 
     findItemById(id: string): Item | undefined {
@@ -117,15 +150,14 @@ export class BizData {
 
     addDoor(door: Door): string {
         const door_cubes_ids = door.cubes;
-        const old_door = this.scheme.doors.find( d => {
-            for(const id of door_cubes_ids) {
-                if(d.cubes.includes(id)) 
-                return true;
+        const old_door = this.scheme.doors.find((d) => {
+            for (const id of door_cubes_ids) {
+                if (d.cubes.includes(id)) return true;
             }
             return false;
         });
-        if(old_door) {
-            throw Error(`Delete previous door: ${StObject.buildString(old_door)}`)
+        if (old_door) {
+            throw Error(`Delete previous door: ${StObject.buildString(old_door)}`);
         }
         door.id = uuidv4();
         this.scheme.doors.push(door);
@@ -133,15 +165,17 @@ export class BizData {
     }
 
     removeDoor(id: string): Door | undefined {
-        const idx = this.scheme.doors.findIndex( d => { return d.id === id; });
-        if(idx == -1) return; 
+        const idx = this.scheme.doors.findIndex((d) => {
+            return d.id === id;
+        });
+        if (idx == -1) return;
         const array = this.scheme.doors.splice(idx, 1);
         return array[0];
     }
 
     getAllDoorsId(): string[] {
         const ids: string[] = [];
-        this.scheme.doors.forEach(d => {
+        this.scheme.doors.forEach((d) => {
             ids.push(d.id);
         });
         return ids;
