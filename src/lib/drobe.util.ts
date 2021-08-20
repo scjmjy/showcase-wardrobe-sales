@@ -180,7 +180,8 @@ class DrobeUtil extends StObject {
             manifest: string;
             catId: number; 
     }): Area[] {
-        throw Error("TODO");
+        const part_size = new StVector(part.width, part.height);
+        return this._calcAvailableArea(bizdata, part_size);
     }
 
     getAvailableAreaById(bizdata: BizData, part_id: string): Area[] {
@@ -197,8 +198,12 @@ class DrobeUtil extends StObject {
     getAvailableAreaByMfUrl(bizdata: BizData, part_mf_url: string): Area[] {
         const part: HmPartManifest = HmPartManifest.buildFromUrl(part_mf_url) as HmPartManifest;
         console.debug(`calculate available areas for part: ${part}`);
-        const areas: Area[] = [];
         const part_size = new StVector(part.size.x, part.size.y);
+        return this._calcAvailableArea(bizdata, part_size);
+    }
+
+    private _calcAvailableArea(bizdata: BizData, part_size: StVector): Area[] {
+        const areas: Area[] = [];
         for (const cube_id of bizdata.cubeMap.keys()) {
             const cube = bizdata.cubeMap.get(cube_id)!;
             const host = this._buildCubeRect(cube);
@@ -209,6 +214,7 @@ class DrobeUtil extends StObject {
         console.log(`Get ${areas.length} available areas: ${StObject.buildArrayString(areas)}`);
         return areas;
     }
+
 
 
     /**
