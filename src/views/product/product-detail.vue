@@ -24,6 +24,7 @@
             :selectedFloorId="selectedFloorId"
             :getAvailableArea2="getAvailableArea"
             :eventEmit="eventHandle"
+            :mode="mode3D"
         />
         <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
 
@@ -281,10 +282,8 @@ export default defineComponent({
                     {
                         const objectSelectedEvent = event as ObjectSelectedEvent;
                         if (objectSelectedEvent !== undefined) {
-                            console.log(objectSelectedEvent);
-                            const catId = 7;
-                            const partId = 19;
-                            refPartsMenu.value?.pushTabStack(catId, partId);
+                            // console.log(objectSelectedEvent);
+                            refPartsMenu.value?.selectPart(objectSelectedEvent.catId, objectSelectedEvent.partId);
                         }
                     }
                     break;
@@ -292,7 +291,8 @@ export default defineComponent({
                     {
                         const objectUnselectedEvent = event as ObjectUnselectedEvent;
                         if (objectUnselectedEvent !== undefined) {
-                            console.log(objectUnselectedEvent);
+                            // console.log(objectUnselectedEvent);
+                            refPartsMenu.value?.unselectPart(objectUnselectedEvent.catId, objectUnselectedEvent.partId);
                         }
                     }
                     break;
@@ -309,6 +309,13 @@ export default defineComponent({
             selectedWallId,
             selectedFloorId,
             getAvailableArea,
+            mode3D: computed(() => {
+                if (mode.value === "view") {
+                    return 3;
+                } else {
+                    return stateInOut.value === "in" ? 2 : 1;
+                }
+            }),
             eventHandle,
             onLogSchemeClick() {
                 console.log("LogScheme: ", scheme);

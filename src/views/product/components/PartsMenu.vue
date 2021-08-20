@@ -248,6 +248,7 @@ export default defineComponent({
         });
 
         const selectedPartId = ref(0);
+        const selectedCatId = ref(0);
 
         provide("selectedPartId", selectedPartId);
 
@@ -275,7 +276,17 @@ export default defineComponent({
                 // requestPartCatMeta();
             },
             onUpLevelClick,
-            pushTabStack(catId: string | number, partId: string | number) {
+            selectPart(catId: string | number, partId: string | number) {
+                selectedPartId.value = +partId;
+                for (const tab of activeTabs.value) {
+                    if (tab.cat && tab.cat.id == catId) {
+                        selectedTabName.value = catId.toString();
+                        return;
+                    }
+                }
+                // 清空堆栈
+                tabStack.value.length = 0;
+
                 const siblings = findSiblingCats(catId, cats.value);
                 if (siblings) {
                     const tabs = cats2Tabs(siblings);
@@ -285,8 +296,12 @@ export default defineComponent({
                     tabs.unshift(bgTab);
                     tabStack.value.push(tabs);
 
-                    selectedPartId.value = +partId;
+                    selectedCatId.value = +catId;
                 }
+            },
+            unselectPart(catId: string | number, partId: string | number) {
+                selectedPartId.value = 0;
+                selectedCatId.value = 0;
             },
         };
     },
