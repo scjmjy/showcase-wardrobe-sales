@@ -1,4 +1,6 @@
 import { Scheme, Cube, Item, Door, Part } from "@/lib/scheme";
+import { StObject } from "./utility/st_object";
+import { v4 as uuidv4 } from "uuid";
 
 export const ObjectType = {
     CUBE: "Cube",
@@ -111,6 +113,38 @@ export class BizData {
         });
 
         return retItem;
+    }
+
+    addDoor(door: Door): string {
+        const door_cubes_ids = door.cubes;
+        const old_door = this.scheme.doors.find( d => {
+            for(const id of door_cubes_ids) {
+                if(d.cubes.includes(id)) 
+                return true;
+            }
+            return false;
+        });
+        if(old_door) {
+            throw Error(`Delete previous door: ${StObject.buildString(old_door)}`)
+        }
+        door.id = uuidv4();
+        this.scheme.doors.push(door);
+        return door.id;
+    }
+
+    removeDoor(id: string): Door | undefined {
+        const idx = this.scheme.doors.findIndex( d => { return d.id === id; });
+        if(idx == -1) return; 
+        const array = this.scheme.doors.splice(idx, 1);
+        return array[0];
+    }
+
+    getAllDoorsId(): string[] {
+        const ids: string[] = [];
+        this.scheme.doors.forEach(d => {
+            ids.push(d.id);
+        });
+        return ids;
     }
 
     findDoorById(id: string): Door | undefined {
