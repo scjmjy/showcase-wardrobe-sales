@@ -96,9 +96,7 @@ export default defineComponent({
             handler(newPart: PartType) {
                 if (newPart.id !== undefined) {
                     console.log("[Watch selectedPart] ", newPart);
-
                     const availableArea = this.getAvailableArea2(newPart);
-                    // const availableArea = this.getAvailableArea(newSelectedPartId);
                     this.ShowAvailableArea(newPart, availableArea);
                 }
             },
@@ -265,7 +263,7 @@ export default defineComponent({
                 const info = data.name.split("_");
                 const objectType = info[0];
                 const id = info[1];
-                switch (info[0]) {
+                switch (objectType) {
                     case ObjectType.CUBE:
                         {
                             const cube = this.bizdata.findCubeById(id);

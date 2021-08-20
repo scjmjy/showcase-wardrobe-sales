@@ -16,6 +16,28 @@ import stringify from "json-stringify-pretty-compact";
 import { v4 as uuidv4 } from "uuid";
 
 export class StObject {
+    static buildString(obj: Object, max_len?: number, simple?: boolean): string {
+         if (simple) {
+            return JSON.stringify(obj, jsonIgnoreReplacer);
+        } else {
+            return stringify(obj, {
+                maxLength: max_len || 256,
+                replacer: jsonIgnoreReplacer,
+            });
+        }
+    }
+
+    static buildArrayString(array: Object[], max_len?: number, simple?: boolean): string {
+        let str: string = '[\n';
+        array.forEach( e => {
+            str += StObject.buildString(e, max_len, simple);
+            str += ', \n'
+        });
+        str += ']';
+        return str;
+    }
+
+
     /**
      * It seeams that `${variable}` call variable.toString()?
      */
