@@ -18,6 +18,7 @@
             ref="refBabylon"
             class="product-detail__3d"
             :scheme="scheme"
+            :selectedPart="selectedPart"
             :selectedPartId="selectedPartId"
             :selectedWallId="selectedWallId"
             :selectedFloorId="selectedFloorId"
@@ -92,10 +93,13 @@
             <!-- <el-collapse-transition-h>
             </el-collapse-transition-h> -->
             <parts-menu
+                ref="refPartsMenu"
                 v-show="mode === 'edit'"
                 v-model:opened="showMenu"
                 class="product-detail__menu2d"
                 :type="stateInOut"
+                @action="onPartsMenuAction"
+                @part="onPartSelect"
             ></parts-menu>
         </template>
         <customize-dlg
@@ -111,17 +115,17 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, watch, Ref, nextTick } from "vue";
-import Babylon from "@/components/Babylon/Babylon.vue";
+import Babylon, { PartType } from "@/components/Babylon/Babylon.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { StateType } from "@/store";
-import { Product, Scheme } from "@/api/interface/provider.interface";
+import { Part, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
-import PartsMenu from "./components/PartsMenu.vue";
+import PartsMenu, { ActionType } from "./components/PartsMenu.vue";
 import { ElMessage } from "element-plus";
 import { Area, Door, Position } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
@@ -205,6 +209,8 @@ export default defineComponent({
             },
         ];
         const refBabylon = ref<InstanceType<typeof Babylon>>();
+        const refPartsMenu = ref<InstanceType<typeof PartsMenu>>();
+        const selectedPart = ref<PartType>();
         let selectedPartId = ref(0);
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
@@ -234,10 +240,34 @@ export default defineComponent({
             {
                 value: "d3",
                 icon: "d3",
+                onActive() {
+                    ElMessage({
+                        type: "warning",
+                        message: "TODO: 3D固定视图 on",
+                    });
+                },
+                onUnactive() {
+                    ElMessage({
+                        type: "warning",
+                        message: "TODO: 3D固定视图 off",
+                    });
+                },
             },
             {
                 value: "ruler",
                 icon: "ruler",
+                onActive() {
+                    ElMessage({
+                        type: "warning",
+                        message: "TODO: 3D视图显示标尺 on",
+                    });
+                },
+                onUnactive() {
+                    ElMessage({
+                        type: "warning",
+                        message: "TODO: 3D视图显示标尺 off",
+                    });
+                },
             },
         ]);
         const gooeyMenuOpened = ref(false);
@@ -265,7 +295,9 @@ export default defineComponent({
             gooeyMenuItems,
             gooeyMenuOpened,
             refBabylon,
+            refPartsMenu,
             scheme,
+            selectedPart,
             selectedPartId,
             selectedWallId,
             selectedFloorId,
@@ -440,34 +472,60 @@ export default defineComponent({
                 // TODO make sure scheme has saved.
                 mode.value = "view";
             },
-            onSaveClick() {},
-            onOfferClick() {},
-            onSelectAllClick() {
-                // stateSelect.value = stateSelect.value === "active" ? "" : "active";
-            },
-            onMetalsClick(val: string) {
-                // stateMetals.value = stateMetals.value === "active" ? "" : "active";
-                // showMenu.value = val === "active" ? true : false;
-                showMetalsDlg.value = !showMetalsDlg.value;
-            },
+            // onSaveClick() {},
+            // onOfferClick() {},
+            // onSelectAllClick() {
+            //     // stateSelect.value = stateSelect.value === "active" ? "" : "active";
+            // },
+            // onMetalsClick(val: string) {
+            //     // stateMetals.value = stateMetals.value === "active" ? "" : "active";
+            //     // showMenu.value = val === "active" ? true : false;
+            //     showMetalsDlg.value = !showMetalsDlg.value;
+            // },
             onInOutChange(val: string) {
                 // showMenu.value = val === "active" ? true : false;
                 showMenu.value = true;
             },
-            onPartsClick(val: string) {
-                showMenu.value = !showMenu.value;
+            // onPartsClick(val: string) {
+            //     showMenu.value = !showMenu.value;
+            // },
+            onPartsMenuAction(action: ActionType) {
+                switch (action) {
+                    case "manifest":
+                        ElMessage({
+                            type: "warning",
+                            message: "TODO: 清单",
+                        });
+                        break;
+                    case "offer":
+                        ElMessage({
+                            type: "warning",
+                            message: "TODO: 报价",
+                        });
+                        break;
+                    case "save":
+                        ElMessage({
+                            type: "warning",
+                            message: "TODO: 保存",
+                        });
+                        break;
+
+                    default:
+                        break;
+                }
             },
-            on3DClick() {
-                ElMessage({
-                    type: "info",
-                    message: "TODO: 切换3D视图",
-                });
-            },
-            onRulerClick() {
-                ElMessage({
-                    type: "info",
-                    message: "TODO: 3D视图显示标尺",
-                });
+            onPartSelect(part: Part, cat: PartCategory) {
+                selectedPart.value = {
+                    id: +part.id,
+                    width: part.width,
+                    height: part.height,
+                    depth: part.depth,
+                    catId: +cat.id,
+                };
+                // ElMessage({
+                //     type: "warning",
+                //     message: `TODO: 选择了[${cat.name}]中的[${part.name}]`,
+                // });
             },
         };
     },

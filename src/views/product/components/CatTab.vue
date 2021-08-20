@@ -64,7 +64,7 @@
         <div class="cat-tab__parts-title">{{ partTitle }}</div>
         <el-row ref="elRow" class="cat-tab__parts" :gutter="20" @scroll="onScroll">
             <el-col v-for="part in parts" :key="part.id" :span="12" style="max-height: 180px">
-                <part-card :part="part"> </part-card>
+                <part-card :part="part" @click="onPartClick"> </part-card>
             </el-col>
             <load-more :state="loadState" @loadmore="onScroll" />
         </el-row>
@@ -113,8 +113,8 @@ export default defineComponent({
             default: () => ({}),
         },
     },
-    emits: ["up"],
-    setup(props) {
+    emits: ["up", "part"],
+    setup(props, ctx) {
         const loadState = ref<LOAD_STATE>("");
         let page = 1;
         const catMeta = ref<PartCategoryMeta>();
@@ -228,6 +228,9 @@ export default defineComponent({
                 }, 200);
             },
             onScroll,
+            onPartClick(part: Part) {
+                ctx.emit("part", part, props.cat);
+            },
         };
     },
 });

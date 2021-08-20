@@ -71,6 +71,8 @@ export interface MenuItem {
     value: string | number;
     icon: string;
     active?: boolean;
+    onActive?: () => void;
+    onUnactive?: () => void;
 }
 
 export default defineComponent({
@@ -94,6 +96,11 @@ export default defineComponent({
                 item.active = !item.active;
                 ctx.emit("click", item);
                 ctx.emit("update:modelValue", false);
+                if (item.active) {
+                    item.onActive && item.onActive();
+                } else {
+                    item.onUnactive && item.onUnactive();
+                }
             },
             onLabelClick() {
                 ctx.emit("update:modelValue", !props.modelValue);
@@ -104,6 +111,8 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+@use "sass:math";
+
 //vars
 $fg: var(--el-color-primary);
 $pi: 3.14;
@@ -156,8 +165,8 @@ $ballSize: 56px;
     position: absolute;
     top: 50%;
     left: 50%;
-    margin-left: -$width/2;
-    margin-top: -$height/2;
+    margin-left: math.div(-$width, 2);
+    margin-top: math.div(-$height, 2);
     transition: transform 200ms;
 }
 $hamburger-spacing: 8px;

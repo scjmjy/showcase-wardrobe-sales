@@ -6,9 +6,9 @@
                     <!-- <el-button v-if="tabStack.length" type="text" @click="onUpLevelClick">上一层</el-button> -->
                 </div>
                 <div>
-                    <el-button type="text">清单</el-button>
-                    <el-button type="text">报价</el-button>
-                    <el-button type="text">保存</el-button>
+                    <el-button type="primary" plain @click="$emit('action', 'manifest')">清单</el-button>
+                    <el-button type="primary" plain @click="$emit('action', 'offer')">报价</el-button>
+                    <el-button type="primary" plain @click="$emit('action', 'save')">保存</el-button>
                 </div>
                 <div></div>
             </div>
@@ -33,7 +33,7 @@
                     <template v-if="index === 0" #label>
                         <div class="parts-menu__tab-bgLabel">{{ tab.label }}</div>
                     </template>
-                    <component :is="tab.component" :up="tabStack.length" v-bind="tab.bind" v-on="tab.on" />
+                    <component :is="tab.component" :up="!!tabStack.length" v-bind="tab.bind" v-on="tab.on" />
                 </el-tab-pane>
             </el-tabs>
         </div>
@@ -63,7 +63,13 @@
 </template>
 
 <script lang="ts">
-import { PartCategory, PartCategoryMeta, ProductCategory } from "@/api/interface/provider.interface";
+import {
+    findSiblingCats,
+    Part,
+    PartCategory,
+    PartCategoryMeta,
+    ProductCategory,
+} from "@/api/interface/provider.interface";
 import { computed, defineComponent, PropType, ref, watch } from "vue";
 import { useStore } from "vuex";
 import apiProvider from "@/api/provider";
@@ -81,6 +87,8 @@ interface TabType {
     bind?: any;
     on?: any;
 }
+
+export type ActionType = "manifest" | "offer" | "save";
 
 export default defineComponent({
     name: "PartsMenu",
@@ -104,7 +112,7 @@ export default defineComponent({
         CatsList,
         // PartCatCard,
     },
-    emits: ["update:opened"],
+    emits: ["update:opened", "part", "action"],
     setup(props, ctx) {
         const store = useStore<StateType>();
         const refDiv = ref<HTMLDivElement>();
@@ -148,6 +156,7 @@ export default defineComponent({
             label: "背景",
             component: "PartBgTab",
             bind: {},
+            on: {},
         };
 
         function onUpLevelClick() {
@@ -171,6 +180,9 @@ export default defineComponent({
                     bind = {
                         cat: c,
                         active: true,
+                    };
+                    on.part = (part: Part, cat: PartCategory) => {
+                        ctx.emit("part", part, cat);
                     };
                 } else {
                     component = "CatsList";
@@ -256,6 +268,15 @@ export default defineComponent({
                 // requestPartCatMeta();
             },
             onUpLevelClick,
+            pushTabStack(catId: string | number) {
+                const siblings = findSiblingCats(catId, cats.value);
+                if (siblings) {
+                    const tabs = cats2Tabs(siblings);
+                    selectedTabName.value = tabs[0].name;
+                    tabs.unshift(bgTab);
+                    tabStack.value.push(tabs);
+                }
+            },
         };
     },
 });

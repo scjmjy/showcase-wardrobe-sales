@@ -107,6 +107,39 @@ export interface PartCategory {
     children?: PartCategory[];
 }
 
+/**
+ * find siblings for catId
+ * @param catId category id
+ * @param cat category
+ * @param siblings siblings of cate
+ * @returns siblings of catId
+ */
+function findSiblingCats_(
+    catId: string | number,
+    cat: PartCategory,
+    siblings: PartCategory[],
+): PartCategory[] | undefined {
+    if (cat.id.toString() === catId.toString()) {
+        return siblings;
+    } else if (cat.children) {
+        for (const c of cat.children) {
+            const s = findSiblingCats_(catId, c, cat.children);
+            if (s) {
+                return s;
+            }
+        }
+    }
+}
+
+export function findSiblingCats(catId: string | number, cats: PartCategory[]): PartCategory[] | undefined {
+    for (const cat of cats) {
+        const siblings = findSiblingCats_(catId, cat, cats);
+        if (siblings) {
+            return siblings;
+        }
+    }
+}
+
 export interface MetaColor {
     id: string | number;
     name: string;

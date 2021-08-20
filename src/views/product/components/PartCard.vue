@@ -4,7 +4,7 @@
             class="part-card__img u-clickable"
             :src="part.pic"
             fit="contain"
-            @click="$emit('select', part)"
+            @click="$emit('click', part)"
         ></el-image>
         <div class="part-card__label">{{ part.name }}</div>
     </div>
@@ -26,6 +26,7 @@ export default defineComponent({
             default: false,
         },
     },
+    emits: ["click"],
     setup() {
         return {};
     },

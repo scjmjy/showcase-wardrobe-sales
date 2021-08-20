@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, PropType } from "vue";
 import * as BABYLON from "babylonjs";
 import { Graphics, GraphicsEvent } from "@/lib/graphics";
 import { Scheme, Cube, Item, Door, Part, Position, RelativeItem, Location, Area } from "@/lib/scheme";
@@ -15,6 +15,14 @@ import { v4 as uuidv4 } from "uuid";
 import { drobeUtil } from "@/lib/drobe.util";
 import * as event from "@/lib/biz.event";
 import { PopupGUI } from "@/lib/hm_gui";
+
+export interface PartType {
+    id: number;
+    width: number;
+    height: number;
+    depth: number;
+    catId: number;
+}
 
 export default defineComponent({
     name: "Babylon",
@@ -42,6 +50,16 @@ export default defineComponent({
         selectedPartId: {
             type: Number,
             default: 0,
+        },
+        selectedPart: {
+            type: Object as PropType<PartType>,
+            default: () => ({
+                id: 0,
+                width: 0,
+                height: 0,
+                depth: 0,
+                catId: 0,
+            }),
         },
         eventEmit: {
             type: Function,
@@ -81,6 +99,14 @@ export default defineComponent({
                     const availableArea = this.getAvailableArea2(newSelectedPartId);
                     // const availableArea = this.getAvailableArea(newSelectedPartId);
                     this.ShowAvailableArea(newSelectedPartId, availableArea);
+                }
+            },
+        },
+        selectedPart: {
+            deep: true,
+            handler(newPart: PartType) {
+                if (newPart.id) {
+                    console.log("【watch selectedPart】 ", newPart);
                 }
             },
         },
