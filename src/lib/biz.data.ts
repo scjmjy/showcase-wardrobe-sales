@@ -65,13 +65,20 @@ export class BizData {
             "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/dc5eb19b-2879-47fe-a517-720b39e0f445.jpg",
         );
 
-        this.partManifestMap.set("200001", "mf/90da222b-d5c4-40e9-a693-8fe0b2b3ff78.json");
-        this.partManifestMap.set("300001", "mf/f5b3357e-6c76-476e-a97b-2a5612277e8e.json");
-        this.partManifestMap.set("300002", "mf/ba27f19e-2131-4fe4-9b8c-e1edca652393.json");
-        this.partManifestMap.set("300003", "mf/f5851579-ce40-4085-b3aa-47fbe3dcdb10.json");
-        this.partManifestMap.set("300004", "mf/51c67403-1823-42ab-8cc5-7325355c7a55.json");
-        this.partManifestMap.set("300005", "mf/7d6ea7d9-c01c-481d-9b3a-f7c1e743a7b7.json");
-        this.partManifestMap.set("400001", "mf/bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json");
+        // categoryId - manifest
+        // 柜体
+        this.partManifestMap.set("20", "mf/90da222b-d5c4-40e9-a693-8fe0b2b3ff78.json");
+        // 搁板
+        this.partManifestMap.set("9", "mf/f5b3357e-6c76-476e-a97b-2a5612277e8e.json");
+        // 挂衣杆
+        this.partManifestMap.set("10", "mf/ba27f19e-2131-4fe4-9b8c-e1edca652393.json");
+        // 托盘
+        this.partManifestMap.set("21", "mf/f5851579-ce40-4085-b3aa-47fbe3dcdb10.json");
+        // 抽屉
+        // this.partManifestMap.set("7", "mf/51c67403-1823-42ab-8cc5-7325355c7a55.json");
+        this.partManifestMap.set("7", "mf/7d6ea7d9-c01c-481d-9b3a-f7c1e743a7b7.json");
+        // 滑门
+        this.partManifestMap.set("2", "mf/bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json");
     }
 
     addItem(newItem: Item, cubeId: string): void {

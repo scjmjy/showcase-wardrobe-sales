@@ -43,48 +43,47 @@ export class Location {
     }
 }
 
-export class Item {
+export class SchemeObject {
     id: string; // uuid唯一标识
     partId: number; // biz_parts_cm id
     manifest: string; // biz_parts_cm manifest url
-    location: Location | null; // 描述配件如何放置的
+    catId: number | null; // category id
 
-    constructor(id: string, partId: number, manifest: string, location: Location | null = null) {
+    constructor(id: string, partId: number, manifest: string, catId: number | null = null) {
         this.id = id;
         this.partId = partId;
         this.manifest = manifest;
+        this.catId = catId;
+    }
+}
+
+export class Item extends SchemeObject {
+    location: Location | null; // 描述配件如何放置的
+
+    constructor(id: string, partId: number, manifest: string, catId: number | null, location: Location | null = null) {
+        super(id, partId, manifest, catId);
         this.location = location;
     }
 }
 
-export class Cube {
-    id: string; // uuid唯一标识
-    partId: number; // biz_parts_cm id
-    manifest: string; // biz_parts_cm manifest url
+export class Cube extends SchemeObject {
     items: Item[];
 
-    constructor(id: string, partId: number, manifest: string, items: Item[]) {
-        this.id = id;
-        this.partId = partId;
-        this.manifest = manifest;
+    constructor(id: string, partId: number, manifest: string, catId: number | null, items: Item[]) {
+        super(id, partId, manifest, catId);
         this.items = items;
     }
 }
 
-export class Door {
-    id: string; // uuid唯一标识
-    partId: number; // biz_parts id
-    manifest: string; // biz_parts_cm manifest url
+export class Door extends SchemeObject {
     doorType: number; // 1-合页门，2-滑门
     cubes: string[]; // 占用单元柜id
 
     // TODO: 需要考虑合页门的开合方向吗？
     // 目前，对于单扇合页门，默认往左开
 
-    constructor(id: string, partId: number, manifest: string, doorType: number, cubes: string[]) {
-        this.id = id;
-        this.partId = partId;
-        this.manifest = manifest;
+    constructor(id: string, partId: number, manifest: string, catId: number | null, doorType: number, cubes: string[]) {
+        super(id, partId, manifest, catId);
         this.doorType = doorType;
         this.cubes = cubes;
     }

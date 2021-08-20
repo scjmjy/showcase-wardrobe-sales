@@ -91,24 +91,15 @@ export default defineComponent({
         },
     },
     watch: {
-        selectedPartId: {
-            deep: true,
-            immediate: true,
-            handler(newSelectedPartId) {
-                console.log("SelectedPartId: ", newSelectedPartId);
-
-                if (newSelectedPartId != 0) {
-                    const availableArea = this.getAvailableArea2(newSelectedPartId);
-                    // const availableArea = this.getAvailableArea(newSelectedPartId);
-                    this.ShowAvailableArea(newSelectedPartId, availableArea);
-                }
-            },
-        },
         selectedPart: {
             deep: true,
             handler(newPart: PartType) {
-                if (newPart.id) {
-                    console.log("【watch selectedPart】 ", newPart);
+                if (newPart.id !== undefined) {
+                    console.log("[Watch selectedPart] ", newPart);
+
+                    const availableArea = this.getAvailableArea2(newPart);
+                    // const availableArea = this.getAvailableArea(newSelectedPartId);
+                    this.ShowAvailableArea(newPart, availableArea);
                 }
             },
         },
@@ -278,9 +269,12 @@ export default defineComponent({
                     case ObjectType.CUBE:
                         {
                             const cube = this.bizdata.findCubeById(id);
-                            if (cube !== undefined) {
-                                const category = "柜体";
-                                const objectSelectedEvent = new event.ObjectSelectedEvent(category, cube.partId, cube);
+                            if (cube !== undefined && cube.catId !== null) {
+                                const objectSelectedEvent = new event.ObjectSelectedEvent(
+                                    cube.catId,
+                                    cube.partId,
+                                    cube,
+                                );
                                 this.eventEmit(objectSelectedEvent);
                             }
                         }
@@ -288,9 +282,12 @@ export default defineComponent({
                     case ObjectType.ITEM:
                         {
                             const item = this.bizdata.findItemById(id);
-                            if (item !== undefined) {
-                                const category = "配件";
-                                const objectSelectedEvent = new event.ObjectSelectedEvent(category, item.partId, item);
+                            if (item !== undefined && item.catId !== null) {
+                                const objectSelectedEvent = new event.ObjectSelectedEvent(
+                                    item.catId,
+                                    item.partId,
+                                    item,
+                                );
                                 this.eventEmit(objectSelectedEvent);
                             }
                         }
@@ -298,9 +295,12 @@ export default defineComponent({
                     case ObjectType.DOOR:
                         {
                             const door = this.bizdata.findDoorById(id);
-                            if (door !== undefined) {
-                                const category = "门";
-                                const objectSelectedEvent = new event.ObjectSelectedEvent(category, door.partId, door);
+                            if (door !== undefined && door.catId !== null) {
+                                const objectSelectedEvent = new event.ObjectSelectedEvent(
+                                    door.catId,
+                                    door.partId,
+                                    door,
+                                );
                                 this.eventEmit(objectSelectedEvent);
                             }
                         }
@@ -318,10 +318,9 @@ export default defineComponent({
                     case ObjectType.CUBE:
                         {
                             const cube = this.bizdata.findCubeById(id);
-                            if (cube !== undefined) {
-                                const category = "柜体";
+                            if (cube !== undefined && cube.catId !== null) {
                                 const objectUnselectedEvent = new event.ObjectUnselectedEvent(
-                                    category,
+                                    cube.catId,
                                     cube.partId,
                                     cube,
                                 );
@@ -332,10 +331,9 @@ export default defineComponent({
                     case ObjectType.ITEM:
                         {
                             const item = this.bizdata.findItemById(id);
-                            if (item !== undefined) {
-                                const category = "配件";
+                            if (item !== undefined && item.catId !== null) {
                                 const objectUnselectedEvent = new event.ObjectUnselectedEvent(
-                                    category,
+                                    item.catId,
                                     item.partId,
                                     item,
                                 );
@@ -346,10 +344,9 @@ export default defineComponent({
                     case ObjectType.DOOR:
                         {
                             const door = this.bizdata.findDoorById(id);
-                            if (door !== undefined) {
-                                const category = "门";
+                            if (door !== undefined && door.catId !== null) {
                                 const objectUnselectedEvent = new event.ObjectUnselectedEvent(
-                                    category,
+                                    door.catId,
                                     door.partId,
                                     door,
                                 );
@@ -362,6 +359,8 @@ export default defineComponent({
         },
 
         loadScheme() {
+            // TODO: load background.
+
             const cubeSizeArr: any[] = [];
             const cubeIdArr: string[] = [];
             const cubeMfArr: any[] = [];
@@ -455,7 +454,7 @@ export default defineComponent({
             });
         },
 
-        ShowAvailableArea(partId: number, areas: Area[]): void {
+        ShowAvailableArea(part: PartType, areas: Area[]): void {
             areas.forEach((area: Area) => {
                 const cubeData = this.bizdata.cubeMap.get(area.cubeId);
                 if (cubeData !== undefined) {
@@ -463,7 +462,7 @@ export default defineComponent({
                     const height = area.endPoint.y - area.startPoint.y;
                     const depth = area.endPoint.z - area.startPoint.z;
                     const availableArea = BABYLON.MeshBuilder.CreateBox(
-                        `BackgroundArea_${partId.toString()}_${area.cubeId}`,
+                        `BackgroundArea_${part.catId.toString()}_${part.id.toString()}_${area.cubeId}_${part.manifest}`,
                         { width: width, height: height, depth: depth },
                         this.graphics.scene as BABYLON.Scene,
                     );
@@ -512,11 +511,14 @@ export default defineComponent({
                             if (meshName.startsWith("BackgroundArea")) {
                                 // Hit the available area.
                                 const info = meshName.split("_");
-                                const partId = info[1];
-                                const cubeId = info[2];
+                                const catId = info[1];
+                                const partId = info[2];
+                                const cubeId = info[3];
+                                let manifest: string | undefined = info[4];
+                                // TODO: remove the codes below of getting manifest from local.
+                                manifest = this.bizdata.partManifestMap.get(catId.toString());
 
                                 const cubeData = this.bizdata.cubeMap.get(cubeId);
-                                const manifest = this.bizdata.partManifestMap.get(partId);
                                 if (
                                     cubeData !== undefined &&
                                     manifest !== undefined &&
@@ -536,12 +538,15 @@ export default defineComponent({
                                         cubeData.origin.z + startPos.z,
                                     );
 
+                                    // TODO: create a parent mesh to contain all import meshes.
                                     itemMf.models.forEach((model: any) => {
                                         const modelPos = new BABYLON.Vector3(
                                             itemOrigin.x + model.position.x,
                                             itemOrigin.y + model.position.y,
                                             itemOrigin.z + model.position.z,
                                         );
+
+                                        const itemName = ObjectType.ITEM + "_" + itemId;
                                         this.graphics.importMesh(model.url, itemId, modelPos);
                                     });
 
@@ -551,7 +556,7 @@ export default defineComponent({
                                         new Position(startPos.x, startPos.y, startPos.z),
                                         null,
                                     );
-                                    const newItem = new Item(itemId, Number(partId), manifest, location);
+                                    const newItem = new Item(itemId, Number(partId), manifest, Number(catId), location);
                                     this.bizdata.addItem(newItem, cubeId);
 
                                     this.clearAvailableAreas();

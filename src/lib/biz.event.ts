@@ -29,14 +29,14 @@ export class Event {
  * 备注：Web需要更新卡片选择池
  */
 export class ObjectSelectedEvent extends Event {
-    readonly category: string;
+    readonly catId: number;
     readonly partId: number;
     readonly object: Cube | Item | Door;
 
-    constructor(category: string, partId: number, object: Cube | Item | Door) {
+    constructor(catId: number, partId: number, object: Cube | Item | Door) {
         super(EventType.OBJECT_SELECTED);
 
-        this.category = category;
+        this.catId = catId;
         this.partId = partId;
         this.object = object;
     }
@@ -47,14 +47,14 @@ export class ObjectSelectedEvent extends Event {
  * 备注：Web需要更新卡片选择池
  */
 export class ObjectUnselectedEvent extends Event {
-    readonly category: string;
+    readonly catId: number;
     readonly partId: number;
     readonly object: Cube | Item | Door;
 
-    constructor(category: string, partId: number, object: Cube | Item | Door) {
+    constructor(catId: number, partId: number, object: Cube | Item | Door) {
         super(EventType.OBJECT_UNSELECTED);
 
-        this.category = category;
+        this.catId = catId;
         this.partId = partId;
         this.object = object;
     }
