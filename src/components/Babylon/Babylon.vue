@@ -21,6 +21,7 @@ export interface PartType {
     width: number;
     height: number;
     depth: number;
+    manifest: string;
     catId: number;
 }
 
@@ -58,6 +59,7 @@ export default defineComponent({
                 width: 0,
                 height: 0,
                 depth: 0,
+                manifest: "",
                 catId: 0,
             }),
         },

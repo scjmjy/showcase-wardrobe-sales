@@ -520,6 +520,7 @@ export default defineComponent({
                     width: part.width,
                     height: part.height,
                     depth: part.depth,
+                    manifest: part.manifest,
                     catId: +cat.id,
                 };
                 // ElMessage({
