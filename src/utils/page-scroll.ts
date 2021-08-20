@@ -16,7 +16,7 @@ export function checkReachBottom(el: HTMLElement, onReachBottom: OnReachBottom) 
     if (clientHeight === 0 && scrollHeight === 0) {
         return;
     }
-    console.log("clientHeight", scrollTop, clientHeight, scrollHeight);
+    // console.log("clientHeight", scrollTop, clientHeight, scrollHeight);
 
     const reachBottom = scrollTop + clientHeight + OFFSET >= scrollHeight;
     if (reachBottom) {

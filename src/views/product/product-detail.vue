@@ -599,7 +599,7 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     // background-color: var(--el-color-bg);
-    background: linear-gradient(#f2f4f5, #f1f3f4);
+    // background: linear-gradient(#f2f4f5, #f1f3f4);
     overflow: hidden;
     &__3d {
         // flex: 1;

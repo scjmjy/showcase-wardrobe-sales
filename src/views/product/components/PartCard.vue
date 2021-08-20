@@ -1,11 +1,6 @@
 <template>
     <div ref="refEl" class="part-card" :class="{ active: active }">
-        <el-image
-            class="part-card__img u-clickable"
-            :src="part.pic"
-            fit="contain"
-            @click="$emit('click', part)"
-        ></el-image>
+        <el-image class="part-card__img u-clickable" :src="part.pic" fit="contain" @click="onImgClick"></el-image>
         <div class="part-card__label">{{ part.name }}</div>
     </div>
 </template>
@@ -27,7 +22,7 @@ export default defineComponent({
         // },
     },
     emits: ["click"],
-    setup(props) {
+    setup(props, ctx) {
         const refEl = ref<HTMLDivElement>();
         const selectedPartId = inject<Ref<number>>("selectedPartId", ref(0));
         const active = computed(() => props.part.id == selectedPartId.value);
@@ -49,6 +44,10 @@ export default defineComponent({
             refEl,
             selectedPartId,
             active,
+            onImgClick() {
+                selectedPartId.value = +props.part.id;
+                ctx.emit("click", props.part);
+            },
         };
     },
 });
