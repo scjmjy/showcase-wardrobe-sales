@@ -457,6 +457,8 @@ export default defineComponent({
         },
 
         ShowAvailableArea(part: PartType, areas: Area[]): void {
+            this.clearAvailableAreas();
+
             areas.forEach((area: Area) => {
                 const cubeData = this.bizdata.cubeMap.get(area.cubeId);
                 if (cubeData !== undefined) {
@@ -571,6 +573,7 @@ export default defineComponent({
                             }
                         } else {
                             this.gui.display(this.graphics, this.bizdata as BizData, null);
+                            this.clearAvailableAreas();
                         }
                         break;
                 }
