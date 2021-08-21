@@ -39,7 +39,7 @@ export default defineComponent({
         function requestApi(page: number, pageSize: number) {
             return apiProvider.requestCustomerList(store.state.user.eid, page, pageSize);
         }
-        function afterDataHander(page: number) {
+        function afterDataHandler(page: number) {
             if (customers.value.length > 0 && !defaultActive.value && page === 1) {
                 if (store.state.currentCustomer.customerId) {
                     defaultActive.value = store.state.currentCustomer.customerId.toString();
@@ -56,7 +56,7 @@ export default defineComponent({
         }
         onMounted(() => {
             const el = elMenu.value?.$el as HTMLElement;
-            pageScroll = new PageScroll(el, requestApi, loadState, customers, undefined, afterDataHander);
+            pageScroll = new PageScroll(el, requestApi, loadState, customers, { afterDataHandler });
             pageScroll.requestPage();
         });
         // onBeforeRouteUpdate(async (to, from) => {

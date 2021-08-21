@@ -3,7 +3,7 @@
         <app-header class="select-product__header" customer type="dark" />
         <prod-cat-menu class="select-product__menu" @select="onProdCatSelect" @filter="onProdFilter" />
         <el-scrollbar ref="elScrollbar" class="select-product__products" @scroll="onScroll">
-            <el-row ref="elRow" :gutter="20" justify="space-between" style="margin: 0px !important">
+            <el-row v-if="currentCid" ref="elRow" :gutter="20" justify="space-between" style="margin: 0px !important">
                 <el-col
                     v-for="(p, index) in products"
                     :key="index"
@@ -53,8 +53,7 @@ export default defineComponent({
         LoadMore,
     },
     setup() {
-        let page = 1;
-        let currentCid = "";
+        const currentCid = ref("");
         const router = useRouter();
         const store = useStore();
         let products = ref<Product[]>([]);
@@ -63,7 +62,7 @@ export default defineComponent({
         const loadState = ref<LOAD_STATE>("");
         let pageScroll: PageScroll<Product> | undefined;
         function requestApi(page: number, pageSize: number) {
-            return apiProvider.requestProducts(currentCid, page, pageSize);
+            return apiProvider.requestProducts(currentCid.value, page, pageSize);
         }
         function onScroll(e?: Event) {
             pageScroll?.onScroll();
@@ -71,10 +70,10 @@ export default defineComponent({
         onMounted(() => {
             const el = elScrollbar.value?.$el as HTMLElement;
             pageScroll = new PageScroll(el, requestApi, loadState, products);
-            pageScroll.requestPage();
         });
 
         return {
+            currentCid,
             products,
             elScrollbar,
             elRow,
@@ -83,7 +82,7 @@ export default defineComponent({
                 router.back();
             },
             onProdCatSelect(cid: string) {
-                currentCid = cid;
+                currentCid.value = cid;
                 pageScroll?.reload();
             },
             onProductClick(product: Product) {

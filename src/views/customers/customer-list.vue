@@ -2,7 +2,7 @@
     <div class="customer-list">
         <app-header class="customer-list__header" type="dark" customer :back="menu ? '返回' : ''" />
         <customer-menu v-if="menu" ref="refMenu" class="customer-list__menu" @select="onCustomerSelect" />
-        <div ref="refSchemeList" class="customer-list__schemes">
+        <div ref="refSchemeList" class="customer-list__schemes" v-loading="loadingSchemeList">
             <div class="customer-list__info">
                 <strong class="customer-list__info-label">{{ customerName }}</strong>
                 <el-button v-if="showServeBtn" size="small" type="dark" round @click="serve">为此客户服务</el-button>
@@ -10,7 +10,6 @@
             <el-empty v-if="showServeBtn && schemeList.length === 0" description="暂无定制方案" style="flex: 1">
             </el-empty>
             <el-row
-                v-else
                 ref="elRow"
                 class="customer-list__list"
                 :gutter="20"
@@ -40,8 +39,8 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref, nextTick } from "vue";
-import { useRouter } from "vue-router";
+import { computed, defineComponent, reactive, ref, nextTick, onMounted, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import apiProvider from "@/api/provider";
 import CustomerMenu from "./components/CustomerMenu.vue";
@@ -49,9 +48,9 @@ import AppHeader from "@/views/home/components/AppHeader.vue";
 import { Scheme } from "@/api/interface/provider.interface";
 import SchemeCard from "./components/SchemeCard.vue";
 import NewSchemeCard from "./components/NewSchemeCard.vue";
+import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 import LoadMore from "@/components/LoadMore.vue";
 import { ElRow } from "element-plus";
-import { checkReachBottom, LOAD_STATE } from "@/utils/page-scroll";
 
 interface SortedSchemes {
     date: string;
@@ -74,12 +73,11 @@ export default defineComponent({
         LoadMore,
     },
     setup(props) {
-        const loadState = ref<LOAD_STATE>("");
-        let page = 1;
         const router = useRouter();
         const store = useStore();
         const schemeList = ref([] as Scheme[]);
         const customerId = ref("");
+        const loadingSchemeList = ref(false);
         const showServeBtn = computed(
             () => store.state.currentCustomer.customerId.toString() !== customerId.value.toString(),
         );
@@ -87,57 +85,54 @@ export default defineComponent({
         const refSchemeList = ref<HTMLDivElement>();
 
         const elRow = ref<InstanceType<typeof ElRow>>();
-        function onScroll() {
-            const el = elRow.value?.$el as HTMLElement | undefined;
-            if (!el) {
-                return;
-            }
-            checkReachBottom(el, () => {
-                console.log("[OnReachBottom]!!!");
-
-                if (loadState.value !== "nomore" && loadState.value !== "loading") {
-                    page++;
-                    requestSchemes();
-                }
-            });
+        const loadState = ref<LOAD_STATE>("");
+        const pageScroll = new PageScroll(undefined, requestApi, loadState, schemeList, {
+            onDataFinish: () => {
+                loadingSchemeList.value = false;
+            },
+        });
+        function requestApi(page: number, pageSize: number) {
+            return apiProvider.requestSchemes(customerId.value, page, pageSize);
         }
-
-        function requestSchemes() {
-            loadState.value = "loading";
-            apiProvider.requestSchemes(customerId.value, page).then((res) => {
-                if (res.ok) {
-                    const result = res.data || [];
-                    if (result.length === 0) {
-                        loadState.value = "nomore";
-                    } else {
-                        loadState.value = "more";
-                    }
-                    schemeList.value.push(...result);
-                    schemeList.value.sort((a, b) => {
-                        return new Date(b.ptime).getTime() - new Date(a.ptime).getTime();
-                    });
-                    // refSchemeList.value?.scrollTo({ top: 0, behavior: "smooth" });
-
-                    nextTick(() => {
-                        onScroll();
-                    });
-                }
-            });
+        function onScroll(e?: Event) {
+            pageScroll.onScroll();
         }
 
         function onCustomerSelect(cid: string) {
-            schemeList.value = [];
             customerId.value = cid;
-            page = 1;
-            loadState.value = "";
-            requestSchemes();
+            loadingSchemeList.value = true;
+            pageScroll.reload();
         }
+        onMounted(() => {
+            const el = elRow.value?.$el as HTMLElement;
+            pageScroll.el = el;
+            if (!props.menu) {
+                customerId.value = store.state.currentCustomer.customerId;
+                onCustomerSelect(customerId.value);
+            }
+        });
+        let myPath = "";
+        const route = useRoute();
+        watch(
+            () => route.path,
+            async (path) => {
+                if (!myPath) {
+                    myPath = path;
+                } else if (myPath === path) {
+                    // do updates
+                    setTimeout(() => {
+                        refMenu.value?.resetLoadstate();
+                        pageScroll.reloadCurrentPage();
+                    }, 500);
+                }
+            },
+            {
+                immediate: true,
+            },
+        );
 
-        if (!props.menu) {
-            customerId.value = store.state.currentCustomer.customerId;
-            onCustomerSelect(customerId.value);
-        }
         return {
+            loadingSchemeList,
             loadState,
             elRow,
             refMenu,
@@ -180,20 +175,8 @@ export default defineComponent({
                 });
             },
             onScroll,
+            pageScroll,
         };
-    },
-    beforeRouteEnter(to, from, next) {
-        next((vue) => {
-            // @ts-ignore
-            vue.$refs.refMenu.resetLoadstate();
-
-            // if (vue.$data.loadState.value === "nomore") {
-            //     vue.$data.loadState.value = "more";
-            //     vue.$data.onScroll();
-            //     console.log("【CustomerMenu:beforeRouteEnter");
-            // }
-        });
-        // ...
     },
 });
 </script>
@@ -234,7 +217,7 @@ export default defineComponent({
         }
     }
     &__list {
-        flex: 1;
+        // flex: 1;
         overflow-y: auto;
     }
 }

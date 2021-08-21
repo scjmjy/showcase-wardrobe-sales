@@ -67,14 +67,14 @@ export default defineComponent({
         function requestApi(page: number, pageSize: number) {
             return apiProvider.requestBackgrounds(selectedBgType.value as BackgroundType, page, pageSize);
         }
-        function afterDataHander(page: number) {}
+        function afterDataHandler(page: number) {}
         function onScroll(e?: Event) {
             pageScroll?.onScroll();
         }
         onMounted(() => {
             const el = refScroll.value as HTMLElement;
 
-            pageScroll = new PageScroll(el, requestApi, loadState, bgs, undefined, afterDataHander);
+            pageScroll = new PageScroll(el, requestApi, loadState, bgs, { afterDataHandler });
             pageScroll.requestPage();
         });
 

@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, Prop, PropType } from "vue";
-import { LOAD_STATE } from "@/utils/page-scroll";
+import { computed, defineComponent, PropType } from "vue";
+import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 
 export default defineComponent({
     name: "LoadMore",
@@ -18,6 +18,10 @@ export default defineComponent({
         type: {
             type: String as PropType<"primary" | "smoke">,
             default: "primary",
+        },
+        scroll: {
+            type: Object as PropType<PageScroll<any> | undefined>,
+            default: () => undefined,
         },
     },
     emits: ["loadmore"],
@@ -40,6 +44,7 @@ export default defineComponent({
             onClick() {
                 if (props.state === "more") {
                     ctx.emit("loadmore");
+                    props.scroll && props.scroll.reloadCurrentPage();
                 }
             },
         };
