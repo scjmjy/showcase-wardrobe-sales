@@ -1,8 +1,12 @@
 import { StSketchLine } from "@/lib/geometry/st_geometric_2d";
+import { StVector } from "@/lib/geometry/st_vector_2d";
+import { sketchUtil } from "@/lib/utility/st_object";
 import { StSketchCube, StSketchDivision } from "@/lib/wardrobe/st_sketch_cube";
 
 class StSketchCubeTest {
     cube?: StSketchCube;
+    horizonalBoardId?: string;
+    verticalBoardId?: string;
 
     create_01(): StSketchCube {
         const cube = new StSketchCube({
@@ -66,16 +70,25 @@ class StSketchCubeTest {
         return `[Success] Divide Boards(Lines): \n\t ${board} \n\t ${board2}`;
     }
 
+    
     divide_02(): string {
         if (!this.cube) throw Error("No Cube!");
-        const line0 = StSketchLine.buildByArray([[0, 1500], [1200, 1500]]);
+        const line0 = StSketchLine.buildByArray([[0, 1500], [1200, 1500]]); // horizaonal 
         const line1 = StSketchLine.buildByArray([[800, 0],  [800,  1500]]);
     
         const b0 = this.cube.addDivideBoardByLine(line0);
         const b1 = this.cube.addDivideBoardByLine(line1);
+        this.horizonalBoardId = b0.uuid;
+        this.verticalBoardId = b1.uuid;
 
         this.cube.updateMesh();
         return `[Success] Divide Boards(Lines): \n\t ${b0} \n\t ${b1}`;
+    }
+
+    move_divide_01(): string {
+        const board: string = this.horizonalBoardId!;
+        this.cube?.moveDivide(board, StVector.DOWN);
+        return board;
     }
 }
 

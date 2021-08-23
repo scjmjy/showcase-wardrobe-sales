@@ -47,6 +47,12 @@ interface StIModel {
      * position in its parent model?
      */
     getPosition(): StPoint3;
+
+    /**
+     * move postion of this mode. 
+     * the polygon points in model space do NOT change!
+     * @param v 
+     */
     translate(v: StSketchVector3): void;
 
     /**

@@ -71,6 +71,8 @@ export class StUuidObject extends StObject {
 }
 
 class StSketchUtil {
+    static readonly NUMBER_DIFF = 0.0001;
+
     assert(condition: boolean, msg?: string) {
         if (!condition) {
             throw Error(msg);
@@ -84,6 +86,11 @@ class StSketchUtil {
         const A = Math.pow(10, digits);
         const V = value * A;
         return Math.round(V) / A;
+    }
+
+    numberEquals(n1: number, n2: number, diff?: number): boolean {
+        diff = diff || StSketchUtil.NUMBER_DIFF;
+        return Math.abs(n1 - n2 ) < diff;
     }
 }
 

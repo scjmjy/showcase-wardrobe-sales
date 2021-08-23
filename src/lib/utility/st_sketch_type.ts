@@ -46,3 +46,12 @@ export enum StCubePart {
     DOOR,
     PULLOUT,
 }
+
+/**
+ * Seems uesless. 
+ * Replaced by StVector.LEFT/DOWN/RIGHT/UP
+ */
+export enum StDirection {
+    NONE, 
+    LEFT, DOWN, RIGHT, UP
+}

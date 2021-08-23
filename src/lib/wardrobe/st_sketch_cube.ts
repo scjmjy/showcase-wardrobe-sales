@@ -23,11 +23,12 @@ import {
     StBoardMeshLocation,
 } from "./st_model_interface";
 import { StBoardMesh, StBoardType, StLineBoardMesh } from "./mesh/st_board_mesh";
-import { StDoorType } from "../utility/st_sketch_type";
+import { StDirection, StDoorType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
 import { StModel } from "./st_model_object";
 import { StSketchAccesory } from "./st_sketch_accesory";
 import { StWoodType, textureManager } from "../utility/st_texture";
+import { sketchUtil } from "../utility/st_object";
 
 export class StSketchDivision extends StModel implements StIDivison {
     /**
@@ -209,6 +210,22 @@ export class StSketchBoardZ extends StModel {
         super(opt);
         this.line = opt.line;
         this.meshLoc = opt.meshLoc || StBoardMeshLocation.LEFT;
+    }
+
+    lineAngle(): number {
+        return this.line.getVector().angle();
+    }
+
+    /**
+     * move points of the geometry.
+     * NOTE: it does not change model position, which is done by translate()
+     * @param vec 
+     */
+    moveGeometry(vec: StVector, updateMesh?: boolean): StSketchBoardZ {
+        vec.angle();
+        this.line.translate(vec);
+        if(updateMesh) this.updateMesh();
+        return this;
     }
 }
 
@@ -414,8 +431,38 @@ export class StSketchCube extends StModel implements StICube {
         return this.addDivideBoardByLine(line);
     }
 
-    moveDivide(line: string, step?: number): StSketchLine {
-        throw new Error("Method not implemented.");
+    private _getDivideBoard(id: string): StSketchBoardZ {
+        const b = this.divideBoard.get(id);
+        if(b == undefined) {
+            throw Error(`cannot find divide-board by id: ${id}`);
+        }
+        return b;
+    }
+
+    /**
+     * Because a divide-board(B0) is fixed to another perpendicular boards (B1, B2).
+     * The 2 edge-points can only move alone the B1 and B2. 
+     * As a result, the tranlating vector must be perpendicular to B0 vector.
+     * 
+     * @param board 
+     * @param step 
+     */
+    moveDivide(board: string, direct: StVector, step?: number): StSketchBoardZ {
+        const b: StSketchBoardZ = this._getDivideBoard(board);
+        let angle = Math.abs(direct.angle() - b.lineAngle());
+        if(angle > 180) {
+            angle = 360 - angle;
+        }
+        if(angle > 90) {
+            angle = 180 - angle ;
+        }
+        if( ! sketchUtil.numberEquals(angle, 90) ){
+            throw Error(`Moving-Vector is NOT perpendicular with board: ${angle}`);
+        }
+        step = step || 200;
+        const vec = StVector.makeVectorByLength(direct, step);
+        b.moveGeometry(vec, true);
+        return b;
     }
 
     deleteDivide(line: string): StSketchLine {

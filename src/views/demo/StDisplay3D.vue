@@ -11,8 +11,15 @@
             </div>
             <div class="sidebar">
                 <button class="test" v-on:click="onCacheInfo()">Cache Info</button>
+                &emsp; Test Mesh: 
                 <button class="test" v-on:click="onTestMesh('pillar')">Pillar</button>
+                <button class="test" v-on:click="onTestMesh('board-3')">Board: Left-Right</button>
+                <button class="test" v-on:click="onTestMesh('board-1')">B-Position</button>
+                <button class="test" v-on:click="onTestMesh('board-2')">B-Rotate</button>
+                &emsp;
+                <br/>
                 <button class="test" v-on:click="onTestCube('create')">Cube: C</button>
+                &emsp;
                 <button class="test" v-on:click="onTestCube('W+')">W+</button>
                 <button class="test" v-on:click="onTestCube('W-')">W-</button>
                 <button class="test" v-on:click="onTestCube('H+')">H+</button>
@@ -21,12 +28,11 @@
                 <button class="test" v-on:click="onTestCube('D-')">D-</button>
                 <button class="test" v-on:click="onTestCube('GB+')">GB+</button>
                 <button class="test" v-on:click="onTestCube('GB-')">GB-</button>
+                &emsp;
                 <button class="test" v-on:click="onTestCube('divide-01')">Divide 01</button>
                 <button class="test" v-on:click="onTestCube('divide-02')">Divide 02</button>
-                <br />
-                <button class="test" v-on:click="onTestMesh('board-3')">Board: Left-Right</button>
-                <button class="test" v-on:click="onTestMesh('board-1')">B-Position</button>
-                <button class="test" v-on:click="onTestMesh('board-2')">B-Rotate</button>
+                &ensp;
+                <button class="test" v-on:click="onTestCube('move-divide-01')">Move Divide 01</button>
             </div>
         </div>
 
@@ -186,6 +192,9 @@ export default defineComponent({
                         break;
                     case "divide-02":
                         this.topInfo = test.divide_02();
+                        break;
+                    case "move-divide-01":
+                        this.topInfo = test.move_divide_01();
                         break;
 
                     default:
