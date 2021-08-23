@@ -15,12 +15,9 @@ import { sketchUtil, StUuidObject } from "../utility/st_object";
 import { StVector } from "./st_vector_2d";
 import * as geometric from "geometric";
 import * as turf from "@turf/turf";
-import { StSketchVector3 } from "./st_geometric_3d";
 import stringify from "json-stringify-pretty-compact";
 import { jsonIgnoreReplacer } from "json-ignore";
 import StSketchConstant from "../utility/st_sketch_constant";
-import { RecastJSCrowd } from "babylonjs/Navigation/Plugins/recastJSPlugin";
-import { RawTexture } from "babylonjs/Materials/Textures/rawTexture";
 
 export enum StPolygonOverlap {
     NONE,
@@ -171,6 +168,10 @@ export class StEdgePoint extends StSketchPoint {
         this.offset = offset;
     }
 
+    getOffset(): number {
+        return this.offset;
+    }
+
     valueEquals(pt: StEdgePoint): boolean {
         return super.valueEquals(pt) && this.offset == pt.offset && this.edgeId == pt.edgeId;
     }
@@ -249,6 +250,10 @@ export class StSketchLine extends StGeometic2D {
  * An edge on a polygon.
  */
 export class StSketchEdge extends StSketchLine {
+    static buildByArray(arr: geometric.Line): StSketchEdge {
+        return new StSketchEdge(new StSketchPoint(arr[0][0], arr[0][1]), new StSketchPoint(arr[1][0], arr[1][1]));
+    }
+
     private innerPoints: StEdgePoint[] = [];
 
     constructor(p0: StSketchPoint, p1: StSketchPoint) {
@@ -281,7 +286,9 @@ export class StSketchEdge extends StSketchLine {
         const point_vec = this._calcInnerPoint(offset);
         const pt = new StEdgePoint(point_vec, offset, this.uuid);
         this.innerPoints.push(pt);
-        console.warn("TODO: order the inner points by offset");
+        this.innerPoints.sort( (a, b) => {
+            return sketchUtil.numberCompare(a.getOffset(), b.getOffset() );
+        }); 
         return pt;
     }
 
@@ -364,6 +371,20 @@ export class StSketchEdge extends StSketchLine {
         const offset = pt.distanceToPoint(this.vertex0);
         const edge_pt = this.addPoint(offset);
         return edge_pt;
+    }
+
+    /**
+     * 
+     * If the edge moves(translates), its inner points must be updated!
+     */
+    translate(vec: StVector){
+        super.translate(vec);
+        // Recalculate the inner-pointer positions according to edges. 
+        for(const p of this.innerPoints) {
+            const offset = p.getOffset();
+            const pt = this._calcInnerPoint(offset);
+            p.setOffset(pt, offset);
+        }
     }
 }
 

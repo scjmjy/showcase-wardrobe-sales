@@ -33,6 +33,7 @@
                 <button class="test" v-on:click="onTestCube('divide-02')">Divide 02</button>
                 &ensp;
                 <button class="test" v-on:click="onTestCube('move-divide-01')">Move Divide 01</button>
+                <button class="test" v-on:click="onTestCube('move-divide-02')">Move Divide 02</button>
             </div>
         </div>
 
@@ -196,6 +197,10 @@ export default defineComponent({
                     case "move-divide-01":
                         this.topInfo = test.move_divide_01();
                         break;
+                    case "move-divide-02":
+                        this.topInfo = test.move_divide_02();
+                        break;
+
 
                     default:
                         alert("unknown operation: " + opt);

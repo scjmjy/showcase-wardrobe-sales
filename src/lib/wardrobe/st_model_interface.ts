@@ -16,7 +16,7 @@
  *
  */
 
-import { StSketchLine, StSketchRect } from "../geometry/st_geometric_2d";
+import { StSketchEdge, StSketchLine, StSketchRect } from "../geometry/st_geometric_2d";
 import { StPoint3, StSketchVector3 } from "../geometry/st_geometric_3d";
 import { StDoorType, StPulloutType } from "../utility/st_sketch_type";
 import { StColor } from "../utility/st_color";
@@ -235,7 +235,7 @@ export enum StBoardMeshLocation {
 }
 
 interface StIDivideBoardOpt extends StIModelOpt {
-    line: StSketchLine;
+    edge: StSketchEdge;
     meshLoc?: StBoardMeshLocation;
 }
 

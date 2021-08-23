@@ -1,12 +1,14 @@
-import { StSketchLine } from "@/lib/geometry/st_geometric_2d";
+import { StSketchEdge, StSketchLine } from "@/lib/geometry/st_geometric_2d";
 import { StVector } from "@/lib/geometry/st_vector_2d";
-import { sketchUtil } from "@/lib/utility/st_object";
 import { StSketchCube, StSketchDivision } from "@/lib/wardrobe/st_sketch_cube";
 
 class StSketchCubeTest {
     cube?: StSketchCube;
-    horizonalBoardId?: string;
-    verticalBoardId?: string;
+    
+    // [0]: horizonal  board
+    // [1]: vertical board
+    boards1: string[] = [];
+    boards2: string[] = [];
 
     create_01(): StSketchCube {
         const cube = new StSketchCube({
@@ -66,6 +68,10 @@ class StSketchCubeTest {
         const e3 = div00_rect.edges[3];
         const board2 = this.cube.addDivideBoard(e1, e3);
 
+        // [0]: horizonal  board
+        // [1]: vertical board
+        this.boards1 = [board2.uuid, board.uuid]; 
+
         this.cube.updateMesh();
         return `[Success] Divide Boards(Lines): \n\t ${board} \n\t ${board2}`;
     }
@@ -73,23 +79,29 @@ class StSketchCubeTest {
     
     divide_02(): string {
         if (!this.cube) throw Error("No Cube!");
-        const line0 = StSketchLine.buildByArray([[0, 1500], [1200, 1500]]); // horizaonal 
-        const line1 = StSketchLine.buildByArray([[800, 0],  [800,  1500]]);
+        const line0 = StSketchEdge.buildByArray([[0, 1500], [1200, 1500]]); // horizaonal 
+        const line1 = StSketchEdge.buildByArray([[800, 0],  [800,  1500]]);
     
         const b0 = this.cube.addDivideBoardByLine(line0);
         const b1 = this.cube.addDivideBoardByLine(line1);
-        this.horizonalBoardId = b0.uuid;
-        this.verticalBoardId = b1.uuid;
+        this.boards2 = [b0.uuid, b1.uuid]; 
 
         this.cube.updateMesh();
         return `[Success] Divide Boards(Lines): \n\t ${b0} \n\t ${b1}`;
     }
 
     move_divide_01(): string {
-        const board: string = this.horizonalBoardId!;
+        const board: string = this.boards1[0];
+        this.cube?.moveDivide(board, StVector.UP);
+        return board;
+    }
+
+    move_divide_02(): string {
+        const board: string = this.boards2[0];
         this.cube?.moveDivide(board, StVector.DOWN);
         return board;
     }
+
 }
 
 export const cubeTest = new StSketchCubeTest();

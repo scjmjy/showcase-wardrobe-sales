@@ -198,22 +198,22 @@ export class StSketchBoardZ extends StModel {
     updateMesh(): void {
         // [Guilin: 2021-8-16] Currently, re-draw the mesh
         super.clearMesh();
-        const board_mesh = StLineBoardMesh.buildByLine(this.line, this.getDepth(), StBoardMeshLocation.LEFT);
+        const board_mesh = StLineBoardMesh.buildByLine(this.edge, this.getDepth(), StBoardMeshLocation.LEFT);
         this.meshList.push(board_mesh);
         console.log("draw mesh: boardZ");
     }
 
-    private readonly line: StSketchLine;
+    private readonly edge: StSketchEdge;
     private readonly meshLoc: StBoardMeshLocation;
 
     constructor(opt: StIDivideBoardOpt) {
         super(opt);
-        this.line = opt.line;
+        this.edge= opt.edge;
         this.meshLoc = opt.meshLoc || StBoardMeshLocation.LEFT;
     }
 
     lineAngle(): number {
-        return this.line.getVector().angle();
+        return this.edge.getVector().angle();
     }
 
     /**
@@ -223,7 +223,7 @@ export class StSketchBoardZ extends StModel {
      */
     moveGeometry(vec: StVector, updateMesh?: boolean): StSketchBoardZ {
         vec.angle();
-        this.line.translate(vec);
+        this.edge.translate(vec);
         if(updateMesh) this.updateMesh();
         return this;
     }
@@ -358,7 +358,9 @@ export class StSketchCube extends StModel implements StICube {
      * @param line
      * @returns
      */
-    addDivideBoardByLine(line: StSketchLine): StSketchBoardZ {
+    addDivideBoardByLine(line: StSketchEdge): StSketchBoardZ {
+        console.warn(`TODO: make sure input edge points are on existing edges: ${line}`);        
+
         // 1. traverse all divisions, try to divide them with line
         // delete old division and add new divisions
         console.log(`#### divide cube with line: ${line}`);
@@ -398,7 +400,7 @@ export class StSketchCube extends StModel implements StICube {
         // 2. create the divide board, based on the above divide-line
         const board = new StSketchBoardZ({
             depth: this.getDepth(),
-            line: line,
+            edge: line,
         });
         board.updateMesh();
         this.divideBoard.set(board.uuid, board);
@@ -427,7 +429,7 @@ export class StSketchCube extends StModel implements StICube {
         if (p1 == null) {
             throw Error(`Fail to find the intersecting point on the 2nd edge: ${e1}`);
         }
-        const line = new StSketchLine(p0, p1);
+        const line = new StSketchEdge(p0, p1);
         return this.addDivideBoardByLine(line);
     }
 
@@ -461,7 +463,14 @@ export class StSketchCube extends StModel implements StICube {
         }
         step = step || 200;
         const vec = StVector.makeVectorByLength(direct, step);
-        b.moveGeometry(vec, true);
+
+        // 1. move the board
+        b.moveGeometry(vec);
+
+        // 2. redraw the affected boards (currently: redraw all boards)
+        for(const b of this.divideBoard.values() ) {
+            b.updateMesh();
+        }
         return b;
     }
 

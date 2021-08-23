@@ -92,6 +92,15 @@ class StSketchUtil {
         diff = diff || StSketchUtil.NUMBER_DIFF;
         return Math.abs(n1 - n2 ) < diff;
     }
+
+    numberCompare(n1: number, n2: number, diff?: number): number {
+        if(this.numberEquals(n1, n2, diff)) return 0;
+        if(n1 > n2) {
+            return 1;
+        } else {
+            return -1;
+        } 
+    }
 }
 
 export const sketchUtil = new StSketchUtil();
