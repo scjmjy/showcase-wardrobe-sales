@@ -88,7 +88,9 @@ export default defineComponent({
         const loadState = ref<LOAD_STATE>("");
         const pageScroll = new PageScroll(undefined, requestApi, loadState, schemeList, {
             onDataFinish: () => {
-                loadingSchemeList.value = false;
+                setTimeout(() => {
+                    loadingSchemeList.value = false;
+                }, 200);
             },
         });
         function requestApi(page: number, pageSize: number) {

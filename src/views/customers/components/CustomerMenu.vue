@@ -87,7 +87,8 @@ export default defineComponent({
                 el.scrollTo({
                     top: lastestScrollY,
                 });
-                pageScroll?.reloadCurrentPage();
+                // pageScroll?.reloadCurrentPage();
+                pageScroll?.reload();
             },
         };
     },

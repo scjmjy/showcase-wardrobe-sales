@@ -43,8 +43,8 @@ export default defineComponent({
     vertical-align: top;
     margin: 10px;
     &__img {
-        width: 80px;
-        height: 80px;
+        width: 140px;
+        height: 140px;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         border-radius: 10px;
         overflow: hidden;

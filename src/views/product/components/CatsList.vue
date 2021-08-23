@@ -3,7 +3,7 @@
         <div v-if="up" style="text-align: center">
             <el-button type="text" size="small" @click="onUpClick">上一层</el-button>
         </div>
-        <part-cat-card v-for="cat in cats" :key="cat.id" :cat="cat" @click="onCatClick">
+        <part-cat-card v-for="cat in cats" :key="cat.id" :cat="cat" @click="onCatClick" style="width: 40%">
             {{ cat.name }}
         </part-cat-card>
     </div>

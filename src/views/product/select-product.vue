@@ -53,6 +53,7 @@ export default defineComponent({
         LoadMore,
     },
     setup() {
+        const loadingProduct = ref(false);
         const currentCid = ref("");
         const router = useRouter();
         const store = useStore();
@@ -69,10 +70,17 @@ export default defineComponent({
         }
         onMounted(() => {
             const el = elScrollbar.value?.$el as HTMLElement;
-            pageScroll = new PageScroll(el, requestApi, loadState, products);
+            pageScroll = new PageScroll(el, requestApi, loadState, products, {
+                onDataFinish() {
+                    setTimeout(() => {
+                        loadingProduct.value = false;
+                    }, 200);
+                },
+            });
         });
 
         return {
+            loadingProduct,
             currentCid,
             products,
             elScrollbar,
@@ -84,6 +92,7 @@ export default defineComponent({
             onProdCatSelect(cid: string) {
                 currentCid.value = cid;
                 pageScroll?.reload();
+                loadingProduct.value = true;
             },
             onProductClick(product: Product) {
                 store.commit("SET-PAGE-CHANNEL", {
