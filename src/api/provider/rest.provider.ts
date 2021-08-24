@@ -16,6 +16,7 @@ import {
     Scheme,
 } from "../interface/provider.interface";
 import LocalProvider from "./local.provider";
+import emitter from "@/event";
 
 export default class RestProvider extends LocalProvider {
     login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>> {
@@ -116,10 +117,12 @@ export default class RestProvider extends LocalProvider {
                 },
             })
                 .then((res) => {
+                    const cid = res.data.id ? res.data.id.toString() : "";
+                    emitter.emit("customer-created", res.data.id.toString());
                     resolve({
                         ok: true,
                         status: res.status,
-                        data: res.data.id,
+                        data: cid,
                     });
                 })
                 .catch(() => {

@@ -330,10 +330,10 @@ export default defineComponent({
                 }
 
                 switch (part_type) {
-                    case 'door':
+                    case "door":
                         refBabylon.value!.removeDoorsApi();
                         break;
-                    default: 
+                    default:
                         throw Error(`unknown part type: ${part_type}`);
                 }
             },
@@ -470,7 +470,7 @@ export default defineComponent({
                 showCustomizeDlg.value = true;
             },
             onCustomizeConfirm() {
-                const cid = store.state.currentCustomer.customerId;
+                const cid = store.state.currentCustomer.customerId.toString();
                 if (customizeMode.value === "new") {
                     loadingCreating.value = true;
                     const p = product.value as Product;
@@ -478,6 +478,8 @@ export default defineComponent({
                         .createNewScheme(p.name, store.state.user.eid, cid, p.id)
                         .then((res) => {
                             if (res.ok && res.data) {
+                                store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
+
                                 apiProvider.requestSchemeDetail(res.data.id).then((res) => {
                                     if (res.ok && res.data) {
                                         product.value = res.data;
@@ -502,6 +504,7 @@ export default defineComponent({
                         .createNewScheme(scheme.product, store.state.user.eid, cid, undefined, scheme.id)
                         .then((res) => {
                             if (res.ok && res.data) {
+                                store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
                                 apiProvider.requestSchemeDetail(res.data.id).then((res) => {
                                     if (res.ok && res.data) {
                                         product.value = res.data;

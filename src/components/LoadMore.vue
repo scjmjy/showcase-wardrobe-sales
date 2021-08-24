@@ -1,6 +1,9 @@
 <template>
     <div class="load-more" :class="type" v-loading="state === 'loading'" @click="onClick">
-        {{ stateText }}
+        <el-empty v-if="state === 'empty'"></el-empty>
+        <span v-else>
+            {{ stateText }}
+        </span>
     </div>
 </template>
 
@@ -58,7 +61,7 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 40px;
+    min-height: 40px;
 
     &.primary {
         color: var(--el-color-primary);

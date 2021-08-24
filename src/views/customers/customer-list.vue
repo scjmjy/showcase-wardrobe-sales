@@ -7,14 +7,17 @@
                 <strong class="customer-list__info-label">{{ customerName }}</strong>
                 <el-button v-if="showServeBtn" size="small" type="dark" round @click="serve">为此客户服务</el-button>
             </div>
-            <el-empty v-if="showServeBtn && schemeList.length === 0" description="暂无定制方案" style="flex: 1">
-            </el-empty>
+            <!-- <el-empty v-if="showServeBtn && schemeList.length === 0" description="暂无定制方案" style="flex: 1">
+            </el-empty> -->
             <el-row
                 ref="elRow"
                 class="customer-list__list"
                 :gutter="20"
                 :justify="schemeList.length ? '' : 'center'"
                 :align="schemeList.length ? '' : 'middle'"
+                :style="{
+                    height: schemeList.length ? 'auto' : '100%',
+                }"
                 @scroll="onScroll"
             >
                 <el-col
@@ -24,15 +27,17 @@
                 >
                     <new-scheme-card @new="newScheme" />
                 </el-col>
-                <el-col
-                    v-for="(s, index) in schemeList"
-                    :key="index"
-                    :span="colSpan"
-                    style="text-align: center; padding-top: 10px; padding-bottom: 10px"
-                >
-                    <scheme-card :offer="!showServeBtn" :scheme="s" @detail="gotoDetail" />
-                </el-col>
-                <load-more v-if="schemeList.length" :state="loadState" />
+                <transition-group name="el-zoom-in-top">
+                    <el-col
+                        v-for="(s, index) in schemeList"
+                        :key="index"
+                        :span="colSpan"
+                        style="text-align: center; padding-top: 10px; padding-bottom: 10px"
+                    >
+                        <scheme-card :offer="!showServeBtn" :scheme="s" @detail="gotoDetail" />
+                    </el-col>
+                </transition-group>
+                <load-more :state="loadState" />
             </el-row>
         </div>
     </div>
@@ -51,6 +56,7 @@ import NewSchemeCard from "./components/NewSchemeCard.vue";
 import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 import LoadMore from "@/components/LoadMore.vue";
 import { ElRow } from "element-plus";
+import { StateType } from "@/store";
 
 interface SortedSchemes {
     date: string;
@@ -74,7 +80,7 @@ export default defineComponent({
     },
     setup(props) {
         const router = useRouter();
-        const store = useStore();
+        const store = useStore<StateType>();
         const schemeList = ref([] as Scheme[]);
         const customerId = ref("");
         const loadingSchemeList = ref(false);
@@ -103,7 +109,7 @@ export default defineComponent({
         function onCustomerSelect(cid: string) {
             customerId.value = cid;
             loadingSchemeList.value = true;
-            pageScroll.reload();
+            pageScroll.reload(300);
         }
         onMounted(() => {
             const el = elRow.value?.$el as HTMLElement;
@@ -123,8 +129,16 @@ export default defineComponent({
                 } else if (myPath === path) {
                     // do updates
                     setTimeout(() => {
-                        refMenu.value?.resetLoadstate();
-                        pageScroll.reloadCurrentPage();
+                        if (store.state.dirty.customerList) {
+                            refMenu.value?.resetLoadstate();
+                            store.commit("SET-DIRTY-CUSTOMER", false);
+                            console.log("[PageScroll reload ] customerList");
+                        }
+                        if (store.state.dirty.schemeList.has(customerId.value)) {
+                            pageScroll.reload();
+                            store.commit("SET-DIRTY-SCHEME", { cid: customerId.value, dirty: false });
+                            console.log("[PageScroll reload ] schemeList");
+                        }
                     }, 500);
                 }
             },

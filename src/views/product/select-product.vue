@@ -4,14 +4,16 @@
         <prod-cat-menu class="select-product__menu" @select="onProdCatSelect" @filter="onProdFilter" />
         <el-scrollbar ref="elScrollbar" class="select-product__products" @scroll="onScroll">
             <el-row v-if="currentCid" ref="elRow" :gutter="20" justify="space-between" style="margin: 0px !important">
-                <el-col
-                    v-for="(p, index) in products"
-                    :key="index"
-                    :span="12"
-                    style="text-align: center; padding-top: 10px; padding-bottom: 10px"
-                >
-                    <product-card :productName="p.name" :cover="p.pic" @detail="onProductClick(p)" />
-                </el-col>
+                <transition-group name="el-zoom-in-top">
+                    <el-col
+                        v-for="p in products"
+                        :key="p.id"
+                        :span="12"
+                        style="text-align: center; padding-top: 10px; padding-bottom: 10px"
+                    >
+                        <product-card :productName="p.name" :cover="p.pic" @detail="onProductClick(p)" />
+                    </el-col>
+                </transition-group>
                 <load-more :state="loadState" />
             </el-row>
         </el-scrollbar>
@@ -89,10 +91,10 @@ export default defineComponent({
             onBackClick() {
                 router.back();
             },
-            onProdCatSelect(cid: string) {
+            async onProdCatSelect(cid: string) {
                 currentCid.value = cid;
-                pageScroll?.reload();
                 loadingProduct.value = true;
+                pageScroll?.reload(300);
             },
             onProductClick(product: Product) {
                 store.commit("SET-PAGE-CHANNEL", {

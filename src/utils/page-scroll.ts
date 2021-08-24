@@ -1,7 +1,7 @@
 import { nextTick, Ref } from "vue";
 import { AjaxResponse } from "@/api/interface/provider.interface";
 
-export type LOAD_STATE = "loading" | "more" | "nomore" | "error" | "";
+export type LOAD_STATE = "loading" | "more" | "nomore" | "empty" | "error" | "";
 
 export type RequestApi<T> = (page: number, pageSize: number) => Promise<AjaxResponse<T[]>>;
 export type BeforeDataHandler<T> = (data: T[]) => T[];
@@ -82,6 +82,9 @@ export default class PageScroll<T> {
                     nextTick(() => {
                         this.onScroll();
                     });
+                    if (this.dataArray.value.length === 0) {
+                        this.loadState.value = "empty";
+                    }
                 } else {
                     this.loadState.value = "error";
                     this.handlers && this.handlers.onDataError && this.handlers.onDataError();
@@ -91,12 +94,21 @@ export default class PageScroll<T> {
                 this.handlers && this.handlers.onDataFinish && this.handlers.onDataFinish();
             });
     }
-    reload() {
+    reload(delay?: number) {
         this.currentPage = 0;
         this.nextRequestPage = 1;
+        delay = this.dataArray.value.length > 0 ? delay : 0;
         this.dataArray.value.length = 0;
-        this.loadState.value = "";
-        this.requestPage();
+        nextTick(() => {
+            this.loadState.value = "";
+            if (delay) {
+                setTimeout(() => {
+                    this.requestPage();
+                }, delay);
+            } else {
+                this.requestPage();
+            }
+        });
     }
     reloadCurrentPage() {
         if (this.loadState.value !== "loading") {
@@ -109,9 +121,10 @@ export default class PageScroll<T> {
             return;
         }
         checkReachBottom(this.el, () => {
-            if (this.loadState.value !== "nomore" && this.loadState.value !== "loading") {
-                this.requestPage();
+            if (["nomore", "loading", "empty"].includes(this.loadState.value)) {
+                return;
             }
+            this.requestPage();
         });
     }
 }

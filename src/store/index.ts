@@ -11,6 +11,10 @@ const state = {
         productDetailData: undefined as undefined | Product | Scheme,
     },
     globalCfg: undefined as GlobalCfg | undefined,
+    dirty: {
+        customerList: false,
+        schemeList: new Set<string>(),
+    },
 };
 
 export type StateType = typeof state;
@@ -52,6 +56,16 @@ export default createStore({
         },
         "SET-GLOBAL-CONFIG"(state, cfg?: GlobalCfg) {
             state.globalCfg = cfg;
+        },
+        "SET-DIRTY-CUSTOMER"(state, dirty: boolean) {
+            state.dirty.customerList = dirty;
+        },
+        "SET-DIRTY-SCHEME"(state, { cid, dirty }: { cid: string; dirty: boolean }) {
+            if (dirty) {
+                state.dirty.schemeList.add(cid);
+            } else {
+                state.dirty.schemeList.delete(cid);
+            }
         },
     },
     actions: {

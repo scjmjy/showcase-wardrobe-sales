@@ -25,10 +25,16 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useStore } from "vuex";
 import zhCn from "element-plus/lib/locale/lang/zh-cn";
+import emitter from "@/event";
 
 export default defineComponent({
     setup() {
+        const store = useStore();
+        emitter.on("customer-created", (cid) => {
+            store.commit("SET-DIRTY-CUSTOMER", true);
+        });
         return {
             locale: zhCn,
             // cachedViews: ["SelectProduct"],
