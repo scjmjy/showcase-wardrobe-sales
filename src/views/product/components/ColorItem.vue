@@ -8,13 +8,14 @@
             @click="onColorClick"
         ></div>
         <span class="color-item__label">{{ color.name }}</span>
-        <i v-if="active" class="color-item__check el-icon-check" />
+        <i v-if="active" class="color-item__check el-icon-check" :style="checkStyle" />
     </div>
 </template>
 
 <script lang="ts">
 import { MetaColor } from "@/api/interface/provider.interface";
 import { computed, defineComponent, PropType } from "vue";
+import { getContrastYIQ } from "@/utils/color";
 
 export default defineComponent({
     name: "ColorItem",
@@ -34,6 +35,9 @@ export default defineComponent({
             active: computed(() => props.modelValue === props.color.id.toString()),
             colorStyle: computed(() => ({
                 "background-color": props.color.hex,
+            })),
+            checkStyle: computed(() => ({
+                color: getContrastYIQ(props.color.hex),
             })),
             onColorClick() {
                 const myId = props.color.id.toString();
@@ -56,11 +60,15 @@ export default defineComponent({
     &__color {
         width: 36px;
         height: 36px;
-        border-radius: 50%;
         margin-bottom: 8px;
+        // border: 2px solid white;
+        border-radius: 50%;
+        box-shadow: rgb(0 0 0 / 20%) 0px 0px 0px 1px;
 
+        // transition: all 0.3s ease;
         &.active {
-            border: 2px solid red;
+            // border: 2px solid red;
+            box-shadow: rgb(0 0 0 / 20%) 0px 0px 0px 5px;
         }
     }
     &__label {
@@ -69,10 +77,10 @@ export default defineComponent({
     }
     &__check {
         position: absolute;
-        top: 3px;
-        color: var(--el-color-primary);
+        top: 6px;
+        // color: var(--el-color-primary);
         font-weight: bolder;
-        font-size: xx-large;
+        font-size: x-large;
         pointer-events: none;
     }
 }

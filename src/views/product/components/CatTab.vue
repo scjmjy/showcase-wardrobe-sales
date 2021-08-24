@@ -1,7 +1,7 @@
 <template>
     <div class="cat-tab">
         <el-button v-if="up" type="text" size="small" @click="onUpClick">上一层</el-button>
-        <div class="cat-tab__children">
+        <div v-if="showFilterHeader" class="cat-tab__filterHeader">
             <span>筛选</span>
             <el-button
                 type="text"
@@ -12,15 +12,14 @@
         </div>
         <el-collapse-transition>
             <div v-show="showFilter">
-                <part-cat-card
+                <!-- <part-cat-card
                     v-for="item in children"
                     :key="item.id"
                     :cat="item"
                     v-model="selectedChildCatId"
                     @click="onChildCatClick(item)"
                 >
-                    {{ item.name }}
-                </part-cat-card>
+                </part-cat-card> -->
                 <template v-if="catMeta">
                     <!-- <el-divider>品牌</el-divider>
                     <div
@@ -32,32 +31,36 @@
                     >
                         {{ brand.name }}
                     </div> -->
-                    <div class="cat-tab__meta-title">材质</div>
-                    <el-scrollbar style="height: auto" always>
-                        <div style="white-space: nowrap">
-                            <material-item
-                                v-for="mat in catMeta.materials"
-                                :key="mat.id"
-                                v-model="selectedMatId"
-                                :material="mat"
-                                @change="onMatChange(mat)"
-                            >
-                            </material-item>
-                        </div>
-                    </el-scrollbar>
-                    <div class="cat-tab__meta-title">颜色</div>
-                    <el-scrollbar style="height: auto" always>
-                        <div style="white-space: nowrap">
-                            <color-item
-                                v-for="color in catMeta.colors"
-                                :key="color.id"
-                                v-model="selectedColorId"
-                                :color="color"
-                                @change="onColorChange(color)"
-                            >
-                            </color-item>
-                        </div>
-                    </el-scrollbar>
+                    <template v-if="catMeta.materials && catMeta.materials.length > 0">
+                        <div class="cat-tab__meta-title">材质</div>
+                        <el-scrollbar style="height: auto" always>
+                            <div style="white-space: nowrap">
+                                <material-item
+                                    v-for="mat in catMeta.materials"
+                                    :key="mat.id"
+                                    v-model="selectedMatId"
+                                    :material="mat"
+                                    @change="onMatChange(mat)"
+                                >
+                                </material-item>
+                            </div>
+                        </el-scrollbar>
+                    </template>
+                    <template v-if="catMeta.colors && catMeta.colors.length > 0">
+                        <div class="cat-tab__meta-title">颜色</div>
+                        <el-scrollbar style="height: auto" always>
+                            <div style="white-space: nowrap">
+                                <color-item
+                                    v-for="color in catMeta.colors"
+                                    :key="color.id"
+                                    v-model="selectedColorId"
+                                    :color="color"
+                                    @change="onColorChange(color)"
+                                >
+                                </color-item>
+                            </div>
+                        </el-scrollbar>
+                    </template>
                 </template>
             </div>
         </el-collapse-transition>
@@ -90,7 +93,6 @@ import apiProvider from "@/api/provider";
 import PartCard from "./PartCard.vue";
 import MaterialItem from "./MaterialItem.vue";
 import ColorItem from "./ColorItem.vue";
-import PartCatCard from "./PartCatCard.vue";
 import LoadMore from "@/components/LoadMore.vue";
 import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 import { ElRow } from "element-plus";
@@ -101,7 +103,6 @@ export default defineComponent({
         PartCard,
         MaterialItem,
         ColorItem,
-        PartCatCard,
         LoadMore,
     },
     props: {
@@ -121,7 +122,6 @@ export default defineComponent({
     emits: ["up", "part"],
     setup(props, ctx) {
         const loadState = ref<LOAD_STATE>("");
-        let page = 1;
         const catMeta = ref<PartCategoryMeta>();
         const parts = ref<Part[]>([]);
         const selectedChildCatId = ref("");
@@ -189,7 +189,11 @@ export default defineComponent({
         //         immediate: true,
         //     },
         // );
+        const showFilterHeader = computed(
+            () => catMeta.value && catMeta.value.colors && catMeta.value.materials /*&& catMeta.value.brands*/,
+        );
         return {
+            showFilterHeader,
             loadState,
             elRow,
             refScroll,
@@ -254,7 +258,7 @@ export default defineComponent({
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    &__children {
+    &__filterHeader {
         display: flex;
         justify-content: space-between;
         align-items: center;
