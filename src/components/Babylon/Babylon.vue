@@ -130,7 +130,8 @@ export default defineComponent({
             const wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             var temp = this.bizdata.partManifestMap.get(newPartId.toString());
-            wall_material.diffuseTexture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
+            const texture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
+            wall_material.diffuseTexture = texture;
             this.wall.material = wall_material;
             this.wall.isPickable = false;
         },
@@ -143,7 +144,10 @@ export default defineComponent({
             var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             var temp = this.bizdata.partManifestMap.get(newPartId.toString());
-            floor_material.diffuseTexture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
+            const texture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
+            texture.uScale = 2;
+            texture.vScale = 2;
+            floor_material.diffuseTexture = texture;
             this.floor.material = floor_material;
             this.floor.isPickable = false;
         },
@@ -515,7 +519,11 @@ export default defineComponent({
                 switch (pointerInfo.type) {
                     case BABYLON.PointerEventTypes.POINTERDOWN:
                         if (pointerInfo && pointerInfo.pickInfo && pointerInfo.pickInfo.pickedMesh) {
-                            this.gui.display(this.graphics, this.bizdata as BizData, this.graphics.getRootMesh(pointerInfo.pickInfo.pickedMesh));
+                            this.gui.display(
+                                this.graphics,
+                                this.bizdata as BizData,
+                                this.graphics.getRootMesh(pointerInfo.pickInfo.pickedMesh),
+                            );
                             const meshName = pointerInfo.pickInfo.pickedMesh.name;
                             if (meshName.startsWith("BackgroundArea")) {
                                 // Hit the available area.
@@ -607,10 +615,13 @@ export default defineComponent({
             this.floor.translate(new BABYLON.Vector3(0, -20, -1820), -0.4);
             var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            floor_material.diffuseTexture = new BABYLON.Texture(
+            const texture = new BABYLON.Texture(
                 "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/dc5eb19b-2879-47fe-a517-720b39e0f445.jpg",
                 this.graphics.scene as BABYLON.Scene,
             );
+            texture.uScale = 2;
+            texture.vScale = 2;
+            floor_material.diffuseTexture = texture;
             this.floor.material = floor_material;
             this.floor.isPickable = false;
 
