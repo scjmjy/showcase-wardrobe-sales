@@ -30,7 +30,7 @@
                 @tab-click="onCatChange"
             >
                 <el-tab-pane v-for="(tab, index) in activeTabs" :key="tab.name" :label="tab.label" :name="tab.name">
-                    <template v-if="index === 0" #label>
+                    <template v-if="index === 0 && type === 'out'" #label>
                         <div class="parts-menu__tab-bgLabel">{{ tab.label }}</div>
                     </template>
                     <component
@@ -228,29 +228,10 @@ export default defineComponent({
         }
 
         const topLevelTabs = computed<TabType[]>(() => {
-            // const partsTab = {
-            //     name: "parts",
-            //     label: typeText.value,
-            //     component: "CatsList",
-            //     bind: {
-            //         cats: activeCats.value,
-            //     },
-            //     on: {
-            //         click: onCatItemClick,
-            //     },
-            // };
             const partsTabs = cats2Tabs(activeCats.value);
-            // const partsTab = {
-            //     name: "parts",
-            //     label: typeText.value,
-            //     component: "CatsList",
-            //     bind: {
-            //         cats: activeCats.value,
-            //     },
-            //     on: {
-            //         click: onCatItemClick,
-            //     },
-            // };
+            if (props.type === "in") {
+                return partsTabs;
+            }
             return [bgTab, ...partsTabs];
         });
 
@@ -360,7 +341,7 @@ $header-height: 56px;
             white-space: pre-wrap;
             margin-left: 0px !important;
             margin-right: 0px !important;
-            padding: 10px 0px !important;
+            padding: 10px 0px 0px !important;
             overflow-y: auto;
             :deep(.el-tabs__active-bar.is-left) {
                 left: 0;
@@ -419,16 +400,20 @@ $header-height: 56px;
         position: absolute;
         bottom: 0px;
         left: 0px;
-        color: white;
+        color: var(--el-color-primary);
         font-size: 40px;
-        padding: 30px 20px;
+        font-weight: bolder;
+        padding: 20px 20px;
         text-align: center;
-        background-color: var(--el-color-primary);
+        // background-color: var(--el-color-primary);
+        // background-color: var(--el-color-primary);
 
         &:hover {
+            color: white;
             background-color: var(--el-color-primary-light-3);
         }
         &:active {
+            color: white;
             background-color: var(--el-color-primary-dark);
         }
     }

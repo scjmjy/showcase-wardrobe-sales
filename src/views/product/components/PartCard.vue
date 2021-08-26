@@ -75,8 +75,7 @@ export default defineComponent({
     &__label {
         margin-top: 10px;
         text-align: center;
-        font-size: 20px;
-        font-weight: bold;
+        font-size: 14px;
         color: var(--el-color-black);
     }
 

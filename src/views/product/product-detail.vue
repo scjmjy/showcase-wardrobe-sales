@@ -1,5 +1,9 @@
 <template>
-    <div v-if="product" class="product-detail" :class="{ 'slide-left-3d': showMenu, 'menu-opened': showMenu }">
+    <div
+        v-if="product"
+        class="product-detail"
+        :class="{ 'slide-left-3d': showMenu && mode !== 'view', 'menu-opened': showMenu }"
+    >
         <transition name="el-zoom-in-top">
             <app-header
                 v-if="mode === 'view'"
@@ -24,14 +28,15 @@
         />
         <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
         <div v-if="mode === 'view'" class="product-detail__info">
-            <div class="product-detail__info-name">{{ product.name }}</div>
-            <div v-if="!isNew" class="product-detail__info-offer">{{ product.offer || "待报价" }}</div>
+            <!-- <div class="product-detail__info-name">{{ product.name }}</div> -->
+            <!-- <div v-if="!isNew" class="product-detail__info-offer">{{ '￥26955.00' }}</div> -->
+            <div v-if="!isNew && product.offer" class="product-detail__info-offer">{{ "￥" + product.offer }}</div>
+            <el-button v-if="isSelf && !product.offer" type="success" round @click="offer">报价</el-button>
             <div class="product-detail__info-action">
                 <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
                     >开始定制</el-button
                 >
                 <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
-                <el-button type="primary" round v-if="isSelf && !product.offer" @click="offer">报价</el-button>
                 <el-button type="primary" round v-if="isSelf || isOther" @click="copyScheme" :loading="loadingCopying"
                     >由此方案定制</el-button
                 >
