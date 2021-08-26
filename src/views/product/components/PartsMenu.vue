@@ -33,7 +33,13 @@
                     <template v-if="index === 0" #label>
                         <div class="parts-menu__tab-bgLabel">{{ tab.label }}</div>
                     </template>
-                    <component :is="tab.component" :up="!!tabStack.length" v-bind="tab.bind" v-on="tab.on" />
+                    <component
+                        :is="tab.component"
+                        :up="!!tabStack.length"
+                        v-bind="tab.bind"
+                        v-on="tab.on"
+                        :active="selectedTabName === tab.name"
+                    />
                 </el-tab-pane>
             </el-tabs>
         </div>
@@ -64,6 +70,7 @@
 
 <script lang="ts">
 import {
+    Background,
     BackgroundType,
     findSiblingCats,
     Part,
@@ -80,6 +87,7 @@ import { ElTabPane } from "element-plus";
 import { StateType } from "@/store";
 import PartBgTab from "./PartBgTab.vue";
 import CatsList from "./CatsList.vue";
+import type { ImgCardItemType } from "./ImgCardItem.vue";
 
 interface TabType {
     component: string;
@@ -114,7 +122,7 @@ export default defineComponent({
         CatsList,
         // PartCatCard,
     },
-    emits: ["update:opened", "part", "action"],
+    emits: ["update:opened", "part", "action", "bg"],
     setup(props, ctx) {
         const store = useStore<StateType>();
         const refDiv = ref<HTMLDivElement>();
@@ -158,7 +166,11 @@ export default defineComponent({
             label: "背景",
             component: "PartBgTab",
             bind: {},
-            on: {},
+            on: {
+                bg(bg: ImgCardItemType, bgType: BackgroundType) {
+                    ctx.emit("bg", bg, bgType);
+                },
+            },
         };
 
         function onUpLevelClick() {
@@ -181,7 +193,7 @@ export default defineComponent({
                     component = "CatTab";
                     bind = {
                         cat: c,
-                        active: true,
+                        active: false,
                     };
                     on.part = (part: Part, cat: PartCategory) => {
                         ctx.emit("part", part, cat);

@@ -15,7 +15,7 @@ import { Graphics } from "@/lib/graphics";
 import { Area, Door, Position, Scheme } from "@/lib/scheme";
 import { StObject } from "@/lib/utility/st_object";
 import { StSketchVector3 } from "./geometry/st_geometric_3d";
-import { BizData, CubeData } from "@/lib/biz.data";
+import { BizData, CubeData, ObjectType } from "@/lib/biz.data";
 import { StVector } from "./geometry/st_vector_2d";
 import { StSketchPoint, StSketchRect } from "./geometry/st_geometric_2d";
 
@@ -273,7 +273,7 @@ class DrobeUtil extends StObject {
         }
 
         bizdata.addDoor(door);
-        const door_name = door.id;
+        const door_name = `${ObjectType.DOOR}_${door.id}`;
         const door_mf = HmPartManifest.buildFromUrl(door.manifest);
         graphics.importMesh(door_mf.models[0].url, door_name, door_pos);
         console.log(`add door at ${door_pos}: ${door}`);

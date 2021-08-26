@@ -1,9 +1,5 @@
 <template>
-    <div
-        v-if="product"
-        class="product-detail"
-        :class="{ 'slide-left-3d': showMenu || mode === 'view', 'menu-opened': showMenu }"
-    >
+    <div v-if="product" class="product-detail" :class="{ 'slide-left-3d': showMenu, 'menu-opened': showMenu }">
         <transition name="el-zoom-in-top">
             <app-header
                 v-if="mode === 'view'"
@@ -27,29 +23,19 @@
             :mode="mode3D"
         />
         <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
-
-        <el-collapse-transition-h @after-leave="mode = 'edit'">
-            <div v-if="mode === 'view'" class="product-detail__action-customize">
-                <div>
-                    <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
-                        >开始定制</el-button
-                    >
-                    <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
-                    <el-button type="primary" round v-if="isSelf && !product.offer" @click="offer">报价</el-button>
-                    <el-button
-                        type="primary"
-                        round
-                        v-if="isSelf || isOther"
-                        @click="copyScheme"
-                        :loading="loadingCopying"
-                        >由此方案定制</el-button
-                    >
-                </div>
-            </div>
-        </el-collapse-transition-h>
         <div v-if="mode === 'view'" class="product-detail__info">
             <div class="product-detail__info-name">{{ product.name }}</div>
             <div v-if="!isNew" class="product-detail__info-offer">{{ product.offer || "待报价" }}</div>
+            <div class="product-detail__info-action">
+                <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
+                    >开始定制</el-button
+                >
+                <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
+                <el-button type="primary" round v-if="isSelf && !product.offer" @click="offer">报价</el-button>
+                <el-button type="primary" round v-if="isSelf || isOther" @click="copyScheme" :loading="loadingCopying"
+                    >由此方案定制</el-button
+                >
+            </div>
         </div>
         <template v-if="mode === 'edit'">
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
@@ -61,8 +47,8 @@
                 <state-icon icon="offer" label="合页门" @change="onAddDoorClick('left')"></state-icon>
                 <state-icon icon="offer" label="滑门" @change="onAddDoorClick('slide')"></state-icon>
                 <state-icon icon="offer" label="清除门" @change="onDeleteClick('door')"></state-icon>
-                <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick"></state-icon>
-                <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick"></state-icon>
+                <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick()"></state-icon>
+                <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick()"></state-icon>
             </div>
             <div class="product-detail__action-left state-icon-group-h">
                 <!-- <state-icon
@@ -105,6 +91,7 @@
                 :type="stateInOut"
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
+                @bg="onBgSelect"
             ></parts-menu>
         </template>
         <customize-dlg
@@ -124,7 +111,8 @@ import Babylon, { PartType } from "@/components/Babylon/Babylon.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { StateType } from "@/store";
-import { Part, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
+import { BackgroundType, Part, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
+import type { ImgCardItemType } from "./components/ImgCardItem.vue";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
@@ -183,7 +171,7 @@ export default defineComponent({
 
         async function gotoEditScheme() {
             showCustomizeDlg.value = false;
-            mode.value = "";
+            mode.value = "edit";
         }
 
         const customizeDlgTitle = computed(() => {
@@ -284,6 +272,7 @@ export default defineComponent({
                         const objectSelectedEvent = event as ObjectSelectedEvent;
                         if (objectSelectedEvent !== undefined) {
                             // console.log(objectSelectedEvent);
+                            showMenu.value = true;
                             refPartsMenu.value?.selectPart(objectSelectedEvent.catId, objectSelectedEvent.partId);
                         }
                     }
@@ -298,6 +287,145 @@ export default defineComponent({
                     }
                     break;
             }
+        }
+        function onCustomizeConfirm() {
+            const cid = store.state.currentCustomer.customerId.toString();
+            if (customizeMode.value === "new") {
+                loadingCreating.value = true;
+                const p = product.value as Product;
+                apiProvider
+                    .createNewScheme(p.name, store.state.user.eid, cid, p.id)
+                    .then((res) => {
+                        if (res.ok && res.data) {
+                            store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
+
+                            apiProvider.requestSchemeDetail(res.data.id).then((res) => {
+                                if (res.ok && res.data) {
+                                    product.value = res.data;
+                                    product.value.cid = cid;
+                                    gotoEditScheme();
+                                }
+                            });
+                        } else if (res.show) {
+                            ElMessage({
+                                type: res.show,
+                                message: res.msg,
+                            });
+                        }
+                    })
+                    .finally(() => {
+                        loadingCreating.value = false;
+                    });
+            } else if (customizeMode.value === "copy") {
+                loadingCopying.value = true;
+                const scheme = product.value as Scheme;
+                apiProvider
+                    .createNewScheme(scheme.product, store.state.user.eid, cid, undefined, scheme.id)
+                    .then((res) => {
+                        if (res.ok && res.data) {
+                            store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
+                            apiProvider.requestSchemeDetail(res.data.id).then((res) => {
+                                if (res.ok && res.data) {
+                                    product.value = res.data;
+                                    product.value.cid = cid;
+                                    gotoEditScheme();
+                                }
+                            });
+                        } else if (res.show) {
+                            ElMessage({
+                                type: res.show,
+                                message: res.msg,
+                            });
+                        }
+                    })
+                    .finally(() => {
+                        loadingCopying.value = false;
+                    });
+            }
+        }
+
+        function onDeleteClick(part_type: string) {
+            // debugger;
+            if (!refBabylon.value) {
+                console.error("refBabylon.value is not defined!");
+                throw Error("refBabylon.value is not defined!");
+            }
+
+            switch (part_type) {
+                case "door":
+                    refBabylon.value.removeDoorsApi();
+                    break;
+                default:
+                    throw Error(`unknown part type: ${part_type}`);
+            }
+        }
+        function onAddDoorClick(type: string, partId?: number) {
+            // debugger;
+            if (!refBabylon.value) {
+                console.error("refBabylon.value is not defined!");
+                throw Error("refBabylon.value is not defined!");
+            }
+
+            // 测试: addDoorApi()
+            let door_part_id = partId || -1;
+            let door_mf_url = "";
+            let door_cubes: string[] = [];
+            switch (type) {
+                case "left":
+                    {
+                        const catId = 3;
+                        // 合页门 (type: 1): add 2 doors for both cubes
+                        door_mf_url = "43b3e66e-c416-4602-bb76-97a172138737.json";
+                        door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
+                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 1, door_cubes));
+
+                        door_cubes = ["ce28f905-a6e1-4f68-9998-ed13f950ea91"];
+                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 1, door_cubes));
+                    }
+                    break;
+
+                case "slide":
+                    {
+                        // 滑门 (type: 2). 需要指定2个连续的cube
+                        door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
+                        door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d", "ce28f905-a6e1-4f68-9998-ed13f950ea91"];
+                        const catId = 2;
+                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 2, door_cubes));
+                    }
+                    break;
+
+                case "right":
+                    throw Error("TODO: a door is fixed at RIGHT");
+
+                default:
+                    throw Error(`Error: unkonwn door type: ${type}`);
+            }
+        }
+        function onUpdateWallClick(wall?: ImgCardItemType) {
+            if (wall) {
+                const key = wall.value.toString();
+                refBabylon.value?.bizdata.partManifestMap.set(key, wall.url);
+                selectedWallId.value = +key;
+            } else if (selectedWallId.value === 0) selectedWallId.value = 100001;
+            else if (selectedWallId.value === 100001) selectedWallId.value = 100002;
+            else if (selectedWallId.value === 100002) selectedWallId.value = 100003;
+            else if (selectedWallId.value === 100003) selectedWallId.value = 100004;
+            else if (selectedWallId.value === 100004) selectedWallId.value = 100001;
+            else selectedWallId.value = 100001;
+            refBabylon.value?.changeWallApi(selectedWallId.value);
+        }
+        function onUpdateFloorClick(floor?: ImgCardItemType) {
+            if (floor) {
+                const key = floor.value.toString();
+                refBabylon.value?.bizdata.partManifestMap.set(key, floor.url);
+                selectedFloorId.value = +key;
+            } else if (selectedFloorId.value === 0) selectedFloorId.value = 110001;
+            else if (selectedFloorId.value === 110001) selectedFloorId.value = 110002;
+            else if (selectedFloorId.value === 110002) selectedFloorId.value = 110003;
+            else if (selectedFloorId.value === 110003) selectedFloorId.value = 110004;
+            else if (selectedFloorId.value === 110004) selectedFloorId.value = 110001;
+            else selectedFloorId.value = 110001;
+            refBabylon.value?.changeFloorApi(selectedFloorId.value);
         }
         return {
             gooeyMenuItems,
@@ -321,87 +449,10 @@ export default defineComponent({
             onLogSchemeClick() {
                 console.log("LogScheme: ", scheme);
             },
-
-            onDeleteClick(part_type: string) {
-                debugger;
-                if (!refBabylon.value) {
-                    console.error("refBabylon.value is not defined!");
-                    throw Error("refBabylon.value is not defined!");
-                }
-
-                switch (part_type) {
-                    case "door":
-                        refBabylon.value!.removeDoorsApi();
-                        break;
-                    default:
-                        throw Error(`unknown part type: ${part_type}`);
-                }
-            },
-            onAddDoorClick(type: string) {
-                debugger;
-                if (!refBabylon.value) {
-                    console.error("refBabylon.value is not defined!");
-                    throw Error("refBabylon.value is not defined!");
-                }
-
-                // 测试: addDoorApi()
-                let door_part_id = -1;
-                let door_mf_url = "";
-                let door_cubes: string[] = [];
-                switch (type) {
-                    case "left":
-                        {
-                            const catId = 3;
-                            // 合页门 (type: 1): add 2 doors for both cubes
-                            door_mf_url = "43b3e66e-c416-4602-bb76-97a172138737.json";
-                            door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
-                            refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 1, door_cubes));
-
-                            door_cubes = ["ce28f905-a6e1-4f68-9998-ed13f950ea91"];
-                            refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 1, door_cubes));
-                        }
-                        break;
-
-                    case "slide":
-                        {
-                            // 滑门 (type: 2). 需要指定2个连续的cube
-                            door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
-                            door_cubes = [
-                                "4cd170f8-291b-4236-b515-b5d27ac1209d",
-                                "ce28f905-a6e1-4f68-9998-ed13f950ea91",
-                            ];
-                            const catId = 2;
-                            refBabylon.value!.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 2, door_cubes));
-                        }
-                        break;
-
-                    case "right":
-                        throw Error("TODO: a door is fixed at RIGHT");
-
-                    default:
-                        throw Error(`Error: unkonwn door type: ${type}`);
-                }
-            },
-            onUpdateWallClick() {
-                if (selectedWallId.value === 0) selectedWallId.value = 100001;
-                else if (selectedWallId.value === 100001) selectedWallId.value = 100002;
-                else if (selectedWallId.value === 100002) selectedWallId.value = 100003;
-                else if (selectedWallId.value === 100003) selectedWallId.value = 100004;
-                else if (selectedWallId.value === 100004) selectedWallId.value = 100001;
-                refBabylon.value?.changeWallApi(selectedWallId.value);
-            },
-            onUpdateFloorClick() {
-                if (selectedFloorId.value === 0) selectedFloorId.value = 110001;
-                else if (selectedFloorId.value === 110001) selectedFloorId.value = 110002;
-                else if (selectedFloorId.value === 110002) selectedFloorId.value = 110003;
-                else if (selectedFloorId.value === 110003) selectedFloorId.value = 110004;
-                else if (selectedFloorId.value === 110004) selectedFloorId.value = 110001;
-                refBabylon.value?.changeFloorApi(selectedFloorId.value);
-            },
-            onXXXClick() {
-                // TODO Cll Babylon.vue function
-                // refBabylon.value?.changeWallApi()
-            },
+            onDeleteClick,
+            onAddDoorClick,
+            onUpdateWallClick,
+            onUpdateFloorClick,
             state3D,
             stateRuler,
             stateSelect,
@@ -444,7 +495,6 @@ export default defineComponent({
                 showOfferDlg.value = true;
             },
             newScheme() {
-                customizeMode.value = "new";
                 if (!store.state.currentCustomer.customerId) {
                     ElMessage({
                         type: "warning",
@@ -452,7 +502,9 @@ export default defineComponent({
                     });
                     return;
                 }
-                showCustomizeDlg.value = true;
+                customizeMode.value = "new";
+                onCustomizeConfirm();
+                // showCustomizeDlg.value = true;
             },
             continueEditScheme() {
                 customizeMode.value = "continue";
@@ -467,63 +519,10 @@ export default defineComponent({
                     return;
                 }
                 customizeMode.value = "copy";
-                showCustomizeDlg.value = true;
+                onCustomizeConfirm();
+                // showCustomizeDlg.value = true;
             },
-            onCustomizeConfirm() {
-                const cid = store.state.currentCustomer.customerId.toString();
-                if (customizeMode.value === "new") {
-                    loadingCreating.value = true;
-                    const p = product.value as Product;
-                    apiProvider
-                        .createNewScheme(p.name, store.state.user.eid, cid, p.id)
-                        .then((res) => {
-                            if (res.ok && res.data) {
-                                store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
-
-                                apiProvider.requestSchemeDetail(res.data.id).then((res) => {
-                                    if (res.ok && res.data) {
-                                        product.value = res.data;
-                                        product.value.cid = cid;
-                                        gotoEditScheme();
-                                    }
-                                });
-                            } else if (res.show) {
-                                ElMessage({
-                                    type: res.show,
-                                    message: res.msg,
-                                });
-                            }
-                        })
-                        .finally(() => {
-                            loadingCreating.value = false;
-                        });
-                } else if (customizeMode.value === "copy") {
-                    loadingCopying.value = true;
-                    const scheme = product.value as Scheme;
-                    apiProvider
-                        .createNewScheme(scheme.product, store.state.user.eid, cid, undefined, scheme.id)
-                        .then((res) => {
-                            if (res.ok && res.data) {
-                                store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
-                                apiProvider.requestSchemeDetail(res.data.id).then((res) => {
-                                    if (res.ok && res.data) {
-                                        product.value = res.data;
-                                        product.value.cid = cid;
-                                        gotoEditScheme();
-                                    }
-                                });
-                            } else if (res.show) {
-                                ElMessage({
-                                    type: res.show,
-                                    message: res.msg,
-                                });
-                            }
-                        })
-                        .finally(() => {
-                            loadingCopying.value = false;
-                        });
-                }
-            },
+            onCustomizeConfirm,
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;
             },
@@ -575,18 +574,30 @@ export default defineComponent({
                 }
             },
             onPartSelect(part: Part, cat: PartCategory) {
-                selectedPart.value = {
-                    id: +part.id,
-                    width: part.width,
-                    height: part.height,
-                    depth: part.depth,
-                    manifest: part.manifest,
-                    catId: +cat.id,
-                };
-                // ElMessage({
-                //     type: "warning",
-                //     message: `TODO: 选择了[${cat.name}]中的[${part.name}]`,
-                // });
+                // TODO remove test code
+                if (cat.id === 2) {
+                    onDeleteClick("door");
+                    onAddDoorClick("slide", +part.id);
+                } else if (cat.id === 3) {
+                    onDeleteClick("door");
+                    onAddDoorClick("left", +part.id);
+                } else {
+                    selectedPart.value = {
+                        id: +part.id,
+                        width: part.width,
+                        height: part.height,
+                        depth: part.depth,
+                        manifest: part.manifest,
+                        catId: +cat.id,
+                    };
+                }
+            },
+            onBgSelect(bg: ImgCardItemType, bgType: BackgroundType) {
+                if (bgType === BackgroundType.WALL) {
+                    onUpdateWallClick(bg);
+                } else {
+                    onUpdateFloorClick(bg);
+                }
             },
         };
     },
@@ -618,27 +629,19 @@ export default defineComponent({
         transition: left 0.3s ease-in-out;
     }
 
-    &__action-customize {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        bottom: 0px;
-        width: 280px;
-        white-space: nowrap;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background-color: white;
-        :deep(.el-button) {
-            display: block;
-            width: 220px;
-            margin-left: 0 !important;
-            margin-bottom: 40px;
-            // margin-top: 20px;
-            // margin-bottom: 20px;
-        }
-    }
+    // &__action-customize {
+    //     position: absolute;
+    //     top: 0px;
+    //     right: 0px;
+    //     bottom: 0px;
+    //     width: 280px;
+    //     white-space: nowrap;
+    //     display: flex;
+    //     flex-direction: column;
+    //     justify-content: center;
+    //     align-items: center;
+    //     background-color: white;
+    // }
     &__back {
         position: absolute;
         left: 30px;
@@ -658,7 +661,7 @@ export default defineComponent({
         position: absolute;
         text-align: center;
         left: 0px;
-        right: 280px;
+        right: 0px;
         bottom: 82px;
         &-name,
         &-offer {
@@ -668,19 +671,21 @@ export default defineComponent({
         }
         &-offer {
             font-size: 26px;
+            margin-top: 15px;
+        }
+
+        &-action {
             margin-top: 27px;
+            text-align: center;
+            :deep(.el-button) {
+                width: 220px;
+            }
         }
     }
     &__action-left {
         position: absolute;
         left: 60px;
         bottom: 30px;
-        :deep(.el-button) {
-            display: block;
-            margin-left: 0 !important;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
     }
     &__gooeyMenu {
         position: absolute;

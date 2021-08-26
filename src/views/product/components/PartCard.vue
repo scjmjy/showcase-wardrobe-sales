@@ -32,7 +32,11 @@ export default defineComponent({
                 (isActive) => {
                     if (isActive) {
                         console.log("【scrollIntoView】");
-                        refEl.value?.scrollIntoView({ behavior: "smooth" });
+                        const target = refEl.value as HTMLDivElement;
+                        if (target.parentElement) {
+                            target.parentElement.scrollTop = target.offsetTop - target.parentElement.offsetTop;
+                        }
+                        // refEl.value?.scrollIntoView({ behavior: "smooth" });
                     }
                 },
                 {
