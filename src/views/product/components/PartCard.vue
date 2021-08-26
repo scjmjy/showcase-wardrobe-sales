@@ -32,7 +32,11 @@ export default defineComponent({
                 (isActive) => {
                     if (isActive) {
                         console.log("【scrollIntoView】");
-                        refEl.value?.scrollIntoView({ behavior: "smooth" });
+                        const target = refEl.value as HTMLDivElement;
+                        if (target.parentElement) {
+                            target.parentElement.scrollTop = target.offsetTop - target.parentElement.offsetTop;
+                        }
+                        // refEl.value?.scrollIntoView({ behavior: "smooth" });
                     }
                 },
                 {
@@ -71,8 +75,7 @@ export default defineComponent({
     &__label {
         margin-top: 10px;
         text-align: center;
-        font-size: 20px;
-        font-weight: bold;
+        font-size: 14px;
         color: var(--el-color-black);
     }
 

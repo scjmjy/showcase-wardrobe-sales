@@ -121,6 +121,7 @@ export default defineComponent({
     },
     emits: ["up", "part"],
     setup(props, ctx) {
+        const loading = ref(false);
         const loadState = ref<LOAD_STATE>("");
         const catMeta = ref<PartCategoryMeta>();
         const parts = ref<Part[]>([]);
@@ -160,21 +161,27 @@ export default defineComponent({
             if (catId === undefined) {
                 return;
             }
-            apiProvider.requestPartCatMeta(catId).then((res) => {
-                if (res.ok) {
-                    catMeta.value = res.data;
+            loading.value = true;
+            apiProvider
+                .requestPartCatMeta(catId)
+                .then((res) => {
+                    if (res.ok) {
+                        catMeta.value = res.data;
 
-                    nextTick(() => {
-                        pageScroll?.reload();
-                    });
-                }
-            });
+                        nextTick(() => {
+                            pageScroll?.reload();
+                        });
+                    }
+                })
+                .finally(() => {
+                    loading.value = false;
+                });
         }
 
         watch(
             () => props.active,
             (active) => {
-                if (active) {
+                if (active /*&& !catMeta.value*/) {
                     requestPartCatMeta();
                 }
             },
@@ -193,6 +200,7 @@ export default defineComponent({
             () => catMeta.value && catMeta.value.colors && catMeta.value.materials /*&& catMeta.value.brands*/,
         );
         return {
+            loading,
             showFilterHeader,
             loadState,
             elRow,

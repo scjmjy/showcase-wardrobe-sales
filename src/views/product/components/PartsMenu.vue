@@ -30,10 +30,16 @@
                 @tab-click="onCatChange"
             >
                 <el-tab-pane v-for="(tab, index) in activeTabs" :key="tab.name" :label="tab.label" :name="tab.name">
-                    <template v-if="index === 0" #label>
+                    <template v-if="index === 0 && type === 'out'" #label>
                         <div class="parts-menu__tab-bgLabel">{{ tab.label }}</div>
                     </template>
-                    <component :is="tab.component" :up="!!tabStack.length" v-bind="tab.bind" v-on="tab.on" />
+                    <component
+                        :is="tab.component"
+                        :up="!!tabStack.length"
+                        v-bind="tab.bind"
+                        v-on="tab.on"
+                        :active="selectedTabName === tab.name"
+                    />
                 </el-tab-pane>
             </el-tabs>
         </div>
@@ -64,6 +70,7 @@
 
 <script lang="ts">
 import {
+    Background,
     BackgroundType,
     findSiblingCats,
     Part,
@@ -80,6 +87,7 @@ import { ElTabPane } from "element-plus";
 import { StateType } from "@/store";
 import PartBgTab from "./PartBgTab.vue";
 import CatsList from "./CatsList.vue";
+import type { ImgCardItemType } from "./ImgCardItem.vue";
 
 interface TabType {
     component: string;
@@ -114,7 +122,7 @@ export default defineComponent({
         CatsList,
         // PartCatCard,
     },
-    emits: ["update:opened", "part", "action"],
+    emits: ["update:opened", "part", "action", "bg"],
     setup(props, ctx) {
         const store = useStore<StateType>();
         const refDiv = ref<HTMLDivElement>();
@@ -158,7 +166,11 @@ export default defineComponent({
             label: "背景",
             component: "PartBgTab",
             bind: {},
-            on: {},
+            on: {
+                bg(bg: ImgCardItemType, bgType: BackgroundType) {
+                    ctx.emit("bg", bg, bgType);
+                },
+            },
         };
 
         function onUpLevelClick() {
@@ -181,7 +193,7 @@ export default defineComponent({
                     component = "CatTab";
                     bind = {
                         cat: c,
-                        active: true,
+                        active: false,
                     };
                     on.part = (part: Part, cat: PartCategory) => {
                         ctx.emit("part", part, cat);
@@ -216,29 +228,10 @@ export default defineComponent({
         }
 
         const topLevelTabs = computed<TabType[]>(() => {
-            // const partsTab = {
-            //     name: "parts",
-            //     label: typeText.value,
-            //     component: "CatsList",
-            //     bind: {
-            //         cats: activeCats.value,
-            //     },
-            //     on: {
-            //         click: onCatItemClick,
-            //     },
-            // };
             const partsTabs = cats2Tabs(activeCats.value);
-            // const partsTab = {
-            //     name: "parts",
-            //     label: typeText.value,
-            //     component: "CatsList",
-            //     bind: {
-            //         cats: activeCats.value,
-            //     },
-            //     on: {
-            //         click: onCatItemClick,
-            //     },
-            // };
+            if (props.type === "in") {
+                return partsTabs;
+            }
             return [bgTab, ...partsTabs];
         });
 
@@ -348,7 +341,7 @@ $header-height: 56px;
             white-space: pre-wrap;
             margin-left: 0px !important;
             margin-right: 0px !important;
-            padding: 10px 0px !important;
+            padding: 10px 0px 0px !important;
             overflow-y: auto;
             :deep(.el-tabs__active-bar.is-left) {
                 left: 0;
@@ -407,16 +400,20 @@ $header-height: 56px;
         position: absolute;
         bottom: 0px;
         left: 0px;
-        color: white;
+        color: var(--el-color-primary);
         font-size: 40px;
-        padding: 30px 20px;
+        font-weight: bolder;
+        padding: 20px 20px;
         text-align: center;
-        background-color: var(--el-color-primary);
+        // background-color: var(--el-color-primary);
+        // background-color: var(--el-color-primary);
 
         &:hover {
+            color: white;
             background-color: var(--el-color-primary-light-3);
         }
         &:active {
+            color: white;
             background-color: var(--el-color-primary-dark);
         }
     }

@@ -92,7 +92,7 @@ export default defineComponent({
             bgs,
             bgItems,
             title: computed(() => bgTypeOpts.value.find((opt) => opt.value === selectedBgType.value)?.label),
-            onCardClick(bg: Background) {
+            onCardClick(bg: ImgCardItemType) {
                 ctx.emit("bg", bg, selectedBgType.value);
             },
             onBgTypeChange,
