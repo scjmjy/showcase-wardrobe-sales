@@ -129,11 +129,10 @@ export default defineComponent({
         changeWallApi(newPartId: number): void {
             const wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            var temp = this.bizdata.partManifestMap.get(newPartId.toString());
+            const temp = this.bizdata.partManifestMap.get(newPartId.toString());
             const texture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
             wall_material.diffuseTexture = texture;
             this.wall.material = wall_material;
-            this.wall.isPickable = false;
         },
 
         /**
@@ -141,15 +140,14 @@ export default defineComponent({
          * @param newPartId
          */
         changeFloorApi(newPartId: number): void {
-            var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
+            const floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            var temp = this.bizdata.partManifestMap.get(newPartId.toString());
+            const temp = this.bizdata.partManifestMap.get(newPartId.toString());
             const texture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
             texture.uScale = 2;
             texture.vScale = 2;
             floor_material.diffuseTexture = texture;
             this.floor.material = floor_material;
-            this.floor.isPickable = false;
         },
 
         /**
@@ -612,7 +610,7 @@ export default defineComponent({
                 { width: 5000.0, height: 0.1, depth: 2000.0 },
                 this.graphics.scene as BABYLON.Scene,
             );
-            this.floor.translate(new BABYLON.Vector3(0, -20, -1820), -0.4);
+            this.floor.translate(new BABYLON.Vector3(0, -20, -1760), -0.4);
             var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             const texture = new BABYLON.Texture(
@@ -628,10 +626,11 @@ export default defineComponent({
             // Wall
             this.wall = BABYLON.MeshBuilder.CreateBox(
                 "Background_Wall",
-                { width: 5000.0, height: 3000.1, depth: 0.1 },
+                { width: 5000.0, height: 3000.1, depth: 10 },
                 this.graphics.scene as BABYLON.Scene,
             );
-            this.wall.translate(new BABYLON.Vector3(0, -3750, 780), -0.4);
+            this.wall.translate(new BABYLON.Vector3(0, -3750, 755), -0.4);
+
             var wall_material = new BABYLON.StandardMaterial("groundMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             wall_material.diffuseTexture = new BABYLON.Texture(
