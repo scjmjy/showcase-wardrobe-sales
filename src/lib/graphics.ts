@@ -244,6 +244,13 @@ export class Graphics {
                     ) {
                         // const pickedMesh = pointerInfo.pickInfo.pickedMesh;
                         const pickedMesh = this.getRootMesh(pointerInfo.pickInfo.pickedMesh);
+                        if (pickedMesh !== null) {
+                            // if pick previous selected object, emit the selected event too.
+                            this.eventDispatcher.emit(GraphicsEvent.EXTERNAL_EVENT_OBJECT_ONSELECTED, {
+                                name: pickedMesh.name,
+                            });
+                        }
+
                         if (pickedMesh !== this._currentMesh) {
                             if (this._currentMesh !== null) {
                                 this.removeHighlightMesh(this._currentMesh);
@@ -251,10 +258,6 @@ export class Graphics {
 
                             this._currentMesh = pickedMesh;
                             this.highlightMesh(this._currentMesh, this._selectedColor);
-
-                            this.eventDispatcher.emit(GraphicsEvent.EXTERNAL_EVENT_OBJECT_ONSELECTED, {
-                                name: this._currentMesh?.name,
-                            });
                         }
                     } else {
                         if (this._currentMesh) {
