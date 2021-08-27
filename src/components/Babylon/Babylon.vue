@@ -131,6 +131,8 @@ export default defineComponent({
             wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             const temp = this.bizdata.partManifestMap.get(newPartId.toString());
             const texture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
+            texture.uScale = 20;
+            texture.vScale = 20;
             wall_material.diffuseTexture = texture;
             this.wall.material = wall_material;
         },
@@ -614,7 +616,7 @@ export default defineComponent({
             var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             const texture = new BABYLON.Texture(
-                "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/dc5eb19b-2879-47fe-a517-720b39e0f445.jpg",
+                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/floor/cc720923-b9d4-4ad1-af1e-db98151cacec.jpg",
                 this.graphics.scene as BABYLON.Scene,
             );
             texture.uScale = 2;
@@ -634,7 +636,7 @@ export default defineComponent({
             var wall_material = new BABYLON.StandardMaterial("groundMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             wall_material.diffuseTexture = new BABYLON.Texture(
-                "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/d8282dee-13f2-4884-99c0-5d56962d95ac.jpg",
+                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/wall/9c07a00f-856f-4977-836c-7733515706d4.jpg",
                 this.graphics.scene as BABYLON.Scene,
             );
             this.wall.material = wall_material;
