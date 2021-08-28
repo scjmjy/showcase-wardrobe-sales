@@ -1,5 +1,22 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
-import { Scheme, Cube, Item, Door, Part, Position, RelativeItem, Location } from "@/lib/scheme";
+import { Scheme, SchemeObject, Cube, Item, Door, Part, Position, Size, RelativeItem, Location } from "@/lib/scheme";
+
+export const BASE_OSS_URL = "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/";
+
+export function requestJsonAsync(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        // xhr.overrideMimeType("text/html;charset=utf-8");
+        xhr.send();
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                resolve(xhr.responseText);
+            }
+        };
+    });
+}
 
 export function parseManifest(url: string) {
     // TODO: why cannot require from public folder?
@@ -10,10 +27,10 @@ export function parseManifest(url: string) {
 export function importSchemeJson(url: string) {
     const mf = require("@/assets/" + url);
 
-    const background: Item[] = [];
+    const background: SchemeObject[] = [];
     mf.manifest.background.forEach((element: any) => {
-        const item = new Item(element.id, element.partId, element.manifest, null);
-        background.push(item);
+        const schemeObject = new SchemeObject(element.id, element.partId, element.manifest);
+        background.push(schemeObject);
     });
 
     const cubes: Cube[] = [];
@@ -50,12 +67,14 @@ export function importSchemeJson(url: string) {
                     break;
             }
 
+            const size = new Size(item.size.x, item.size.y, item.size.z);
             const location = new Location(item.location.locationType, startPos, relativeItem);
-            const newItem = new Item(item.id, item.partId, item.manifest, item.catId, location);
+            const newItem = new Item(item.id, item.partId, item.manifest, item.catId, size, location);
             items.push(newItem);
         });
 
-        const newCube = new Cube(cube.id, cube.partId, cube.manifest, cube.catId, items);
+        const size = new Size(cube.size.x, cube.size.y, cube.size.z);
+        const newCube = new Cube(cube.id, cube.partId, cube.manifest, cube.catId, size, items);
         cubes.push(newCube);
     });
 
@@ -66,7 +85,8 @@ export function importSchemeJson(url: string) {
             doorCubes.push(cube);
         });
 
-        const newDoor = new Door(door.id, door.partId, door.manifest, door.catId, door.doorType, doorCubes);
+        const size = new Size(door.size.x, door.size.y, door.size.z);
+        const newDoor = new Door(door.id, door.partId, door.manifest, door.catId, size, door.doorType, doorCubes);
         doors.push(newDoor);
     });
 

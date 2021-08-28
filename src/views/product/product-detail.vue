@@ -47,14 +47,14 @@
                 >返回</el-button
             >
             <!-- TODO: remove the test codes -->
-            <div class="product-detail__action-test state-icon-group-h">
-                <!-- <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
+            <!-- <div class="product-detail__action-test state-icon-group-h">
+                <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
                 <state-icon icon="offer" label="合页门" @change="onAddDoorClick('left')"></state-icon>
                 <state-icon icon="offer" label="滑门" @change="onAddDoorClick('slide')"></state-icon>
                 <state-icon icon="offer" label="清除门" @change="onDeleteClick('door')"></state-icon>
                 <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick()"></state-icon>
-                <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick()"></state-icon> -->
-            </div>
+                <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick()"></state-icon>
+            </div> -->
             <div class="product-detail__action-left state-icon-group-h">
                 <!-- <state-icon
                     v-model="stateSelect"
@@ -125,7 +125,7 @@ import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
 import PartsMenu, { ActionType } from "./components/PartsMenu.vue";
 import { ElMessage } from "element-plus";
-import { Area, Door, Position } from "@/lib/scheme";
+import { Area, Door, Position, Size } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
 import GooeyMenu, { MenuItem } from "@/components/GooeyMenu.vue";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
@@ -382,10 +382,11 @@ export default defineComponent({
                         // 合页门 (type: 1): add 2 doors for both cubes
                         door_mf_url = "43b3e66e-c416-4602-bb76-97a172138737.json";
                         door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
-                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 1, door_cubes));
+                        const size = new Size(750, 2360, 40);
+                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes));
 
                         door_cubes = ["ce28f905-a6e1-4f68-9998-ed13f950ea91"];
-                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 1, door_cubes));
+                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes));
                     }
                     break;
 
@@ -395,7 +396,8 @@ export default defineComponent({
                         door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
                         door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d", "ce28f905-a6e1-4f68-9998-ed13f950ea91"];
                         const catId = 2;
-                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 2, door_cubes));
+                        const size = new Size(1500, 2360, 40);
+                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, size, 2, door_cubes));
                     }
                     break;
 
