@@ -1,6 +1,6 @@
 <template>
     <div ref="refDiv" class="parts-menu">
-        <div class="parts-menu__left">
+        <div v-show="opened" class="parts-menu__left">
             <div class="parts-menu__left-header">
                 <div>
                     <!-- <el-button v-if="tabStack.length" type="text" @click="onUpLevelClick">上一层</el-button> -->
