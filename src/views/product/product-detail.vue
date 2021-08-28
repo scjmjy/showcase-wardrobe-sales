@@ -48,12 +48,12 @@
             >
             <!-- TODO: remove the test codes -->
             <div class="product-detail__action-test state-icon-group-h">
-                <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
+                <!-- <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
                 <state-icon icon="offer" label="合页门" @change="onAddDoorClick('left')"></state-icon>
                 <state-icon icon="offer" label="滑门" @change="onAddDoorClick('slide')"></state-icon>
                 <state-icon icon="offer" label="清除门" @change="onDeleteClick('door')"></state-icon>
                 <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick()"></state-icon>
-                <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick()"></state-icon>
+                <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick()"></state-icon> -->
             </div>
             <div class="product-detail__action-left state-icon-group-h">
                 <!-- <state-icon
