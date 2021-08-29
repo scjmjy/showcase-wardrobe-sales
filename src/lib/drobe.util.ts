@@ -180,7 +180,7 @@ class DrobeUtil extends StObject {
             const vec = new StVector(e.location!.startPos!.x, e.location!.startPos!.y);
             vec.selfAdd(cube_lb);
             const pt = StSketchPoint.buildFromVector(vec);
-            const r = StSketchRect.buildRectByStartPoint(pt, mf.size.x, mf.size.y);
+            const r = StSketchRect.buildRectByStartPoint(pt, e.size.x, e.size.y);
             rects.push(r);
         });
 
@@ -290,6 +290,7 @@ class DrobeUtil extends StObject {
                 throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
             }
             door_pos.x += cube_data.origin.x;
+            door_pos.y += 20;
             door_pos.z = cube_data.depth / 2;
         } else if (door.doorType == 2) {
             this.assertTrue(door.cubes.length == 2, `TWO cubes are needed to add a SLIDE DOOR: ${door}`);
@@ -297,6 +298,7 @@ class DrobeUtil extends StObject {
             if (!cube_data) {
                 throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
             }
+            door_pos.y += 20;
             door_pos.z = cube_data.depth / 2;
         } else {
             throw Error(`unknow door type: ${door}`);

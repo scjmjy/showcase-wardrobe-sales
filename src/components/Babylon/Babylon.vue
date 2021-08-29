@@ -8,7 +8,7 @@
 import { defineComponent, PropType } from "vue";
 import * as BABYLON from "babylonjs";
 import { Graphics, GraphicsEvent } from "@/lib/graphics";
-import { Scheme, Cube, Item, Door, Part, Position, RelativeItem, Location, Area } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, Part, Position, RelativeItem, Location, Area, Size } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
 import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
@@ -78,6 +78,7 @@ export default defineComponent({
             availableAreas: [] as BABYLON.Mesh[],
             floor: {} as BABYLON.Mesh,
             wall: {} as BABYLON.Mesh,
+            newPart: {} as PartType,
         };
     },
     computed: {
@@ -99,6 +100,7 @@ export default defineComponent({
                     //const part_id:string = `${newPart.id}`;
                     //const availableArea = this.getAvailableArea(part_id);
                     const availableArea = this.getAvailableAreaByPart(newPart);
+                    this.newPart = newPart;
                     this.ShowAvailableArea(newPart, availableArea);
                 }
             },
@@ -367,41 +369,26 @@ export default defineComponent({
         loadScheme() {
             // TODO: load background.
 
-            const cubeSizeArr: any[] = [];
-            const cubeIdArr: string[] = [];
-            const cubeMfArr: any[] = [];
-
             const cubes = this.scheme.cubes;
-            let cubeIndex = 0;
             this.scheme.cubes.forEach((cube: Cube) => {
-                const cubeMf = util.parseManifest(cube.manifest);
-
-                this.bizdata.totalWidth += cubeMf.size.x;
-                if (cubeMf.size.y > this.bizdata.totalHeight) this.bizdata.totalHeight = cubeMf.size.y;
-                if (cubeMf.size.z > this.bizdata.totalDepth) this.bizdata.totalDepth = cubeMf.size.z;
-
-                cubeSizeArr[cubeIndex] = cubeMf.size;
-                cubeIdArr[cubeIndex] = cube.id;
-                cubeMfArr[cubeIndex] = cubeMf;
-                cubeIndex++;
+                this.bizdata.totalWidth += cube.size.x;
+                if (cube.size.y > this.bizdata.totalHeight) this.bizdata.totalHeight = cube.size.y;
+                if (cube.size.z > this.bizdata.totalDepth) this.bizdata.totalDepth = cube.size.z;
             });
 
             let startX = this.bizdata.totalWidth * 0.5;
-            cubeIndex = 0;
             this.scheme.cubes.forEach((cube: Cube) => {
-                const cubeSize = cubeSizeArr[cubeIndex];
-                const cubeId = cubeIdArr[cubeIndex];
-                const cubeMf = cubeMfArr[cubeIndex];
-                cubeIndex++;
-                const cubeOriginX = startX - cubeSize.x * 0.5;
-                startX -= cubeSize.x;
+                const cubeMf = util.parseManifest(cube.manifest);
+
+                const cubeOriginX = startX - cube.size.x * 0.5;
+                startX -= cube.size.x;
 
                 const cubeOrigin = new BABYLON.Vector3(cubeOriginX, 0, 0);
-                this.bizdata.cubeMap.set(cubeId, {
+                this.bizdata.cubeMap.set(cube.id, {
                     origin: cubeOrigin,
-                    width: cubeSize.x,
-                    height: cubeSize.y,
-                    depth: cubeSize.z,
+                    width: cube.size.x,
+                    height: cube.size.y,
+                    depth: cube.size.z,
                 });
 
                 cubeMf.models.forEach((model: any) => {
@@ -410,7 +397,7 @@ export default defineComponent({
                         cubeOrigin.y + model.position.y,
                         cubeOrigin.z + model.position.z,
                     );
-                    const cubeName = ObjectType.CUBE + "_" + cubeId;
+                    const cubeName = ObjectType.CUBE + "_" + cube.id;
                     this.graphics.importMesh(
                         model.url,
                         cubeName,
@@ -470,7 +457,7 @@ export default defineComponent({
                     const height = area.endPoint.y - area.startPoint.y;
                     const depth = area.endPoint.z - area.startPoint.z;
                     const availableArea = BABYLON.MeshBuilder.CreateBox(
-                        `BackgroundArea_${part.catId.toString()}_${part.id.toString()}_${area.cubeId}_${part.manifest}`,
+                        `BackgroundArea_${area.cubeId}_${part.id.toString()}`,
                         { width: width, height: height, depth: depth },
                         this.graphics.scene as BABYLON.Scene,
                     );
@@ -528,12 +515,8 @@ export default defineComponent({
                             if (meshName.startsWith("BackgroundArea")) {
                                 // Hit the available area.
                                 const info = meshName.split("_");
-                                const catId = info[1];
-                                const partId = info[2];
-                                const cubeId = info[3];
-                                let manifest: string | undefined = info[4];
-                                // TODO: remove the codes below of getting manifest from local.
-                                manifest = this.bizdata.partManifestMap.get(catId.toString());
+                                const cubeId = info[1];
+                                const manifest = this.newPart.manifest;
 
                                 const cubeData = this.bizdata.cubeMap.get(cubeId);
                                 if (
@@ -541,40 +524,48 @@ export default defineComponent({
                                     manifest !== undefined &&
                                     pointerInfo.pickInfo.pickedPoint !== null
                                 ) {
-                                    const itemId = uuidv4();
-                                    const itemMf = util.parseManifest(manifest);
-
-                                    const startPos = new BABYLON.Vector3(
-                                        0,
-                                        pointerInfo.pickInfo.pickedPoint.y - itemMf.size.y * 0.5,
-                                        0,
-                                    );
-                                    const itemOrigin = new BABYLON.Vector3(
-                                        cubeData.origin.x + startPos.x,
-                                        cubeData.origin.y + startPos.y,
-                                        cubeData.origin.z + startPos.z,
-                                    );
-
-                                    // TODO: create a parent mesh to contain all import meshes.
-                                    itemMf.models.forEach((model: any) => {
-                                        const modelPos = new BABYLON.Vector3(
-                                            itemOrigin.x + model.position.x,
-                                            itemOrigin.y + model.position.y,
-                                            itemOrigin.z + model.position.z,
+                                    const pickedPointY = pointerInfo.pickInfo.pickedPoint.y;
+                                    console.log("manifest", manifest);
+                                    util.requestJsonAsync(manifest).then((json: string) => {
+                                        console.log("json", json);
+                                        const itemMf = JSON.parse(json);
+                                        const itemId = uuidv4();
+                                        const startPos = new BABYLON.Vector3(0, pickedPointY - itemMf.size.y * 0.5, 0);
+                                        const itemOrigin = new BABYLON.Vector3(
+                                            cubeData.origin.x + startPos.x,
+                                            cubeData.origin.y + startPos.y,
+                                            cubeData.origin.z + startPos.z,
                                         );
 
-                                        const itemName = ObjectType.ITEM + "_" + itemId;
-                                        this.graphics.importMesh(model.url, itemName, modelPos);
-                                    });
+                                        // TODO: create a parent mesh to contain all import meshes.
+                                        itemMf.models.forEach((model: any) => {
+                                            const modelPos = new BABYLON.Vector3(
+                                                itemOrigin.x + model.position.x,
+                                                itemOrigin.y + model.position.y,
+                                                itemOrigin.z + model.position.z,
+                                            );
 
-                                    // TODO: only handle the case of locationType==1.
-                                    const location = new Location(
-                                        1,
-                                        new Position(startPos.x, startPos.y, startPos.z),
-                                        null,
-                                    );
-                                    const newItem = new Item(itemId, Number(partId), manifest, Number(catId), location);
-                                    this.bizdata.addItem(newItem, cubeId);
+                                            const itemName = ObjectType.ITEM + "_" + itemId;
+                                            const modelUrl = util.BASE_OSS_URL + model.url;
+                                            this.graphics.importMesh(modelUrl, itemName, modelPos);
+                                        });
+
+                                        const partId = this.newPart.id;
+                                        const catId = this.newPart.catId;
+                                        const size = new Size(
+                                            this.newPart.width,
+                                            this.newPart.height,
+                                            this.newPart.depth,
+                                        );
+                                        // TODO: only handle the case of locationType==1.
+                                        const location = new Location(
+                                            1,
+                                            new Position(startPos.x, startPos.y, startPos.z),
+                                            null,
+                                        );
+                                        const newItem = new Item(itemId, partId, manifest, catId, size, location);
+                                        this.bizdata.addItem(newItem, cubeId);
+                                    });
 
                                     this.clearAvailableAreas();
                                 }

@@ -10,6 +10,18 @@ export class Position {
     }
 }
 
+export class Size {
+    x: number;
+    y: number;
+    z: number;
+
+    constructor(x: number, y: number, z: number) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+}
+
 export class RelativeItem {
     relativeItemId: string; // 相对item的uuid
     relativeType: number; // 1-上面 2-下面 3-里面 4-外面
@@ -58,32 +70,46 @@ export class SchemeObject {
 }
 
 export class Item extends SchemeObject {
-    location: Location | null; // 描述配件如何放置的
+    size: Size;
+    location: Location; // 描述配件如何放置的
 
-    constructor(id: string, partId: number, manifest: string, catId: number | null, location: Location | null = null) {
+    constructor(id: string, partId: number, manifest: string, catId: number, size: Size, location: Location) {
         super(id, partId, manifest, catId);
+        this.size = size;
         this.location = location;
     }
 }
 
 export class Cube extends SchemeObject {
+    size: Size;
     items: Item[];
 
-    constructor(id: string, partId: number, manifest: string, catId: number | null, items: Item[]) {
+    constructor(id: string, partId: number, manifest: string, catId: number, size: Size, items: Item[]) {
         super(id, partId, manifest, catId);
+        this.size = size;
         this.items = items;
     }
 }
 
 export class Door extends SchemeObject {
+    size: Size;
     doorType: number; // 1-合页门，2-滑门
     cubes: string[]; // 占用单元柜id
 
     // TODO: 需要考虑合页门的开合方向吗？
     // 目前，对于单扇合页门，默认往左开
 
-    constructor(id: string, partId: number, manifest: string, catId: number | null, doorType: number, cubes: string[]) {
+    constructor(
+        id: string,
+        partId: number,
+        manifest: string,
+        catId: number,
+        size: Size,
+        doorType: number,
+        cubes: string[],
+    ) {
         super(id, partId, manifest, catId);
+        this.size = size;
         this.doorType = doorType;
         this.cubes = cubes;
     }
@@ -100,12 +126,12 @@ export class Part {
 }
 
 export class Scheme {
-    background: Item[]; // wall(只需要正面墙)，floor
+    background: SchemeObject[]; // wall(只需要正面墙)，floor
     cubes: Cube[]; // 从左到右排列
     doors: Door[];
     parts: Part[];
 
-    constructor(background: Item[], cubes: Cube[], doors: Door[], parts: Part[]) {
+    constructor(background: SchemeObject[], cubes: Cube[], doors: Door[], parts: Part[]) {
         this.background = background;
         this.cubes = cubes;
         this.doors = doors;
