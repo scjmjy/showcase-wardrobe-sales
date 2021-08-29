@@ -309,8 +309,9 @@ class DrobeUtil extends StObject {
         const door_mf = HmPartManifest.buildFromUrl(door.manifest);
         if (door_mf instanceof Promise) {
             return door_mf.then((res) => {
+                const url = "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/" + res.models[0].url;
                 return graphics
-                    .importMesh(res.models[0].url, door_name, door_pos)
+                    .importMesh(url, door_name, door_pos)
                     .then((res) => {
                         return door.id;
                     })

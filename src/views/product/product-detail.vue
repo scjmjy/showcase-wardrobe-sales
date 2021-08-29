@@ -583,10 +583,11 @@ export default defineComponent({
             onPartSelect(part: Part, cat: PartCategory) {
                 // TODO remove test code
                 if (cat.id === 2) {
-                    onDeleteClick("door");
+                    // onDeleteClick("door");
+                    refBabylon.value?.removeDoorsApi();
                     onAddDoorClick("slide", +part.id, part.manifest);
                 } else if (cat.id === 3) {
-                    onDeleteClick("door");
+                    refBabylon.value?.removeDoorsApi();
                     onAddDoorClick("left", +part.id, part.manifest);
                 } else {
                     selectedPart.value = {
