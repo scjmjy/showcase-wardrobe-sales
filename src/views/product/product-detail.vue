@@ -364,7 +364,7 @@ export default defineComponent({
                     throw Error(`unknown part type: ${part_type}`);
             }
         }
-        function onAddDoorClick(type: string, partId?: number) {
+        function onAddDoorClick(type: string, partId?: number, mfUrl?: string) {
             // debugger;
             if (!refBabylon.value) {
                 console.error("refBabylon.value is not defined!");
@@ -380,7 +380,7 @@ export default defineComponent({
                     {
                         const catId = 3;
                         // 合页门 (type: 1): add 2 doors for both cubes
-                        door_mf_url = "43b3e66e-c416-4602-bb76-97a172138737.json";
+                        door_mf_url = mfUrl || "43b3e66e-c416-4602-bb76-97a172138737.json";
                         door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
                         refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 1, door_cubes));
 
@@ -392,7 +392,7 @@ export default defineComponent({
                 case "slide":
                     {
                         // 滑门 (type: 2). 需要指定2个连续的cube
-                        door_mf_url = "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
+                        door_mf_url = mfUrl || "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
                         door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d", "ce28f905-a6e1-4f68-9998-ed13f950ea91"];
                         const catId = 2;
                         refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, 2, door_cubes));
@@ -582,10 +582,10 @@ export default defineComponent({
                 // TODO remove test code
                 if (cat.id === 2) {
                     onDeleteClick("door");
-                    onAddDoorClick("slide", +part.id);
+                    onAddDoorClick("slide", +part.id, part.manifest);
                 } else if (cat.id === 3) {
                     onDeleteClick("door");
-                    onAddDoorClick("left", +part.id);
+                    onAddDoorClick("left", +part.id, part.manifest);
                 } else {
                     selectedPart.value = {
                         id: +part.id,

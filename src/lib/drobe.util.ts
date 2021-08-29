@@ -18,6 +18,8 @@ import { StSketchVector3 } from "./geometry/st_geometric_3d";
 import { BizData, CubeData, ObjectType } from "@/lib/biz.data";
 import { StVector } from "./geometry/st_vector_2d";
 import { StSketchPoint, StSketchRect } from "./geometry/st_geometric_2d";
+import request from "@/utils/request";
+import { ElMessage } from "element-plus";
 
 export class HmBoundingBox {
     startPoint: Position;
@@ -53,21 +55,49 @@ export class HmPartManifest extends StObject {
         return obj;
     }
 
-    static buildFromUrl(part_url: string): HmPartManifest {
+    static buildFromUrl(part_url: string): HmPartManifest | Promise<HmPartManifest> {
         let obj: HmPartManifest;
         if (part_url.indexOf("mf/") == 0) {
             obj = require("@/assets/" + part_url);
-        }else{
+        } else if (part_url.startsWith("http")) {
+            return new Promise((resolve, reject) => {
+                request({
+                    url: part_url,
+                    method: "GET",
+                    responseType: "json",
+                })
+                    .then((res) => {
+                        const mf = new HmPartManifest({
+                            bbox: new HmBoundingBox(res.data.bbox.startPoint, res.data.bbox.startPoint),
+                            size: new StSketchVector3(res.data.size.x, res.data.size.y, res.data.size.y),
+                            models: res.data.models.map(
+                                (m: HmModel) =>
+                                    new HmModel({
+                                        position: m.position,
+                                        rotation: m.rotation,
+                                        scaling: m.scaling,
+                                        url: m.url,
+                                    }),
+                            ),
+                        });
+                        resolve(mf);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    });
+            });
+            // obj = require("@/assets/mf/" + part_url) as HmPartManifest;
+        } else {
             obj = require("@/assets/mf/" + part_url) as HmPartManifest;
         }
-        
-        // [guilin: 8-20] 'obj' is NOT an HmPartManifest object! 
-        // Reason: `${obj}` -- >  [object Object] 
+
+        // [guilin: 8-20] 'obj' is NOT an HmPartManifest object!
+        // Reason: `${obj}` -- >  [object Object]
         // return obj;
-        const mf = new HmPartManifest( {
+        const mf = new HmPartManifest({
             bbox: obj.bbox,
             size: obj.size,
-            models: obj.models
+            models: obj.models,
         });
         return mf;
     }
@@ -120,16 +150,16 @@ class DrobeUtil extends StObject {
     /**
      * Find Cube's LEFT-BOTTOM corner in LOCAL/WORLD space
      */
-    private _findCubeLeftBottom(cube: CubeData, local: boolean = true): StVector {
-        if(local) {
-            return new StVector(-1 * cube.width / 2, 0);;
-        }else{
+    private _findCubeLeftBottom(cube: CubeData, local = true): StVector {
+        if (local) {
+            return new StVector((-1 * cube.width) / 2, 0);
+        } else {
             // WORLD space
             return new StVector(cube.origin.x - cube.width / 2, cube.origin.y);
         }
     }
 
-    private _buildCubeRect(cube: CubeData, local: boolean = true): StSketchRect {
+    private _buildCubeRect(cube: CubeData, local = true): StSketchRect {
         const start_pt = StSketchPoint.buildFromVector(this._findCubeLeftBottom(cube, local));
         return StSketchRect.buildRectByStartPoint(start_pt, cube.width, cube.height);
     }
@@ -143,7 +173,7 @@ class DrobeUtil extends StObject {
             return rects;
         }
         items.forEach((e) => {
-            const mf = HmPartManifest.buildFromUrl(e.manifest);
+            const mf = HmPartManifest.buildFromUrl(e.manifest) as HmPartManifest;
             this.assertValid(e.location);
             this.assertValid(e.location!.startPos);
             // calulate the part's LEFT-BOTTOM in WORLD Space.
@@ -172,14 +202,17 @@ class DrobeUtil extends StObject {
         return areas;
     }
 
-    getAvailableAreaByPart(bizdata: BizData, part: {
+    getAvailableAreaByPart(
+        bizdata: BizData,
+        part: {
             id: number;
             width: number;
             height: number;
             depth: number;
             manifest: string;
-            catId: number; 
-    }): Area[] {
+            catId: number;
+        },
+    ): Area[] {
         const part_size = new StVector(part.width, part.height);
         return this._calcAvailableArea(bizdata, part_size);
     }
@@ -215,33 +248,30 @@ class DrobeUtil extends StObject {
         return areas;
     }
 
-
-
     /**
-     * 
-     * @param graphics 
-     * @param bizdata 
+     *
+     * @param graphics
+     * @param bizdata
      * @param ids  is NOT proviced, delete all doors
      */
     removeDoors(graphics: Graphics, bizdata: BizData, ids?: string[]): void {
-        if(!ids || ids.length == 0) {
+        if (!ids || ids.length == 0) {
             ids = bizdata.getAllDoorsId();
-            console.log(`to remove all doors. Count: ${ids.length} -- ${ids}`)
-        }        
-        for(const id of ids ) {
+            console.log(`to remove all doors. Count: ${ids.length} -- ${ids}`);
+        }
+        for (const id of ids) {
             this._removeDoor(graphics, bizdata, id);
         }
     }
 
     private _removeDoor(graphics: Graphics, bizdata: BizData, id: string): void {
-         const door = bizdata.removeDoor(id);
-         if(door) {
-            console.log(`Remove door: ${StObject.buildString(door)}`)
-         }else{
+        const door = bizdata.removeDoor(id);
+        if (door) {
+            console.log(`Remove door: ${StObject.buildString(door)}`);
+        } else {
             console.log(`Err: Door is NOT found: ${id}`);
-         }
+        }
     }
-    
 
     /**
      * Add a door for cubes, which is described in object `door`;
@@ -250,7 +280,7 @@ class DrobeUtil extends StObject {
      *
      * @returns UUID of the newly added door
      */
-    addDoor(graphics: Graphics, bizdata: BizData, door: Door): string {
+    addDoor(graphics: Graphics, bizdata: BizData, door: Door): string | Promise<string> {
         const door_pos = new BABYLON.Vector3(0, 0, 500);
 
         if (door.doorType == 1) {
@@ -275,9 +305,27 @@ class DrobeUtil extends StObject {
         bizdata.addDoor(door);
         const door_name = `${ObjectType.DOOR}_${door.id}`;
         const door_mf = HmPartManifest.buildFromUrl(door.manifest);
-        graphics.importMesh(door_mf.models[0].url, door_name, door_pos);
-        console.log(`add door at ${door_pos}: ${door}`);
-        return door.id;
+        if (door_mf instanceof Promise) {
+            return door_mf.then((res) => {
+                return graphics
+                    .importMesh(res.models[0].url, door_name, door_pos)
+                    .then((res) => {
+                        return door.id;
+                    })
+                    .catch((err) => {
+                        ElMessage({
+                            type: "error",
+                            message: "加载模型文件错误",
+                        });
+                        console.log("[importMesh] err", err);
+                        return "";
+                    });
+            });
+        } else {
+            graphics.importMesh(door_mf.models[0].url, door_name, door_pos);
+            console.log(`add door at ${door_pos}: ${door}`);
+            return door.id;
+        }
     }
 }
 
