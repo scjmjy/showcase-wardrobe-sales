@@ -120,7 +120,6 @@ export class StSketchDivision extends StModel implements StIDivison {
     }
 
     /**
-     *
      * @param line any line in current division's SPACE
      * @returns
      */
@@ -277,6 +276,9 @@ export class StSketchCube extends StModel implements StICube {
         this.divisions.set(div.uuid, div);
     }
 
+    /**
+     * calculate the area of the whole cube
+     */
     private _calcArea(): StIDivisionOpt {
         const THICK_2BD = this.thickness * 2;
         const pt = new StSketchPoint(this.thickness, this.thickness + this.gapBottom);
@@ -351,19 +353,16 @@ export class StSketchCube extends StModel implements StICube {
     }
 
     /**
-     * The divide line is made up of:
-     * - point[0]: start for e0.pt[0], with the default offset
-     * - point[1]: make a line(L) that starts from point[0] and vertical to e0. Get the point that L crosses with e1;
      *
      * @param line
      * @returns
      */
-    addDivideBoardByLine(line: StSketchEdge): StSketchBoardZ {
+    private addDivideBoardByLine(line: StSketchEdge): StSketchBoardZ {
         console.warn(`TODO: make sure input edge points are on existing edges: ${line}`);        
 
         // 1. traverse all divisions, try to divide them with line
         // delete old division and add new divisions
-        console.log(`#### divide cube with line: ${line}`);
+        console.log(`#### divide cube with edge: ${line}`);
         const cross_poly: StSketchPolygon[] = [];
         const delete_div_ids: string[] = [];
         const new_divs: StSketchDivision[] = [];
@@ -410,14 +409,20 @@ export class StSketchCube extends StModel implements StICube {
     }
 
     /**
+     * The divide line(edge) is created with: 
+     * - point[0]: start for e0.pt[0], with the default offset
+     * - point[1]: make a line(L) that starts from point[0] and vertical to e0. Get the point that L crosses with e1;
+     * 
      * @param e0 a selected edge on a board
      * @param e1 a selected edge on a board
+     * @param offset offset from start-pont of e0
      *
      * @returns the divide board (line)
      */
-    addDivideBoard(e0: StSketchEdge, e1: StSketchEdge): StSketchBoardZ {
+    addDivideBoard(e0: StSketchEdge,  e1: StSketchEdge, offset?: number): StSketchBoardZ {
         // 1. create a divide-line from the 2 points on the e0 & e1
-        const p0 = e0.addPoint(StSketchConstant.DIVIDE_OFFSET_MM);
+        offset = offset || StSketchConstant.DIVIDE_OFFSET_MM;
+        const p0 = e0.addPoint(offset);
         const vec0 = e0.getVector().rotate(Math.PI / 2);
         const vec = StVector.makeVectorByLength(vec0, StSketchConstant.MAX_LENGTH);
 
@@ -446,6 +451,8 @@ export class StSketchCube extends StModel implements StICube {
      * The 2 edge-points can only move alone the B1 and B2. 
      * As a result, the tranlating vector must be perpendicular to B0 vector.
      * 
+     * [Guilin: 2021-8-31] This method is NOT fully working.
+     * 
      * @param board 
      * @param step 
      */
@@ -471,6 +478,9 @@ export class StSketchCube extends StModel implements StICube {
         for(const b of this.divideBoard.values() ) {
             b.updateMesh();
         }
+
+        // 3. TODO: redraw the division
+
         return b;
     }
 
