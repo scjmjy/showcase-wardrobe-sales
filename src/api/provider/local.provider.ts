@@ -7,6 +7,7 @@ import ApiProvider, {
     Customer,
     GlobalCfg,
     LoginResult,
+    OssSignature,
     Part,
     PartCategory,
     PartCategoryMeta,
@@ -361,6 +362,9 @@ export default class LocalProvider implements ApiProvider {
         throw new Error("Method not implemented.");
     }
     requestBackgrounds(btype: BackgroundType, page: number, pageSize: number): Promise<AjaxResponse<Background[]>> {
+        throw new Error("Method not implemented.");
+    }
+    requestSignedUrl(schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
         throw new Error("Method not implemented.");
     }
 }

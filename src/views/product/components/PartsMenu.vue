@@ -224,7 +224,11 @@ export default defineComponent({
             console.log("【partsTab】", cat);
             const tabs = cats2Tabs(cats);
             selectedTabName.value = cat.id.toString();
-            tabStack.value.push([bgTab, ...tabs]);
+            if (props.type === "in") {
+                tabStack.value.push(tabs);
+            } else {
+                tabStack.value.push([bgTab, ...tabs]);
+            }
         }
 
         const topLevelTabs = computed<TabType[]>(() => {

@@ -8,6 +8,7 @@ import {
     Customer,
     GlobalCfg,
     LoginResult,
+    OssSignature,
     Part,
     PartCategory,
     PartCategoryMeta,
@@ -441,6 +442,29 @@ export default class RestProvider extends LocalProvider {
                         status: 500,
                         show: "error",
                         msg: "获取背景出错",
+                    });
+                });
+        });
+    }
+    requestSignedUrl(schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
+        return new Promise((resolve) => {
+            request({
+                method: "GET",
+                url: `/api/v1/biz/customer/scheme/${schemeId}/signedurl`,
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取OSS签名失败",
                     });
                 });
         });

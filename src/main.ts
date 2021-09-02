@@ -4,6 +4,7 @@ import "babylonjs-gui"; // 会在全局的 BABYLON 里注册 gui
 import "babylonjs-serializers"; // 会在全局的 BABYLON 里注册 serializers， 如 GLTF2Export
 
 import ElementPlus from "element-plus";
+import "skeleton-elements/skeleton-elements.css";
 
 import { createApp } from "vue";
 import App from "./App.vue";

@@ -1,10 +1,26 @@
 // import { getToken, setToken } from "@/utils/token";
 import jscookie from "js-cookie";
 
-const TokenKey = "TOKEN-KEY-HONGMU-SALES-TOOLS";
+const TokenKeyUser = "TOKEN-KEY-HONGMU-SALES-TOOLS-USER";
+const TokenKeyCustomer = "TOKEN-KEY-HONGMU-SALES-TOOLS-CUSTOMER";
 
 export class Customer {
     constructor(public customerId = "", public customerName = "", public phoneNumber = "") {}
+
+    save(): string | undefined {
+        return jscookie.set(TokenKeyCustomer, JSON.stringify(this));
+    }
+
+    static load(): Customer {
+        const customerStr = jscookie.get(TokenKeyCustomer) || "{}";
+        let customer;
+        try {
+            customer = JSON.parse(customerStr);
+        } catch (err) {
+            console.log(err);
+        }
+        return Object.assign(new Customer(), customer);
+    }
 }
 export class User {
     constructor(
@@ -18,11 +34,11 @@ export class User {
     ) {}
 
     save(): string | undefined {
-        return jscookie.set(TokenKey, JSON.stringify(this));
+        return jscookie.set(TokenKeyUser, JSON.stringify(this));
     }
 
     static load(): User {
-        const userStr = jscookie.get(TokenKey) || "{}";
+        const userStr = jscookie.get(TokenKeyUser) || "{}";
         let user;
         try {
             user = JSON.parse(userStr);

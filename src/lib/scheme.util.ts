@@ -26,7 +26,17 @@ export function parseManifest(url: string) {
 
 export function importSchemeJson(url: string) {
     const mf = require("@/assets/" + url);
+    return manifest2scheme(mf);
+}
 
+export async function importSchemeJsonAsync(mfUrl: string) {
+    const url = mfUrl.startsWith("http") ? mfUrl : BASE_OSS_URL + mfUrl;
+    const json = await requestJsonAsync(url);
+    const obj = JSON.parse(json);
+    return manifest2scheme(obj);
+}
+
+function manifest2scheme(mf: any) {
     const background: SchemeObject[] = [];
     mf.manifest.background.forEach((element: any) => {
         const schemeObject = new SchemeObject(element.id, element.partId, element.manifest);

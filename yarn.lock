@@ -9469,6 +9469,11 @@ simplify-js@^1.2.1:
   resolved "https://registry.yarnpkg.com/simplify-js/-/simplify-js-1.2.4.tgz#7aab22d6df547ffd40ef0761ccd82b75287d45c7"
   integrity sha512-vITfSlwt7h/oyrU42R83mtzFpwYk3+mkH9bOHqq/Qw6n8rtR7aE3NZQ5fbcyCUVVmuMJR6ynsAhOfK2qoah8Jg==
 
+skeleton-elements@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.nlark.com/skeleton-elements/download/skeleton-elements-3.5.0.tgz#7deb31e358c9ffc358694d9f26ef57db1ca4b74c"
+  integrity sha1-fesx41jJ/8NYaU2fJu9X2xykt0w=
+
 skmeans@0.9.7:
   version "0.9.7"
   resolved "https://registry.yarnpkg.com/skmeans/-/skmeans-0.9.7.tgz#72670cebb728508f56e29c0e10d11e623529ce5d"

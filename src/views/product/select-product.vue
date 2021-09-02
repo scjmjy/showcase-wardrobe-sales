@@ -3,33 +3,27 @@
         <app-header class="select-product__header" customer type="dark" />
         <prod-cat-menu class="select-product__menu" @select="onProdCatSelect" @filter="onProdFilter" />
         <el-scrollbar ref="elScrollbar" class="select-product__products" @scroll="onScroll">
-            <el-row v-if="currentCid" ref="elRow" :gutter="20" justify="space-between" style="margin: 0px !important">
-                <transition-group name="el-zoom-in-top">
-                    <el-col
-                        v-for="p in products"
-                        :key="p.id"
-                        :span="12"
-                        style="text-align: center; padding-top: 10px; padding-bottom: 10px"
-                    >
-                        <product-card :productName="p.name" :cover="p.pic" @detail="onProductClick(p)" />
-                    </el-col>
-                </transition-group>
+            <product-skeleton v-if="loadingFirstpageProduct" />
+            <el-row
+                v-else-if="currentCid"
+                ref="elRow"
+                :gutter="20"
+                justify="space-between"
+                style="margin: 0px !important"
+            >
+                <!-- <transition-group name="el-zoom-in-top"> -->
+                <el-col
+                    v-for="p in products"
+                    :key="p.id"
+                    :span="12"
+                    style="text-align: center; padding-top: 10px; padding-bottom: 10px"
+                >
+                    <product-card :productName="p.name" :cover="p.pic" @detail="onProductClick(p)" />
+                </el-col>
+                <!-- </transition-group> -->
                 <load-more :state="loadState" />
             </el-row>
         </el-scrollbar>
-        <!-- <el-tabs class="select-product__tabs" tab-position="left">
-            <el-tab-pane v-for="(c, index) of products" :key="index" :label="c.categoryName">
-                <product-card
-                    v-for="(p, index2) of c.products"
-                    :key="index2"
-                    :productName="p.name"
-                    :img="p.img"
-                    @click="onProductClick(p)"
-                />
-            </el-tab-pane>
-        </el-tabs>
-
-        <el-button icon="el-icon-arrow-left" @click="onBackClick" /> -->
     </div>
 </template>
 
@@ -45,6 +39,7 @@ import { Product } from "@/api/interface/provider.interface";
 import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 import LoadMore from "@/components/LoadMore.vue";
 import { ElScrollbar, ElRow } from "element-plus";
+import ProductSkeleton from "./components/ProductSkeleton.vue";
 
 export default defineComponent({
     name: "SelectProduct",
@@ -53,9 +48,10 @@ export default defineComponent({
         ProdCatMenu,
         AppHeader,
         LoadMore,
+        ProductSkeleton,
     },
     setup() {
-        const loadingProduct = ref(false);
+        const loadingFirstpageProduct = ref(false);
         const currentCid = ref("");
         const router = useRouter();
         const store = useStore();
@@ -74,15 +70,17 @@ export default defineComponent({
             const el = elScrollbar.value?.$el as HTMLElement;
             pageScroll = new PageScroll(el, requestApi, loadState, products, {
                 onDataFinish() {
-                    setTimeout(() => {
-                        loadingProduct.value = false;
-                    }, 200);
+                    if (loadingFirstpageProduct.value) {
+                        setTimeout(() => {
+                            loadingFirstpageProduct.value = false;
+                        }, 200);
+                    }
                 },
             });
         });
 
         return {
-            loadingProduct,
+            loadingFirstpageProduct,
             currentCid,
             products,
             elScrollbar,
@@ -93,7 +91,7 @@ export default defineComponent({
             },
             async onProdCatSelect(cid: string) {
                 currentCid.value = cid;
-                loadingProduct.value = true;
+                loadingFirstpageProduct.value = true;
                 pageScroll?.reload(300);
             },
             onProductClick(product: Product) {

@@ -2,7 +2,7 @@
     <div
         v-if="product"
         class="product-detail"
-        :class="{ 'slide-left-3d': showMenu && mode !== 'view', 'menu-opened': showMenu }"
+        :class="{ 'slide-left-3d': showMenu || mode === 'view', 'menu-opened': showMenu }"
     >
         <transition name="el-zoom-in-top">
             <app-header
@@ -15,6 +15,7 @@
             />
         </transition>
         <Babylon
+            v-if="scheme"
             ref="refBabylon"
             class="product-detail__3d"
             :scheme="scheme"
@@ -22,26 +23,31 @@
             :selectedPartId="selectedPartId"
             :selectedWallId="selectedWallId"
             :selectedFloorId="selectedFloorId"
-            :getAvailableArea2="getAvailableArea"
             :eventEmit="eventHandle"
             :mode="mode3D"
         />
-        <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
-        <div v-if="mode === 'view'" class="product-detail__info">
-            <!-- <div class="product-detail__info-name">{{ product.name }}</div> -->
-            <!-- <div v-if="!isNew" class="product-detail__info-offer">{{ '￥26955.00' }}</div> -->
-            <div v-if="!isNew && product.offer" class="product-detail__info-offer">{{ "￥" + product.offer }}</div>
-            <el-button v-if="isSelf && !product.offer" type="success" round @click="offer">报价</el-button>
-            <div class="product-detail__info-action">
-                <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
-                    >开始定制</el-button
-                >
-                <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
-                <el-button type="primary" round v-if="isSelf || isOther" @click="copyScheme" :loading="loadingCopying"
-                    >由此方案定制</el-button
-                >
+        <el-collapse-transition-h @after-leave="mode = 'edit'">
+            <div v-if="mode === 'view'" class="product-detail__info">
+                <div class="product-detail__info-name">{{ titles.title + titles.subTitle }}</div>
+                <!-- <div v-if="!isNew" class="product-detail__info-offer">{{ '￥26955.00' }}</div> -->
+                <div v-if="!isNew && product.offer" class="product-detail__info-offer">{{ "￥" + product.offer }}</div>
+                <div class="product-detail__info-action">
+                    <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
+                        >开始定制</el-button
+                    >
+                    <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
+                    <el-button
+                        type="primary"
+                        round
+                        v-if="isSelf || isOther"
+                        @click="copyScheme"
+                        :loading="loadingCopying"
+                        >由此方案定制</el-button
+                    >
+                    <el-button v-if="isSelf && !product.offer" type="success" round @click="offer">报价</el-button>
+                </div>
             </div>
-        </div>
+        </el-collapse-transition-h>
         <template v-if="mode === 'edit'">
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
                 >返回</el-button
@@ -129,6 +135,7 @@ import { Area, Door, Position, Size } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
 import GooeyMenu, { MenuItem } from "@/components/GooeyMenu.vue";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
+import { Scheme as Scheme3D } from "@/lib/scheme";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -176,7 +183,8 @@ export default defineComponent({
 
         async function gotoEditScheme() {
             showCustomizeDlg.value = false;
-            mode.value = "edit";
+            mode.value = ""; // after-leave="mode=edit"
+            // mode.value = "edit";
         }
 
         const customizeDlgTitle = computed(() => {
@@ -213,28 +221,12 @@ export default defineComponent({
         let selectedPartId = ref(0);
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
-        const scheme = ref(util.importSchemeJson("mf/scheme.json"));
-        function getAvailableArea(part: PartType): Area[] {
-            part;
+        // const scheme = ref<Scheme3D>();
+        const scheme = ref<Scheme3D>(util.importSchemeJson("mf/scheme.json"));
 
-            // TODO: compute the available areas later.
-            const areas = [];
-            let area = new Area(
-                "4cd170f8-291b-4236-b515-b5d27ac1209d",
-                new Position(-350, 1050, -270),
-                new Position(350, 1900, 290),
-            );
-            areas.push(area);
-
-            area = new Area(
-                "ce28f905-a6e1-4f68-9998-ed13f950ea91",
-                new Position(-350, 350, -270),
-                new Position(350, 1900, 290),
-            );
-            areas.push(area);
-
-            return areas;
-        }
+        // util.importSchemeJsonAsync(product.value.manifest).then((s) => {
+        //     scheme.value = s;
+        // });
         const gooeyMenuItems = ref<MenuItem[]>([
             {
                 value: "d3",
@@ -383,10 +375,14 @@ export default defineComponent({
                         door_mf_url = mfUrl || "43b3e66e-c416-4602-bb76-97a172138737.json";
                         door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
                         const size = new Size(750, 2360, 40);
-                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes));
+                        refBabylon.value.addDoorApi(
+                            new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes),
+                        );
 
                         door_cubes = ["ce28f905-a6e1-4f68-9998-ed13f950ea91"];
-                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes));
+                        refBabylon.value.addDoorApi(
+                            new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes),
+                        );
                     }
                     break;
 
@@ -397,7 +393,9 @@ export default defineComponent({
                         door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d", "ce28f905-a6e1-4f68-9998-ed13f950ea91"];
                         const catId = 2;
                         const size = new Size(1500, 2360, 40);
-                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, size, 2, door_cubes));
+                        refBabylon.value.addDoorApi(
+                            new Door("", door_part_id, door_mf_url, catId, size, 2, door_cubes),
+                        );
                     }
                     break;
 
@@ -444,7 +442,6 @@ export default defineComponent({
             selectedPartId,
             selectedWallId,
             selectedFloorId,
-            getAvailableArea,
             mode3D: computed(() => {
                 if (mode.value === "view") {
                     return 3;
@@ -570,10 +567,16 @@ export default defineComponent({
                         });
                         break;
                     case "save":
-                        ElMessage({
-                            type: "warning",
-                            message: "TODO: 保存",
-                        });
+                        // ElMessage({
+                        //     type: "warning",
+                        //     message: "TODO: 保存",
+                        // });
+                        {
+                            const scheme = product.value as Scheme;
+                            apiProvider.requestSignedUrl(scheme.id).then((res) => {
+                                console.log("[requestSignedUrl]", res);
+                            });
+                        }
                         break;
 
                     default:
@@ -667,26 +670,35 @@ export default defineComponent({
     }
     &__info {
         position: absolute;
-        text-align: center;
-        left: 0px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        top: 0px;
+        bottom: 0px;
         right: 0px;
-        bottom: 82px;
+        width: 428px;
+        white-space: nowrap;
+        text-align: center;
+        background-color: white;
         &-name,
         &-offer {
-            font-size: 26px;
+            font-size: 32px;
             font-weight: bold;
             color: black;
         }
         &-offer {
-            font-size: 26px;
             margin-top: 15px;
         }
 
         &-action {
-            margin-top: 27px;
+            margin-top: 42px;
             text-align: center;
             :deep(.el-button) {
+                display: block;
                 width: 220px;
+                margin-left: 0 !important;
+                margin-bottom: 40px;
             }
         }
     }

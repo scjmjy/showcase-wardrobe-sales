@@ -67,10 +67,10 @@ export default defineComponent({
             type: Function,
             default: () => {},
         },
-        getAvailableArea2: {
-            type: Function,
-            default: () => {},
-        },
+        // getAvailableArea2: {
+        //     type: Function,
+        //     default: () => {},
+        // },
     },
     data() {
         return {
