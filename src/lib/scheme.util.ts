@@ -1,5 +1,7 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
 import { Scheme, SchemeObject, Cube, Item, Door, Part, Position, Size, RelativeItem, Location } from "@/lib/scheme";
+import apiProvider from "@/api/provider";
+import request from "@/utils/request";
 
 export const BASE_OSS_URL = "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/";
 
@@ -107,4 +109,39 @@ function manifest2scheme(mf: any) {
     });
 
     return new Scheme(background, cubes, doors, parts);
+}
+
+function scheme2manifest(scheme: Scheme) {
+    const manifest = {
+        background: scheme.background,
+        cubes: scheme.cubes,
+        doors: scheme.doors,
+    };
+    const composition = scheme.parts;
+    const mf = { manifest, composition };
+    return JSON.stringify(mf, undefined, 4);
+}
+
+export async function saveSchemeAsync(schemeId: string | number, scheme: Scheme) {
+    const res = await apiProvider.requestSignedUrl(schemeId);
+    if (res.ok && res.data) {
+        const { accessid, policy, signature, host, dir, filename } = res.data;
+        const formData = new FormData();
+        formData.append("key", dir + filename);
+        formData.append("OSSAccessKeyId", accessid);
+        formData.append("policy", policy);
+        formData.append("Signature", signature);
+        const schemeJSON = scheme2manifest(scheme);
+        const file = new Blob([schemeJSON], { type: "application/json" });
+        formData.append("file", file, filename);
+        const saveRes = await request({
+            method: "POST",
+            url: host,
+            data: formData,
+        });
+        await apiProvider.updateSchemeState(schemeId);
+        return true;
+    } else {
+        return Promise.reject();
+    }
 }

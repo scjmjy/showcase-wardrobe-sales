@@ -469,4 +469,31 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
+
+    updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>> {
+        return new Promise((resolve) => {
+            request({
+                method: "PUT",
+                url: "/api/v1/biz/customer/scheme/state",
+                data: {
+                    id: schemeId,
+                },
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: true,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取OSS签名失败",
+                    });
+                });
+        });
+    }
 }

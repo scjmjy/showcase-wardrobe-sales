@@ -367,4 +367,7 @@ export default class LocalProvider implements ApiProvider {
     requestSignedUrl(schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
         throw new Error("Method not implemented.");
     }
+    updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>> {
+        throw new Error("Method not implemented.");
+    }
 }

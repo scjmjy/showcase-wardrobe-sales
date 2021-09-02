@@ -285,4 +285,5 @@ export default interface ApiProvider {
     requestBackgrounds(btype: BackgroundType, page: number, pageSize: number): Promise<AjaxResponse<Background[]>>;
 
     requestSignedUrl(schemeId: number | string): Promise<AjaxResponse<OssSignature>>;
+    updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>>;
 }

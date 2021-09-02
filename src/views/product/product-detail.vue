@@ -120,24 +120,24 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, watch, Ref, nextTick } from "vue";
-import Babylon, { PartType } from "@/components/Babylon/Babylon.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
+import { ElMessage, ElLoading } from "element-plus";
+import Babylon, { PartType } from "@/components/Babylon/Babylon.vue";
 import { StateType } from "@/store";
 import { BackgroundType, Part, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
-import type { ImgCardItemType } from "./components/ImgCardItem.vue";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
-import CustomizeDlg from "./components/CustomizeDlg.vue";
-import OfferDlg from "./components/OfferDlg.vue";
-import MetalsDlg from "./components/MetalsDlg.vue";
-import PartsMenu, { ActionType } from "./components/PartsMenu.vue";
-import { ElMessage } from "element-plus";
 import { Area, Door, Position, Size } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
 import GooeyMenu, { MenuItem } from "@/components/GooeyMenu.vue";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
 import { Scheme as Scheme3D } from "@/lib/scheme";
+import type { ImgCardItemType } from "./components/ImgCardItem.vue";
+import CustomizeDlg from "./components/CustomizeDlg.vue";
+import OfferDlg from "./components/OfferDlg.vue";
+import MetalsDlg from "./components/MetalsDlg.vue";
+import PartsMenu, { ActionType } from "./components/PartsMenu.vue";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -223,9 +223,8 @@ export default defineComponent({
         let selectedPartId = ref(0);
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
-        // const scheme = ref<Scheme3D>();
         const scheme = ref<Scheme3D>(util.importSchemeJson("mf/scheme.json"));
-
+        // const scheme = ref<Scheme3D>();
         // util.importSchemeJsonAsync(product.value.manifest).then((s) => {
         //     scheme.value = s;
         // });
@@ -250,16 +249,10 @@ export default defineComponent({
                 value: "ruler",
                 icon: "ruler",
                 onActive() {
-                    ElMessage({
-                        type: "warning",
-                        message: "TODO: 3D视图显示标尺 on",
-                    });
+                    refBabylon.value?.CreateReferenceRuler(true);
                 },
                 onUnactive() {
-                    ElMessage({
-                        type: "warning",
-                        message: "TODO: 3D视图显示标尺 off",
-                    });
+                    refBabylon.value?.CreateReferenceRuler(false);
                 },
             },
         ]);
@@ -577,15 +570,24 @@ export default defineComponent({
                         });
                         break;
                     case "save":
-                        // ElMessage({
-                        //     type: "warning",
-                        //     message: "TODO: 保存",
-                        // });
                         {
-                            const scheme = product.value as Scheme;
-                            apiProvider.requestSignedUrl(scheme.id).then((res) => {
-                                console.log("[requestSignedUrl]", res);
+                            const loading = ElLoading.service({
+                                fullscreen: true,
+                                body: true,
+                                text: "方案保存中，请稍后......",
+                                spinner: "el-icon-loading",
                             });
+                            util.saveSchemeAsync(product.value.id, scheme.value!)
+                                .then((res) => {})
+                                .finally(() => {
+                                    setTimeout(() => {
+                                        loading.close();
+                                        ElMessage({
+                                            type: "success",
+                                            message: "方案保存成功！",
+                                        });
+                                    }, 200);
+                                });
                         }
                         break;
 
