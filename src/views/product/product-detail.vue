@@ -558,16 +558,10 @@ export default defineComponent({
             onPartsMenuAction(action: ActionType) {
                 switch (action) {
                     case "manifest":
-                        ElMessage({
-                            type: "warning",
-                            message: "TODO: 清单",
-                        });
+                        refPartsMenu.value?.showManifest(product.value.id, false);
                         break;
                     case "offer":
-                        ElMessage({
-                            type: "warning",
-                            message: "TODO: 报价",
-                        });
+                        refPartsMenu.value?.showManifest(product.value.id, true);
                         break;
                     case "save":
                         {

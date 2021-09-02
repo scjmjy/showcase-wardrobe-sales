@@ -207,6 +207,18 @@ export interface OssSignature {
     dir: string;
     filename: string;
 }
+
+export interface PartOffer {
+    pname: string;
+    count: string;
+    price: string;
+}
+
+export interface SchemeOffer {
+    offer: string;
+    ptime: string;
+    details: PartOffer[];
+}
 export default interface ApiProvider {
     /**
      * 登录接口
@@ -286,4 +298,6 @@ export default interface ApiProvider {
 
     requestSignedUrl(schemeId: number | string): Promise<AjaxResponse<OssSignature>>;
     updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>>;
+
+    requestSchemeOffer(schemeId: number | string): Promise<AjaxResponse<SchemeOffer>>;
 }

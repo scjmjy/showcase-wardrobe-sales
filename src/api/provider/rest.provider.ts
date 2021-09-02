@@ -15,6 +15,7 @@ import {
     Product,
     ProductCategory,
     Scheme,
+    SchemeOffer,
 } from "../interface/provider.interface";
 import LocalProvider from "./local.provider";
 import emitter from "@/event";
@@ -492,6 +493,29 @@ export default class RestProvider extends LocalProvider {
                         status: 500,
                         show: "error",
                         msg: "获取OSS签名失败",
+                    });
+                });
+        });
+    }
+    requestSchemeOffer(schemeId: string | number): Promise<AjaxResponse<SchemeOffer>> {
+        return new Promise((resolve) => {
+            request({
+                method: "GET",
+                url: `/api/v1/biz/scheme/${schemeId}/offer`,
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取方案报价失败",
                     });
                 });
         });

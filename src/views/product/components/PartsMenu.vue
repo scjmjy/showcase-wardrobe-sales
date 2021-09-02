@@ -43,19 +43,34 @@
                 </el-tab-pane>
             </el-tabs>
         </div>
-        <!-- <div class="parts-menu__right">
+        <div v-show="opened" class="parts-menu__right">
             <div class="parts-menu__right-header">
-                <el-button class="parts-menu__right-header-back" icon="el-icon-arrow-left" type="text" @click="gotoLeft"
+                <el-button
+                    class="parts-menu__right-header-back"
+                    icon="el-icon-arrow-left"
+                    type="text"
+                    @click="slide('right')"
                     >返回</el-button
                 >
-                <span>
-                    {{ cat.name || "子分类" }}
-                </span>
+                <span class="parts-menu__right-header-title"> 明细清单 </span>
+                <el-button type="text" size="mini" icon="el-icon-printer">打印清单</el-button>
             </div>
-            <div class="parts-menu__right-material"></div>
-            <div class="parts-menu__right-color"></div>
-            <div class="parts-menu__right-items"></div>
-        </div>-->
+            <div v-if="offerManifest" class="parts-menu__right-manifest">
+                <manifest-item
+                    v-for="(item, index) of offerManifest.details"
+                    :key="index"
+                    url=""
+                    :name="item.pname"
+                    :price="item.price"
+                ></manifest-item>
+            </div>
+            <div class="parts-menu__right-price">
+                <span class="price__label">合计：</span>
+                <span class="price__symbol"> ￥ </span>
+                <span class="price__offer">{{ offerPrice.integer }}</span>
+                <span class="price__symbol">.{{ offerPrice.decimal }} </span>
+            </div>
+        </div>
         <i
             class="parts-menu__trigger"
             :class="{
@@ -77,6 +92,7 @@ import {
     PartCategory,
     PartCategoryMeta,
     ProductCategory,
+    SchemeOffer,
 } from "@/api/interface/provider.interface";
 import { computed, defineComponent, PropType, provide, ref, watch } from "vue";
 import { useStore } from "vuex";
@@ -88,6 +104,8 @@ import { StateType } from "@/store";
 import PartBgTab from "./PartBgTab.vue";
 import CatsList from "./CatsList.vue";
 import type { ImgCardItemType } from "./ImgCardItem.vue";
+import ManifestItem from "./ManifestItem.vue";
+import { splitPrice } from "@/utils/currency";
 
 interface TabType {
     component: string;
@@ -120,6 +138,7 @@ export default defineComponent({
         CatTab,
         PartBgTab,
         CatsList,
+        ManifestItem,
         // PartCatCard,
     },
     emits: ["update:opened", "part", "action", "bg"],
@@ -129,6 +148,7 @@ export default defineComponent({
         const cats = ref<PartCategory[]>([]);
         const catMeta = ref<PartCategoryMeta>();
         const selectedTabName = ref("bg");
+        const offerManifest = ref<SchemeOffer>();
         apiProvider.requestPartCategories().then((res) => {
             if (res.ok) {
                 cats.value = res.data || [];
@@ -153,10 +173,10 @@ export default defineComponent({
             () => activeCats.value,
             (cats) => {
                 tabStack.value.length = 0;
-                if (topLevelTabs.value.length >= 2) {
-                    selectedTabName.value = topLevelTabs.value[1].name;
+                if (props.type === "in") {
+                    selectedTabName.value = topLevelTabs.value[0].name;
                 } else {
-                    selectedTabName.value = "bg";
+                    selectedTabName.value = topLevelTabs.value[1].name;
                 }
             },
         );
@@ -249,6 +269,13 @@ export default defineComponent({
 
         provide("selectedPartId", selectedPartId);
 
+        function slide(direction: "left" | "right") {
+            refDiv.value?.scrollTo({
+                behavior: "smooth",
+                left: direction === "left" ? 428 : 0,
+            });
+        }
+
         return {
             typeText,
             cats,
@@ -259,12 +286,8 @@ export default defineComponent({
             catMeta,
             refDiv,
             selectedTabName,
-            gotoLeft() {
-                refDiv.value?.scrollBy({
-                    behavior: "smooth",
-                    left: -328,
-                });
-            },
+            offerManifest,
+            slide,
             onCatChange(tab: any) {
                 console.log("tab", tab.instance);
 
@@ -300,6 +323,24 @@ export default defineComponent({
                 selectedPartId.value = 0;
                 selectedCatId.value = 0;
             },
+            showManifest(shcemeId: number | string, offer: boolean) {
+                apiProvider.requestSchemeOffer(shcemeId).then((res) => {
+                    if (res.ok && res.data) {
+                        offerManifest.value = res.data;
+                        slide("left");
+                    }
+                });
+            },
+            offerPrice: computed(() => {
+                if (!offerManifest.value) {
+                    return {
+                        integer: "",
+                        decimal: "",
+                    };
+                } else {
+                    return splitPrice(+offerManifest.value.offer);
+                }
+            }),
         };
     },
 });
@@ -314,8 +355,9 @@ $header-height: 56px;
     box-shadow: 0px 10px 18px rgba(0, 0, 0, 0.07);
     background-color: var(--el-color-bg);
     width: $menu-width;
-    max-width: $menu-width;
+    // max-width: $menu-width;
     overflow: hidden;
+    white-space: nowrap;
 
     :deep(.el-tabs__content) {
         height: 100%;
@@ -371,34 +413,54 @@ $header-height: 56px;
         border-bottom: 2px solid gray;
         line-height: 30px;
     }
-    // &__right {
-    //     display: inline-flex;
-    //     flex-direction: column;
-    //     overflow: hidden;
-    //     width: $menu-width;
-    //     height: 100%;
-    //     &-header {
-    //         display: flex;
-    //         align-items: flex-end;
-    //         padding-left: 10px;
-    //         padding-bottom: 10px;
-    //         height: $header-height;
-    //         color: var(--el-color-black);
-    //         font-size: 26px;
-    //         font-weight: bold;
-    //         box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
-
-    //         &-back {
-    //             padding: 0px;
-    //             line-height: normal;
-    //             min-height: unset;
-    //             margin-right: 45px;
-    //         }
-    //     }
-    //     &-items {
-    //         flex: 1;
-    //     }
-    // }
+    &__right {
+        display: inline-flex;
+        flex-direction: column;
+        overflow: hidden;
+        width: $menu-width;
+        height: 100%;
+        &-header {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0px 10px;
+            height: $header-height;
+            box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
+            &-title {
+                color: var(--el-color-black);
+                font-size: 26px;
+                font-weight: bold;
+                flex: 1;
+                text-align: center;
+            }
+            &-back {
+                padding: 0px;
+                line-height: normal;
+                min-height: unset;
+            }
+        }
+        &-manifest {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 30px;
+        }
+        &-price {
+            padding: 30px;
+            text-align: right;
+            font-weight: bold;
+            .price__label {
+                font-size: 26px;
+            }
+            .price__symbol {
+                color: #bb4050;
+                font-size: 19px;
+            }
+            .price__offer {
+                color: #bb4050;
+                font-size: 41px;
+            }
+        }
+    }
     &__trigger {
         z-index: 10;
         position: absolute;
