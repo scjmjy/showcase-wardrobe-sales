@@ -633,6 +633,10 @@ export default defineComponent({
             this.wall.material = wall_material;
             this.wall.isPickable = false;
         },
+
+        CreateReferenceRuler( showRuler: Boolean ): void {
+            this.gui.showRuler( this.graphics, this.bizdata as BizData, showRuler )
+        },
     },
 });
 </script>
