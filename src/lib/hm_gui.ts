@@ -128,21 +128,45 @@ export class PopupGUI {
         lengthText.isVisible = true;
 
         if( title.startsWith("height") ){
+            if(this.rulerHeightTop)
+                this.rulerHeightTop.dispose();
             this.rulerHeightTop = frameRulerTop;
+            if(this.rulerHeightMiddle)
+                this.rulerHeightMiddle.dispose();
             this.rulerHeightMiddle = frameRulerMiddle;
+            if(this.rulerHeightDown)
+                this.rulerHeightDown.dispose();
             this.rulerHeightDown = frameRulerDown;
+            if(this._rulerTextHeight)
+                this._rulerTextHeight.dispose();
             this._rulerTextHeight = lengthText;
         }
         if( title.startsWith("width") ){
+            if(this.rulerWidthTop)
+                this.rulerWidthTop.dispose();
             this.rulerWidthTop = frameRulerTop;
+            if(this.rulerWidthMiddle)
+                this.rulerWidthMiddle.dispose();
             this.rulerWidthMiddle = frameRulerMiddle;
+            if(this.rulerWidthDown)
+                this.rulerWidthDown.dispose();
             this.rulerWidthDown = frameRulerDown;
+            if(this._rulerTextWidth)
+                this._rulerTextWidth.dispose();
             this._rulerTextWidth = lengthText;
         }
         if( title.startsWith("depth") ){
+            if(this.rulerDepthTop)
+                this.rulerDepthTop.dispose();
             this.rulerDepthTop = frameRulerTop;
+            if(this.rulerDepthMiddle)
+                this.rulerDepthMiddle.dispose();
             this.rulerDepthMiddle = frameRulerMiddle;
+            if(this.rulerDepthDown)
+                this.rulerDepthDown.dispose();
             this.rulerDepthDown = frameRulerDown;
+            if(this._rulerTextDepth)
+                this._rulerTextDepth.dispose();
             this._rulerTextDepth = lengthText;
         }
 
@@ -196,7 +220,6 @@ export class PopupGUI {
     }
 
     public showRuler(graphics: Graphics, bizdata: BizData, isDisplay: Boolean) {
-        debugger
         if (!isDisplay) {
             if (this._rulerTextDepth)
                 this._rulerTextDepth.dispose();
