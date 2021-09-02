@@ -47,14 +47,16 @@
                 >返回</el-button
             >
             <!-- TODO: remove the test codes -->
-            <!-- <div class="product-detail__action-test state-icon-group-h">
+            <div class="product-detail__action-test state-icon-group-h">
                 <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
                 <state-icon icon="offer" label="合页门" @change="onAddDoorClick('left')"></state-icon>
                 <state-icon icon="offer" label="滑门" @change="onAddDoorClick('slide')"></state-icon>
                 <state-icon icon="offer" label="清除门" @change="onDeleteClick('door')"></state-icon>
                 <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick()"></state-icon>
                 <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick()"></state-icon>
-            </div> -->
+                <state-icon icon="offer" label="显示标尺" @change="onShowRulerClick()"></state-icon>
+                <state-icon icon="offer" label="隐藏标尺" @change="onHideRulerClick()"></state-icon>
+            </div>
             <div class="product-detail__action-left state-icon-group-h">
                 <!-- <state-icon
                     v-model="stateSelect"
@@ -421,6 +423,12 @@ export default defineComponent({
             else selectedWallId.value = 100001;
             refBabylon.value?.changeWallApi(selectedWallId.value);
         }
+        function onShowRulerClick(wall?: ImgCardItemType) {
+            refBabylon.value?.CreateReferenceRuler(true);
+        }
+        function onHideRulerClick(wall?: ImgCardItemType) {
+            refBabylon.value?.CreateReferenceRuler(false);
+        }
         function onUpdateFloorClick(floor?: ImgCardItemType) {
             if (floor) {
                 const key = floor.value.toString();
@@ -460,6 +468,8 @@ export default defineComponent({
             onAddDoorClick,
             onUpdateWallClick,
             onUpdateFloorClick,
+            onShowRulerClick,
+            onHideRulerClick,
             state3D,
             stateRuler,
             stateSelect,
