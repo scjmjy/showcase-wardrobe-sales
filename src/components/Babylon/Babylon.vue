@@ -133,8 +133,8 @@ export default defineComponent({
             wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
             const temp = this.bizdata.partManifestMap.get(newPartId.toString());
             const texture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
-            texture.uScale = 20;
-            texture.vScale = 20;
+            texture.uScale = 1;
+            texture.vScale = 1;
             wall_material.diffuseTexture = texture;
             this.wall.material = wall_material;
         },

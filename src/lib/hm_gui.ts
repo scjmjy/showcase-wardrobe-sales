@@ -110,7 +110,7 @@ export class PopupGUI {
         var lengthText = new GUI.TextBlock();
         lengthText.height = '22px';
         lengthText.color = '#000000FF';
-        lengthText.fontSize = 14;
+        lengthText.fontSize = 18;
         lengthText.text =  length + ' mm';
         lengthText.shadowBlur = 1;
         lengthText.shadowOffsetX = 1;
@@ -124,7 +124,9 @@ export class PopupGUI {
  
         this._popupUI.addControl(lengthText);
         lengthText.linkWithMesh(frameRulerMiddle);
-        lengthText.linkOffsetYInPixels = -10;
+        lengthText.linkOffsetYInPixels = -20;
+        if( !title.startsWith("width") )
+            lengthText.linkOffsetXInPixels = 45;
         lengthText.isVisible = true;
 
         if( title.startsWith("height") ){

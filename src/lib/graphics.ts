@@ -84,6 +84,7 @@ export class Graphics {
         this._light = new BABYLON.DirectionalLight("MainLight", new BABYLON.Vector3(0.5, -1.2, -1.4), this.scene);
         this._light.position = new BABYLON.Vector3(-2300, 50, 2500);
         this._light.diffuse = new BABYLON.Color3(1.0, 1.0, 1.0);
+        this._light.specular = new BABYLON.Color3(0.0, 0.0, 0.0);
         this._light.intensity = 5.75;
 
         // Setup shadow
