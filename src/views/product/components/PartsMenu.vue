@@ -24,6 +24,7 @@
                 </el-tab-pane>
             </el-tabs> -->
             <el-tabs
+                v-show="!slideLeft"
                 v-model="selectedTabName"
                 class="parts-menu__left-cats"
                 tab-position="left"
@@ -43,7 +44,7 @@
                 </el-tab-pane>
             </el-tabs>
         </div>
-        <div v-show="opened" class="parts-menu__right">
+        <div v-show="opened" class="parts-menu__right" :class="{ 'slide-to-left': slideLeft }">
             <div class="parts-menu__right-header">
                 <el-button
                     class="parts-menu__right-header-back"
@@ -59,12 +60,12 @@
                 <manifest-item
                     v-for="(item, index) of offerManifest.details"
                     :key="index"
-                    url=""
+                    :url="item.pic"
                     :name="item.pname"
                     :price="item.price"
                 ></manifest-item>
             </div>
-            <div class="parts-menu__right-price">
+            <div v-if="offerManifest" class="parts-menu__right-price">
                 <span class="price__label">合计：</span>
                 <span class="price__symbol"> ￥ </span>
                 <span class="price__offer">{{ offerPrice.integer }}</span>
@@ -147,8 +148,9 @@ export default defineComponent({
         const refDiv = ref<HTMLDivElement>();
         const cats = ref<PartCategory[]>([]);
         const catMeta = ref<PartCategoryMeta>();
-        const selectedTabName = ref("bg");
+        const selectedTabName = ref<string>();
         const offerManifest = ref<SchemeOffer>();
+        const slideLeft = ref(false);
         apiProvider.requestPartCategories().then((res) => {
             if (res.ok) {
                 cats.value = res.data || [];
@@ -270,10 +272,12 @@ export default defineComponent({
         provide("selectedPartId", selectedPartId);
 
         function slide(direction: "left" | "right") {
-            refDiv.value?.scrollTo({
-                behavior: "smooth",
-                left: direction === "left" ? 428 : 0,
-            });
+            // refDiv.value?.scrollTo({
+            //     behavior: "smooth",
+            //     top: 0,
+            //     left: direction === "left" ? 428 : 0,
+            // });
+            slideLeft.value = direction === "left" ? true : false;
         }
 
         return {
@@ -287,6 +291,7 @@ export default defineComponent({
             refDiv,
             selectedTabName,
             offerManifest,
+            slideLeft,
             slide,
             onCatChange(tab: any) {
                 console.log("tab", tab.instance);
@@ -324,10 +329,10 @@ export default defineComponent({
                 selectedCatId.value = 0;
             },
             showManifest(shcemeId: number | string, offer: boolean) {
+                slide("left");
                 apiProvider.requestSchemeOffer(shcemeId).then((res) => {
                     if (res.ok && res.data) {
                         offerManifest.value = res.data;
-                        slide("left");
                     }
                 });
             },
@@ -419,6 +424,12 @@ $header-height: 56px;
         overflow: hidden;
         width: $menu-width;
         height: 100%;
+        transition: transform 0.3s ease;
+        background-color: white;
+        z-index: 100;
+        &.slide-to-left {
+            transform: translateX(-428px);
+        }
         &-header {
             display: flex;
             justify-content: space-around;

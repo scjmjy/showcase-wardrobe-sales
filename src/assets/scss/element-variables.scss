@@ -9,5 +9,8 @@
 // $--radio-input-height: 28px;
 
 /* icon font path, required */
-$--font-path: "~element-plus/lib/theme-chalk/fonts";
-@import "~element-plus/packages/theme-chalk/src/index";
+$--font-path: "~element-plus/theme-chalk/fonts";
+@import "~element-plus/theme-chalk/src/index.scss";
+
+// $--font-path: "~element-plus/lib/theme-chalk/fonts";
+// @import "~element-plus/packages/theme-chalk/src/index";

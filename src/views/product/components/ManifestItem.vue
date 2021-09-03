@@ -18,18 +18,16 @@
 
 <script lang="ts">
 import { computed } from "vue";
-import { defineComponent, PropType } from "vue";
-
-export interface ImgCardItemType {
-    label: string;
-    value: string | number;
-    url: string;
-}
+import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: "ImgCardItem",
+    name: "ManifestItem",
     props: {
         name: {
+            type: String,
+            default: "",
+        },
+        url: {
             type: String,
             default: "",
         },

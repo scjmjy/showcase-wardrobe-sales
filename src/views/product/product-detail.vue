@@ -30,7 +30,9 @@
             <div v-if="mode === 'view'" class="product-detail__info">
                 <div class="product-detail__info-name">{{ titles.title + titles.subTitle }}</div>
                 <!-- <div v-if="!isNew" class="product-detail__info-offer">{{ '￥26955.00' }}</div> -->
-                <div v-if="!isNew && product.offer" class="product-detail__info-offer">{{ "￥" + product.offer }}</div>
+                <div v-if="!isNew && product.offer" class="product-detail__info-offer">
+                    {{ "￥" + product.offer.toFixed(2) }}
+                </div>
                 <div class="product-detail__info-action">
                     <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
                         >开始定制</el-button

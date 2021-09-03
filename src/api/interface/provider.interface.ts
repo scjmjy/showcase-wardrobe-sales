@@ -212,6 +212,7 @@ export interface PartOffer {
     pname: string;
     count: string;
     price: string;
+    pic: string;
 }
 
 export interface SchemeOffer {
