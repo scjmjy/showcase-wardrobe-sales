@@ -3,6 +3,7 @@ import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
 import { BizData, CubeData, ObjectType } from "@/lib/biz.data";
+import { Vector3 } from "babylonjs/Maths/math.vector";
 
 
 export class PopupGUI {
@@ -10,6 +11,18 @@ export class PopupGUI {
     private _popupPanel!: GUI.Container;
     private _deletePanel: BABYLON.Nullable<GUI.Rectangle> = null;
     private _deleteButton!: GUI.Button;
+    private rulerHeightTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private rulerWidthTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private rulerDepthTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private rulerHeightMiddle: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private rulerWidthMiddle: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private rulerDepthMiddle: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private rulerHeightDown: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private rulerWidthDown: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private rulerDepthDown: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private _rulerTextHeight!: GUI.TextBlock;
+    private _rulerTextDepth!: GUI.TextBlock;
+    private _rulerTextWidth!: GUI.TextBlock;
 
     private displayPanel(graphics: Graphics, bizdata: BizData, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>): void {
         //  hide GUI when click empty area
@@ -65,7 +78,193 @@ export class PopupGUI {
         this._deletePanel.linkWithMesh(mesh);
     }
 
+    private drawRuler(graphics: Graphics, length: number, center: Vector3, direction: Vector3, title = ''): void {
+        var distance = 25;
+        var heightValue = 1 * 25.4;
+        const halfHeightValue = heightValue * 0.5;
+        var widthValue = 0.2 * 25.4;
+        var endPointLength = 0.5 * 25.4;
+
+        var frameRulerTop = BABYLON.MeshBuilder.CreateCylinder(
+            'cylinder_up',
+            { diameterTop: 0, height: heightValue, diameterBottom: endPointLength, tessellation: 16 },
+            graphics.scene
+        );
+        var frameRulerMiddle = BABYLON.MeshBuilder.CreateCylinder(
+            'cylinder_Middle',
+            { diameterTop: widthValue, height: length, diameterBottom: widthValue, tessellation: 16 },
+            graphics.scene
+        );
+        var frameRulerDown = BABYLON.MeshBuilder.CreateCylinder(
+            'cylinder_down',
+            { diameterTop: endPointLength, height: heightValue, diameterBottom: 0, tessellation: 16 },
+            graphics.scene
+        );
+        frameRulerMiddle.isPickable = false
+
+        frameRulerTop.position = center.clone();
+        frameRulerMiddle.position = center.clone();
+        frameRulerDown.position = center.clone();
+   
+        // length of the ruler on upside
+        var lengthText = new GUI.TextBlock();
+        lengthText.height = '22px';
+        lengthText.color = '#000000FF';
+        lengthText.fontSize = 18;
+        lengthText.text =  length + ' mm';
+        lengthText.shadowBlur = 1;
+        lengthText.shadowOffsetX = 1;
+        lengthText.shadowOffsetY = 1;
+        lengthText.shadowColor = '#c4d3e2';
+        // lengthText.outlineWidth = 1
+        // lengthText.outlineColor = 'white'
+        if (this._popupUI == null) {
+            this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI('popupGUI', true, graphics.scene);
+        }
+ 
+        this._popupUI.addControl(lengthText);
+        lengthText.linkWithMesh(frameRulerMiddle);
+        lengthText.linkOffsetYInPixels = -20;
+        if( !title.startsWith("width") )
+            lengthText.linkOffsetXInPixels = 45;
+        lengthText.isVisible = true;
+
+        if( title.startsWith("height") ){
+            if(this.rulerHeightTop)
+                this.rulerHeightTop.dispose();
+            this.rulerHeightTop = frameRulerTop;
+            if(this.rulerHeightMiddle)
+                this.rulerHeightMiddle.dispose();
+            this.rulerHeightMiddle = frameRulerMiddle;
+            if(this.rulerHeightDown)
+                this.rulerHeightDown.dispose();
+            this.rulerHeightDown = frameRulerDown;
+            if(this._rulerTextHeight)
+                this._rulerTextHeight.dispose();
+            this._rulerTextHeight = lengthText;
+        }
+        if( title.startsWith("width") ){
+            if(this.rulerWidthTop)
+                this.rulerWidthTop.dispose();
+            this.rulerWidthTop = frameRulerTop;
+            if(this.rulerWidthMiddle)
+                this.rulerWidthMiddle.dispose();
+            this.rulerWidthMiddle = frameRulerMiddle;
+            if(this.rulerWidthDown)
+                this.rulerWidthDown.dispose();
+            this.rulerWidthDown = frameRulerDown;
+            if(this._rulerTextWidth)
+                this._rulerTextWidth.dispose();
+            this._rulerTextWidth = lengthText;
+        }
+        if( title.startsWith("depth") ){
+            if(this.rulerDepthTop)
+                this.rulerDepthTop.dispose();
+            this.rulerDepthTop = frameRulerTop;
+            if(this.rulerDepthMiddle)
+                this.rulerDepthMiddle.dispose();
+            this.rulerDepthMiddle = frameRulerMiddle;
+            if(this.rulerDepthDown)
+                this.rulerDepthDown.dispose();
+            this.rulerDepthDown = frameRulerDown;
+            if(this._rulerTextDepth)
+                this._rulerTextDepth.dispose();
+            this._rulerTextDepth = lengthText;
+        }
+
+        if (direction.x === 1) {
+            frameRulerTop.rotation.z = -Math.PI / 2;
+            frameRulerMiddle.rotation.z = -Math.PI / 2;
+            frameRulerDown.rotation.z = -Math.PI / 2;
+
+            frameRulerTop.position.y > 10 ? (frameRulerTop.position.y += distance) : (frameRulerTop.position.y -= distance);
+            frameRulerMiddle.position.y > 10 ? (frameRulerMiddle.position.y += distance) : (frameRulerMiddle.position.y -= distance);
+            frameRulerDown.position.y > 10 ? (frameRulerDown.position.y += distance) : (frameRulerDown.position.y -= distance);
+
+            frameRulerTop.position.x += length / 2 - halfHeightValue;
+            frameRulerDown.position.x += -length / 2 + halfHeightValue;
+
+            frameRulerTop.position.z += distance;
+            frameRulerMiddle.position.z += distance;
+            frameRulerDown.position.z += distance;
+
+        }
+        if (direction.y === 1) {
+            frameRulerTop.position.y += length / 2 - halfHeightValue;
+            frameRulerDown.position.y += -length / 2 + halfHeightValue;
+
+            frameRulerTop.position.x > 0 ? (frameRulerTop.position.x += distance) : (frameRulerTop.position.x -= distance);
+            frameRulerMiddle.position.x > 0 ? (frameRulerMiddle.position.x += distance) : (frameRulerMiddle.position.x -= distance);
+            frameRulerDown.position.x > 0 ? (frameRulerDown.position.x += distance) : (frameRulerDown.position.x -= distance);
+
+            frameRulerTop.position.z += distance;
+            frameRulerMiddle.position.z += distance;
+            frameRulerDown.position.z += distance;
+        }
+        if (direction.z === 1) {
+            frameRulerTop.rotation.x = -Math.PI / 2;
+            frameRulerMiddle.rotation.x = -Math.PI / 2;
+            frameRulerDown.rotation.x = -Math.PI / 2;
+
+            frameRulerTop.position.z += -length / 2 + halfHeightValue;
+            frameRulerDown.position.z += length / 2 - halfHeightValue;
+        }
+        var frameRulerMat = new BABYLON.StandardMaterial('frameRulerMat', graphics.scene);
+        frameRulerMat.emissiveColor = new BABYLON.Color3(0.0, 0.0, 0.0);
+        frameRulerMat.disableLighting = true;
+        frameRulerTop.material = frameRulerMat;
+        frameRulerMiddle.material = frameRulerMat;
+        frameRulerDown.material = frameRulerMat;
+    }
+
     public display(graphics: Graphics, bizdata: BizData, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
         this.displayPanel(graphics, bizdata, pickedMesh);
+    }
+
+    public showRuler(graphics: Graphics, bizdata: BizData, isDisplay: Boolean) {
+        if (!isDisplay) {
+            if (this._rulerTextDepth)
+                this._rulerTextDepth.dispose();
+            if (this._rulerTextHeight)
+                this._rulerTextHeight.dispose();
+            if (this._rulerTextWidth)
+                this._rulerTextWidth.dispose();
+            if (this.rulerHeightTop)
+                this.rulerHeightTop.dispose();
+            if (this.rulerDepthTop)
+                this.rulerDepthTop.dispose();
+            if (this.rulerWidthTop)
+                this.rulerWidthTop.dispose();
+            if (this.rulerHeightDown)
+                this.rulerHeightDown.dispose();
+            if (this.rulerDepthDown)
+                this.rulerDepthDown.dispose();
+            if (this.rulerWidthDown)
+                this.rulerWidthDown.dispose();                  
+            if (this.rulerHeightMiddle)
+                this.rulerHeightMiddle.dispose();
+            if (this.rulerDepthMiddle)
+                this.rulerDepthMiddle.dispose();
+            if (this.rulerWidthMiddle)
+                this.rulerWidthMiddle.dispose();  
+            return;
+          }
+
+        this.drawRuler(
+            graphics,
+            bizdata.totalHeight,
+            new BABYLON.Vector3(-bizdata.totalWidth / 2, bizdata.totalHeight / 2, bizdata.totalDepth / 2),
+            new BABYLON.Vector3(0, 1, 0),
+            "height " );
+        this.drawRuler(graphics,
+            bizdata.totalWidth,
+            new BABYLON.Vector3(0, bizdata.totalHeight, bizdata.totalDepth / 2),
+            new BABYLON.Vector3(1, 0, 0),
+            "width " );
+        this.drawRuler(graphics,
+            bizdata.totalDepth,
+            new BABYLON.Vector3(-bizdata.totalWidth / 2 - 25, 10, 0),
+            new BABYLON.Vector3(0, 0, 1),
+            "depth " );
     }
 }

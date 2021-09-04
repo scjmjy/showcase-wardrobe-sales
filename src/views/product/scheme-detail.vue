@@ -2,7 +2,7 @@
     <div class="product-detail">
         <!-- <app-header type="dark" customer :stop="false" back="退出编辑" /> -->
         <div class="product-detail__title">
-            <el-button class="product-detail__title-backBtn" icon="el-icon-back" circle  @click="gotoBack"></el-button>
+            <el-button class="product-detail__title-backBtn" icon="el-icon-back" circle @click="gotoBack"></el-button>
             <el-button class="product-detail__title-backText" type="text" @click="gotoBack">返回</el-button>
         </div>
         <!-- <Babylon class="product-detail__3d" /> -->

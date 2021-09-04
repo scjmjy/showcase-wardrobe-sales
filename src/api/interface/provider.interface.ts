@@ -199,6 +199,27 @@ export interface Background {
     pic: string;
 }
 
+export interface OssSignature {
+    accessid: string;
+    policy: string;
+    signature: string;
+    host: string;
+    dir: string;
+    filename: string;
+}
+
+export interface PartOffer {
+    pname: string;
+    count: string;
+    price: string;
+    pic: string;
+}
+
+export interface SchemeOffer {
+    offer: string;
+    ptime: string;
+    details: PartOffer[];
+}
 export default interface ApiProvider {
     /**
      * 登录接口
@@ -275,4 +296,9 @@ export default interface ApiProvider {
     ): Promise<AjaxResponse<Part[]>>;
 
     requestBackgrounds(btype: BackgroundType, page: number, pageSize: number): Promise<AjaxResponse<Background[]>>;
+
+    requestSignedUrl(schemeId: number | string): Promise<AjaxResponse<OssSignature>>;
+    updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>>;
+
+    requestSchemeOffer(schemeId: number | string): Promise<AjaxResponse<SchemeOffer>>;
 }

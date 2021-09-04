@@ -7,12 +7,14 @@ import ApiProvider, {
     Customer,
     GlobalCfg,
     LoginResult,
+    OssSignature,
     Part,
     PartCategory,
     PartCategoryMeta,
     Product,
     ProductCategory,
     Scheme,
+    SchemeOffer,
 } from "../interface/provider.interface";
 
 export default class LocalProvider implements ApiProvider {
@@ -361,6 +363,15 @@ export default class LocalProvider implements ApiProvider {
         throw new Error("Method not implemented.");
     }
     requestBackgrounds(btype: BackgroundType, page: number, pageSize: number): Promise<AjaxResponse<Background[]>> {
+        throw new Error("Method not implemented.");
+    }
+    requestSignedUrl(schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
+        throw new Error("Method not implemented.");
+    }
+    updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>> {
+        throw new Error("Method not implemented.");
+    }
+    requestSchemeOffer(schemeId: string | number): Promise<AjaxResponse<SchemeOffer>> {
         throw new Error("Method not implemented.");
     }
 }

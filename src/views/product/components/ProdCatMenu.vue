@@ -2,10 +2,10 @@
     <el-menu ref="elMenu" v-bind="$attrs" class="prod-cat-menu" :default-active="defaultActive">
         <!-- :default-openeds="defaultOpeneds" -->
         <template v-for="cat of productCats" :key="cat.id">
-            <el-submenu v-if="cat.children && cat.children.length" :index="cat.id + ''" :class="'el-submenu-' + level">
+            <el-sub-menu v-if="cat.children && cat.children.length" :index="cat.id + ''" :class="'el-submenu-' + level">
                 <template #title>{{ cat.name }}</template>
                 <menu-item :category="cat" :level="level + 1" />
-            </el-submenu>
+            </el-sub-menu>
             <el-menu-item v-else :index="cat.id + ''" :class="'el-menu-item-' + level">
                 <template #title>{{ cat.name }}</template>
             </el-menu-item>
@@ -163,7 +163,7 @@ export default defineComponent({
 
 <style lang="scss">
 .prod-cat-menu {
-    .el-submenu__title {
+    .el-sub-menu__title {
         i {
             color: var(--el-color-primary);
             font-weight: bold;
@@ -171,13 +171,13 @@ export default defineComponent({
         }
     }
     .el-submenu-1 {
-        .el-submenu__title {
+        .el-sub-menu__title {
             color: black;
             font-weight: bold;
         }
     }
     .el-submenu-2 {
-        .el-submenu__title {
+        .el-sub-menu__title {
             color: var(--el-color-primary);
             font-weight: bold;
             font-size: 22px;

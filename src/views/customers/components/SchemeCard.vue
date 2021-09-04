@@ -44,7 +44,7 @@ export default defineComponent({
         const noOffer = computed(() => !Number(props.scheme.offer));
         return {
             noOffer,
-            offerText: computed(() => (noOffer.value ? "待报价" : `￥${props.scheme.offer}`)),
+            offerText: computed(() => (noOffer.value ? "待报价" : `￥${(+props.scheme.offer).toFixed(2)}`)),
             onBtnClick() {
                 context.emit("detail", props.scheme);
             },

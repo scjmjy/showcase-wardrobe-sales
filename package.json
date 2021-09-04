@@ -22,7 +22,7 @@
     "core-js": "^3.6.5",
     "dayjs": "^1.10.6",
     "earcut": "^2.2.2",
-    "element-plus": "^1.0.2-beta.70",
+    "element-plus": "^1.1.0-beta.8",
     "eventemitter2": "^6.4.4",
     "geometric": "^2.2.6",
     "js-cookie": "^3.0.0",
@@ -31,10 +31,11 @@
     "localforage": "^1.9.0",
     "md5": "^2.3.0",
     "mitt": "^3.0.0",
+    "skeleton-elements": "^3.5.0",
     "turf": "^3.0.14",
     "turf-linestring": "^1.0.2",
     "uuid": "^8.3.2",
-    "vue": "3.1.5",
+    "vue": "3.2.5",
     "vue-router": "^4.0.10",
     "vuex": "^4.0.2"
   },
@@ -48,7 +49,7 @@
     "@vue/cli-plugin-typescript": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
-    "@vue/compiler-sfc": "^3.0.0",
+    "@vue/compiler-sfc": "^3.2.8",
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^7.0.0",
     "eslint": "^6.7.2",
@@ -59,5 +60,8 @@
     "sass-loader": "^8.0.2",
     "svg-sprite-loader": "^6.0.9",
     "typescript": "~4.1.5"
+  },
+  "peerDependencies": {
+    "skeleton-elements": "^3.5.0"
   }
 }

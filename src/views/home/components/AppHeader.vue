@@ -9,13 +9,12 @@
             @click="doBack"
             >{{ back }}</el-button
         >
-        <div class="app-header__middle">
+        <div v-if="!back" class="app-header__middle">
             <template v-if="customer && currentCustomer.customerId">
                 <i class="app-header__icon iconfont icon-customer" />
                 <span class="app-header__serving"
                     >正在为 <strong>{{ currentCustomer.customerName }}</strong> 服务</span
                 >
-                <!-- <el-tag class="app-header__stop" type="error" color="#BB4050">结束服务</el-tag> -->
                 <el-button v-if="stop" class="app-header__stop" type="danger" size="small" round @click="stopServe"
                     >结束服务</el-button
                 >

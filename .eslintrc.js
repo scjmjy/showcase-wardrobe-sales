@@ -24,5 +24,6 @@ module.exports = {
         "@typescript-eslint/no-unused-vars": ["off"], // 
         "@typescript-eslint/ban-ts-comment": ["off"],
         "@typescript-eslint/explicit-module-boundary-types": ["off"], // Argument should be typed with a non-any type
+        "@typescript-eslint/no-non-null-assertion": ["off"]
     },
 };

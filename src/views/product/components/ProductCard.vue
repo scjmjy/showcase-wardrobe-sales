@@ -1,13 +1,23 @@
 <template>
     <div class="product-card u-clickable" @click="$emit('detail', productName)">
-        <el-image class="product-card__img" :src="cover" fit="cover"></el-image>
-        <div class="product-card__name">{{ productName }}</div>
+        <el-image class="product-card__img" :src="cover" fit="cover" @load="onImgLoad">
+            <!-- <template #placeholder>
+                <div class="image-slot">
+                    <div class="image-slot__item-1"></div>
+                    <div class="image-slot__item-2"></div>
+                    <div class="image-slot__item-3"></div>
+                </div>
+            </template> -->
+        </el-image>
+        <div v-if="showBottom" class="product-card__bottom">
+            <div class="product-card__name">{{ productName }}</div>
+        </div>
         <!-- <el-button class="product-card__btn" type="primary" size="small" round @click="onBtnClick">开始定制</el-button> -->
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 export default defineComponent({
     props: {
@@ -22,7 +32,12 @@ export default defineComponent({
     },
     emits: ["detail"],
     setup(props, context) {
+        const showBottom = ref(false);
         return {
+            showBottom,
+            onImgLoad() {
+                showBottom.value = true;
+            },
             // onBtnClick() {
             //     context.emit("detail", props.productName);
             // },
@@ -48,10 +63,16 @@ export default defineComponent({
         width: 450px;
         height: 450px;
     }
-    &__name {
+
+    &__bottom {
         position: absolute;
-        left: 14px;
-        top: 400px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        padding: 20px 0px;
+        background-color: rgba(128, 128, 128, 0.6);
+    }
+    &__name {
         font-size: 22px;
         color: white;
         text-shadow: 0 0 10px var(--el-color-primary);
@@ -61,4 +82,32 @@ export default defineComponent({
         width: 135px;
     }
 }
+
+// .image-slot {
+//     display: inline-flex;
+//     flex-direction: column;
+//     justify-content: space-around;
+//     width: 100%;
+//     height: 100%;
+
+//     &__item-1 {
+//         width: 80%;
+//         height: 20px;
+//         background-color: rgba(128, 128, 128, 0.692);
+//     }
+
+//     &__item-2 {
+//         width: 60%;
+//         height: 20px;
+//         background-color: rgba(128, 128, 128, 0.692);
+//     }
+
+//     &__item-3 {
+//         width: 70%;
+//         height: 20px;
+//         background-color: rgba(128, 128, 128, 0.692);
+//     }
+// }
 </style>
+
+<style lang="scss"></style>

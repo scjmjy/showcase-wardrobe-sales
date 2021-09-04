@@ -6,7 +6,7 @@ import emitter from "@/event";
 
 const state = {
     user: User.load(),
-    currentCustomer: new Customer(),
+    currentCustomer: Customer.load(),
     pageChannel: {
         productDetailData: undefined as undefined | Product | Scheme,
     },
@@ -35,6 +35,7 @@ export default createStore({
             } else {
                 state.currentCustomer = new Customer();
             }
+            state.currentCustomer.save();
         },
         "SET-USER"(state, payload: LoginResult) {
             if (payload) {

@@ -2,7 +2,7 @@
     <div
         v-if="product"
         class="product-detail"
-        :class="{ 'slide-left-3d': showMenu && mode !== 'view', 'menu-opened': showMenu }"
+        :class="{ 'slide-left-3d': showMenu || mode === 'view', 'menu-opened': showMenu }"
     >
         <transition name="el-zoom-in-top">
             <app-header
@@ -25,22 +25,30 @@
             :eventEmit="eventHandle"
             :mode="mode3D"
         />
-        <!-- <img class="product-detail__3d" src="@/assets/img/demo/demo-wardrobe.png" /> -->
-        <div v-if="mode === 'view'" class="product-detail__info">
-            <!-- <div class="product-detail__info-name">{{ product.name }}</div> -->
-            <!-- <div v-if="!isNew" class="product-detail__info-offer">{{ '￥26955.00' }}</div> -->
-            <div v-if="!isNew && product.offer" class="product-detail__info-offer">{{ "￥" + product.offer }}</div>
-            <el-button v-if="isSelf && !product.offer" type="success" round @click="offer">报价</el-button>
-            <div class="product-detail__info-action">
-                <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
-                    >开始定制</el-button
-                >
-                <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
-                <el-button type="primary" round v-if="isSelf || isOther" @click="copyScheme" :loading="loadingCopying"
-                    >由此方案定制</el-button
-                >
+        <el-collapse-transition-h @after-leave="mode = 'edit'">
+            <div v-if="mode === 'view'" class="product-detail__info">
+                <div class="product-detail__info-name">{{ titles.title + titles.subTitle }}</div>
+                <!-- <div v-if="!isNew" class="product-detail__info-offer">{{ '￥26955.00' }}</div> -->
+                <div v-if="!isNew && product.offer" class="product-detail__info-offer">
+                    {{ "￥" + product.offer.toFixed(2) }}
+                </div>
+                <div class="product-detail__info-action">
+                    <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
+                        >开始定制</el-button
+                    >
+                    <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
+                    <el-button
+                        type="primary"
+                        round
+                        v-if="isSelf || isOther"
+                        @click="copyScheme"
+                        :loading="loadingCopying"
+                        >由此方案定制</el-button
+                    >
+                    <el-button v-if="isSelf && !product.offer" type="success" round @click="offer">报价</el-button>
+                </div>
             </div>
-        </div>
+        </el-collapse-transition-h>
         <template v-if="mode === 'edit'">
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
                 >返回</el-button
@@ -52,6 +60,8 @@
                 <state-icon icon="offer" label="清除门" @change="onDeleteClick('door')"></state-icon>
                 <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick()"></state-icon>
                 <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick()"></state-icon>
+                <state-icon icon="offer" label="显示标尺" @change="onShowRulerClick()"></state-icon>
+                <state-icon icon="offer" label="隐藏标尺" @change="onHideRulerClick()"></state-icon>
             </div> -->
             <div class="product-detail__action-left state-icon-group-h">
                 <!-- <state-icon
@@ -110,22 +120,24 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, watch, Ref, nextTick } from "vue";
-import Babylon, { PartType } from "@/components/Babylon/Babylon.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
+import { ElMessage, ElLoading } from "element-plus";
+import Babylon, { PartType } from "@/components/Babylon/Babylon.vue";
 import { StateType } from "@/store";
 import { BackgroundType, Part, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
-import type { ImgCardItemType } from "./components/ImgCardItem.vue";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
+import { Area, Door, Position, Size } from "@/lib/scheme";
+import * as util from "@/lib/scheme.util";
+import GooeyMenu, { MenuItem } from "@/components/GooeyMenu.vue";
+import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
+import { Scheme as Scheme3D } from "@/lib/scheme";
+import type { ImgCardItemType } from "./components/ImgCardItem.vue";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
 import PartsMenu, { ActionType } from "./components/PartsMenu.vue";
-import { ElMessage } from "element-plus";
-import { Area, Door, Position, Size } from "@/lib/scheme";
-import GooeyMenu, { MenuItem } from "@/components/GooeyMenu.vue";
-import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -173,7 +185,8 @@ export default defineComponent({
 
         async function gotoEditScheme() {
             showCustomizeDlg.value = false;
-            mode.value = "edit";
+            mode.value = ""; // after-leave="mode=edit"
+            // mode.value = "edit";
         }
 
         const customizeDlgTitle = computed(() => {
@@ -232,16 +245,10 @@ export default defineComponent({
                 value: "ruler",
                 icon: "ruler",
                 onActive() {
-                    ElMessage({
-                        type: "warning",
-                        message: "TODO: 3D视图显示标尺 on",
-                    });
+                    refBabylon.value?.CreateReferenceRuler(true);
                 },
                 onUnactive() {
-                    ElMessage({
-                        type: "warning",
-                        message: "TODO: 3D视图显示标尺 off",
-                    });
+                    refBabylon.value?.CreateReferenceRuler(false);
                 },
             },
         ]);
@@ -359,10 +366,14 @@ export default defineComponent({
                         door_mf_url = mfUrl || "43b3e66e-c416-4602-bb76-97a172138737.json";
                         door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
                         const size = new Size(750, 2360, 40);
-                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes));
+                        refBabylon.value.addDoorApi(
+                            new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes),
+                        );
 
                         door_cubes = ["ce28f905-a6e1-4f68-9998-ed13f950ea91"];
-                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes));
+                        refBabylon.value.addDoorApi(
+                            new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes),
+                        );
                     }
                     break;
 
@@ -373,7 +384,9 @@ export default defineComponent({
                         door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d", "ce28f905-a6e1-4f68-9998-ed13f950ea91"];
                         const catId = 2;
                         const size = new Size(1500, 2360, 40);
-                        refBabylon.value.addDoorApi(new Door("", door_part_id, door_mf_url, catId, size, 2, door_cubes));
+                        refBabylon.value.addDoorApi(
+                            new Door("", door_part_id, door_mf_url, catId, size, 2, door_cubes),
+                        );
                     }
                     break;
 
@@ -396,6 +409,12 @@ export default defineComponent({
             else if (selectedWallId.value === 100004) selectedWallId.value = 100001;
             else selectedWallId.value = 100001;
             refBabylon.value?.changeWallApi(selectedWallId.value);
+        }
+        function onShowRulerClick(wall?: ImgCardItemType) {
+            refBabylon.value?.CreateReferenceRuler(true);
+        }
+        function onHideRulerClick(wall?: ImgCardItemType) {
+            refBabylon.value?.CreateReferenceRuler(false);
         }
         function onUpdateFloorClick(floor?: ImgCardItemType) {
             if (floor) {
@@ -432,6 +451,8 @@ export default defineComponent({
             onAddDoorClick,
             onUpdateWallClick,
             onUpdateFloorClick,
+            onShowRulerClick,
+            onHideRulerClick,
             state3D,
             stateRuler,
             stateSelect,
@@ -530,22 +551,31 @@ export default defineComponent({
             onPartsMenuAction(action: ActionType) {
                 switch (action) {
                     case "manifest":
-                        ElMessage({
-                            type: "warning",
-                            message: "TODO: 清单",
-                        });
+                        refPartsMenu.value?.showManifest(product.value.id, false);
                         break;
                     case "offer":
-                        ElMessage({
-                            type: "warning",
-                            message: "TODO: 报价",
-                        });
+                        refPartsMenu.value?.showManifest(product.value.id, true);
                         break;
                     case "save":
-                        ElMessage({
-                            type: "warning",
-                            message: "TODO: 保存",
-                        });
+                        {
+                            const loading = ElLoading.service({
+                                fullscreen: true,
+                                body: true,
+                                text: "方案保存中，请稍后......",
+                                spinner: "el-icon-loading",
+                            });
+                            // util.saveSchemeAsync(product.value.id, scheme.value!)
+                            //     .then((res) => {})
+                            //     .finally(() => {
+                            //         setTimeout(() => {
+                            //             loading.close();
+                            //             ElMessage({
+                            //                 type: "success",
+                            //                 message: "方案保存成功！",
+                            //             });
+                            //         }, 200);
+                            //     });
+                        }
                         break;
 
                     default:
@@ -639,26 +669,35 @@ export default defineComponent({
     }
     &__info {
         position: absolute;
-        text-align: center;
-        left: 0px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        top: 0px;
+        bottom: 0px;
         right: 0px;
-        bottom: 82px;
+        width: 428px;
+        white-space: nowrap;
+        text-align: center;
+        background-color: white;
         &-name,
         &-offer {
-            font-size: 26px;
+            font-size: 32px;
             font-weight: bold;
             color: black;
         }
         &-offer {
-            font-size: 26px;
             margin-top: 15px;
         }
 
         &-action {
-            margin-top: 27px;
+            margin-top: 42px;
             text-align: center;
             :deep(.el-button) {
+                display: block;
                 width: 220px;
+                margin-left: 0 !important;
+                margin-bottom: 40px;
             }
         }
     }
