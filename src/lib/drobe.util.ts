@@ -57,9 +57,7 @@ export class HmPartManifest extends StObject {
 
     static buildFromUrl(part_url: string): HmPartManifest | Promise<HmPartManifest> {
         let obj: HmPartManifest;
-        if (part_url.indexOf("mf/") == 0) {
-            obj = require("@/assets/" + part_url);
-        } else if (part_url.startsWith("http")) {
+        if (part_url.startsWith("http")) {
             return new Promise((resolve, reject) => {
                 request({
                     url: part_url,
@@ -86,9 +84,8 @@ export class HmPartManifest extends StObject {
                         reject(err);
                     });
             });
-            // obj = require("@/assets/mf/" + part_url) as HmPartManifest;
         } else {
-            obj = require("@/assets/mf/" + part_url) as HmPartManifest;
+            obj = require("@/assets/" + part_url);
         }
 
         // [guilin: 8-20] 'obj' is NOT an HmPartManifest object!
@@ -173,7 +170,7 @@ class DrobeUtil extends StObject {
             return rects;
         }
         items.forEach((e) => {
-            const mf = HmPartManifest.buildFromUrl(e.manifest) as HmPartManifest;
+            // const mf = HmPartManifest.buildFromUrl(e.manifest) as HmPartManifest;
             this.assertValid(e.location);
             this.assertValid(e.location!.startPos);
             // calulate the part's LEFT-BOTTOM in WORLD Space.

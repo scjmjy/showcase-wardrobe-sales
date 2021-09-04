@@ -12,6 +12,7 @@ import { Scheme, Cube, Item, Door, Part, Position, RelativeItem, Location, Area,
 import * as util from "@/lib/scheme.util";
 import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
+import request from "@/utils/request";
 import { drobeUtil } from "@/lib/drobe.util";
 import * as event from "@/lib/biz.event";
 import { PopupGUI } from "@/lib/hm_gui";
@@ -44,9 +45,9 @@ export default defineComponent({
             type: Number,
             default: 1,
         },
-        scheme: {
-            type: Scheme,
-            default: null,
+        schemeManifest: {
+            type: String,
+            default: "",
         },
         selectedPartId: {
             type: Number,
@@ -64,10 +65,6 @@ export default defineComponent({
             }),
         },
         eventEmit: {
-            type: Function,
-            default: () => {},
-        },
-        getAvailableArea2: {
             type: Function,
             default: () => {},
         },
@@ -97,8 +94,6 @@ export default defineComponent({
             handler(newPart: PartType) {
                 if (newPart.id !== undefined) {
                     console.log("[Watch selectedPart] ", newPart);
-                    //const part_id:string = `${newPart.id}`;
-                    //const availableArea = this.getAvailableArea(part_id);
                     const availableArea = this.getAvailableAreaByPart(newPart);
                     this.newPart = newPart;
                     this.ShowAvailableArea(newPart, availableArea);
@@ -107,17 +102,17 @@ export default defineComponent({
         },
     },
     async mounted() {
-        this.bizdata = new BizData(this.scheme);
+        console.log("scheme manifest: ", this.schemeManifest);
 
         // set the scene size as 7500 mm.
-        this.graphics.init(7500 * this.bizdata.SceneUnit);
+        this.graphics.init(7500);
         this.graphics.render();
 
         this.setupInteraction();
         this.setupKeyboard();
         this.handleGraphicsEvent(this.graphics);
 
-        this.loadScheme();
+        this.loadScheme(this.schemeManifest);
 
         // guilin: test: add a door
         // drobeUtil.test_addDoor(this.graphics as graphics.Graphics, this.scheme );
@@ -366,83 +361,108 @@ export default defineComponent({
             });
         },
 
-        loadScheme() {
-            // TODO: load background.
+        loadScheme(manifest: string) {
+            util.importSchemeJson(manifest).then((scheme) => {
+                this.bizdata = new BizData(scheme);
 
-            const cubes = this.scheme.cubes;
-            this.scheme.cubes.forEach((cube: Cube) => {
-                this.bizdata.totalWidth += cube.size.x;
-                if (cube.size.y > this.bizdata.totalHeight) this.bizdata.totalHeight = cube.size.y;
-                if (cube.size.z > this.bizdata.totalDepth) this.bizdata.totalDepth = cube.size.z;
-            });
+                // TODO: load background.
 
-            let startX = this.bizdata.totalWidth * 0.5;
-            this.scheme.cubes.forEach((cube: Cube) => {
-                const cubeMf = util.parseManifest(cube.manifest);
-
-                const cubeOriginX = startX - cube.size.x * 0.5;
-                startX -= cube.size.x;
-
-                const cubeOrigin = new BABYLON.Vector3(cubeOriginX, 0, 0);
-                this.bizdata.cubeMap.set(cube.id, {
-                    origin: cubeOrigin,
-                    width: cube.size.x,
-                    height: cube.size.y,
-                    depth: cube.size.z,
+                const cubes = scheme.cubes;
+                scheme.cubes.forEach((cube: Cube) => {
+                    this.bizdata.totalWidth += cube.size.x;
+                    if (cube.size.y > this.bizdata.totalHeight) this.bizdata.totalHeight = cube.size.y;
+                    if (cube.size.z > this.bizdata.totalDepth) this.bizdata.totalDepth = cube.size.z;
                 });
 
-                cubeMf.models.forEach((model: any) => {
-                    const modelPos = new BABYLON.Vector3(
-                        cubeOrigin.x + model.position.x,
-                        cubeOrigin.y + model.position.y,
-                        cubeOrigin.z + model.position.z,
-                    );
-                    const cubeName = ObjectType.CUBE + "_" + cube.id;
-                    this.graphics.importMesh(
-                        model.url,
-                        cubeName,
-                        modelPos,
-                        BABYLON.Vector3.Zero(),
-                        BABYLON.Vector3.One(),
-                        false,
-                    );
-                });
+                let startX = this.bizdata.totalWidth * 0.5;
+                scheme.cubes.forEach((cube: Cube) => {
+                    request({
+                        url: util.BASE_OSS_URL + cube.manifest,
+                        method: "GET",
+                        responseType: "json",
+                    })
+                        .then((res) => {
+                            const cubeMf = res.data;
+                            const cubeOriginX = startX - cube.size.x * 0.5;
+                            startX -= cube.size.x;
 
-                cube.items.forEach((item: Item) => {
-                    if (item.location !== null) {
-                        switch (item.location.locationType) {
-                            case 1: // 中间位置（抽屉、隔板、挂衣杆等）
-                                {
-                                    const startPos = item.location.startPos;
-                                    if (startPos !== null) {
-                                        const itemOrigin = new BABYLON.Vector3(
-                                            cubeOrigin.x - startPos.x,
-                                            cubeOrigin.y + startPos.y,
-                                            cubeOrigin.z + startPos.z,
-                                        );
+                            const cubeOrigin = new BABYLON.Vector3(cubeOriginX, 0, 0);
+                            this.bizdata.cubeMap.set(cube.id, {
+                                origin: cubeOrigin,
+                                width: cube.size.x,
+                                height: cube.size.y,
+                                depth: cube.size.z,
+                            });
 
-                                        const itemMf = util.parseManifest(item.manifest);
-                                        itemMf.models.forEach((model: any) => {
-                                            const modelPos = new BABYLON.Vector3(
-                                                itemOrigin.x + model.position.x,
-                                                itemOrigin.y + model.position.y,
-                                                itemOrigin.z + model.position.z,
-                                            );
+                            cubeMf.models.forEach((model: any) => {
+                                const modelPos = new BABYLON.Vector3(
+                                    cubeOrigin.x + model.position.x,
+                                    cubeOrigin.y + model.position.y,
+                                    cubeOrigin.z + model.position.z,
+                                );
+                                const cubeName = ObjectType.CUBE + "_" + cube.id;
+                                const modelUrl = util.BASE_OSS_URL + model.url;
+                                this.graphics.importMesh(
+                                    modelUrl,
+                                    cubeName,
+                                    modelPos,
+                                    BABYLON.Vector3.Zero(),
+                                    BABYLON.Vector3.One(),
+                                    false,
+                                );
+                            });
 
-                                            const itemName = ObjectType.ITEM + "_" + item.id;
-                                            this.graphics.importMesh(model.url, itemName, modelPos);
-                                        });
+                            cube.items.forEach((item: Item) => {
+                                if (item.location !== null) {
+                                    switch (item.location.locationType) {
+                                        case 1: // 中间位置（抽屉、隔板、挂衣杆等）
+                                            {
+                                                const startPos = item.location.startPos;
+                                                if (startPos !== null) {
+                                                    const itemOrigin = new BABYLON.Vector3(
+                                                        cubeOrigin.x - startPos.x,
+                                                        cubeOrigin.y + startPos.y,
+                                                        cubeOrigin.z + startPos.z,
+                                                    );
+
+                                                    request({
+                                                        url: util.BASE_OSS_URL + item.manifest,
+                                                        method: "GET",
+                                                        responseType: "json",
+                                                    })
+                                                        .then((res) => {
+                                                            const itemMf = res.data;
+                                                            itemMf.models.forEach((model: any) => {
+                                                                const modelPos = new BABYLON.Vector3(
+                                                                    itemOrigin.x + model.position.x,
+                                                                    itemOrigin.y + model.position.y,
+                                                                    itemOrigin.z + model.position.z,
+                                                                );
+
+                                                                const itemName = ObjectType.ITEM + "_" + item.id;
+                                                                const modelUrl = util.BASE_OSS_URL + model.url;
+                                                                this.graphics.importMesh(modelUrl, itemName, modelPos);
+                                                            });
+                                                        })
+                                                        .catch((err) => {
+                                                            throw Error(`Load part manifest by error: ${err}`);
+                                                        });
+                                                }
+                                            }
+                                            break;
+                                        case 2: // 两侧位置（镜子）
+                                            // TODO:
+                                            break;
+                                        case 3: // 基于其他part的相对位置
+                                            // TODO:
+                                            break;
                                     }
                                 }
-                                break;
-                            case 2: // 两侧位置（镜子）
-                                // TODO:
-                                break;
-                            case 3: // 基于其他part的相对位置
-                                // TODO:
-                                break;
-                        }
-                    }
+                            });
+                        })
+                        .catch((err) => {
+                            throw Error(`Load cube manifest by error: ${err}`);
+                        });
                 });
             });
         },
@@ -525,47 +545,58 @@ export default defineComponent({
                                     pointerInfo.pickInfo.pickedPoint !== null
                                 ) {
                                     const pickedPointY = pointerInfo.pickInfo.pickedPoint.y;
-                                    console.log("manifest", manifest);
-                                    util.requestJsonAsync(manifest).then((json: string) => {
-                                        console.log("json", json);
-                                        const itemMf = JSON.parse(json);
-                                        const itemId = uuidv4();
-                                        const startPos = new BABYLON.Vector3(0, pickedPointY - itemMf.size.y * 0.5, 0);
-                                        const itemOrigin = new BABYLON.Vector3(
-                                            cubeData.origin.x + startPos.x,
-                                            cubeData.origin.y + startPos.y,
-                                            cubeData.origin.z + startPos.z,
-                                        );
 
-                                        // TODO: create a parent mesh to contain all import meshes.
-                                        itemMf.models.forEach((model: any) => {
-                                            const modelPos = new BABYLON.Vector3(
-                                                itemOrigin.x + model.position.x,
-                                                itemOrigin.y + model.position.y,
-                                                itemOrigin.z + model.position.z,
+                                    request({
+                                        url: manifest,
+                                        method: "GET",
+                                        responseType: "json",
+                                    })
+                                        .then((res) => {
+                                            const itemMf = res.data;
+                                            const itemId = uuidv4();
+                                            const startPos = new BABYLON.Vector3(
+                                                0,
+                                                pickedPointY - itemMf.size.y * 0.5,
+                                                0,
+                                            );
+                                            const itemOrigin = new BABYLON.Vector3(
+                                                cubeData.origin.x + startPos.x,
+                                                cubeData.origin.y + startPos.y,
+                                                cubeData.origin.z + startPos.z,
                                             );
 
-                                            const itemName = ObjectType.ITEM + "_" + itemId;
-                                            const modelUrl = util.BASE_OSS_URL + model.url;
-                                            this.graphics.importMesh(modelUrl, itemName, modelPos);
-                                        });
+                                            // TODO: create a parent mesh to contain all import meshes.
+                                            itemMf.models.forEach((model: any) => {
+                                                const modelPos = new BABYLON.Vector3(
+                                                    itemOrigin.x + model.position.x,
+                                                    itemOrigin.y + model.position.y,
+                                                    itemOrigin.z + model.position.z,
+                                                );
 
-                                        const partId = this.newPart.id;
-                                        const catId = this.newPart.catId;
-                                        const size = new Size(
-                                            this.newPart.width,
-                                            this.newPart.height,
-                                            this.newPart.depth,
-                                        );
-                                        // TODO: only handle the case of locationType==1.
-                                        const location = new Location(
-                                            1,
-                                            new Position(startPos.x, startPos.y, startPos.z),
-                                            null,
-                                        );
-                                        const newItem = new Item(itemId, partId, manifest, catId, size, location);
-                                        this.bizdata.addItem(newItem, cubeId);
-                                    });
+                                                const itemName = ObjectType.ITEM + "_" + itemId;
+                                                const modelUrl = util.BASE_OSS_URL + model.url;
+                                                this.graphics.importMesh(modelUrl, itemName, modelPos);
+                                            });
+
+                                            const partId = this.newPart.id;
+                                            const catId = this.newPart.catId;
+                                            const size = new Size(
+                                                this.newPart.width,
+                                                this.newPart.height,
+                                                this.newPart.depth,
+                                            );
+                                            // TODO: only handle the case of locationType==1.
+                                            const location = new Location(
+                                                1,
+                                                new Position(startPos.x, startPos.y, startPos.z),
+                                                null,
+                                            );
+                                            const newItem = new Item(itemId, partId, manifest, catId, size, location);
+                                            this.bizdata.addItem(newItem, cubeId);
+                                        })
+                                        .catch((err) => {
+                                            throw Error(`Require manifest by error: ${manifest}`);
+                                        });
 
                                     this.clearAvailableAreas();
                                 }

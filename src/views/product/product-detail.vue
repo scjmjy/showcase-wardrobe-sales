@@ -17,12 +17,11 @@
         <Babylon
             ref="refBabylon"
             class="product-detail__3d"
-            :scheme="scheme"
+            :schemeManifest="schemeManifest"
             :selectedPart="selectedPart"
             :selectedPartId="selectedPartId"
             :selectedWallId="selectedWallId"
             :selectedFloorId="selectedFloorId"
-            :getAvailableArea2="getAvailableArea"
             :eventEmit="eventHandle"
             :mode="mode3D"
         />
@@ -48,7 +47,6 @@
             >
             <!-- TODO: remove the test codes -->
             <!-- <div class="product-detail__action-test state-icon-group-h">
-                <state-icon icon="offer" label="查看Scheme" @change="onLogSchemeClick"></state-icon>
                 <state-icon icon="offer" label="合页门" @change="onAddDoorClick('left')"></state-icon>
                 <state-icon icon="offer" label="滑门" @change="onAddDoorClick('slide')"></state-icon>
                 <state-icon icon="offer" label="清除门" @change="onDeleteClick('door')"></state-icon>
@@ -126,7 +124,6 @@ import MetalsDlg from "./components/MetalsDlg.vue";
 import PartsMenu, { ActionType } from "./components/PartsMenu.vue";
 import { ElMessage } from "element-plus";
 import { Area, Door, Position, Size } from "@/lib/scheme";
-import * as util from "@/lib/scheme.util";
 import GooeyMenu, { MenuItem } from "@/components/GooeyMenu.vue";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
 
@@ -213,28 +210,7 @@ export default defineComponent({
         let selectedPartId = ref(0);
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
-        const scheme = ref(util.importSchemeJson("mf/scheme.json"));
-        function getAvailableArea(part: PartType): Area[] {
-            part;
-
-            // TODO: compute the available areas later.
-            const areas = [];
-            let area = new Area(
-                "4cd170f8-291b-4236-b515-b5d27ac1209d",
-                new Position(-350, 1050, -270),
-                new Position(350, 1900, 290),
-            );
-            areas.push(area);
-
-            area = new Area(
-                "ce28f905-a6e1-4f68-9998-ed13f950ea91",
-                new Position(-350, 350, -270),
-                new Position(350, 1900, 290),
-            );
-            areas.push(area);
-
-            return areas;
-        }
+        const schemeManifest = ref(product.value.manifest);
         const gooeyMenuItems = ref<MenuItem[]>([
             {
                 value: "d3",
@@ -439,12 +415,11 @@ export default defineComponent({
             gooeyMenuOpened,
             refBabylon,
             refPartsMenu,
-            scheme,
+            schemeManifest,
             selectedPart,
             selectedPartId,
             selectedWallId,
             selectedFloorId,
-            getAvailableArea,
             mode3D: computed(() => {
                 if (mode.value === "view") {
                     return 3;
@@ -453,9 +428,6 @@ export default defineComponent({
                 }
             }),
             eventHandle,
-            onLogSchemeClick() {
-                console.log("LogScheme: ", scheme);
-            },
             onDeleteClick,
             onAddDoorClick,
             onUpdateWallClick,

@@ -84,7 +84,7 @@ export class Graphics {
         this._light = new BABYLON.DirectionalLight("MainLight", new BABYLON.Vector3(0.5, -1.2, -1.4), this.scene);
         this._light.position = new BABYLON.Vector3(-2300, 50, 2500);
         this._light.diffuse = new BABYLON.Color3(1.0, 1.0, 1.0);
-        this._light.intensity = 0.75;
+        this._light.intensity = 1.5;
 
         // Setup shadow
         this._shadowGenerator = new BABYLON.ShadowGenerator(1024, this._light);
@@ -99,6 +99,7 @@ export class Graphics {
         // setup environment.
         const environment = this.scene.createDefaultEnvironment({
             createSkybox: false,
+            createGround: false,
             groundSize: size * 2.1,
             skyboxSize: size * 2.1,
             groundTexture: "/3d/res/backgroundGround.png",
@@ -176,13 +177,15 @@ export class Graphics {
         this._ssaorenderer.radius = 0.0006;
         this._ssaorenderer.totalStrength = 1.0;
         this._ssaorenderer.base = 0.8;
-        this._isSsaoAttached = false;
+
         this.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", this._camera);
         this.scene.postProcessRenderPipelineManager.enableEffectInPipeline(
             "ssao",
             this._ssaorenderer.SSAOCombineRenderEffect,
             this._camera,
         );
+
+        this._isSsaoAttached = true;
     }
 
     render(): void {

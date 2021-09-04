@@ -9,7 +9,6 @@
             <router-link to="/demo/build3d">Build 3d</router-link> |
             <router-link to="/demo/display3d">Model & Mesh </router-link> |
             <router-link to="/demo-demo3">Demo3</router-link> |
-            <router-link to="/demo-editscheme">Edit Scheme</router-link>
         </div>
         <el-config-provider :locale="locale">
             <router-view v-slot="{ Component }">
