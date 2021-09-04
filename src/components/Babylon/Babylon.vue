@@ -45,9 +45,9 @@ export default defineComponent({
             type: Number,
             default: 1,
         },
-        schemeManifest: {
-            type: String,
-            default: "",
+        scheme: {
+            type: Scheme,
+            default: null,
         },
         selectedPartId: {
             type: Number,
@@ -67,7 +67,8 @@ export default defineComponent({
         eventEmit: {
             type: Function,
             default: () => {},
-        },    },
+        },
+    },
     data() {
         return {
             bizdata: {} as BizData,
@@ -101,17 +102,17 @@ export default defineComponent({
         },
     },
     async mounted() {
-        console.log("scheme manifest: ", this.schemeManifest);
+        this.bizdata = new BizData(this.scheme);
 
         // set the scene size as 7500 mm.
-        this.graphics.init(7500);
+        this.graphics.init(7500 * this.bizdata.SceneUnit);
         this.graphics.render();
 
         this.setupInteraction();
         this.setupKeyboard();
         this.handleGraphicsEvent(this.graphics);
 
-        this.loadScheme(this.schemeManifest);
+        this.loadScheme();
 
         // guilin: test: add a door
         // drobeUtil.test_addDoor(this.graphics as graphics.Graphics, this.scheme );
@@ -360,109 +361,105 @@ export default defineComponent({
             });
         },
 
-        loadScheme(manifest: string) {
-            util.importSchemeJson(manifest).then((scheme) => {
-                this.bizdata = new BizData(scheme);
+        loadScheme() {
+            // TODO: load background.
 
-                // TODO: load background.
+            this.scheme.cubes.forEach((cube: Cube) => {
+                this.bizdata.totalWidth += cube.size.x;
+                if (cube.size.y > this.bizdata.totalHeight) this.bizdata.totalHeight = cube.size.y;
+                if (cube.size.z > this.bizdata.totalDepth) this.bizdata.totalDepth = cube.size.z;
+            });
 
-                const cubes = scheme.cubes;
-                scheme.cubes.forEach((cube: Cube) => {
-                    this.bizdata.totalWidth += cube.size.x;
-                    if (cube.size.y > this.bizdata.totalHeight) this.bizdata.totalHeight = cube.size.y;
-                    if (cube.size.z > this.bizdata.totalDepth) this.bizdata.totalDepth = cube.size.z;
-                });
+            let startX = this.bizdata.totalWidth * 0.5;
+            this.scheme.cubes.forEach((cube: Cube) => {
+                const cubeOriginX = startX - cube.size.x * 0.5;
+                startX -= cube.size.x;
 
-                let startX = this.bizdata.totalWidth * 0.5;
-                scheme.cubes.forEach((cube: Cube) => {
-                    request({
-                        url: util.BASE_OSS_URL + cube.manifest,
-                        method: "GET",
-                        responseType: "json",
-                    })
-                        .then((res) => {
-                            const cubeMf = res.data;
-                            const cubeOriginX = startX - cube.size.x * 0.5;
-                            startX -= cube.size.x;
+                request({
+                    url: util.BASE_OSS_URL + cube.manifest,
+                    method: "GET",
+                    responseType: "json",
+                })
+                    .then((res) => {
+                        const cubeMf = res.data;
 
-                            const cubeOrigin = new BABYLON.Vector3(cubeOriginX, 0, 0);
-                            this.bizdata.cubeMap.set(cube.id, {
-                                origin: cubeOrigin,
-                                width: cube.size.x,
-                                height: cube.size.y,
-                                depth: cube.size.z,
-                            });
-
-                            cubeMf.models.forEach((model: any) => {
-                                const modelPos = new BABYLON.Vector3(
-                                    cubeOrigin.x + model.position.x,
-                                    cubeOrigin.y + model.position.y,
-                                    cubeOrigin.z + model.position.z,
-                                );
-                                const cubeName = ObjectType.CUBE + "_" + cube.id;
-                                const modelUrl = util.BASE_OSS_URL + model.url;
-                                this.graphics.importMesh(
-                                    modelUrl,
-                                    cubeName,
-                                    modelPos,
-                                    BABYLON.Vector3.Zero(),
-                                    BABYLON.Vector3.One(),
-                                    false,
-                                );
-                            });
-
-                            cube.items.forEach((item: Item) => {
-                                if (item.location !== null) {
-                                    switch (item.location.locationType) {
-                                        case 1: // 中间位置（抽屉、隔板、挂衣杆等）
-                                            {
-                                                const startPos = item.location.startPos;
-                                                if (startPos !== null) {
-                                                    const itemOrigin = new BABYLON.Vector3(
-                                                        cubeOrigin.x - startPos.x,
-                                                        cubeOrigin.y + startPos.y,
-                                                        cubeOrigin.z + startPos.z,
-                                                    );
-
-                                                    request({
-                                                        url: util.BASE_OSS_URL + item.manifest,
-                                                        method: "GET",
-                                                        responseType: "json",
-                                                    })
-                                                        .then((res) => {
-                                                            const itemMf = res.data;
-                                                            itemMf.models.forEach((model: any) => {
-                                                                const modelPos = new BABYLON.Vector3(
-                                                                    itemOrigin.x + model.position.x,
-                                                                    itemOrigin.y + model.position.y,
-                                                                    itemOrigin.z + model.position.z,
-                                                                );
-
-                                                                const itemName = ObjectType.ITEM + "_" + item.id;
-                                                                const modelUrl = util.BASE_OSS_URL + model.url;
-                                                                this.graphics.importMesh(modelUrl, itemName, modelPos);
-                                                            });
-                                                        })
-                                                        .catch((err) => {
-                                                            throw Error(`Load part manifest by error: ${err}`);
-                                                        });
-                                                }
-                                            }
-                                            break;
-                                        case 2: // 两侧位置（镜子）
-                                            // TODO:
-                                            break;
-                                        case 3: // 基于其他part的相对位置
-                                            // TODO:
-                                            break;
-                                    }
-                                }
-                            });
-                        })
-                        .catch((err) => {
-                            throw Error(`Load cube manifest by error: ${err}`);
+                        const cubeOrigin = new BABYLON.Vector3(cubeOriginX, 0, 0);
+                        this.bizdata.cubeMap.set(cube.id, {
+                            origin: cubeOrigin,
+                            width: cube.size.x,
+                            height: cube.size.y,
+                            depth: cube.size.z,
                         });
-                });
+
+                        cubeMf.models.forEach((model: any) => {
+                            const modelPos = new BABYLON.Vector3(
+                                cubeOrigin.x + model.position.x,
+                                cubeOrigin.y + model.position.y,
+                                cubeOrigin.z + model.position.z,
+                            );
+                            const cubeName = ObjectType.CUBE + "_" + cube.id;
+                            const modelUrl = util.BASE_OSS_URL + model.url;
+                            this.graphics.importMesh(
+                                modelUrl,
+                                cubeName,
+                                modelPos,
+                                BABYLON.Vector3.Zero(),
+                                BABYLON.Vector3.One(),
+                                false,
+                            );
+                        });
+
+                        cube.items.forEach((item: Item) => {
+                            if (item.location !== null) {
+                                switch (item.location.locationType) {
+                                    case 1: // 中间位置（抽屉、隔板、挂衣杆等）
+                                        {
+                                            const startPos = item.location.startPos;
+                                            if (startPos !== null) {
+                                                const itemOrigin = new BABYLON.Vector3(
+                                                    cubeOrigin.x - startPos.x,
+                                                    cubeOrigin.y + startPos.y,
+                                                    cubeOrigin.z + startPos.z,
+                                                );
+
+                                                request({
+                                                    url: util.BASE_OSS_URL + item.manifest,
+                                                    method: "GET",
+                                                    responseType: "json",
+                                                })
+                                                    .then((res) => {
+                                                        const itemMf = res.data;
+                                                        itemMf.models.forEach((model: any) => {
+                                                            const modelPos = new BABYLON.Vector3(
+                                                                itemOrigin.x + model.position.x,
+                                                                itemOrigin.y + model.position.y,
+                                                                itemOrigin.z + model.position.z,
+                                                            );
+
+                                                            const itemName = ObjectType.ITEM + "_" + item.id;
+                                                            const modelUrl = util.BASE_OSS_URL + model.url;
+                                                            this.graphics.importMesh(modelUrl, itemName, modelPos);
+                                                        });
+                                                    })
+                                                    .catch((err) => {
+                                                        throw Error(`Load part manifest by error: ${err}`);
+                                                    });
+                                            }
+                                        }
+                                        break;
+                                    case 2: // 两侧位置（镜子）
+                                        // TODO:
+                                        break;
+                                    case 3: // 基于其他part的相对位置
+                                        // TODO:
+                                        break;
+                                }
+                            }
+                        });
+                    })
+                    .catch((err) => {
+                        throw Error(`Load cube manifest by error: ${err}`);
+                    });
             });
         },
 
@@ -664,8 +661,8 @@ export default defineComponent({
             this.wall.isPickable = false;
         },
 
-        CreateReferenceRuler( showRuler: Boolean ): void {
-            this.gui.showRuler( this.graphics, this.bizdata as BizData, showRuler )
+        CreateReferenceRuler(showRuler: boolean): void {
+            this.gui.showRuler(this.graphics, this.bizdata as BizData, showRuler);
         },
     },
 });

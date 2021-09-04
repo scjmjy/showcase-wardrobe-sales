@@ -15,9 +15,10 @@
             />
         </transition>
         <Babylon
+            v-if="scheme"
             ref="refBabylon"
             class="product-detail__3d"
-            :schemeManifest="schemeManifest"
+            :scheme="scheme"
             :selectedPart="selectedPart"
             :selectedPartId="selectedPartId"
             :selectedWallId="selectedWallId"
@@ -223,6 +224,10 @@ export default defineComponent({
         let selectedPartId = ref(0);
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
+        const scheme = ref<Scheme3D>();
+        util.importSchemeJson(product.value.manifest).then((s) => {
+            scheme.value = s;
+        });
         const schemeManifest = ref(product.value.manifest);
         const gooeyMenuItems = ref<MenuItem[]>([
             {
@@ -434,7 +439,7 @@ export default defineComponent({
             gooeyMenuOpened,
             refBabylon,
             refPartsMenu,
-            schemeManifest,
+            scheme,
             selectedPart,
             selectedPartId,
             selectedWallId,
@@ -564,17 +569,17 @@ export default defineComponent({
                                 text: "方案保存中，请稍后......",
                                 spinner: "el-icon-loading",
                             });
-                            // util.saveSchemeAsync(product.value.id, scheme.value!)
-                            //     .then((res) => {})
-                            //     .finally(() => {
-                            //         setTimeout(() => {
-                            //             loading.close();
-                            //             ElMessage({
-                            //                 type: "success",
-                            //                 message: "方案保存成功！",
-                            //             });
-                            //         }, 200);
-                            //     });
+                            util.saveSchemeAsync(product.value.id, scheme.value!)
+                                .then((res) => {})
+                                .finally(() => {
+                                    setTimeout(() => {
+                                        loading.close();
+                                        ElMessage({
+                                            type: "success",
+                                            message: "方案保存成功！",
+                                        });
+                                    }, 200);
+                                });
                         }
                         break;
 
