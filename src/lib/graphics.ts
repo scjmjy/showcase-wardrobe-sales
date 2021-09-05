@@ -14,13 +14,13 @@ export const GraphicsEvent = {
 export class Graphics {
     public scene!: BABYLON.Scene;
     public eventDispatcher: EventEmitter2;
+    public highlightLayer!: BABYLON.HighlightLayer;
 
     private readonly _canvas: HTMLCanvasElement;
     private readonly _engine: BABYLON.Engine;
     private _camera!: BABYLON.ArcRotateCamera;
     private _light!: BABYLON.DirectionalLight;
     private _shadowGenerator!: BABYLON.ShadowGenerator;
-    private _highlightLayer!: BABYLON.HighlightLayer;
 
     private _pprenderer!: BABYLON.DefaultRenderingPipeline;
     private _ssaorenderer!: BABYLON.SSAORenderingPipeline;
@@ -204,11 +204,11 @@ export class Graphics {
             // TODO: only handle child, not all descendant(not including grandchild).
             const childMeshes = mesh.getChildMeshes();
             childMeshes.forEach((childMesh) => {
-                this._highlightLayer.addMesh(childMesh as BABYLON.Mesh, color);
+                this.highlightLayer.addMesh(childMesh as BABYLON.Mesh, color);
             });
 
             const rootMesh = mesh as BABYLON.Mesh;
-            if (rootMesh) this._highlightLayer.addMesh(rootMesh, color);
+            if (rootMesh) this.highlightLayer.addMesh(rootMesh, color);
         }
     }
 
@@ -217,17 +217,17 @@ export class Graphics {
             // TODO: only handle child, not all descendant(not including grandchild).
             const childMeshes = mesh.getChildMeshes();
             childMeshes.forEach((childMesh) => {
-                this._highlightLayer.removeMesh(childMesh as BABYLON.Mesh);
+                this.highlightLayer.removeMesh(childMesh as BABYLON.Mesh);
             });
 
             const rootMesh = mesh as BABYLON.Mesh;
-            if (rootMesh) this._highlightLayer.removeMesh(rootMesh);
+            if (rootMesh) this.highlightLayer.removeMesh(rootMesh);
         }
     }
 
     // TODO: Handle the transparent objects later.
     private setupInteraction(): void {
-        this._highlightLayer = new BABYLON.HighlightLayer("HighlightLayer", this.scene, {
+        this.highlightLayer = new BABYLON.HighlightLayer("HighlightLayer", this.scene, {
             blurVerticalSize: 1,
             blurHorizontalSize: 1,
         });
@@ -671,6 +671,12 @@ export class Graphics {
         if (castShadow) this.addShadow(dummyMesh);
 
         dummyMesh.showBoundingBox = true;
+    }
+
+    public removeCurrentHighlight(): void {
+        if (this._currentMesh !== null) {
+            this.removeHighlightMesh(this._currentMesh);
+        }
     }
 
     public createScreenshotAsync(size: any): Promise<string> {

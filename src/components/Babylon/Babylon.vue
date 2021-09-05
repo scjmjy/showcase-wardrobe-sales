@@ -43,7 +43,7 @@ export default defineComponent({
         // 3 - 浏览模式（free camera，柜体和内配都不能选择）
         mode: {
             type: Number,
-            default: 1,
+            default: 3,
         },
         scheme: {
             type: Scheme,
@@ -98,6 +98,12 @@ export default defineComponent({
                     this.newPart = newPart;
                     this.ShowAvailableArea(newPart, availableArea);
                 }
+            },
+        },
+        mode: {
+            deep: true,
+            handler(newMode: number) {
+                this.setModeApi(newMode);
             },
         },
     },
@@ -230,7 +236,11 @@ export default defineComponent({
         /**
          * 清空选择中的item
          */
-        clearSelectionApi(): void {},
+        clearSelectionApi(): void {
+            this.graphics.removeCurrentHighlight();
+
+            this.gui.display(this.graphics, this.bizdata as BizData, null);
+        },
 
         /**
          * 设置编辑模式
@@ -239,7 +249,80 @@ export default defineComponent({
          * 2 - 内配（fixed camera，柜体不能被选择）
          * 3 - 浏览模式（free camera，柜体和内配都不能选择）
          */
-        setModeApi(mode: number): void {},
+        setModeApi(mode: number): void {
+            this.clearSelectionApi();
+
+            switch (mode) {
+                case 1:
+                    {
+                        // SS TODO: remove the hardcode below.
+                        this.graphics.setCameraPosition(0, 1100, 5500);
+                        this.graphics.lockCamera(false);
+
+                        this.graphics.scene.meshes.forEach((mesh) => {
+                            if (mesh.name.startsWith(ObjectType.CUBE) || mesh.name.startsWith(ObjectType.DOOR)) {
+                                mesh.getChildMeshes().forEach((childMesh) => {
+                                    childMesh.isPickable = true;
+                                });
+                            } else if (mesh.name.startsWith(ObjectType.ITEM)) {
+                                mesh.getChildMeshes().forEach((childMesh) => {
+                                    childMesh.isPickable = false;
+
+                                    if (childMesh.getClassName() === 'Mesh') {
+                                        this.graphics.highlightLayer.addExcludedMesh(childMesh as BABYLON.Mesh);
+                                        childMesh.renderingGroupId = 1;
+                                        this.graphics.scene.setRenderingAutoClearDepthStencil(1, false, false, false);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    break;
+                case 2:
+                    {
+                        // SS TODO: remove the hardcode below.
+                        this.graphics.setCameraPosition(0, 1100, 4000);
+                        this.graphics.lockCamera(true);
+
+                        this.graphics.scene.meshes.forEach((mesh) => {
+                            if (mesh.name.startsWith(ObjectType.CUBE) || mesh.name.startsWith(ObjectType.DOOR)) {
+                                mesh.getChildMeshes().forEach((childMesh) => {
+                                    childMesh.isPickable = false;
+                                });
+                            } else if (mesh.name.startsWith(ObjectType.ITEM)) {
+                                mesh.getChildMeshes().forEach((childMesh) => {
+                                    childMesh.isPickable = true;
+
+                                    if (childMesh.getClassName() === 'Mesh') {
+                                        this.graphics.highlightLayer.removeExcludedMesh(childMesh as BABYLON.Mesh);
+                                        childMesh.renderingGroupId = 0;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    break;
+                case 3:
+                    {
+                        // SS TODO: remove the hardcode below.
+                        this.graphics.setCameraPosition(0, 1100, 5500);
+                        this.graphics.lockCamera(false);
+
+                        this.graphics.scene.meshes.forEach((mesh) => {
+                            if (
+                                mesh.name.startsWith(ObjectType.CUBE) ||
+                                mesh.name.startsWith(ObjectType.ITEM) ||
+                                mesh.name.startsWith(ObjectType.DOOR)
+                            ) {
+                                mesh.getChildMeshes().forEach((childMesh) => {
+                                    childMesh.isPickable = false;
+                                });
+                            }
+                        });
+                    }
+                    break;
+            }
+        },
 
         /**
          * 获得当前被选中的物件（可能存在多选）
@@ -438,7 +521,14 @@ export default defineComponent({
 
                                                             const itemName = ObjectType.ITEM + "_" + item.id;
                                                             const modelUrl = util.BASE_OSS_URL + model.url;
-                                                            this.graphics.importMesh(modelUrl, itemName, modelPos);
+                                                            this.graphics.importMesh(
+                                                                modelUrl,
+                                                                itemName,
+                                                                modelPos,
+                                                                BABYLON.Vector3.Zero(),
+                                                                BABYLON.Vector3.One(),
+                                                                false,
+                                                            );
                                                         });
                                                     })
                                                     .catch((err) => {
@@ -464,6 +554,7 @@ export default defineComponent({
         },
 
         ShowAvailableArea(part: PartType, areas: Area[]): void {
+            this.clearSelectionApi();
             this.clearAvailableAreas();
 
             areas.forEach((area: Area) => {
