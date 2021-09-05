@@ -679,6 +679,12 @@ export class Graphics {
         }
     }
 
+    public disableLightEffect(mesh: BABYLON.AbstractMesh): void {
+        if (this._light) {
+            this._light.excludedMeshes.push(mesh)
+        }
+    }
+
     public createScreenshotAsync(size: any): Promise<string> {
         return new Promise((resolve, reject) => {
             BABYLON.Tools.CreateScreenshot(this._engine, this._camera, size, (data) => {

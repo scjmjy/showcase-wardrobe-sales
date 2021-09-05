@@ -64,6 +64,9 @@ export class PopupGUI {
                     const objectID = info[1];
                     mesh.dispose();
                     switch(objectType) {
+                        case ObjectType.CUBE :
+                            bizdata.removeCube(objectID);
+                            break;
                         case ObjectType.ITEM :
                             bizdata.removeItem(objectID);
                             break;

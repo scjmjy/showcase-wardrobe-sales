@@ -765,7 +765,7 @@ export class StSketchRect extends StSketchPolygon {
     }
 
     static buildRectByStartPoint(p0: StSketchPoint, width: number, height: number): StSketchRect {
-        console.debug("build sketch rectangle...");
+        // console.debug("build sketch rectangle...");
         const [x, y] = p0.toArray();
         const p1 = new StSketchPoint(x + width, y);
         const p2 = new StSketchPoint(x + width, y + height);
@@ -797,7 +797,7 @@ export class StSketchRect extends StSketchPolygon {
             margins?: [number, number, number, number];
          },
     ): StSketchRect[] {
-        console.log(`## host rect: ${host}, \n occupied: ${occupied}, \n part_size: ${part_size}`);
+        // console.log(`## host rect: ${host}, \n occupied: ${occupied}, \n part_size: ${part_size}`);
         const width = host.a;
         const min_height = opt?.minHeight || StSketchConstant.MIN_DIVISION_HEIGHT_MM;
         const margins = opt?.margins || [40, 60, 40, 60];
@@ -820,7 +820,7 @@ export class StSketchRect extends StSketchPolygon {
             return 0;
         });
 
-        console.log(`## fixed rectangles (sorted): ${fixed_rects}`);
+        // console.log(`## fixed rectangles (sorted): ${fixed_rects}`);
         const array: StSketchRect[] = [];
         let start_pt = host.getStartPosition();
         for (const fixed_rect of fixed_rects) {
@@ -835,7 +835,7 @@ export class StSketchRect extends StSketchPolygon {
             }
             start_pt = fixed_rect.getPoint(3).getVector();
         }
-        console.log(`find available rects: cnt: ${array.length}  ----\n ${array}`);
+        // console.log(`find available rects: cnt: ${array.length}  ----\n ${array}`);
         return array;
     }
 }

@@ -26,6 +26,8 @@ export class BizData {
     // translate mm to inch: 0.001 * 39.3700787
     public SceneUnit = 1; // 0.0393700787;
 
+    public startX = 0;
+    public endX = 0;
     public totalWidth = 0;
     public totalHeight = 0;
     public totalDepth = 0;
@@ -71,21 +73,52 @@ export class BizData {
             "110004",
             "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/dc5eb19b-2879-47fe-a517-720b39e0f445.jpg",
         );
+    }
 
-        // categoryId - manifest
-        // 柜体
-        this.partManifestMap.set("20", "mf/90da222b-d5c4-40e9-a693-8fe0b2b3ff78.json");
-        // 搁板
-        this.partManifestMap.set("9", "mf/f5b3357e-6c76-476e-a97b-2a5612277e8e.json");
-        // 挂衣杆
-        this.partManifestMap.set("10", "mf/ba27f19e-2131-4fe4-9b8c-e1edca652393.json");
-        // 托盘
-        this.partManifestMap.set("21", "mf/f5851579-ce40-4085-b3aa-47fbe3dcdb10.json");
-        // 抽屉
-        // this.partManifestMap.set("7", "mf/51c67403-1823-42ab-8cc5-7325355c7a55.json");
-        this.partManifestMap.set("7", "mf/7d6ea7d9-c01c-481d-9b3a-f7c1e743a7b7.json");
-        // 滑门
-        this.partManifestMap.set("2", "mf/bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json");
+    addPart(partId: number): void {
+        const part = this.findPartById(partId);
+        if (part !== undefined) {
+            part.count += 1;
+        } else {
+            const newPart = new Part(partId, 1);
+            this.scheme.parts.push(newPart);
+        }
+    }
+
+    removePart(partId: number): void {
+        const part = this.findPartById(partId);
+        if (part !== undefined) {
+            part.count -= 1;
+        }
+    }
+
+    addCube(newCube: Cube, isFirstCube: boolean): void {
+        if (isFirstCube) {
+            this.startX += newCube.size.x;
+            this.scheme.cubes.unshift(newCube);
+        } else {
+            this.endX -= newCube.size.x;
+            this.scheme.cubes.push(newCube);
+        }
+
+        this.addPart(newCube.partId);
+    }
+
+    removeCube(cubeId: string): void {
+        const idx = this.scheme.cubes.findIndex((cube: { id: string }) => cube.id === cubeId);
+        const cube = this.scheme.cubes[idx];
+        const partId = cube.partId;
+
+        if (idx === 0) {
+            // Remove the first cube.
+            this.startX -= cube.size.x;
+        }
+        else if (idx == this.scheme.cubes.length - 1) {
+            // Remove the last cube.
+            this.endX += cube.size.x;
+        }
+        this.scheme.cubes.splice(idx, 1);
+        this.removePart(partId);
     }
 
     addItem(newItem: Item, cubeId: string): void {
@@ -94,13 +127,7 @@ export class BizData {
             cube.items.push(newItem);
         }
 
-        const part = this.findPartById(newItem.partId);
-        if (part !== undefined) {
-            part.count += 1;
-        } else {
-            const newPart = new Part(newItem.partId, 1);
-            this.scheme.parts.push(newPart);
-        }
+        this.addPart(newItem.partId);
     }
 
     removeItem(itemId: string): void {
@@ -109,10 +136,7 @@ export class BizData {
             const idx = cubeItem.cube.items.findIndex((item: { id: string }) => item.id === itemId);
             cubeItem.cube.items.splice(idx, 1);
 
-            const part = this.findPartById(cubeItem.item.partId);
-            if (part !== undefined) {
-                part.count -= 1;
-            }
+            this.removePart(cubeItem.item.partId);
         }
     }
 
@@ -161,6 +185,8 @@ export class BizData {
         }
         door.id = uuidv4();
         this.scheme.doors.push(door);
+
+        this.addPart(door.partId);
         return door.id;
     }
 
@@ -170,6 +196,8 @@ export class BizData {
         });
         if (idx == -1) return;
         const array = this.scheme.doors.splice(idx, 1);
+
+        this.removePart(array[0].partId);
         return array[0];
     }
 

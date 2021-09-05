@@ -181,7 +181,7 @@ class DrobeUtil extends StObject {
             rects.push(r);
         });
 
-        console.log(`Find occupied rects: ${rects.length}`);
+        // console.log(`Find occupied rects: ${rects.length}`);
         return rects;
     }
 
