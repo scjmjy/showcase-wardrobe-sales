@@ -100,6 +100,9 @@ export class BizData {
             this.endX -= newCube.size.x;
             this.scheme.cubes.push(newCube);
         }
+        this.totalWidth += newCube.size.x;
+        if (newCube.size.y > this.totalHeight) this.totalHeight = newCube.size.y;
+        if (newCube.size.z > this.totalDepth) this.totalDepth = newCube.size.z;
 
         this.addPart(newCube.partId);
     }
@@ -117,6 +120,9 @@ export class BizData {
             // Remove the last cube.
             this.endX += cube.size.x;
         }
+        this.totalWidth -= cube.size.x;
+        // TODO: handle the case of the different cube height and depth.
+
         this.scheme.cubes.splice(idx, 1);
         this.removePart(partId);
     }

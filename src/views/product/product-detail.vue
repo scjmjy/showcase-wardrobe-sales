@@ -20,7 +20,6 @@
             class="product-detail__3d"
             :scheme="scheme"
             :selectedPart="selectedPart"
-            :selectedPartId="selectedPartId"
             :selectedWallId="selectedWallId"
             :selectedFloorId="selectedFloorId"
             :eventEmit="eventHandle"

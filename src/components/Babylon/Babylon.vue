@@ -49,9 +49,9 @@ export default defineComponent({
             type: Scheme,
             default: null,
         },
-        selectedPartId: {
-            type: Number,
-            default: 0,
+        baseOSSUrl: {
+            type: String,
+            default: "",
         },
         selectedPart: {
             type: Object as PropType<PartType>,
