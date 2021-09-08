@@ -157,13 +157,13 @@ export default defineComponent({
             }
         });
         const typeText = computed(() => (props.type === "in" ? "内配" : "外观"));
-        const inCats = computed(() => {
+        const inCats = computed<PartCategory[]>(() => {
             if (!store.state.globalCfg) {
                 return [];
             }
             return cats.value.filter((c) => store.state.globalCfg?.partsCatInterior.includes(c.id));
         });
-        const outCats = computed(() => {
+        const outCats = computed<PartCategory[]>(() => {
             if (!store.state.globalCfg) {
                 return [];
             }
@@ -312,13 +312,15 @@ export default defineComponent({
                 // 清空堆栈
                 tabStack.value.length = 0;
 
-                const siblings = findSiblingCats(catId, cats.value);
+                const siblings = findSiblingCats(catId, activeCats.value);
                 if (siblings) {
                     const tabs = cats2Tabs(siblings);
                     // const activeTab = tabs.find((t) => t.cat.id.toString() === catId.toString());
                     // selectedTabName.value = activeTab.name;
                     selectedTabName.value = catId.toString();
-                    tabs.unshift(bgTab);
+                    if (props.type === "out") {
+                        tabs.unshift(bgTab);
+                    }
                     tabStack.value.push(tabs);
 
                     selectedCatId.value = +catId;
