@@ -26,7 +26,7 @@ import apiProvider from "@/api/provider";
 export function importSchemeJson(url: string): Promise<Scheme> {
     return new Promise((resolve, reject) => {
         request({
-            url: url,
+            url: url + `?timestamp=${Date.now()}`, // add timestamp to disable browser cache
             method: "GET",
             responseType: "json",
         })
