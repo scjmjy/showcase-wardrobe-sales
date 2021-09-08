@@ -186,6 +186,7 @@ export interface GlobalCfg {
     partsCatInterior: PartIdList;
     // 外观配件ID列表
     partsCatExterior: PartIdList;
+    baseUrl: string;
 }
 
 export enum BackgroundType {

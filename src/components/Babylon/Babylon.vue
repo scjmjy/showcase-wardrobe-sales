@@ -201,7 +201,7 @@ export default defineComponent({
          * @param newDoor 新增加的Door
          */
         addDoorApi(newDoor: Door): string | Promise<string> {
-            return drobeUtil.addDoor(this.graphics, this.bizdata as BizData, newDoor);
+            return drobeUtil.addDoor(this.graphics, this.bizdata as BizData, newDoor, this.baseOSSUrl);
         },
 
         /**
@@ -667,7 +667,7 @@ export default defineComponent({
                                 // Hit the available area.
                                 const info = meshName.split("_");
                                 const cubeId = info[1];
-                                const manifest = this.newPart.manifest;
+                                const manifest = this.baseOSSUrl + this.newPart.manifest;
 
                                 if (cubeId === "StartCube" || cubeId === "EndCube") {
                                     request({

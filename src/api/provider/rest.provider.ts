@@ -86,6 +86,7 @@ export default class RestProvider extends LocalProvider {
                         data: {
                             partsCatExterior: res.data.parts_category_exterior,
                             partsCatInterior: res.data.parts_category_interior,
+                            baseUrl: res.data.baseUrl,
                         },
                     });
                 })

@@ -55,12 +55,12 @@ export class HmPartManifest extends StObject {
         return obj;
     }
 
-    static buildFromUrl(part_url: string): HmPartManifest | Promise<HmPartManifest> {
+    static buildFromUrl(part_url: string, baseUrl?: string): HmPartManifest | Promise<HmPartManifest> {
         let obj: HmPartManifest;
-        if (part_url.startsWith("http")) {
+        if (baseUrl) {
             return new Promise((resolve, reject) => {
                 request({
-                    url: part_url,
+                    url: baseUrl + part_url,
                     method: "GET",
                     responseType: "json",
                 })
@@ -277,7 +277,7 @@ class DrobeUtil extends StObject {
      *
      * @returns UUID of the newly added door
      */
-    addDoor(graphics: Graphics, bizdata: BizData, door: Door): string | Promise<string> {
+    addDoor(graphics: Graphics, bizdata: BizData, door: Door, baseUrl: string): string | Promise<string> {
         const door_pos = new BABYLON.Vector3(0, 0, 500);
 
         if (door.doorType == 1) {
@@ -303,10 +303,11 @@ class DrobeUtil extends StObject {
 
         bizdata.addDoor(door);
         const door_name = `${ObjectType.DOOR}_${door.id}`;
-        const door_mf = HmPartManifest.buildFromUrl(door.manifest);
+        const door_mf = HmPartManifest.buildFromUrl(door.manifest, baseUrl);
         if (door_mf instanceof Promise) {
             return door_mf.then((res) => {
-                const url = "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/" + res.models[0].url;
+                // const url = "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/" + res.models[0].url;
+                const url = baseUrl + res.models[0].url;
                 return graphics
                     .importMesh(url, door_name, door_pos)
                     .then((res) => {

@@ -24,6 +24,7 @@
             :selectedFloorId="selectedFloorId"
             :eventEmit="eventHandle"
             :mode="mode3D"
+            :baseOSSUrl="baseUrl"
         />
         <el-collapse-transition-h @after-leave="mode = 'edit'">
             <div v-if="mode === 'view'" class="product-detail__info">
@@ -433,6 +434,8 @@ export default defineComponent({
             else selectedFloorId.value = 110001;
             refBabylon.value?.changeFloorApi(selectedFloorId.value);
         }
+        const baseUrl = computed(() => store.state.globalCfg?.baseUrl);
+
         return {
             gooeyMenuItems,
             gooeyMenuOpened,
@@ -443,6 +446,7 @@ export default defineComponent({
             selectedPartId,
             selectedWallId,
             selectedFloorId,
+            baseUrl,
             mode3D: computed(() => {
                 if (mode.value === "view") {
                     return 3;
@@ -587,21 +591,22 @@ export default defineComponent({
                 }
             },
             onPartSelect(part: Part, cat: PartCategory) {
+                const marnifestUrl = part.manifest.replace(baseUrl.value || "", "");
                 // TODO remove test code
                 if (cat.id === 2) {
                     // onDeleteClick("door");
                     refBabylon.value?.removeDoorsApi();
-                    onAddDoorClick("slide", +part.id, part.manifest);
+                    onAddDoorClick("slide", +part.id, marnifestUrl);
                 } else if (cat.id === 3) {
                     refBabylon.value?.removeDoorsApi();
-                    onAddDoorClick("left", +part.id, part.manifest);
+                    onAddDoorClick("left", +part.id, marnifestUrl);
                 } else {
                     selectedPart.value = {
                         id: +part.id,
                         width: part.width,
                         height: part.height,
                         depth: part.depth,
-                        manifest: part.manifest,
+                        manifest: marnifestUrl,
                         catId: +cat.id,
                     };
                 }
