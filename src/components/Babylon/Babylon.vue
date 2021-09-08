@@ -468,7 +468,7 @@ export default defineComponent({
                 startX -= cube.size.x;
 
                 request({
-                    url: util.BASE_OSS_URL + cube.manifest,
+                    url: this.baseOSSUrl + cube.manifest,
                     method: "GET",
                     responseType: "json",
                 })
@@ -490,7 +490,7 @@ export default defineComponent({
                                 cubeOrigin.z + model.position.z,
                             );
                             const cubeName = ObjectType.CUBE + "_" + cube.id;
-                            const modelUrl = util.BASE_OSS_URL + model.url;
+                            const modelUrl = this.baseOSSUrl + model.url;
                             this.graphics.importMesh(
                                 modelUrl,
                                 cubeName,
@@ -515,7 +515,7 @@ export default defineComponent({
                                                 );
 
                                                 request({
-                                                    url: util.BASE_OSS_URL + item.manifest,
+                                                    url: this.baseOSSUrl + item.manifest,
                                                     method: "GET",
                                                     responseType: "json",
                                                 })
@@ -529,7 +529,7 @@ export default defineComponent({
                                                             );
 
                                                             const itemName = ObjectType.ITEM + "_" + item.id;
-                                                            const modelUrl = util.BASE_OSS_URL + model.url;
+                                                            const modelUrl = this.baseOSSUrl + model.url;
                                                             this.graphics.importMesh(
                                                                 modelUrl,
                                                                 itemName,
@@ -667,11 +667,11 @@ export default defineComponent({
                                 // Hit the available area.
                                 const info = meshName.split("_");
                                 const cubeId = info[1];
-                                const manifest = this.baseOSSUrl + this.newPart.manifest;
+                                const manifest = this.newPart.manifest;
 
                                 if (cubeId === "StartCube" || cubeId === "EndCube") {
                                     request({
-                                        url: manifest,
+                                        url: this.baseOSSUrl + manifest,
                                         method: "GET",
                                         responseType: "json",
                                     })
@@ -693,7 +693,7 @@ export default defineComponent({
                                                 );
 
                                                 const itemName = ObjectType.CUBE + "_" + cubeUUID;
-                                                const modelUrl = util.BASE_OSS_URL + model.url;
+                                                const modelUrl = this.baseOSSUrl + model.url;
                                                 this.graphics.importMesh(modelUrl, itemName, modelPos);
                                             });
 
@@ -722,7 +722,7 @@ export default defineComponent({
                                         const pickedPointY = pointerInfo.pickInfo.pickedPoint.y;
 
                                         request({
-                                            url: manifest,
+                                            url: this.baseOSSUrl + manifest,
                                             method: "GET",
                                             responseType: "json",
                                         })
@@ -749,7 +749,7 @@ export default defineComponent({
                                                     );
 
                                                     const itemName = ObjectType.ITEM + "_" + itemId;
-                                                    const modelUrl = util.BASE_OSS_URL + model.url;
+                                                    const modelUrl = this.baseOSSUrl + model.url;
                                                     this.graphics.importMesh(modelUrl, itemName, modelPos);
                                                 });
 

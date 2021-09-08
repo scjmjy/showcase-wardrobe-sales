@@ -3,8 +3,6 @@ import { Scheme, SchemeObject, Cube, Item, Door, Part, Position, Size, RelativeI
 import request from "@/utils/request";
 import apiProvider from "@/api/provider";
 
-export const BASE_OSS_URL = "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/";
-
 // export function requestJsonAsync(url: string): Promise<string> {
 //     return new Promise((resolve, reject) => {
 //         const xhr = new XMLHttpRequest();
