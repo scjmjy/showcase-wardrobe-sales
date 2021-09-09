@@ -624,6 +624,8 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+$infoWidthSmall: 328px;
+$infoWidthBig: 428px;
 .product-detail {
     position: relative;
     display: flex;
@@ -685,7 +687,8 @@ export default defineComponent({
         top: 0px;
         bottom: 0px;
         right: 0px;
-        width: 428px;
+        // width: 428px;
+        width: $infoWidthBig;
         white-space: nowrap;
         text-align: center;
         background-color: white;
@@ -744,6 +747,14 @@ export default defineComponent({
     }
     &.menu-opened &__menu2d {
         right: 0px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .product-detail {
+        &__info {
+            width: $infoWidthSmall;
+        }
     }
 }
 </style>

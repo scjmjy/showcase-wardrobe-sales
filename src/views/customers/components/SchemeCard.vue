@@ -54,6 +54,8 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+$imgSizeSmall: 160px;
+$imgSizeBig: 220px;
 .scheme-card {
     position: relative;
     display: inline-flex;
@@ -65,15 +67,15 @@ export default defineComponent({
     border-radius: 10px;
 
     &__imgList {
-        padding: 22px 0;
-        width: 300px;
+        padding: 22px 40px;
+        // width: 300px;
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
         background: white;
         &-top {
-            width: 220px;
-            height: 220px;
+            width: $imgSizeBig;
+            height: $imgSizeBig;
         }
         &-bottom {
             margin-top: 8px;
@@ -115,6 +117,17 @@ export default defineComponent({
     &__btn {
         width: 109px;
         padding: 5px 0px !important;
+    }
+}
+
+@media (max-width: 1200px) {
+    .scheme-card {
+        &__imgList {
+            &-top {
+                width: $imgSizeSmall;
+                height: $imgSizeSmall;
+            }
+        }
     }
 }
 </style>

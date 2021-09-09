@@ -1,24 +1,22 @@
 <template>
     <div class="my">
         <div class="my__info">
-            <!-- <fluid-bg class="my__info-bg" /> -->
+            <fluid-bg class="my__info-bg" />
 
             <span class="my__info-my">我的</span>
 
             <div class="my__info-profile">
-                <el-image
+                <!-- <el-image
                     class="my__info-profile__avatar u-circle"
                     src="https://picsum.photos/200"
                     circle
                     fit="contain"
-                    style="visibility: hidden"
-                />
+                /> -->
                 <span class="my__info-profile__username"> {{ user.userName }} </span>
-                <i class="my__info-profile__location iconfont icon-shop"> {{ user.organization }} </i>
+                <!-- <i class="my__info-profile__location iconfont icon-shop"> {{ user.organization }} </i> -->
                 <!-- <el-tag class="app-header__job" type="primary" color="#5EB6B366">店长助理</el-tag> -->
             </div>
-            <!-- <i class="my__info-settings icon-btn icon-settings" /> -->
-            <i></i>
+            <i class="my__info-settings icon-btn icon-settings" />
         </div>
         <div class="my__functions">
             <el-row :gutter="20" justify="center">
@@ -34,10 +32,10 @@
                 <el-col :span="6" style="text-align: center">
                     <function-card functionName="设置" icon="settings-fill" color="#0073FF" @click="gotoXXX" />
                 </el-col>
-                <!-- <div style="width: 100%; height: 30px"></div>
+                <div style="width: 100%; height: 30px"></div>
                 <el-col v-for="index in 4" :key="index" :span="6" style="text-align: center">
                     <function-card functionName="待定菜单" icon="empty" color="grey" @click="gotoXXX" />
-                </el-col> -->
+                </el-col>
             </el-row>
         </div>
     </div>
@@ -48,11 +46,13 @@ import { ElMessage } from "element-plus";
 import { computed, defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import FluidBg from "./FluidBg.vue";
 import FunctionCard from "./FunctionCard.vue";
 
 export default defineComponent({
     components: {
         FunctionCard,
+        FluidBg,
     },
     setup() {
         const store = useStore();
@@ -78,13 +78,20 @@ export default defineComponent({
     background-color: var(--el-color-bg);
     height: 100%;
     &__info {
+        z-index: 1;
         display: flex;
-        padding: 30px 51px 80px;
+        position: relative;
+        padding: 86px 51px 181px;
         justify-content: space-between;
         align-items: flex-start;
-        background-image: url(~@/assets/img/bg-my.jpg);
-        background-size: cover;
 
+        &-bg {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
         &-my {
             font-size: 40px;
             color: white;
@@ -115,9 +122,16 @@ export default defineComponent({
         }
     }
     &__functions {
-        // background: white;
+        z-index: 2;
+        position: relative;
+        background: white;
+        box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.13);
+        border-radius: 30px;
+        width: 1232px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: -122px;
         padding: 50px 120px;
-        width: 100%;
     }
 }
 </style>

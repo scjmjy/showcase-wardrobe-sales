@@ -37,6 +37,10 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+$widthSmall: 240px;
+$heightSmall: 276px;
+$widthBig: 300px;
+$heightBig: 334px;
 .new-scheme-card {
     position: relative;
     display: inline-flex;
@@ -45,8 +49,8 @@ export default defineComponent({
     align-items: center;
     overflow: hidden;
 
-    width: 300px;
-    height: 334px;
+    width: $widthBig;
+    height: $heightBig;
 
     background: #ffffff;
     box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.08);
@@ -58,6 +62,13 @@ export default defineComponent({
 
     &__text {
         margin-top: 40px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .new-scheme-card {
+        width: $widthSmall;
+        height: $heightSmall;
     }
 }
 </style>

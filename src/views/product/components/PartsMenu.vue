@@ -354,14 +354,14 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-$menu-width: 428px;
 $header-height: 56px;
 .parts-menu {
+    --menu-width: 428px;
     // border-radius: 10px 0px 0px 10px;
     position: relative;
     box-shadow: 0px 10px 18px rgba(0, 0, 0, 0.07);
     background-color: var(--el-color-bg);
-    width: $menu-width;
+    width: var(--menu-width);
     // max-width: $menu-width;
     overflow: hidden;
     white-space: nowrap;
@@ -376,7 +376,7 @@ $header-height: 56px;
         display: inline-flex;
         flex-direction: column;
         overflow: hidden;
-        width: $menu-width;
+        width: var(--menu-width);
         height: 100%;
         vertical-align: top;
         &-header {
@@ -424,7 +424,7 @@ $header-height: 56px;
         display: inline-flex;
         flex-direction: column;
         overflow: hidden;
-        width: $menu-width;
+        width: var(--menu-width);
         height: 100%;
         transition: transform 0.3s ease;
         background-color: white;
@@ -497,4 +497,10 @@ $header-height: 56px;
         }
     }
 }
+
+// @media (max-width: 1200px) {
+//     .parts-menu {
+//         --menu-width: 378px;
+//     }
+// }
 </style>

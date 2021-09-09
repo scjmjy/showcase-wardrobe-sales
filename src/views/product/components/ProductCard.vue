@@ -83,6 +83,15 @@ export default defineComponent({
     }
 }
 
+@media (max-width: 1200px) {
+    .product-card {
+        &__img {
+            width: 350px;
+            height: 350px;
+        }
+    }
+}
+
 // .image-slot {
 //     display: inline-flex;
 //     flex-direction: column;
@@ -109,5 +118,3 @@ export default defineComponent({
 //     }
 // }
 </style>
-
-<style lang="scss"></style>
