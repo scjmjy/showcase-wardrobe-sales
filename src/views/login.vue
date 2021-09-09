@@ -1,35 +1,39 @@
 <template>
     <div class="login">
-        <div class="login-form">
-            <div class="login-form__title">欢迎登录</div>
-            <el-input
-                v-model="username"
-                class="login-form__input"
-                prefix-icon="iconfont icon-username"
-                placeholder="请输入手机号码/工号"
-            >
-            </el-input>
-            <el-input
-                v-model="passwd"
-                class="login-form__input"
-                auto-complete="off"
-                prefix-icon="iconfont icon-passwd"
-                placeholder="请输入密码"
-                type="password"
-                @keyup.enter="login"
-            />
-            <div class="u-clearfix">
-                <el-link class="login-form__forgot" type="primary" @click.prevent="onForgotClick">忘记密码</el-link>
+        <login-bg></login-bg>
+        <div class="login-form-wrapper">
+            <div class="login-left"></div>
+            <div class="login-form">
+                <div class="login-form__title">欢迎登录</div>
+                <el-input
+                    v-model="username"
+                    class="login-form__input"
+                    prefix-icon="iconfont icon-username"
+                    placeholder="请输入手机号码/工号"
+                >
+                </el-input>
+                <el-input
+                    v-model="passwd"
+                    class="login-form__input"
+                    auto-complete="off"
+                    prefix-icon="iconfont icon-passwd"
+                    placeholder="请输入密码"
+                    type="password"
+                    @keyup.enter="login"
+                />
+                <div class="u-clearfix">
+                    <el-link class="login-form__forgot" type="primary" @click.prevent="onForgotClick">忘记密码</el-link>
+                </div>
+                <button
+                    class="login-form__btn btn-primary"
+                    v-loading="loginLoading"
+                    :disabled="isBtnDisabled"
+                    @click="login"
+                >
+                    登录
+                </button>
+                <el-link class="login-form__code" type="primary" @click.prevent="onCodeClick">验证码登录</el-link>
             </div>
-            <button
-                class="login-form__btn btn-primary"
-                v-loading="loginLoading"
-                :disabled="isBtnDisabled"
-                @click="login"
-            >
-                登录
-            </button>
-            <el-link class="login-form__code" type="primary" @click.prevent="onCodeClick">验证码登录</el-link>
         </div>
     </div>
 </template>
@@ -40,10 +44,14 @@ import md5 from "md5";
 import store from "@/store";
 import router from "@/router";
 import { AjaxResponse, LoginResult } from "@/api/interface/provider.interface";
+import LoginBg from "./login/LoginBg.vue";
 
 export default defineComponent({
     name: "Login",
     props: {},
+    components: {
+        LoginBg,
+    },
     data() {
         return {
             username: "admin",
@@ -120,16 +128,27 @@ export default defineComponent({
 .login {
     width: 100%;
     height: 100%;
-    background-image: url(~@/assets/img/bg-login.png);
-    background-size: 100% 100%;
+    // background-image: url(~@/assets/img/bg-login.png);
+    // background-size: 100% 100%;
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
+    &-form-wrapper {
+        display: flex;
+        z-index: 100;
+    }
+    &-left {
+        width: 595px;
+        height: 725px;
+        background-image: url(~@/assets/img/bg-login-left.png);
+        background-size: 100% 100%;
+    }
     &-form {
-        width: 618px;
+        width: 518px;
         // height: 661px;
-        padding: 46px 98px 95px;
-        border-radius: 30px;
+        padding: 40px 40px;
+        // border-radius: 30px;
         background-color: white;
         text-align: center;
         // display: flex;
@@ -163,6 +182,25 @@ export default defineComponent({
             margin-top: 52px;
             display: block;
             width: 100%;
+        }
+    }
+}
+@media (max-width: 1200px) {
+    .login {
+        &-left {
+            width: 446px;
+            height: 543px;
+        }
+
+        &-form {
+            width: 418px;
+
+            &__input {
+                margin-top: 30px;
+            }
+            &__btn {
+                margin-top: 32px;
+            }
         }
     }
 }

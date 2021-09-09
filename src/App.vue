@@ -67,7 +67,9 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    width: 1366px;
+    min-width: 1024px;
+    max-width: 1366px;
+    min-height: 768px;
     margin: auto;
 }
 

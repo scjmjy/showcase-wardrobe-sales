@@ -1,40 +1,44 @@
 <template>
     <div class="customer-login">
-        <app-header back="" />
-        <div class="customer-login-form">
-            <div class="customer-login-form__title">新客户接待</div>
-            <el-input
-                v-model="formData.customerName"
-                class="customer-login-form__input"
-                prefix-icon="iconfont icon-username"
-                placeholder="请输入客户名称"
-            >
-                <template #suffix>
-                    <i class="el-input__icon iconfont icon-btn icon-random" @click="onRandomClick"></i>
+        <app-header-simple back="" />
+        <login-bg></login-bg>
+        <div class="customer-login-form-wrapper">
+            <div class="customer-login-left"></div>
+            <div class="customer-login-form">
+                <div class="customer-login-form__title">新客户接待</div>
+                <el-input
+                    v-model="formData.customerName"
+                    class="customer-login-form__input"
+                    prefix-icon="iconfont icon-username"
+                    placeholder="请输入客户名称"
+                >
+                    <template #suffix>
+                        <i class="el-input__icon iconfont icon-btn icon-random" @click="onRandomClick"></i>
 
-                    <!-- <el-button icon="iconfont icon-random" circle></el-button> -->
-                </template>
-            </el-input>
-            <el-input
-                v-model="formData.phoneNumber"
-                class="customer-login-form__input"
-                auto-complete="off"
-                prefix-icon="iconfont icon-passwd"
-                placeholder="请输入客户手机号码（选填）"
-                @keyup.enter="startService"
-            />
-            <el-radio-group class="customer-login-form__gender" v-model="formData.gender">
-                <el-radio label="male">先生</el-radio>
-                <el-radio label="female">女士</el-radio>
-            </el-radio-group>
-            <button
-                class="customer-login-form__btn btn-primary"
-                v-loading="loginLoading"
-                :disabled="isLoginDisabled"
-                @click="startService"
-            >
-                开始接待
-            </button>
+                        <!-- <el-button icon="iconfont icon-random" circle></el-button> -->
+                    </template>
+                </el-input>
+                <el-input
+                    v-model="formData.phoneNumber"
+                    class="customer-login-form__input"
+                    auto-complete="off"
+                    prefix-icon="iconfont icon-passwd"
+                    placeholder="请输入客户手机号码（选填）"
+                    @keyup.enter="startService"
+                />
+                <el-radio-group class="customer-login-form__gender" v-model="formData.gender">
+                    <el-radio label="male">先生</el-radio>
+                    <el-radio label="female">女士</el-radio>
+                </el-radio-group>
+                <button
+                    class="customer-login-form__btn btn-primary"
+                    v-loading="loginLoading"
+                    :disabled="isLoginDisabled"
+                    @click="startService"
+                >
+                    开始接待
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -45,13 +49,15 @@ import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { formatPlain } from "@/utils/date";
-import AppHeader from "./AppHeader.vue";
 import apiProvider from "@/api/provider";
+import LoginBg from "@/views/login/LoginBg.vue";
+import AppHeaderSimple from "./AppHeaderSimple.vue";
 
 export default defineComponent({
     name: "CustomerLogin",
     components: {
-        AppHeader,
+        LoginBg,
+        AppHeaderSimple,
     },
     setup() {
         const formData = reactive({
@@ -104,6 +110,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .customer-login {
     position: relative;
+    padding-top: 80px;
     width: 100%;
     height: 100%;
     background-image: url(~@/assets/img/bg-login.png);
@@ -111,6 +118,17 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
+
+    &-form-wrapper {
+        display: flex;
+        z-index: 100;
+    }
+    &-left {
+        width: 500px;
+        height: 600px;
+        background-image: url(~@/assets/img/bg-login-left.png);
+        background-size: 100% 100%;
+    }
     &-form {
         width: 618px;
         // height: 661px;
@@ -152,6 +170,25 @@ export default defineComponent({
             margin-top: 50px;
             display: block;
             width: 100%;
+        }
+    }
+}
+@media (max-width: 1200px) {
+    .customer-login {
+        &-left {
+            width: 400px;
+            height: 500px;
+        }
+
+        &-form {
+            width: 558px;
+
+            &__input {
+                margin-top: 30px;
+            }
+            &__btn {
+                margin-top: 32px;
+            }
         }
     }
 }
