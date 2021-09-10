@@ -126,6 +126,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .login {
+    padding-top: 80px;
     width: 100%;
     height: 100%;
     // background-image: url(~@/assets/img/bg-login.png);
@@ -139,8 +140,8 @@ export default defineComponent({
         z-index: 100;
     }
     &-left {
-        width: 595px;
-        height: 725px;
+        width: 530px;
+        height: 645px;
         background-image: url(~@/assets/img/bg-login-left.png);
         background-size: 100% 100%;
     }
@@ -173,9 +174,15 @@ export default defineComponent({
         &__forgot {
             margin-top: 16px;
             float: right;
+            :deep(.el-link--inner) {
+                color: var(--el-color-primary-new);
+            }
         }
         &__code {
             margin-top: 49px;
+            :deep(.el-link--inner) {
+                color: var(--el-color-primary-new);
+            }
             font-size: 26px !important;
         }
         &__btn {

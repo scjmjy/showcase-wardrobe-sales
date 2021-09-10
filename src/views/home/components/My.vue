@@ -23,16 +23,17 @@
         <div class="my__functions">
             <el-row :gutter="20" justify="center">
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="我的客户" icon="customer" color="#00FFF6" @click="gotoCustomerList" />
+                    <!-- <function-card functionName="我的客户" icon="customer" color="#00FFF6" @click="gotoCustomerList" /> -->
+                    <function-card functionName="我的客户" icon="customer" color="#9D1D2F" @click="gotoCustomerList" />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="商品库" icon="products" color="#FF5E00" @click="gotoProductList" />
+                    <function-card functionName="商品库" icon="products" color="#D69E66" @click="gotoProductList" />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="帮助手册" icon="manual" color="#FFBB00" @click="gotoXXX" />
+                    <function-card functionName="帮助手册" icon="manual" color="#D7CBBF" @click="gotoXXX" />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="设置" icon="settings-fill" color="#0073FF" @click="gotoXXX" />
+                    <function-card functionName="设置" icon="settings-fill" color="#849DA6" @click="gotoXXX" />
                 </el-col>
                 <!-- <div style="width: 100%; height: 30px"></div>
                 <el-col v-for="index in 4" :key="index" :span="6" style="text-align: center">
@@ -82,7 +83,7 @@ export default defineComponent({
         padding: 30px 51px 80px;
         justify-content: space-between;
         align-items: flex-start;
-        background-image: url(~@/assets/img/bg-my.jpg);
+        background-image: url(~@/assets/img/bg-my.png);
         background-size: cover;
 
         &-my {

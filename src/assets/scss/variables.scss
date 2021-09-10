@@ -1,4 +1,5 @@
 @use "sass:map";
+@use "sass:math";
 
 // colors
 $--colors: () !default;
@@ -9,6 +10,7 @@ $--colors: map.deep-merge(
         "primary": (
             "base": #5eb6b3,
             "dark": #4f9493,
+            "new": #4472c4,
         ),
         "success": (
             "base": #67c23a,
@@ -60,12 +62,18 @@ $--button-font-size: map.merge(
 
 $--color-bg: map.get($--colors, "bg", "base");
 $--color-primary-dark: map.get($--colors, "primary", "dark");
+$--color-primary-new: map.get($--colors, "primary", "new");
 
 $--color-primary: map.get($--colors, "primary", "base");
 
 :root {
     --el-color-bg: #{$--color-bg};
     --el-color-primary-dark: #{$--color-primary-dark};
+    --el-color-primary-new: #{$--color-primary-new};
+
+    @for $i from 1 through 9 {
+        --el-color-primary-new-light-#{$i}: #{mix(white, $--color-primary-new, math.percentage(math.div($i, 10)))};
+    }
 }
 
 $--tag: () !default;

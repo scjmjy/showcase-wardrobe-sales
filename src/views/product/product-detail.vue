@@ -557,12 +557,15 @@ export default defineComponent({
             //     showMenu.value = !showMenu.value;
             // },
             onPartsMenuAction(action: ActionType) {
+                const scheme2d = product.value as Scheme;
                 switch (action) {
                     case "manifest":
-                        refPartsMenu.value?.showManifest(product.value.id, false);
+                        refPartsMenu.value?.showManifest(scheme2d.id, false);
                         break;
                     case "offer":
-                        refPartsMenu.value?.showManifest(product.value.id, true);
+                        refPartsMenu.value?.showManifest(scheme2d.id, true).then(() => {
+                            store.commit("SET-DIRTY-SCHEME", { cid: scheme2d.cid, dirty: true });
+                        });
                         break;
                     case "save":
                         {
@@ -572,7 +575,7 @@ export default defineComponent({
                                 text: "方案保存中，请稍后......",
                                 spinner: "el-icon-loading",
                             });
-                            util.saveSchemeAsync(product.value.id, scheme.value!)
+                            util.saveSchemeAsync(scheme2d.id, scheme.value!)
                                 .then((res) => {})
                                 .finally(() => {
                                     setTimeout(() => {

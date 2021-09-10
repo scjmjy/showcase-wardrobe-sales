@@ -1,7 +1,6 @@
 <template>
     <div class="function-card u-clickable">
-        <!-- <i class="function-card__icon iconfont" :class="'icon-' + icon" :style="iconStyle"></i> -->
-        <span class="function-card__icon" :style="iconStyle"></span>
+        <i class="function-card__icon iconfont" :class="'icon-' + icon" :style="iconStyle"></i>
         <div class="function-card__name">
             <div>{{ functionName }}</div>
         </div>
@@ -29,8 +28,7 @@ export default defineComponent({
     },
     setup(props) {
         const iconStyle = computed(() => ({
-            // color: props.color,
-            "background-color": props.color,
+            color: props.color,
         }));
         return {
             iconStyle,
@@ -48,17 +46,12 @@ export default defineComponent({
     // border-radius: 4px;
     // box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
     &__icon {
-        // font-size: 65px;
-        display: inline-block;
-        width: 65px;
-        height: 65px;
-        border-radius: 50%;
+        font-size: 65px;
     }
     &__name {
         margin-top: 16px;
-        // font-size: 30px;
-        font-size: 22px;
-        // font-weight: 600;
+        font-size: 30px;
+        font-weight: bold;
         color: #172021;
     }
 }

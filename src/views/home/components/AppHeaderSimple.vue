@@ -1,12 +1,12 @@
 <template>
     <div class="app-header-simple">
         <div></div>
-        <div class="app-header__right">
+        <div class="app-header-simple__right">
             <!-- <el-image class="app-header__avatar u-circle" src="https://picsum.photos/200" circle fit="contain" /> -->
-            <span class="app-header__username"> {{ user.userName }} </span>
-            <!-- <el-tag class="app-header__job" type="primary" color="#5EB6B366">{{ user.rank }}</el-tag> -->
-            <el-divider direction="vertical"></el-divider>
-            <el-button class="app-header__logout" type="text" @click="logout"> 退出 </el-button>
+            <span class="app-header-simple__username"> {{ user.userName }} </span>
+            <el-tag class="app-header-simple__job" type="primary" color="#D6CCBA">{{ user.rank }}</el-tag>
+            <!-- <el-divider direction="vertical"></el-divider> -->
+            <el-button class="app-header-simple__logout" type="text" @click="logout"> 退出 </el-button>
         </div>
     </div>
 </template>
@@ -66,10 +66,11 @@ export default defineComponent({
     &__job {
         margin-left: 11px;
         margin-right: 14px;
-        color: inherit !important;
+        color: white !important;
+        border-radius: 5px;
     }
     &__logout {
-        margin-left: 14px;
+        // margin-left: 14px;
         color: inherit !important;
     }
 }

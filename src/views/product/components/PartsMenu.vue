@@ -332,7 +332,7 @@ export default defineComponent({
             },
             showManifest(shcemeId: number | string, offer: boolean) {
                 slide("left");
-                apiProvider.requestSchemeOffer(shcemeId).then((res) => {
+                return apiProvider.requestSchemeOffer(shcemeId).then((res) => {
                     if (res.ok && res.data) {
                         offerManifest.value = res.data;
                     }
