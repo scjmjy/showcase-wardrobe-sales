@@ -11,7 +11,8 @@
     font-family: "iconfont" !important;
     // font-size: 16px;
     // color: var(--el-color-primary);
-    color: var(--el-color-primary-new);
+    // color: var(--el-color-primary-new);
+    color: #c1b399;
     // color: inherit;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
@@ -29,6 +30,38 @@
     &:active {
         color: var(--el-color-primary);
     }
+}
+
+.icon-phone-2:before {
+    content: "\e609";
+}
+
+.icon-products-2:before {
+    content: "\e608";
+}
+
+.icon-customer-3:before {
+    content: "\e607";
+}
+
+.icon-manual-2:before {
+    content: "\e606";
+}
+
+.icon-customer-2:before {
+    content: "\e605";
+}
+
+.icon-my-2:before {
+    content: "\e604";
+}
+
+.icon-settings-fill-2:before {
+    content: "\e603";
+}
+
+.icon-D:before {
+    content: "\e600";
 }
 
 .icon-parts-outdoor:before {

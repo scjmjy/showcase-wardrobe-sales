@@ -9,7 +9,7 @@
                 <el-input
                     v-model="formData.customerName"
                     class="customer-login-form__input"
-                    prefix-icon="iconfont icon-username"
+                    prefix-icon="iconfont icon-my"
                     placeholder="请输入客户名称"
                 >
                     <template #suffix>
@@ -22,7 +22,7 @@
                     v-model="formData.phoneNumber"
                     class="customer-login-form__input"
                     auto-complete="off"
-                    prefix-icon="iconfont icon-passwd"
+                    prefix-icon="iconfont icon-phone-2"
                     placeholder="请输入客户手机号码（选填）"
                     @keyup.enter="startService"
                 />

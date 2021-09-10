@@ -6,13 +6,13 @@
                 <customer-login v-else />
 
                 <template #label>
-                    <tab-pane-label label="客户接待" icon="customer" :disabled="currentPane === 'my'" />
+                    <tab-pane-label label="客户接待" icon="customer-3" :disabled="currentPane === 'my'" />
                 </template>
             </el-tab-pane>
             <el-tab-pane name="my"
                 ><my />
                 <template #label>
-                    <tab-pane-label label="个人中心" icon="my" :disabled="currentPane === 'customer'" /> </template
+                    <tab-pane-label label="个人中心" icon="my-2" :disabled="currentPane === 'customer'" /> </template
             ></el-tab-pane>
         </el-tabs>
     </div>

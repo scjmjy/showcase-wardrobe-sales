@@ -14,7 +14,7 @@
                     style="visibility: hidden"
                 />
                 <span class="my__info-profile__username"> {{ user.userName }} </span>
-                <i class="my__info-profile__location iconfont icon-shop"> {{ user.organization }} </i>
+                <i class="my__info-profile__location iconfont icon-shop"> &nbsp;{{ user.organization }} </i>
                 <!-- <el-tag class="app-header__job" type="primary" color="#5EB6B366">店长助理</el-tag> -->
             </div>
             <!-- <i class="my__info-settings icon-btn icon-settings" /> -->
@@ -23,17 +23,21 @@
         <div class="my__functions">
             <el-row :gutter="20" justify="center">
                 <el-col :span="6" style="text-align: center">
-                    <!-- <function-card functionName="我的客户" icon="customer" color="#00FFF6" @click="gotoCustomerList" /> -->
-                    <function-card functionName="我的客户" icon="customer" color="#9D1D2F" @click="gotoCustomerList" />
+                    <function-card
+                        functionName="我的客户"
+                        icon="customer-2"
+                        color="#A35443"
+                        @click="gotoCustomerList"
+                    />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="商品库" icon="products" color="#D69E66" @click="gotoProductList" />
+                    <function-card functionName="商品库" icon="products-2" color="#D69F67" @click="gotoProductList" />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="帮助手册" icon="manual" color="#D7CBBF" @click="gotoXXX" />
+                    <function-card functionName="帮助手册" icon="manual-2" color="#D7CBBF" @click="gotoXXX" />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="设置" icon="settings-fill" color="#849DA6" @click="gotoXXX" />
+                    <function-card functionName="设置" icon="settings-fill-2" color="#859DA7" @click="gotoXXX" />
                 </el-col>
                 <!-- <div style="width: 100%; height: 30px"></div>
                 <el-col v-for="index in 4" :key="index" :span="6" style="text-align: center">

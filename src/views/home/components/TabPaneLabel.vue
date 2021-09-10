@@ -43,12 +43,12 @@ export default defineComponent({
     justify-content: center;
     align-items: center;
     padding-top: 5px;
-    color: var(--el-color-primary) !important;
+    color: var(--el-color-primary-new) !important;
 
     &.disabled {
         color: #d8d8d8 !important;
         &:hover {
-            color: var(--el-color-primary) !important;
+            color: var(--el-color-primary-new-light-5) !important;
         }
     }
 
