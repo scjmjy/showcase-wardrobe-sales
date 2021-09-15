@@ -217,7 +217,7 @@ export default defineComponent({
                             itemMf.models.forEach((model: any) => {
                                 const modelPos = new BABYLON.Vector3(
                                     startX - doorWidth * 0.5 + model.position.x,
-                                    0.02 + model.position.y,
+                                    0.03 + model.position.y,
                                     firstCubeData.depth * 0.5 + model.position.z,
                                 );
                                 const modelScaling = new BABYLON.Vector3(
