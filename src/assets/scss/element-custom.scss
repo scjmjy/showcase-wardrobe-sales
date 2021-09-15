@@ -30,6 +30,25 @@
     }
 }
 
+.el-dialog {
+    border-radius: 20px;
+    overflow: hidden;
+    &__header {
+        background-color: var(--el-color-primary);
+        text-align: center;
+        padding: 20px 0px;
+    }
+    &__title {
+        font-size: 26px;
+        font-weight: bold;
+        color: white;
+    }
+    &__headerbtn:focus &__close,
+    &__headerbtn:hover &__close {
+        color: white;
+    }
+}
+
 $darkColor: #172021;
 
 .el-button--dark.is-active {

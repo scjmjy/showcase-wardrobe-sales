@@ -112,16 +112,15 @@ export default defineComponent({
                     // productCats.forEach((item, index) => {
                     //     defaultOpeneds.value.push(item.id + "");
                     // });
-                    defaultOpeneds.value.push(productCats[0].id.toString());
+                    // defaultOpeneds.value.push(productCats[0].id.toString());
                     nextTick(() => {
-                        defaultOpeneds.value.forEach((sub) => {
-                            elMenu.value?.open(sub);
-                        });
-                    });
+                        // defaultOpeneds.value.forEach((sub) => {
+                        //     elMenu.value?.open(sub);
+                        // });
 
-                    defaultActive.value = findDefaultActiveProdCat(productCats);
-                    // onProdCatSelect(defaultActive.value || "");
-                    context.emit("select", defaultActive.value);
+                        defaultActive.value = findDefaultActiveProdCat(productCats);
+                        context.emit("select", defaultActive.value);
+                    });
                 }
             }
         });

@@ -1,30 +1,8 @@
 <template>
     <div class="metal-item">
-        <div class="metal-item__title">{{ metal.name }}</div>
-        <div class="metal-item__detail">
-            <el-image></el-image>
-            <div>
-                <div>
-                    <el-select v-model="result.brand"></el-select>
-                    <div>
-                        颜色
-                        <el-select v-model="result.color"></el-select>
-                    </div>
-                    <div>
-                        材质
-                        <el-select v-model="result.material"></el-select>
-                    </div>
-
-                    <el-input-number
-                        v-model="result.count"
-                        @change="handleChange"
-                        :min="1"
-                        :max="10"
-                        label="数量"
-                    ></el-input-number>
-                </div>
-            </div>
-        </div>
+        <el-image class="metal-item__img" :src="url"></el-image>
+        <div class="metal-item__name">{{ name }}</div>
+        <el-input-number class="metal-item__count" v-bind="$attrs" :min="0" label="数量"></el-input-number>
     </div>
 </template>
 
@@ -34,27 +12,34 @@ import { defineComponent, reactive } from "vue";
 export default defineComponent({
     name: "MetalItem",
     props: {
-        metal: {
-            type: Object,
-            default: () => ({}),
+        name: {
+            type: String,
+            default: "",
         },
-        // result: {
-        //     type: Object,
-        //     default: () => ({}),
-        // },
+        url: {
+            type: String,
+            default: "",
+        },
     },
     setup() {
-        const result = reactive({
-            count: 0,
-            color: "",
-            brand: "",
-            material: "",
-        });
-        return {
-            result,
-        };
+        return {};
     },
 });
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.metal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    &__img {
+        width: 80px;
+        height: 80px;
+    }
+    &__name {
+        font-size: 26px;
+        font-weight: bold;
+    }
+}
+</style>

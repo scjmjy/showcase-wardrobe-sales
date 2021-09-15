@@ -221,6 +221,21 @@ export interface SchemeOffer {
     ptime: string;
     details: PartOffer[];
 }
+
+export interface ManifestPart {
+    pname: string;
+    count: string;
+    pic: string;
+    type: "3d" | "2d"; // 配件类型（1：3d；0：2d）
+}
+
+// export type SchemeManifest = ManifestPart[];
+export interface SchemeManifest {
+    offer: never;
+    ptime: never;
+    details: ManifestPart[];
+}
+
 export default interface ApiProvider {
     /**
      * 登录接口
@@ -302,4 +317,5 @@ export default interface ApiProvider {
     updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>>;
 
     requestSchemeOffer(schemeId: number | string): Promise<AjaxResponse<SchemeOffer>>;
+    requestSchemeManifest(schemeId: number | string): Promise<AjaxResponse<SchemeManifest>>;
 }

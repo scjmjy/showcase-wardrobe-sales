@@ -54,23 +54,25 @@
                     >返回</el-button
                 >
                 <span class="parts-menu__right-header-title"> 明细清单 </span>
-                <el-button type="text" size="mini" icon="el-icon-printer">打印清单</el-button>
+                <i style="flex: 1"></i>
+                <!-- <el-button type="text" size="mini" icon="el-icon-printer">打印清单</el-button> -->
             </div>
-            <div v-if="offerManifest" class="parts-menu__right-manifest">
+            <div v-if="schemeManifest" class="parts-menu__right-manifest">
                 <manifest-item
-                    v-for="(item, index) of offerManifest.details"
+                    v-for="(item, index) of schemeManifest.details"
                     :key="index"
                     :url="item.pic"
                     :name="item.pname"
                     :price="item.price"
+                    :count="item.count"
                 ></manifest-item>
             </div>
-            <div v-if="offerManifest" class="parts-menu__right-price">
+            <!-- <div v-if="schemeManifest" class="parts-menu__right-price">
                 <span class="price__label">合计：</span>
                 <span class="price__symbol"> ￥ </span>
                 <span class="price__offer">{{ offerPrice.integer }}</span>
                 <span class="price__symbol">.{{ offerPrice.decimal }} </span>
-            </div>
+            </div> -->
         </div>
         <i
             class="parts-menu__trigger"
@@ -93,7 +95,7 @@ import {
     PartCategory,
     PartCategoryMeta,
     ProductCategory,
-    SchemeOffer,
+    SchemeManifest,
 } from "@/api/interface/provider.interface";
 import { computed, defineComponent, PropType, provide, ref, watch } from "vue";
 import { useStore } from "vuex";
@@ -106,7 +108,6 @@ import PartBgTab from "./PartBgTab.vue";
 import CatsList from "./CatsList.vue";
 import type { ImgCardItemType } from "./ImgCardItem.vue";
 import ManifestItem from "./ManifestItem.vue";
-import { splitPrice } from "@/utils/currency";
 
 interface TabType {
     component: string;
@@ -149,7 +150,7 @@ export default defineComponent({
         const cats = ref<PartCategory[]>([]);
         const catMeta = ref<PartCategoryMeta>();
         const selectedTabName = ref<string>();
-        const offerManifest = ref<SchemeOffer>();
+        const schemeManifest = ref<SchemeManifest>();
         const slideLeft = ref(false);
         apiProvider.requestPartCategories().then((res) => {
             if (res.ok) {
@@ -198,7 +199,15 @@ export default defineComponent({
         function onUpLevelClick() {
             tabStack.value.pop();
             const tabs = tabStack.value[tabStack.value.length - 1] || topLevelTabs.value;
-            if (tabs.length >= 2) {
+            // if (tabs.length >= 2) {
+            //     selectedTabName.value = tabs[1].name;
+            // } else {
+            //     selectedTabName.value = "bg";
+            // }
+
+            if (props.type === "in") {
+                selectedTabName.value = tabs[0].name;
+            } else if (tabs.length >= 2) {
                 selectedTabName.value = tabs[1].name;
             } else {
                 selectedTabName.value = "bg";
@@ -290,7 +299,7 @@ export default defineComponent({
             catMeta,
             refDiv,
             selectedTabName,
-            offerManifest,
+            schemeManifest,
             slideLeft,
             slide,
             onCatChange(tab: any) {
@@ -332,22 +341,22 @@ export default defineComponent({
             },
             showManifest(shcemeId: number | string, offer: boolean) {
                 slide("left");
-                return apiProvider.requestSchemeOffer(shcemeId).then((res) => {
+                return apiProvider.requestSchemeManifest(shcemeId).then((res) => {
                     if (res.ok && res.data) {
-                        offerManifest.value = res.data;
+                        schemeManifest.value = res.data;
                     }
                 });
             },
-            offerPrice: computed(() => {
-                if (!offerManifest.value) {
-                    return {
-                        integer: "",
-                        decimal: "",
-                    };
-                } else {
-                    return splitPrice(+offerManifest.value.offer);
-                }
-            }),
+            // offerPrice: computed(() => {
+            //     if (!schemeManifest.value) {
+            //         return {
+            //             integer: "",
+            //             decimal: "",
+            //         };
+            //     } else {
+            //         return splitPrice(+schemeManifest.value.offer);
+            //     }
+            // }),
         };
     },
 });
@@ -443,36 +452,38 @@ $header-height: 56px;
                 color: var(--el-color-black);
                 font-size: 26px;
                 font-weight: bold;
-                flex: 1;
+                flex: 2;
                 text-align: center;
             }
             &-back {
                 padding: 0px;
                 line-height: normal;
                 min-height: unset;
+                flex: 1;
             }
         }
         &-manifest {
             flex: 1;
             overflow-y: auto;
             padding: 20px 30px;
+            margin-bottom: 70px;
         }
-        &-price {
-            padding: 30px;
-            text-align: right;
-            font-weight: bold;
-            .price__label {
-                font-size: 26px;
-            }
-            .price__symbol {
-                color: #bb4050;
-                font-size: 19px;
-            }
-            .price__offer {
-                color: #bb4050;
-                font-size: 41px;
-            }
-        }
+        // &-price {
+        //     padding: 30px;
+        //     text-align: right;
+        //     font-weight: bold;
+        //     .price__label {
+        //         font-size: 26px;
+        //     }
+        //     .price__symbol {
+        //         color: #bb4050;
+        //         font-size: 19px;
+        //     }
+        //     .price__offer {
+        //         color: #bb4050;
+        //         font-size: 41px;
+        //     }
+        // }
     }
     &__trigger {
         z-index: 10;

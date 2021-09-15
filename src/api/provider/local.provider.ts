@@ -14,6 +14,7 @@ import ApiProvider, {
     Product,
     ProductCategory,
     Scheme,
+    SchemeManifest,
     SchemeOffer,
 } from "../interface/provider.interface";
 
@@ -372,6 +373,9 @@ export default class LocalProvider implements ApiProvider {
         throw new Error("Method not implemented.");
     }
     requestSchemeOffer(schemeId: string | number): Promise<AjaxResponse<SchemeOffer>> {
+        throw new Error("Method not implemented.");
+    }
+    requestSchemeManifest(schemeId: string | number): Promise<AjaxResponse<SchemeManifest>> {
         throw new Error("Method not implemented.");
     }
 }

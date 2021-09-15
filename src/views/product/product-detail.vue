@@ -46,7 +46,9 @@
                         :loading="loadingCopying"
                         >由此方案定制</el-button
                     >
-                    <el-button v-if="isSelf && !product.offer" type="success" round @click="offer">报价</el-button>
+                    <el-button v-if="isSelf && !product.offer" type="success" round @click="onPartsMenuAction('offer')"
+                        >报价</el-button
+                    >
                 </div>
             </div>
         </el-collapse-transition-h>
@@ -114,8 +116,13 @@
             @confirm="onCustomizeConfirm"
             @cancel="onCustomizeCancel"
         />
-        <offer-dlg v-model="showOfferDlg" title="报价" @confirm="showOfferDlg = false" @cancel="showOfferDlg = false" />
-        <metals-dlg v-model="showMetalsDlg" />
+        <offer-dlg
+            v-model="showOfferDlg"
+            :schemeId="product.id"
+            :schemeName="product.product"
+            :customerName="customerName"
+        />
+        <metals-dlg v-model="showMetalsDlg" :scheme3d="scheme" :part="selectedMetalPart" />
     </div>
 </template>
 
@@ -221,6 +228,7 @@ export default defineComponent({
         const refBabylon = ref<InstanceType<typeof Babylon>>();
         const refPartsMenu = ref<InstanceType<typeof PartsMenu>>();
         const selectedPart = ref<PartType>();
+        const selectedMetalPart = ref<Part>();
         let selectedPartId = ref(0);
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
@@ -436,6 +444,45 @@ export default defineComponent({
         }
         const baseUrl = computed(() => store.state.globalCfg?.baseUrl);
 
+        const { customerName } = store.state.currentCustomer;
+
+        async function onPartsMenuAction(action: ActionType) {
+            const scheme2d = product.value as Scheme;
+            switch (action) {
+                case "manifest":
+                    await refPartsMenu.value?.showManifest(scheme2d.id, false);
+                    break;
+                case "offer":
+                    showOfferDlg.value = true;
+                    store.commit("SET-DIRTY-SCHEME", { cid: scheme2d.cid, dirty: true });
+                    break;
+                case "save":
+                    {
+                        const loading = ElLoading.service({
+                            fullscreen: true,
+                            body: true,
+                            text: "方案保存中，请稍后......",
+                            spinner: "el-icon-loading",
+                        });
+                        await util
+                            .saveSchemeAsync(scheme2d.id, scheme.value!)
+                            .then((res) => {})
+                            .finally(() => {
+                                setTimeout(() => {
+                                    loading.close();
+                                    ElMessage({
+                                        type: "success",
+                                        message: "方案保存成功！",
+                                    });
+                                }, 200);
+                            });
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
         return {
             gooeyMenuItems,
             gooeyMenuOpened,
@@ -443,6 +490,7 @@ export default defineComponent({
             refPartsMenu,
             scheme,
             selectedPart,
+            selectedMetalPart,
             selectedPartId,
             selectedWallId,
             selectedFloorId,
@@ -480,8 +528,8 @@ export default defineComponent({
             customizeDlgTitle,
             loadingCreating,
             loadingCopying,
+            customerName,
             titles: computed(() => {
-                const { customerName } = store.state.currentCustomer;
                 let productName = "";
                 const p = product.value;
                 if (isProduct(p)) {
@@ -499,9 +547,6 @@ export default defineComponent({
                     };
                 }
             }),
-            offer() {
-                showOfferDlg.value = true;
-            },
             newScheme() {
                 if (!store.state.currentCustomer.customerId) {
                     ElMessage({
@@ -534,9 +579,11 @@ export default defineComponent({
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;
             },
-            gotoBack() {
+            onPartsMenuAction,
+            async gotoBack() {
                 // router.back();
                 // TODO make sure scheme has saved.
+                await onPartsMenuAction("save");
                 mode.value = "view";
             },
             // onSaveClick() {},
@@ -556,44 +603,12 @@ export default defineComponent({
             // onPartsClick(val: string) {
             //     showMenu.value = !showMenu.value;
             // },
-            onPartsMenuAction(action: ActionType) {
-                const scheme2d = product.value as Scheme;
-                switch (action) {
-                    case "manifest":
-                        refPartsMenu.value?.showManifest(scheme2d.id, false);
-                        break;
-                    case "offer":
-                        refPartsMenu.value?.showManifest(scheme2d.id, true).then(() => {
-                            store.commit("SET-DIRTY-SCHEME", { cid: scheme2d.cid, dirty: true });
-                        });
-                        break;
-                    case "save":
-                        {
-                            const loading = ElLoading.service({
-                                fullscreen: true,
-                                body: true,
-                                text: "方案保存中，请稍后......",
-                                spinner: "el-icon-loading",
-                            });
-                            util.saveSchemeAsync(scheme2d.id, scheme.value!)
-                                .then((res) => {})
-                                .finally(() => {
-                                    setTimeout(() => {
-                                        loading.close();
-                                        ElMessage({
-                                            type: "success",
-                                            message: "方案保存成功！",
-                                        });
-                                    }, 200);
-                                });
-                        }
-                        break;
-
-                    default:
-                        break;
-                }
-            },
             onPartSelect(part: Part, cat: PartCategory) {
+                if (!part.manifest) {
+                    selectedMetalPart.value = part;
+                    showMetalsDlg.value = true;
+                    return;
+                }
                 const marnifestUrl = part.manifest.replace(baseUrl.value || "", "");
                 // TODO remove test code
                 if (cat.id === 2) {
@@ -700,6 +715,9 @@ $infoWidthBig: 428px;
             font-size: 32px;
             font-weight: bold;
             color: black;
+        }
+        &-name {
+            white-space: pre-wrap;
         }
         &-offer {
             margin-top: 15px;

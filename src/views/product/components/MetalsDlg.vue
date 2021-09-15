@@ -1,30 +1,66 @@
 <template>
-    <el-dialog :close-on-click-modal="false" :close-on-press-escape="false" v-bind="$attrs">
-        <template #title>
-            <span> 合计数量 </span>
-            <span> 33 </span>
-        </template>
-        TODO 五金
-        <template #footer>
+    <el-dialog
+        class="metals-dlg"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        title="五金"
+        width="650px"
+        v-bind="$attrs"
+        @opened="onOpened"
+    >
+        <metal-item
+            v-if="schemePart"
+            v-model="schemePart.count"
+            :name="part.name"
+            :url="part.pic"
+            @change="handleChange"
+        />
+        <!-- <template #footer>
             <el-button type="primary" @click="doConfirm">确 定</el-button>
-        </template>
+        </template> -->
     </el-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from "vue";
+import { computed, defineComponent, PropType, ref } from "vue";
+import { Part as Part3D, Scheme } from "@/lib/scheme";
+import { Part } from "@/api/interface/provider.interface";
+import MetalItem from "./MetalItem.vue";
 
 export default defineComponent({
     name: "MetalsDlg",
-    emits: ["confirm", "cancel"],
+    components: {
+        MetalItem,
+    },
+    props: {
+        scheme3d: {
+            type: Object as PropType<Scheme>,
+            default: undefined,
+        },
+        part: {
+            type: Object as PropType<Part>,
+            default: undefined,
+        },
+    },
     setup(props, ctx) {
+        const schemePart = ref<Part3D>();
         return {
-            doCancel() {
-                ctx.emit("cancel", false);
+            schemePart,
+            onOpened() {
+                if (props.scheme3d && props.part) {
+                    const { parts } = props.scheme3d;
+                    const { id } = props.part;
+                    const found = parts.find((p) => p.partId === id);
+                    if (found) {
+                        schemePart.value = found;
+                    } else {
+                        const part = new Part3D(+id, 0);
+                        parts.push(part);
+                        schemePart.value = part;
+                    }
+                }
             },
-            doConfirm() {
-                ctx.emit("confirm", false);
-            },
+            handleChange(val: number) {},
         };
     },
 });
