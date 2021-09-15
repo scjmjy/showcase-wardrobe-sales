@@ -1001,10 +1001,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@popperjs/core@^2.4.4":
-  version "2.9.2"
-  resolved "https://registry.npm.taobao.org/@popperjs/core/download/@popperjs/core-2.9.2.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40popperjs%2Fcore%2Fdownload%2F%40popperjs%2Fcore-2.9.2.tgz#adea7b6953cbb34651766b0548468e743c6a2353"
-  integrity sha1-rep7aVPLs0ZRdmsFSEaOdDxqI1M=
+"@popperjs/core@^2.10.1":
+  version "2.10.1"
+  resolved "https://registry.nlark.com/@popperjs/core/download/@popperjs/core-2.10.1.tgz#728ecd95ab207aab8a9a4e421f0422db329232be"
+  integrity sha1-co7NlasgequKmk5CHwQi2zKSMr4=
 
 "@soda/friendly-errors-webpack-plugin@^1.7.1":
   version "1.8.0"
@@ -2851,6 +2851,21 @@
   resolved "https://registry.npm.taobao.org/@vue/web-component-wrapper/download/@vue/web-component-wrapper-1.3.0.tgz#b6b40a7625429d2bd7c2281ddba601ed05dc7f1a"
   integrity sha1-trQKdiVCnSvXwigd26YB7QXcfxo=
 
+"@vueuse/core@~6.1.0":
+  version "6.1.0"
+  resolved "https://registry.nlark.com/@vueuse/core/download/@vueuse/core-6.1.0.tgz?cache=0&sync_timestamp=1631485707301&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40vueuse%2Fcore%2Fdownload%2F%40vueuse%2Fcore-6.1.0.tgz#8137c291cf49b11c2deda4d5079096e55b36fc28"
+  integrity sha1-gTfCkc9JsRwt7aTVB5CW5Vs2/Cg=
+  dependencies:
+    "@vueuse/shared" "6.1.0"
+    vue-demi "*"
+
+"@vueuse/shared@6.1.0":
+  version "6.1.0"
+  resolved "https://registry.nlark.com/@vueuse/shared/download/@vueuse/shared-6.1.0.tgz?cache=0&sync_timestamp=1631485700955&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40vueuse%2Fshared%2Fdownload%2F%40vueuse%2Fshared-6.1.0.tgz#1375fd41acefe52f9a1842f3c6a8a348786535ba"
+  integrity sha1-E3X9Qazv5S+aGELzxqijSHhlNbo=
+  dependencies:
+    vue-demi "*"
+
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"
   resolved "https://registry.nlark.com/@webassemblyjs/ast/download/@webassemblyjs/ast-1.9.0.tgz?cache=0&sync_timestamp=1625473420080&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40webassemblyjs%2Fast%2Fdownload%2F%40webassemblyjs%2Fast-1.9.0.tgz#bd850604b4042459a5a41cd7d338cbed695ed964"
@@ -3264,7 +3279,7 @@ async-limiter@~1.0.0:
 
 async-validator@^3.4.0:
   version "3.5.2"
-  resolved "https://registry.nlark.com/async-validator/download/async-validator-3.5.2.tgz?cache=0&sync_timestamp=1619755921381&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fasync-validator%2Fdownload%2Fasync-validator-3.5.2.tgz#68e866a96824e8b2694ff7a831c1a25c44d5e500"
+  resolved "https://registry.nlark.com/async-validator/download/async-validator-3.5.2.tgz?cache=0&sync_timestamp=1630393210134&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fasync-validator%2Fdownload%2Fasync-validator-3.5.2.tgz#68e866a96824e8b2694ff7a831c1a25c44d5e500"
   integrity sha1-aOhmqWgk6LJpT/eoMcGiXETV5QA=
 
 async@^2.6.2:
@@ -4592,7 +4607,12 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
-dayjs@1.x, dayjs@^1.10.6:
+dayjs@1.x:
+  version "1.10.7"
+  resolved "https://registry.nlark.com/dayjs/download/dayjs-1.10.7.tgz#2cf5f91add28116748440866a0a1d26f3a6ce468"
+  integrity sha1-LPX5Gt0oEWdIRAhmoKHSbzps5Gg=
+
+dayjs@^1.10.6:
   version "1.10.6"
   resolved "https://registry.nlark.com/dayjs/download/dayjs-1.10.6.tgz#288b2aa82f2d8418a6c9d4df5898c0737ad02a63"
   integrity sha1-KIsqqC8thBimydTfWJjAc3rQKmM=
@@ -4953,15 +4973,16 @@ electron-to-chromium@^1.3.723:
   integrity sha1-w+oGC6HjbkHIeUOkftLarcVFvis=
 
 element-plus@^1.1.0-beta.8:
-  version "1.1.0-beta.8"
-  resolved "https://registry.nlark.com/element-plus/download/element-plus-1.1.0-beta.8.tgz?cache=0&sync_timestamp=1630404790766&other_urls=https%3A%2F%2Fregistry.nlark.com%2Felement-plus%2Fdownload%2Felement-plus-1.1.0-beta.8.tgz#e40a2b4767ccbee1ff9aa6d4ed284863ad246e1c"
-  integrity sha1-5AorR2fMvuH/mqbU7ShIY60kbhw=
+  version "1.1.0-beta.12"
+  resolved "https://registry.nlark.com/element-plus/download/element-plus-1.1.0-beta.12.tgz#2fd646f3c2f787dfb282d091ec6aa6945d1bec6a"
+  integrity sha1-L9ZG88L3h9+ygtCR7GqmlF0b7Go=
   dependencies:
     "@element-plus/icons" "^0.0.11"
-    "@popperjs/core" "^2.4.4"
+    "@popperjs/core" "^2.10.1"
+    "@vueuse/core" "~6.1.0"
     async-validator "^3.4.0"
     dayjs "1.x"
-    lodash "^4.17.20"
+    lodash "^4.17.21"
     mitt "^2.1.0"
     normalize-wheel "^1.0.1"
     resize-observer-polyfill "^1.5.1"
@@ -7491,7 +7512,7 @@ mitt@1.1.2:
 
 mitt@^2.1.0:
   version "2.1.0"
-  resolved "https://registry.nlark.com/mitt/download/mitt-2.1.0.tgz#f740577c23176c6205b121b2973514eade1b2230"
+  resolved "https://registry.nlark.com/mitt/download/mitt-2.1.0.tgz?cache=0&sync_timestamp=1624483449786&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fmitt%2Fdownload%2Fmitt-2.1.0.tgz#f740577c23176c6205b121b2973514eade1b2230"
   integrity sha1-90BXfCMXbGIFsSGylzUU6t4bIjA=
 
 mitt@^3.0.0:
@@ -7731,7 +7752,7 @@ normalize-url@^3.0.0:
 
 normalize-wheel@^1.0.1:
   version "1.0.1"
-  resolved "https://registry.npm.taobao.org/normalize-wheel/download/normalize-wheel-1.0.1.tgz#aec886affdb045070d856447df62ecf86146ec45"
+  resolved "https://registry.nlark.com/normalize-wheel/download/normalize-wheel-1.0.1.tgz#aec886affdb045070d856447df62ecf86146ec45"
   integrity sha1-rsiGr/2wRQcNhWRH32Ls+GFG7EU=
 
 npm-run-path@^2.0.0:
@@ -9119,7 +9140,7 @@ requires-port@^1.0.0:
 
 resize-observer-polyfill@^1.5.1:
   version "1.5.1"
-  resolved "https://registry.nlark.com/resize-observer-polyfill/download/resize-observer-polyfill-1.5.1.tgz?cache=0&sync_timestamp=1618847256390&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fresize-observer-polyfill%2Fdownload%2Fresize-observer-polyfill-1.5.1.tgz#0e9020dd3d21024458d4ebd27e23e40269810464"
+  resolved "https://registry.nlark.com/resize-observer-polyfill/download/resize-observer-polyfill-1.5.1.tgz#0e9020dd3d21024458d4ebd27e23e40269810464"
   integrity sha1-DpAg3T0hAkRY1OvSfiPkAmmBBGQ=
 
 resolve-cwd@^2.0.0:
@@ -11069,6 +11090,11 @@ vm-browserify@^1.0.1:
   version "1.1.2"
   resolved "https://registry.npm.taobao.org/vm-browserify/download/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha1-eGQcSIuObKkadfUR56OzKobl3aA=
+
+vue-demi@*:
+  version "0.11.4"
+  resolved "https://registry.nlark.com/vue-demi/download/vue-demi-0.11.4.tgz?cache=0&sync_timestamp=1630868339719&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fvue-demi%2Fdownload%2Fvue-demi-0.11.4.tgz#6101992fe4724cf5634018a16e953f3052e94e2a"
+  integrity sha1-YQGZL+RyTPVjQBihbpU/MFLpTio=
 
 vue-eslint-parser@^7.0.0, vue-eslint-parser@^7.9.0:
   version "7.9.0"

@@ -15,6 +15,7 @@ import {
     Product,
     ProductCategory,
     Scheme,
+    SchemeManifest,
     SchemeOffer,
 } from "../interface/provider.interface";
 import LocalProvider from "./local.provider";
@@ -517,6 +518,29 @@ export default class RestProvider extends LocalProvider {
                         status: 500,
                         show: "error",
                         msg: "获取方案报价失败",
+                    });
+                });
+        });
+    }
+    requestSchemeManifest(schemeId: string | number): Promise<AjaxResponse<SchemeManifest>> {
+        return new Promise((resolve) => {
+            request({
+                method: "GET",
+                url: `/api/v1/biz/scheme/${schemeId}/checklist`,
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取方案清单失败",
                     });
                 });
         });

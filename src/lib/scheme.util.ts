@@ -125,7 +125,7 @@ function scheme2manifest(scheme: Scheme) {
         cubes: scheme.cubes,
         doors: scheme.doors,
     };
-    const composition = scheme.parts;
+    const composition = scheme.parts.filter((p) => p.count > 0);
     const mf = { manifest, composition };
     return JSON.stringify(mf, undefined, 4);
 }

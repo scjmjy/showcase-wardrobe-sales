@@ -12,10 +12,10 @@
                 >元，数量：<span>{{ count }}</span
                 >个
             </div> -->
-            <!-- <div class="manifest-item__price">
+            <div class="manifest-item__price">
                 小计：<span>{{ price }}</span
                 >元
-            </div> -->
+            </div>
         </div>
     </div>
 </template>
