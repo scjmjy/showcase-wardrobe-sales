@@ -9,7 +9,7 @@ export const ObjectType = {
 };
 
 export type CubeData = {
-    origin: { x: number; y: number; z: number }; // center-down, in mm.
+    origin: { x: number; y: number; z: number }; // center-down, in meter.
     width: number;
     height: number;
     depth: number;
@@ -23,8 +23,8 @@ export type CubeItem = {
 export class BizData {
     private scheme: Scheme;
 
-    // translate mm to inch: 0.001 * 39.3700787
-    public SceneUnit = 1; // 0.0393700787;
+    // the default unit is 1 meter.
+    public SceneUnit = 1;
 
     public startX = 0;
     public endX = 0;
@@ -115,8 +115,7 @@ export class BizData {
         if (idx === 0) {
             // Remove the first cube.
             this.startX -= cube.size.x;
-        }
-        else if (idx == this.scheme.cubes.length - 1) {
+        } else if (idx == this.scheme.cubes.length - 1) {
             // Remove the last cube.
             this.endX += cube.size.x;
         }

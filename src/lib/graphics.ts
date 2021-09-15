@@ -65,7 +65,7 @@ export class Graphics {
             Math.PI / 2,
             Math.PI / 2,
             size,
-            new BABYLON.Vector3(0, 1100, 0),
+            new BABYLON.Vector3(0, 1.1, 0),
             this.scene,
         );
         this._camera.maxZ = size * 3.75;
@@ -77,24 +77,24 @@ export class Graphics {
         this._camera.lowerBetaLimit = Math.PI / 2;
         this._camera.upperBetaLimit = Math.PI / 2;
         // Control the zoom limit.
-        this._camera.upperRadiusLimit = 12000;
-        this._camera.lowerRadiusLimit = 800;
+        this._camera.upperRadiusLimit = 10;
+        this._camera.lowerRadiusLimit = 2;
         this.lockCamera(false);
 
-        this._light = new BABYLON.DirectionalLight("MainLight", new BABYLON.Vector3(0.5, -1.2, -1.4), this.scene);
-        this._light.position = new BABYLON.Vector3(-2300, 50, 2500);
+        this._light = new BABYLON.DirectionalLight("MainLight", new BABYLON.Vector3(0.6, -1.0, -2.5), this.scene);
+        this._light.position = new BABYLON.Vector3(0, 0, size);
         this._light.diffuse = new BABYLON.Color3(1.0, 1.0, 1.0);
         this._light.specular = new BABYLON.Color3(0.0, 0.0, 0.0);
-        this._light.intensity = 5.75;
+        this._light.intensity = 3.0;
 
         // Setup shadow
-        this._shadowGenerator = new BABYLON.ShadowGenerator(1024, this._light);
+        this._shadowGenerator = new BABYLON.ShadowGenerator(2048, this._light);
         this._shadowGenerator.useBlurExponentialShadowMap = false;
         this._shadowGenerator.bias = 0.001;
         this._shadowGenerator.normalBias = 0.015;
         // this._shadowGenerator.useContactHardeningShadow = true;
         // this._shadowGenerator.contactHardeningLightSizeUVRatio = 0.05;
-        this._shadowGenerator.setDarkness(0.2);
+        this._shadowGenerator.setDarkness(0.3);
         this._shadowGenerator.useKernelBlur = false;
 
         // setup environment.
@@ -465,15 +465,15 @@ export class Graphics {
             this._camera.upperAlphaLimit = (3 * Math.PI) / 2;
             this._camera.lowerBetaLimit = 0;
             this._camera.upperBetaLimit = Math.PI;
-            this._camera.upperRadiusLimit = 1000000;
-            this._camera.lowerRadiusLimit = 80;
+            this._camera.upperRadiusLimit = 1000;
+            this._camera.lowerRadiusLimit = 0.05;
         } else {
             this._camera.lowerAlphaLimit = 0;
             this._camera.upperAlphaLimit = Math.PI;
             this._camera.lowerBetaLimit = Math.PI / 2;
             this._camera.upperBetaLimit = Math.PI / 2;
-            this._camera.upperRadiusLimit = 12000;
-            this._camera.lowerRadiusLimit = 800;
+            this._camera.upperRadiusLimit = 10;
+            this._camera.lowerRadiusLimit = 2;
         }
     }
 
@@ -636,6 +636,7 @@ export class Graphics {
 
             loadedList.meshes.forEach((mesh) => {
                 mesh.isPickable = isPickable;
+                mesh.receiveShadows = true;
             });
             return rootMesh;
         } else {
@@ -681,7 +682,7 @@ export class Graphics {
 
     public disableLightEffect(mesh: BABYLON.AbstractMesh): void {
         if (this._light) {
-            this._light.excludedMeshes.push(mesh)
+            this._light.excludedMeshes.push(mesh);
         }
     }
 
