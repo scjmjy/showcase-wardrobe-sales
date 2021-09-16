@@ -529,10 +529,15 @@ export default class RestProvider extends LocalProvider {
                 url: `/api/v1/biz/scheme/${schemeId}/checklist`,
             })
                 .then((res) => {
+                    const data = res.data || [];
+                    for (const item of data) {
+                        item.type = item.type === 2 ? "2d" : "3d";
+                        item.count = +item.count || 0;
+                    }
                     resolve({
                         ok: true,
                         status: res.status,
-                        data: res.data,
+                        data: data,
                     });
                 })
                 .catch(() => {

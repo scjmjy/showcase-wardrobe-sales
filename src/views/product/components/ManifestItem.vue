@@ -3,9 +3,18 @@
         <el-image class="manifest-item__img" :src="url" fit="contain"></el-image>
         <div class="manifest-item__info">
             <div class="manifest-item__name">{{ name }}</div>
-            <div class="manifest-item__count">
+            <div v-if="type === '3d'" class="manifest-item__count">
                 数量：<span>{{ count }}</span
                 >个
+            </div>
+            <div v-else class="manifest-item__count">
+                数量：
+                <el-input-number
+                    size="mini"
+                    :min="0"
+                    :model-value="count"
+                    @update:modelValue="handleChange"
+                ></el-input-number>
             </div>
             <!-- <div class="manifest-item__count">
                 单价：<span>{{ unitPrice }}</span
@@ -21,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { computed } from "vue";
+import { computed, inject, PropType } from "vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
@@ -43,13 +52,28 @@ export default defineComponent({
             type: [String, Number],
             default: 0,
         },
+        partId: {
+            type: Number,
+            default: 0,
+        },
+        type: {
+            type: String as PropType<"2d" | "3d">,
+            default: "3d",
+        },
     },
+    emits: ["update:count", "metalCount"],
     setup(props, ctx) {
+        const updateSchemeMetalCount = inject<any>("updateSchemeMetalCount");
         return {
             unitPrice: computed(() => {
                 const unitPrice = +props.price / +props.count;
                 return unitPrice;
             }),
+            handleChange(val: number) {
+                ctx.emit("update:count", val);
+                // ctx.emit("metalCount", { partId: props.partId, value: val });
+                updateSchemeMetalCount && updateSchemeMetalCount({ partId: props.partId, value: val });
+            },
         };
     },
 });
@@ -79,7 +103,8 @@ export default defineComponent({
         font-weight: bold;
     }
     &__count {
-        span {
+        span,
+        :deep(.el-input__inner) {
             font-size: 22px;
             font-weight: bold;
         }

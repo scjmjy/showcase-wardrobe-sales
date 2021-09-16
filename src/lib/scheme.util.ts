@@ -153,3 +153,13 @@ export async function saveSchemeAsync(schemeId: string | number, scheme: Scheme)
         return Promise.reject();
     }
 }
+
+export function updateSchemeMetalCount(scheme: Scheme, partId: number, value: number) {
+    const { parts } = scheme;
+    const found = parts.find((p) => p.partId === partId);
+    if (found) {
+        found.count = value;
+        return true;
+    }
+    return false;
+}

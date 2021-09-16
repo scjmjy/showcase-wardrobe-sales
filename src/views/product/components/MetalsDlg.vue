@@ -42,6 +42,7 @@ export default defineComponent({
             default: undefined,
         },
     },
+    emits: ["schemeDirty"],
     setup(props, ctx) {
         const schemePart = ref<Part3D>();
         return {
@@ -60,7 +61,9 @@ export default defineComponent({
                     }
                 }
             },
-            handleChange(val: number) {},
+            handleChange(val: number) {
+                ctx.emit("schemeDirty");
+            },
         };
     },
 });
