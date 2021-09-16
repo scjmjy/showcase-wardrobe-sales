@@ -82,11 +82,11 @@ export class PopupGUI {
     }
 
     private drawRuler(graphics: Graphics, length: number, center: Vector3, direction: Vector3, title = ''): void {
-        var distance = 25;
-        var heightValue = 1 * 25.4;
-        const halfHeightValue = heightValue * 0.5;
-        var widthValue = 0.2 * 25.4;
-        var endPointLength = 0.5 * 25.4;
+        var distance = 0.05;
+        var heightValue = 1 * 0.054;
+        const halfHeightValue = heightValue * 0.0005;
+        var widthValue = 0.2 * 0.054;
+        var endPointLength = 0.5 * 0.054;
 
         var frameRulerTop = BABYLON.MeshBuilder.CreateCylinder(
             'cylinder_up',
@@ -111,10 +111,10 @@ export class PopupGUI {
    
         // length of the ruler on upside
         var lengthText = new GUI.TextBlock();
-        lengthText.height = '22px';
+        lengthText.height = '28px';
         lengthText.color = '#000000FF';
         lengthText.fontSize = 18;
-        lengthText.text =  length + ' mm';
+        lengthText.text =  length + ' m';
         lengthText.shadowBlur = 1;
         lengthText.shadowOffsetX = 1;
         lengthText.shadowOffsetY = 1;
@@ -180,9 +180,9 @@ export class PopupGUI {
             frameRulerMiddle.rotation.z = -Math.PI / 2;
             frameRulerDown.rotation.z = -Math.PI / 2;
 
-            frameRulerTop.position.y > 10 ? (frameRulerTop.position.y += distance) : (frameRulerTop.position.y -= distance);
-            frameRulerMiddle.position.y > 10 ? (frameRulerMiddle.position.y += distance) : (frameRulerMiddle.position.y -= distance);
-            frameRulerDown.position.y > 10 ? (frameRulerDown.position.y += distance) : (frameRulerDown.position.y -= distance);
+            frameRulerTop.position.y > 0.010 ? (frameRulerTop.position.y += distance) : (frameRulerTop.position.y -= distance);
+            frameRulerMiddle.position.y > 0.010 ? (frameRulerMiddle.position.y += distance) : (frameRulerMiddle.position.y -= distance);
+            frameRulerDown.position.y > 0.010 ? (frameRulerDown.position.y += distance) : (frameRulerDown.position.y -= distance);
 
             frameRulerTop.position.x += length / 2 - halfHeightValue;
             frameRulerDown.position.x += -length / 2 + halfHeightValue;
@@ -252,7 +252,6 @@ export class PopupGUI {
                 this.rulerWidthMiddle.dispose();  
             return;
           }
-
         this.drawRuler(
             graphics,
             bizdata.totalHeight,
@@ -266,7 +265,7 @@ export class PopupGUI {
             "width " );
         this.drawRuler(graphics,
             bizdata.totalDepth,
-            new BABYLON.Vector3(-bizdata.totalWidth / 2 - 25, 10, 0),
+            new BABYLON.Vector3(-bizdata.totalWidth / 2 - 0.05, 0.01, 0),
             new BABYLON.Vector3(0, 0, 1),
             "depth " );
     }
