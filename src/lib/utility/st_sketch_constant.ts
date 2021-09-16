@@ -19,6 +19,7 @@ export default class StSketchConstant {
     static readonly MIN_LEVEL_MM = 200;
     static readonly MIN_DIVISION_MM = 100;
     static readonly MIN_DIVISION_HEIGHT_MM = 200;
+    static readonly MIN_DIVISION_HEIGHT_M = 0.01;
 
     static readonly MAX_LENGTH = 100 * 1000; // length: 100 m
 
