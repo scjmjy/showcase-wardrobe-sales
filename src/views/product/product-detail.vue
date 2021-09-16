@@ -18,6 +18,7 @@
             v-if="scheme"
             ref="refBabylon"
             class="product-detail__3d"
+            v-model:dirty="schemeDirty"
             :scheme="scheme"
             :selectedPart="selectedPart"
             :selectedWallId="selectedWallId"
@@ -644,8 +645,6 @@ export default defineComponent({
                     showMetalsDlg.value = true;
                     return;
                 }
-                schemeDirty.value = true;
-
                 const marnifestUrl = part.manifest.replace(baseUrl.value || "", "");
                 // TODO remove test code
                 if (cat.id === 2) {

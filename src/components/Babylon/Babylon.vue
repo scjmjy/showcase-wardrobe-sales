@@ -49,6 +49,11 @@ export default defineComponent({
             type: Scheme,
             default: null,
         },
+        // 标志是否需要保存scheme
+        dirty: {
+            type: Boolean,
+            default: null,
+        },
         baseOSSUrl: {
             type: String,
             default: "",
@@ -95,7 +100,8 @@ export default defineComponent({
                 if (newPart.id !== undefined) {
                     console.log("[Watch selectedPart] ", newPart);
                     this.newPart = newPart;
-
+                    // 更新 props.dirty
+                    this.$emit("update:dirty", true);
                     // TODO: remove the hardcode of adjusting whether it is a cube.
                     if (newPart.catId !== 20) {
                         const availableArea = this.getAvailableAreaByPart(newPart);
