@@ -18,7 +18,6 @@
             v-if="scheme"
             ref="refBabylon"
             class="product-detail__3d"
-            v-model:dirty="schemeDirty"
             :scheme="scheme"
             :selectedPart="selectedPart"
             :selectedWallId="selectedWallId"
@@ -468,6 +467,7 @@ export default defineComponent({
         async function saveScheme() {
             await util.saveSchemeAsync(product.value.id, scheme.value!);
             schemeDirty.value = false;
+            if (scheme.value !== undefined) scheme.value.dirty = false;
             schemeDetailDirty.value = true;
         }
 
@@ -481,13 +481,13 @@ export default defineComponent({
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
-                    if (schemeDirty.value) {
+                    if (schemeDirty.value || scheme.value?.dirty) {
                         await saveScheme();
                     }
                     await refPartsMenu.value?.showManifest(scheme2d.id, false);
                     break;
                 case "offer":
-                    if (schemeDirty.value) {
+                    if (schemeDirty.value || scheme.value?.dirty) {
                         await saveScheme();
                     }
                     showOfferDlg.value = true;
@@ -612,7 +612,7 @@ export default defineComponent({
             },
             onPartsMenuAction,
             async gotoBack() {
-                if (schemeDirty.value) {
+                if (schemeDirty.value || scheme.value?.dirty) {
                     showSchemeSaveLoading();
                     await saveScheme();
                     hideSchemeSaveLoading();

@@ -83,6 +83,8 @@ export class BizData {
             const newPart = new Part(partId, 1);
             this.scheme.parts.push(newPart);
         }
+
+        this.scheme.dirty = true;
     }
 
     removePart(partId: number): void {
@@ -90,6 +92,8 @@ export class BizData {
         if (part !== undefined) {
             part.count -= 1;
         }
+
+        this.scheme.dirty = true;
     }
 
     addCube(newCube: Cube, isFirstCube: boolean): void {
@@ -105,6 +109,8 @@ export class BizData {
         if (newCube.size.z > this.totalDepth) this.totalDepth = newCube.size.z;
 
         this.addPart(newCube.partId);
+
+        this.scheme.dirty = true;
     }
 
     removeCube(cubeId: string): void {
@@ -124,6 +130,8 @@ export class BizData {
 
         this.scheme.cubes.splice(idx, 1);
         this.removePart(partId);
+
+        this.scheme.dirty = true;
     }
 
     addItem(newItem: Item, cubeId: string): void {
@@ -133,6 +141,8 @@ export class BizData {
         }
 
         this.addPart(newItem.partId);
+
+        this.scheme.dirty = true;
     }
 
     removeItem(itemId: string): void {
@@ -143,6 +153,8 @@ export class BizData {
 
             this.removePart(cubeItem.item.partId);
         }
+
+        this.scheme.dirty = true;
     }
 
     findCubeById(id: string): Cube | undefined {
@@ -192,6 +204,8 @@ export class BizData {
         this.scheme.doors.push(door);
 
         this.addPart(door.partId);
+        this.scheme.dirty = true;
+
         return door.id;
     }
 
@@ -203,6 +217,8 @@ export class BizData {
         const array = this.scheme.doors.splice(idx, 1);
 
         this.removePart(array[0].partId);
+        this.scheme.dirty = true;
+
         return array[0];
     }
 

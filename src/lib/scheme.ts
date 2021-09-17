@@ -130,12 +130,14 @@ export class Scheme {
     cubes: Cube[]; // 从左到右排列
     doors: Door[];
     parts: Part[];
+    dirty: boolean;
 
     constructor(background: SchemeObject[], cubes: Cube[], doors: Door[], parts: Part[]) {
         this.background = background;
         this.cubes = cubes;
         this.doors = doors;
         this.parts = parts;
+        this.dirty = false;
     }
 }
 
