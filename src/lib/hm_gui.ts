@@ -43,8 +43,6 @@ export class PopupGUI {
             this._deletePanel.height = "48px";
             this._deletePanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
             this._deletePanel.cornerRadius = 5;
-            this._deleteButton.width = '46px';
-            this._deleteButton.height = '46px';
             this._deletePanel.background = "white";
             this._popupUI.addControl(this._deletePanel);
 
@@ -52,8 +50,8 @@ export class PopupGUI {
                 "deleteButton",
                 "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/res/deleteButton.png",
             );
-            this._deleteButton.width = "28px";
-            this._deleteButton.height = "28px";
+            this._deleteButton.width = "46px";
+            this._deleteButton.height = "46px";
 
             this._deleteButton.thickness = 0;
             this._deletePanel.addControl(this._deleteButton);
