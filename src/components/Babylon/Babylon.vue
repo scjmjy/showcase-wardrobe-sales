@@ -310,19 +310,15 @@ export default defineComponent({
                         this.graphics.lockCamera(false);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
-                            if (mesh.name.startsWith(ObjectType.DOOR)) {
-                                mesh.isVisible = true;
-                                mesh.getChildMeshes().forEach((childMesh) => {
-                                    childMesh.isPickable = true;
-                                });
-                            } else if (mesh.name.startsWith(ObjectType.CUBE)) {
-                                mesh.getChildMeshes().forEach((childMesh) => {
-                                    childMesh.isPickable = true;
-                                });
-                            } else if (mesh.name.startsWith(ObjectType.ITEM)) {
-                                mesh.getChildMeshes().forEach((childMesh) => {
-                                    childMesh.isPickable = false;
+                            const isItem = mesh.name.startsWith(ObjectType.ITEM);
 
+                            mesh.isVisible = true;
+                            mesh.getChildMeshes().forEach((childMesh) => {
+                                childMesh.isPickable = !isItem;
+                            });
+
+                            if (isItem) {
+                                mesh.getChildMeshes().forEach((childMesh) => {
                                     if (childMesh.getClassName() === "Mesh") {
                                         this.graphics.highlightLayer.addExcludedMesh(childMesh as BABYLON.Mesh);
                                         childMesh.renderingGroupId = 1;
@@ -340,19 +336,17 @@ export default defineComponent({
                         this.graphics.lockCamera(true);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
-                            if (mesh.name.startsWith(ObjectType.DOOR)) {
-                                mesh.isVisible = false;
-                                mesh.getChildMeshes().forEach((childMesh) => {
-                                    childMesh.isPickable = true;
-                                });
-                            } else if (mesh.name.startsWith(ObjectType.CUBE)) {
-                                mesh.getChildMeshes().forEach((childMesh) => {
-                                    childMesh.isPickable = false;
-                                });
-                            } else if (mesh.name.startsWith(ObjectType.ITEM)) {
-                                mesh.getChildMeshes().forEach((childMesh) => {
-                                    childMesh.isPickable = true;
+                            const isCube = mesh.name.startsWith(ObjectType.CUBE);
+                            const isDoor = mesh.name.startsWith(ObjectType.DOOR);
+                            const isItem = mesh.name.startsWith(ObjectType.ITEM);
 
+                            mesh.isVisible = !isDoor;
+                            mesh.getChildMeshes().forEach((childMesh) => {
+                                childMesh.isPickable = !isCube;
+                            });
+
+                            if (isItem) {
+                                mesh.getChildMeshes().forEach((childMesh) => {
                                     if (childMesh.getClassName() === "Mesh") {
                                         this.graphics.highlightLayer.removeExcludedMesh(childMesh as BABYLON.Mesh);
                                         childMesh.renderingGroupId = 0;
@@ -369,19 +363,10 @@ export default defineComponent({
                         this.graphics.lockCamera(false);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
-                            if (
-                                mesh.name.startsWith(ObjectType.CUBE) ||
-                                mesh.name.startsWith(ObjectType.ITEM) ||
-                                mesh.name.startsWith(ObjectType.DOOR)
-                            ) {
-                                if (mesh.name.startsWith(ObjectType.DOOR)) {
-                                    mesh.isVisible = true;
-                                }
-
-                                mesh.getChildMeshes().forEach((childMesh) => {
-                                    childMesh.isPickable = false;
-                                });
-                            }
+                            mesh.isVisible = true;
+                            mesh.getChildMeshes().forEach((childMesh) => {
+                                childMesh.isPickable = false;
+                            });
                         });
                     }
                     break;
@@ -723,11 +708,9 @@ export default defineComponent({
                 switch (pointerInfo.type) {
                     case BABYLON.PointerEventTypes.POINTERDOWN:
                         if (pointerInfo && pointerInfo.pickInfo && pointerInfo.pickInfo.pickedMesh) {
-                            this.gui.display(
-                                this.graphics,
-                                this.bizdata as BizData,
-                                this.graphics.getRootMesh(pointerInfo.pickInfo.pickedMesh),
-                            );
+                            const rootMesh = this.graphics.getRootMesh(pointerInfo.pickInfo.pickedMesh);
+                            this.gui.display(this.graphics, this.bizdata as BizData, rootMesh);
+
                             const meshName = pointerInfo.pickInfo.pickedMesh.name;
                             if (meshName.startsWith("BackgroundArea")) {
                                 // Hit the available area.

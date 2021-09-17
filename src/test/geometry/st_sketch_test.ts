@@ -1,4 +1,3 @@
-
 export class StSketchTest {
     assertTrue(v: boolean, msg?: string): void {
         if (!v) {

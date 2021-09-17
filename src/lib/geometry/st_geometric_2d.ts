@@ -286,9 +286,9 @@ export class StSketchEdge extends StSketchLine {
         const point_vec = this._calcInnerPoint(offset);
         const pt = new StEdgePoint(point_vec, offset, this.uuid);
         this.innerPoints.push(pt);
-        this.innerPoints.sort( (a, b) => {
-            return sketchUtil.numberCompare(a.getOffset(), b.getOffset() );
-        }); 
+        this.innerPoints.sort((a, b) => {
+            return sketchUtil.numberCompare(a.getOffset(), b.getOffset());
+        });
         return pt;
     }
 
@@ -374,13 +374,13 @@ export class StSketchEdge extends StSketchLine {
     }
 
     /**
-     * 
+     *
      * If the edge moves(translates), its inner points must be updated!
      */
-    translate(vec: StVector){
+    translate(vec: StVector) {
         super.translate(vec);
-        // Recalculate the inner-pointer positions according to edges. 
-        for(const p of this.innerPoints) {
+        // Recalculate the inner-pointer positions according to edges.
+        for (const p of this.innerPoints) {
             const offset = p.getOffset();
             const pt = this._calcInnerPoint(offset);
             p.setOffset(pt, offset);
@@ -780,22 +780,22 @@ export class StSketchRect extends StSketchPolygon {
 
     /**
      * NOTE: All points in result rectangle are created from scatch.
-     * 
+     *
      * @param host
-     * @param occupied 
-     * @param part_size 
-     * @param opt 
-     * @returns 
+     * @param occupied
+     * @param part_size
+     * @param opt
+     * @returns
      */
     static calcAvailableRect(
         host: StSketchRect,
         occupied: StSketchRect[],
         part_size: StVector,
-        opt?: { 
-            minHeight?: number,
+        opt?: {
+            minHeight?: number;
             // left, bottom, right, top
             margins?: [number, number, number, number];
-         },
+        },
     ): StSketchRect[] {
         // console.log(`## host rect: ${host}, \n occupied: ${occupied}, \n part_size: ${part_size}`);
         const width = host.a;

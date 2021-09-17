@@ -11,13 +11,13 @@
             </div>
             <div class="sidebar">
                 <label>Edge Intersection: </label>
-                <button class="test" v-on:click="onTestEdge('intersect01')">Cross </button>
-                <button class="test" v-on:click="onTestEdge('intersect02')">NONE </button>
+                <button class="test" v-on:click="onTestEdge('intersect01')">Cross</button>
+                <button class="test" v-on:click="onTestEdge('intersect02')">NONE</button>
                 <button class="test" v-on:click="onTestEdge('intersect03')">On One Edge</button>
-                <br/>
+                <br />
                 <label>Polygon: </label>
                 <button class="test" v-on:click="onTestPolygon('divide02')">Cross Line</button>
-                <button class="test" v-on:click="onTestPolygon('rect01')">Rect 01 </button>
+                <button class="test" v-on:click="onTestPolygon('rect01')">Rect 01</button>
             </div>
         </div>
 
@@ -109,7 +109,7 @@ export default defineComponent({
         },
 
         onTestEdge(type: string) {
-            try{
+            try {
                 switch (type) {
                     case "intersect01":
                         this.topInfo = edgeTest.intersect01();
@@ -125,14 +125,14 @@ export default defineComponent({
                         alert(`unknowty mesh ${type}`);
                         break;
                 }
-            }catch(e) {
+            } catch (e) {
                 this.topInfo = (e as Error).message;
                 throw e;
             }
         },
 
         onTestPolygon(opt: string) {
-            try{
+            try {
                 switch (opt) {
                     case "divide02":
                         this.topInfo = polygonTest.divide02_byCrossLine();
@@ -146,7 +146,7 @@ export default defineComponent({
                         alert("unknown operation: " + opt);
                         break;
                 }
-            }catch(e) {
+            } catch (e) {
                 this.topInfo = (e as Error).message;
                 throw e;
             }

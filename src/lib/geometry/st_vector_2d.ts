@@ -15,10 +15,10 @@ import { sketchUtil, StObject } from "../utility/st_object";
  * A vector does NOT have a UUID. It defines algorithms.
  */
 export class StVector extends StObject {
-    static readonly LEFT    = new StVector(-1, 0);
-    static readonly DOWN    = new StVector(0, -1);
-    static readonly RIGHT   = new StVector( 1, 0);
-    static readonly UP      = new StVector(0,  1);
+    static readonly LEFT = new StVector(-1, 0);
+    static readonly DOWN = new StVector(0, -1);
+    static readonly RIGHT = new StVector(1, 0);
+    static readonly UP = new StVector(0, 1);
 
     static makeVectorByLength(direct: StVector, len: number): StVector {
         const direct_len = direct.length();

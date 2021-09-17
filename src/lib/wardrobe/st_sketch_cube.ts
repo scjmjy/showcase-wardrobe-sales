@@ -207,7 +207,7 @@ export class StSketchBoardZ extends StModel {
 
     constructor(opt: StIDivideBoardOpt) {
         super(opt);
-        this.edge= opt.edge;
+        this.edge = opt.edge;
         this.meshLoc = opt.meshLoc || StBoardMeshLocation.LEFT;
     }
 
@@ -218,12 +218,12 @@ export class StSketchBoardZ extends StModel {
     /**
      * move points of the geometry.
      * NOTE: it does not change model position, which is done by translate()
-     * @param vec 
+     * @param vec
      */
     moveGeometry(vec: StVector, updateMesh?: boolean): StSketchBoardZ {
         vec.angle();
         this.edge.translate(vec);
-        if(updateMesh) this.updateMesh();
+        if (updateMesh) this.updateMesh();
         return this;
     }
 }
@@ -358,7 +358,7 @@ export class StSketchCube extends StModel implements StICube {
      * @returns
      */
     private addDivideBoardByLine(line: StSketchEdge): StSketchBoardZ {
-        console.warn(`TODO: make sure input edge points are on existing edges: ${line}`);        
+        console.warn(`TODO: make sure input edge points are on existing edges: ${line}`);
 
         // 1. traverse all divisions, try to divide them with line
         // delete old division and add new divisions
@@ -409,17 +409,17 @@ export class StSketchCube extends StModel implements StICube {
     }
 
     /**
-     * The divide line(edge) is created with: 
+     * The divide line(edge) is created with:
      * - point[0]: start for e0.pt[0], with the default offset
      * - point[1]: make a line(L) that starts from point[0] and vertical to e0. Get the point that L crosses with e1;
-     * 
+     *
      * @param e0 a selected edge on a board
      * @param e1 a selected edge on a board
      * @param offset offset from start-pont of e0
      *
      * @returns the divide board (line)
      */
-    addDivideBoard(e0: StSketchEdge,  e1: StSketchEdge, offset?: number): StSketchBoardZ {
+    addDivideBoard(e0: StSketchEdge, e1: StSketchEdge, offset?: number): StSketchBoardZ {
         // 1. create a divide-line from the 2 points on the e0 & e1
         offset = offset || StSketchConstant.DIVIDE_OFFSET_MM;
         const p0 = e0.addPoint(offset);
@@ -440,7 +440,7 @@ export class StSketchCube extends StModel implements StICube {
 
     private _getDivideBoard(id: string): StSketchBoardZ {
         const b = this.divideBoard.get(id);
-        if(b == undefined) {
+        if (b == undefined) {
             throw Error(`cannot find divide-board by id: ${id}`);
         }
         return b;
@@ -448,24 +448,24 @@ export class StSketchCube extends StModel implements StICube {
 
     /**
      * Because a divide-board(B0) is fixed to another perpendicular boards (B1, B2).
-     * The 2 edge-points can only move alone the B1 and B2. 
+     * The 2 edge-points can only move alone the B1 and B2.
      * As a result, the tranlating vector must be perpendicular to B0 vector.
-     * 
+     *
      * [Guilin: 2021-8-31] This method is NOT fully working.
-     * 
-     * @param board 
-     * @param step 
+     *
+     * @param board
+     * @param step
      */
     moveDivide(board: string, direct: StVector, step?: number): StSketchBoardZ {
         const b: StSketchBoardZ = this._getDivideBoard(board);
         let angle = Math.abs(direct.angle() - b.lineAngle());
-        if(angle > 180) {
+        if (angle > 180) {
             angle = 360 - angle;
         }
-        if(angle > 90) {
-            angle = 180 - angle ;
+        if (angle > 90) {
+            angle = 180 - angle;
         }
-        if( ! sketchUtil.numberEquals(angle, 90) ){
+        if (!sketchUtil.numberEquals(angle, 90)) {
             throw Error(`Moving-Vector is NOT perpendicular with board: ${angle}`);
         }
         step = step || 200;
@@ -475,7 +475,7 @@ export class StSketchCube extends StModel implements StICube {
         b.moveGeometry(vec);
 
         // 2. redraw the affected boards (currently: redraw all boards)
-        for(const b of this.divideBoard.values() ) {
+        for (const b of this.divideBoard.values()) {
             b.updateMesh();
         }
 

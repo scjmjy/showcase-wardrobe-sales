@@ -2,6 +2,7 @@ import * as BABYLON from "babylonjs";
 import * as GUI from "babylonjs-gui";
 // import * as Materials from "babylonjs-materials"
 import { EventEmitter2 } from "eventemitter2";
+import { ObjectType } from "@/lib/biz.data";
 
 const EXTERNAL_EVENT_OBJECT_ONSELECTED = "graphics.external.object.onselected";
 const EXTERNAL_EVENT_OBJECT_ONUNSELECTED = "graphics.external.object.onunselected";
@@ -209,6 +210,29 @@ export class Graphics {
 
             const rootMesh = mesh as BABYLON.Mesh;
             if (rootMesh) this.highlightLayer.addMesh(rootMesh, color);
+
+            // TODO: Ugly way to fix a bug. Not follow the design.
+            if (mesh.name.startsWith(ObjectType.CUBE)) {
+                this.scene.meshes.forEach((mesh) => {
+                    const isDoor = mesh.name.startsWith(ObjectType.DOOR);
+                    if (isDoor) {
+                        mesh.getChildMeshes().forEach((childMesh) => {
+                            if (childMesh.getClassName() === "Mesh") {
+                                this.highlightLayer.addExcludedMesh(childMesh as BABYLON.Mesh);
+                                childMesh.renderingGroupId = 1;
+                                this.scene.setRenderingAutoClearDepthStencil(1, false, false, false);
+                            }
+                        });
+                    }
+                });
+            } else if (mesh.name.startsWith(ObjectType.DOOR)) {
+                mesh.getChildMeshes().forEach((childMesh) => {
+                    if (childMesh.getClassName() === "Mesh") {
+                        this.highlightLayer.removeExcludedMesh(childMesh as BABYLON.Mesh);
+                        childMesh.renderingGroupId = 0;
+                    }
+                });
+            }
         }
     }
 
@@ -278,40 +302,40 @@ export class Graphics {
                     this._currentHighlightMesh = null;
                     break;
                 case BABYLON.PointerEventTypes.POINTERMOVE:
-                    if (this._isPointerDown) return;
-                    {
-                        const ptInfo = this.scene.pick(
-                            this.scene.pointerX,
-                            this.scene.pointerY,
-                            (mesh) => {
-                                // return !mesh.name.startsWith("Background") && mesh.isPickable;
-                                return mesh.isPickable;
-                            },
-                            false,
-                            this.scene.cameraToUseForPointers,
-                        );
+                    // if (this._isPointerDown) return;
+                    // {
+                    //     const ptInfo = this.scene.pick(
+                    //         this.scene.pointerX,
+                    //         this.scene.pointerY,
+                    //         (mesh) => {
+                    //             // return !mesh.name.startsWith("Background") && mesh.isPickable;
+                    //             return mesh.isPickable;
+                    //         },
+                    //         false,
+                    //         this.scene.cameraToUseForPointers,
+                    //     );
 
-                        if (ptInfo && ptInfo.pickedMesh && !ptInfo.pickedMesh.name.startsWith("Background")) {
-                            //const pickedMesh = ptInfo.pickedMesh;
-                            const pickedMesh = this.getRootMesh(ptInfo.pickedMesh);
+                    //     if (ptInfo && ptInfo.pickedMesh && !ptInfo.pickedMesh.name.startsWith("Background")) {
+                    //         //const pickedMesh = ptInfo.pickedMesh;
+                    //         const pickedMesh = this.getRootMesh(ptInfo.pickedMesh);
 
-                            if (this._currentHighlightMesh != null && this._currentHighlightMesh != pickedMesh) {
-                                this.removeHighlightMesh(this._currentHighlightMesh);
-                                this._currentHighlightMesh = null;
-                            }
+                    //         if (this._currentHighlightMesh != null && this._currentHighlightMesh != pickedMesh) {
+                    //             this.removeHighlightMesh(this._currentHighlightMesh);
+                    //             this._currentHighlightMesh = null;
+                    //         }
 
-                            if (this._currentHighlightMesh == null && this._currentMesh != pickedMesh) {
-                                this._currentHighlightMesh = pickedMesh;
-                                this.highlightMesh(this._currentHighlightMesh, this._hoverColor);
-                            }
-                        } else {
-                            if (this._currentHighlightMesh != null && this._currentHighlightMesh != this._currentMesh) {
-                                this.removeHighlightMesh(this._currentHighlightMesh);
-                            }
+                    //         if (this._currentHighlightMesh == null && this._currentMesh != pickedMesh) {
+                    //             this._currentHighlightMesh = pickedMesh;
+                    //             this.highlightMesh(this._currentHighlightMesh, this._hoverColor);
+                    //         }
+                    //     } else {
+                    //         if (this._currentHighlightMesh != null && this._currentHighlightMesh != this._currentMesh) {
+                    //             this.removeHighlightMesh(this._currentHighlightMesh);
+                    //         }
 
-                            this._currentHighlightMesh = null;
-                        }
-                    }
+                    //         this._currentHighlightMesh = null;
+                    //     }
+                    // }
                     break;
                 case BABYLON.PointerEventTypes.POINTERWHEEL:
                     break;

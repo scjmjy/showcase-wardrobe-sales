@@ -102,7 +102,7 @@ export default defineComponent({
         },
 
         onTest(type: string) {
-            try{
+            try {
                 switch (type) {
                     case "todo":
                         throw Error("TODO");
@@ -110,7 +110,7 @@ export default defineComponent({
                         alert(`unknowty mesh ${type}`);
                         break;
                 }
-            }catch(e) {
+            } catch (e) {
                 this.topInfo = (e as Error).message;
                 throw e;
             }

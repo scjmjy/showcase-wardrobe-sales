@@ -17,7 +17,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export class StObject {
     static buildString(obj: Object, max_len?: number, simple?: boolean): string {
-         if (simple) {
+        if (simple) {
             return JSON.stringify(obj, jsonIgnoreReplacer);
         } else {
             return stringify(obj, {
@@ -28,15 +28,14 @@ export class StObject {
     }
 
     static buildArrayString(array: Object[], max_len?: number, simple?: boolean): string {
-        let str: string = '[\n';
-        array.forEach( e => {
+        let str = "[\n";
+        array.forEach((e) => {
             str += StObject.buildString(e, max_len, simple);
-            str += ', \n'
+            str += ", \n";
         });
-        str += ']';
+        str += "]";
         return str;
     }
-
 
     /**
      * It seeams that `${variable}` call variable.toString()?
@@ -90,16 +89,16 @@ class StSketchUtil {
 
     numberEquals(n1: number, n2: number, diff?: number): boolean {
         diff = diff || StSketchUtil.NUMBER_DIFF;
-        return Math.abs(n1 - n2 ) < diff;
+        return Math.abs(n1 - n2) < diff;
     }
 
     numberCompare(n1: number, n2: number, diff?: number): number {
-        if(this.numberEquals(n1, n2, diff)) return 0;
-        if(n1 > n2) {
+        if (this.numberEquals(n1, n2, diff)) return 0;
+        if (n1 > n2) {
             return 1;
         } else {
             return -1;
-        } 
+        }
     }
 }
 

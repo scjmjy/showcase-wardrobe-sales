@@ -11,13 +11,13 @@
             </div>
             <div class="sidebar">
                 <button class="test" v-on:click="onCacheInfo()">Cache Info</button>
-                &emsp; Test Mesh: 
+                &emsp; Test Mesh:
                 <button class="test" v-on:click="onTestMesh('pillar')">Pillar</button>
                 <button class="test" v-on:click="onTestMesh('board-3')">Board: Left-Right</button>
                 <button class="test" v-on:click="onTestMesh('board-1')">B-Position</button>
                 <button class="test" v-on:click="onTestMesh('board-2')">B-Rotate</button>
                 &emsp;
-                <br/>
+                <br />
                 <button class="test" v-on:click="onTestCube('create')">Cube: C</button>
                 &emsp;
                 <button class="test" v-on:click="onTestCube('W+')">W+</button>
@@ -157,7 +157,7 @@ export default defineComponent({
         },
 
         onTestCube(opt: string) {
-            try{
+            try {
                 const test = cubeTest;
                 switch (opt) {
                     case "create":
@@ -200,22 +200,19 @@ export default defineComponent({
                     case "move-divide-02":
                         this.topInfo = test.move_divide_02();
                         break;
-
-
                     default:
                         alert("unknown operation: " + opt);
                         break;
-                    } 
-                }catch(e) {
-                    this.topInfo = "[ERROR] " + (e as Error).message;
-                    throw e;
                 }
+            } catch (e) {
+                this.topInfo = "[ERROR] " + (e as Error).message;
+                throw e;
+            }
+        },
 
-            },
-
-            async onCacheInfo() {
-                const test = new StSketchCacheTest();
-                this.topInfo = await test.showCacheInfo();
+        async onCacheInfo() {
+            const test = new StSketchCacheTest();
+            this.topInfo = await test.showCacheInfo();
         },
     },
 });

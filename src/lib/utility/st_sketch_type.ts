@@ -48,10 +48,13 @@ export enum StCubePart {
 }
 
 /**
- * Seems uesless. 
+ * Seems uesless.
  * Replaced by StVector.LEFT/DOWN/RIGHT/UP
  */
 export enum StDirection {
-    NONE, 
-    LEFT, DOWN, RIGHT, UP
+    NONE,
+    LEFT,
+    DOWN,
+    RIGHT,
+    UP,
 }
