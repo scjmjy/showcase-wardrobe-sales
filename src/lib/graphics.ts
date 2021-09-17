@@ -86,7 +86,7 @@ export class Graphics {
         this._light.position = new BABYLON.Vector3(0, 0, size);
         this._light.diffuse = new BABYLON.Color3(1.0, 1.0, 1.0);
         this._light.specular = new BABYLON.Color3(0.0, 0.0, 0.0);
-        this._light.intensity = 3.0;
+        this._light.intensity = 2.3;
 
         // Setup shadow
         this._shadowGenerator = new BABYLON.ShadowGenerator(2048, this._light);
@@ -106,7 +106,7 @@ export class Graphics {
             skyboxSize: size * 2.1,
             // groundTexture: "/3d/res/backgroundGround.png",
             // skyboxTexture: "/3d/res/backgroundSkybox.dds",
-            environmentTexture: "/3d/res/studio.env",
+            environmentTexture: "/3d/res/studio-old.env",
             groundColor: new BABYLON.Color3(0.9, 0.9, 1),
             enableGroundShadow: false,
             groundShadowLevel: 0.72,

@@ -18,6 +18,7 @@
             v-if="scheme"
             ref="refBabylon"
             class="product-detail__3d"
+            v-model:dirty="schemeDirty"
             :scheme="scheme"
             :selectedPart="selectedPart"
             :selectedWallId="selectedWallId"
@@ -31,7 +32,9 @@
                 <div class="product-detail__info-name">{{ titles.title + titles.subTitle }}</div>
                 <!-- <div v-if="!isNew" class="product-detail__info-offer">{{ '￥26955.00' }}</div> -->
                 <div v-if="!isNew && product.offer" class="product-detail__info-offer">
-                    {{ "￥" + product.offer.toFixed(2) }}
+                    <span class="product-detail__info-offer-symbol"> ￥ </span>
+                    <span class="product-detail__info-offer-offer">{{ offerPrice.integer }}</span>
+                    <span class="product-detail__info-offer-symbol">.{{ offerPrice.decimal }} </span>
                 </div>
                 <div class="product-detail__info-action">
                     <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
@@ -108,6 +111,7 @@
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
                 @bg="onBgSelect"
+                @metalCount="onMetalCount"
             ></parts-menu>
         </template>
         <customize-dlg
@@ -121,13 +125,19 @@
             :schemeId="product.id"
             :schemeName="product.product"
             :customerName="customerName"
+            @closed="onOfferDlgClosed"
         />
-        <metals-dlg v-model="showMetalsDlg" :scheme3d="scheme" :part="selectedMetalPart" />
+        <metals-dlg
+            v-model="showMetalsDlg"
+            :scheme3d="scheme"
+            :part="selectedMetalPart"
+            @schemeDirty="schemeDirty = true"
+        />
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch, Ref, nextTick } from "vue";
+import { computed, defineComponent, ref, watch, Ref, nextTick, onMounted, provide } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { ElMessage, ElLoading } from "element-plus";
@@ -146,6 +156,8 @@ import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
 import PartsMenu, { ActionType } from "./components/PartsMenu.vue";
+import { splitPrice } from "@/utils/currency";
+import { showSchemeSaveLoading, hideSchemeSaveLoading } from "./helpers";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -233,8 +245,13 @@ export default defineComponent({
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
         const scheme = ref<Scheme3D>();
+        const schemeDirty = ref(false);
+        const schemeDetailDirty = ref(false);
         util.importSchemeJson(product.value.manifest).then((s) => {
             scheme.value = s;
+            nextTick(() => {
+                refBabylon.value?.CreateReferenceRuler(true);
+            });
         });
         const schemeManifest = ref(product.value.manifest);
         const gooeyMenuItems = ref<MenuItem[]>([
@@ -257,6 +274,7 @@ export default defineComponent({
             {
                 value: "ruler",
                 icon: "ruler",
+                active: true, // default to true
                 onActive() {
                     refBabylon.value?.CreateReferenceRuler(true);
                 },
@@ -266,6 +284,7 @@ export default defineComponent({
             },
         ]);
         const gooeyMenuOpened = ref(false);
+        onMounted(() => {});
         function eventHandle(event: Event) {
             switch (event.type) {
                 case EventType.OBJECT_SELECTED:
@@ -446,36 +465,39 @@ export default defineComponent({
 
         const { customerName } = store.state.currentCustomer;
 
+        async function saveScheme() {
+            await util.saveSchemeAsync(product.value.id, scheme.value!);
+            schemeDirty.value = false;
+            schemeDetailDirty.value = true;
+        }
+
+        async function requestSchemeDetail() {
+            const res = await apiProvider.requestSchemeDetail(product.value.id);
+            Object.assign(product.value, res.data);
+            schemeDetailDirty.value = false;
+        }
+
         async function onPartsMenuAction(action: ActionType) {
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
+                    if (schemeDirty.value) {
+                        await saveScheme();
+                    }
                     await refPartsMenu.value?.showManifest(scheme2d.id, false);
                     break;
                 case "offer":
+                    if (schemeDirty.value) {
+                        await saveScheme();
+                    }
                     showOfferDlg.value = true;
                     store.commit("SET-DIRTY-SCHEME", { cid: scheme2d.cid, dirty: true });
                     break;
                 case "save":
                     {
-                        const loading = ElLoading.service({
-                            fullscreen: true,
-                            body: true,
-                            text: "方案保存中，请稍后......",
-                            spinner: "el-icon-loading",
-                        });
-                        await util
-                            .saveSchemeAsync(scheme2d.id, scheme.value!)
-                            .then((res) => {})
-                            .finally(() => {
-                                setTimeout(() => {
-                                    loading.close();
-                                    ElMessage({
-                                        type: "success",
-                                        message: "方案保存成功！",
-                                    });
-                                }, 200);
-                            });
+                        showSchemeSaveLoading();
+                        await saveScheme();
+                        hideSchemeSaveLoading();
                     }
                     break;
 
@@ -483,12 +505,21 @@ export default defineComponent({
                     break;
             }
         }
+        provide("updateSchemeMetalCount", ({ partId = 0, value = 0 }) => {
+            console.log("[onMetalCount]", partId, value);
+            if (scheme.value) {
+                util.updateSchemeMetalCount(scheme.value, partId, value);
+                schemeDirty.value = true;
+            }
+        });
         return {
             gooeyMenuItems,
             gooeyMenuOpened,
             refBabylon,
             refPartsMenu,
             scheme,
+            schemeDirty,
+            schemeDetailDirty,
             selectedPart,
             selectedMetalPart,
             selectedPartId,
@@ -581,9 +612,14 @@ export default defineComponent({
             },
             onPartsMenuAction,
             async gotoBack() {
-                // router.back();
-                // TODO make sure scheme has saved.
-                await onPartsMenuAction("save");
+                if (schemeDirty.value) {
+                    showSchemeSaveLoading();
+                    await saveScheme();
+                    hideSchemeSaveLoading();
+                }
+                if (schemeDetailDirty.value) {
+                    requestSchemeDetail();
+                }
                 mode.value = "view";
             },
             // onSaveClick() {},
@@ -630,12 +666,28 @@ export default defineComponent({
                 }
             },
             onBgSelect(bg: ImgCardItemType, bgType: BackgroundType) {
+                schemeDirty.value = true;
                 if (bgType === BackgroundType.WALL) {
                     onUpdateWallClick(bg);
                 } else {
                     onUpdateFloorClick(bg);
                 }
             },
+            onOfferDlgClosed() {
+                requestSchemeDetail();
+            },
+            offerPrice: computed(() => {
+                const scheme = product.value as Scheme;
+
+                if (!scheme.offer) {
+                    return {
+                        integer: "",
+                        decimal: "",
+                    };
+                } else {
+                    return splitPrice(+scheme.offer);
+                }
+            }),
         };
     },
 });
@@ -715,6 +767,17 @@ $infoWidthBig: 428px;
             font-size: 32px;
             font-weight: bold;
             color: black;
+            &-label {
+                font-size: 26px;
+            }
+            &-symbol {
+                color: #bb4050;
+                font-size: 19px;
+            }
+            &-offer {
+                color: #bb4050;
+                font-size: 41px;
+            }
         }
         &-name {
             white-space: pre-wrap;

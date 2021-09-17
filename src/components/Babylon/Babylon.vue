@@ -49,6 +49,11 @@ export default defineComponent({
             type: Scheme,
             default: null,
         },
+        // 标志是否需要保存scheme
+        dirty: {
+            type: Boolean,
+            default: null,
+        },
         baseOSSUrl: {
             type: String,
             default: "",
@@ -95,7 +100,8 @@ export default defineComponent({
                 if (newPart.id !== undefined) {
                     console.log("[Watch selectedPart] ", newPart);
                     this.newPart = newPart;
-
+                    // 更新 props.dirty
+                    this.$emit("update:dirty", true);
                     // TODO: remove the hardcode of adjusting whether it is a cube.
                     if (newPart.catId !== 20) {
                         const availableArea = this.getAvailableAreaByPart(newPart);
@@ -210,7 +216,6 @@ export default defineComponent({
                     if (firstCubeData === undefined) {
                         throw Error(`cannot find cube data by id: ${newDoor.cubes[0]}`);
                     } else {
-                        debugger;
                         let startX = firstCubeData.origin.x + firstCubeData.width * 0.5;
                         for (let i = 0; i < doorNum; i += itemMf.models.length) {
                             let doorIndex = 0;
@@ -880,24 +885,24 @@ export default defineComponent({
         },
 
         setupWallandFloor(): void {
-            // Floor
-            this.floor = BABYLON.MeshBuilder.CreateBox(
-                "Background_Floor",
-                { width: 5.0, height: 0.01, depth: 2.0 },
-                this.graphics.scene as BABYLON.Scene,
-            );
-            this.floor.position = new BABYLON.Vector3(0, 0, 0.7);
-            var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
-            const texture = new BABYLON.Texture(
-                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/floor/cc720923-b9d4-4ad1-af1e-db98151cacec.jpg",
-                this.graphics.scene as BABYLON.Scene,
-            );
-            texture.uScale = 2;
-            texture.vScale = 2;
-            floor_material.diffuseTexture = texture;
-            this.floor.material = floor_material;
-            this.floor.isPickable = false;
-            this.floor.receiveShadows = true;
+            // // Floor
+            // this.floor = BABYLON.MeshBuilder.CreateBox(
+            //     "Background_Floor",
+            //     { width: 5.0, height: 0.01, depth: 2.0 },
+            //     this.graphics.scene as BABYLON.Scene,
+            // );
+            // this.floor.position = new BABYLON.Vector3(0, 0, 0.7);
+            // var floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
+            // const texture = new BABYLON.Texture(
+            //     "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/floor/cc720923-b9d4-4ad1-af1e-db98151cacec.jpg",
+            //     this.graphics.scene as BABYLON.Scene,
+            // );
+            // texture.uScale = 2;
+            // texture.vScale = 2;
+            // floor_material.diffuseTexture = texture;
+            // this.floor.material = floor_material;
+            // this.floor.isPickable = false;
+            // this.floor.receiveShadows = true;
 
             // Wall
             this.wall = BABYLON.MeshBuilder.CreateBox(

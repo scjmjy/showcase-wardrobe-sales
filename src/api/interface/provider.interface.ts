@@ -226,16 +226,11 @@ export interface ManifestPart {
     pname: string;
     count: string;
     pic: string;
-    type: "3d" | "2d"; // 配件类型（1：3d；0：2d）
+    partid: number;
+    type: "3d" | "2d"; // 配件类型（1 for 3d; 2 for 2d）
 }
 
-// export type SchemeManifest = ManifestPart[];
-export interface SchemeManifest {
-    offer: never;
-    ptime: never;
-    details: ManifestPart[];
-}
-
+export type SchemeManifest = ManifestPart[];
 export default interface ApiProvider {
     /**
      * 登录接口

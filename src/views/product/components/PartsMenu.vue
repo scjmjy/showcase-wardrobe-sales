@@ -59,12 +59,14 @@
             </div>
             <div v-if="schemeManifest" class="parts-menu__right-manifest">
                 <manifest-item
-                    v-for="(item, index) of schemeManifest.details"
+                    v-for="(item, index) of schemeManifest"
                     :key="index"
                     :url="item.pic"
                     :name="item.pname"
                     :price="item.price"
-                    :count="item.count"
+                    v-model:count="item.count"
+                    :type="item.type"
+                    :partId="item.partid"
                 ></manifest-item>
             </div>
             <!-- <div v-if="schemeManifest" class="parts-menu__right-price">

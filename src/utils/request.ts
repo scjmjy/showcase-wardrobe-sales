@@ -42,7 +42,7 @@ service.interceptors.response.use(
         return response;
     },
     (error) => {
-        if (error.response.status === 401) {
+        if (error.response?.status === 401) {
             ElMessage({
                 type: "warning",
                 message: "登录过期，请重新登录。",

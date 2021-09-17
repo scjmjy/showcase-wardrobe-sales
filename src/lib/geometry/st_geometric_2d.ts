@@ -799,11 +799,15 @@ export class StSketchRect extends StSketchPolygon {
     ): StSketchRect[] {
         // console.log(`## host rect: ${host}, \n occupied: ${occupied}, \n part_size: ${part_size}`);
         const width = host.a;
-        const min_height = opt?.minHeight || StSketchConstant.MIN_DIVISION_HEIGHT_MM;
-        const margins = opt?.margins || [40, 60, 40, 60];
+        const min_height = opt?.minHeight || StSketchConstant.MIN_DIVISION_HEIGHT_M;
+        const margins = opt?.margins || [0.04, 0.06, 0.04, 0.06];
         const fixed_rects: StSketchRect[] = [];
         if (width < part_size.x) {
             console.log(`host width is too small: ${width} mm`);
+            return [];
+        }
+        if (width > 1.5 * part_size.x) {
+            console.log(`host width is too large: ${width} mm`);
             return [];
         }
         occupied.forEach((e) => {
