@@ -130,7 +130,7 @@
             v-model="showMetalsDlg"
             :scheme3d="scheme"
             :part="selectedMetalPart"
-            @schemeDirty="schemeDirty = true"
+            @schemeDirty="setSchemeDirty"
         />
     </div>
 </template>
@@ -244,7 +244,6 @@ export default defineComponent({
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
         const scheme = ref<Scheme3D>();
-        const schemeDirty = ref(false);
         const schemeDetailDirty = ref(false);
         util.importSchemeJson(product.value.manifest).then((s) => {
             scheme.value = s;
@@ -466,7 +465,6 @@ export default defineComponent({
 
         async function saveScheme() {
             await util.saveSchemeAsync(product.value.id, scheme.value!);
-            schemeDirty.value = false;
             if (scheme.value !== undefined) scheme.value.dirty = false;
             schemeDetailDirty.value = true;
         }
@@ -481,13 +479,13 @@ export default defineComponent({
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
-                    if (schemeDirty.value || scheme.value?.dirty) {
+                    if (scheme.value?.dirty) {
                         await saveScheme();
                     }
                     await refPartsMenu.value?.showManifest(scheme2d.id, false);
                     break;
                 case "offer":
-                    if (schemeDirty.value || scheme.value?.dirty) {
+                    if (scheme.value?.dirty) {
                         await saveScheme();
                     }
                     showOfferDlg.value = true;
@@ -509,16 +507,20 @@ export default defineComponent({
             console.log("[onMetalCount]", partId, value);
             if (scheme.value) {
                 util.updateSchemeMetalCount(scheme.value, partId, value);
-                schemeDirty.value = true;
             }
         });
+        function setSchemeDirty(dirty = true) {
+            if (scheme.value) {
+                scheme.value.dirty = dirty;
+            }
+        }
         return {
             gooeyMenuItems,
             gooeyMenuOpened,
             refBabylon,
             refPartsMenu,
             scheme,
-            schemeDirty,
+            setSchemeDirty,
             schemeDetailDirty,
             selectedPart,
             selectedMetalPart,
@@ -612,7 +614,7 @@ export default defineComponent({
             },
             onPartsMenuAction,
             async gotoBack() {
-                if (schemeDirty.value || scheme.value?.dirty) {
+                if (scheme.value?.dirty) {
                     showSchemeSaveLoading();
                     await saveScheme();
                     hideSchemeSaveLoading();
@@ -666,7 +668,6 @@ export default defineComponent({
                 }
             },
             onBgSelect(bg: ImgCardItemType, bgType: BackgroundType) {
-                schemeDirty.value = true;
                 if (bgType === BackgroundType.WALL) {
                     onUpdateWallClick(bg);
                 } else {
@@ -838,6 +839,16 @@ $infoWidthBig: 428px;
     .product-detail {
         &__info {
             width: $infoWidthSmall;
+        }
+        &__menu2d {
+            right: -270px;
+        }
+    }
+}
+@media (max-width: 1100px) {
+    .product-detail {
+        &__menu2d {
+            right: -190px;
         }
     }
 }

@@ -83,4 +83,25 @@ export default defineComponent({
         border: 3px solid var(--el-color-primary);
     }
 }
+@media (max-width: 1200px) {
+    .part-card {
+        width: 100px;
+        &__img {
+            width: 100px;
+            height: 100px;
+        }
+    }
+}
+
+@media (max-width: 1100px) {
+    // .part-card {
+    //     &__img {
+    //         width: 70px;
+    //         height: 70px;
+    //     }
+    //     &__label {
+    //         font-size: 18px;
+    //     }
+    // }
+}
 </style>

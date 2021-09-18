@@ -148,6 +148,7 @@ export async function saveSchemeAsync(schemeId: string | number, scheme: Scheme)
             data: formData,
         });
         await apiProvider.updateSchemeState(schemeId);
+        scheme.dirty = false;
         return true;
     } else {
         return Promise.reject();
@@ -159,6 +160,7 @@ export function updateSchemeMetalCount(scheme: Scheme, partId: number, value: nu
     const found = parts.find((p) => p.partId === partId);
     if (found) {
         found.count = value;
+        scheme.dirty = true;
         return true;
     }
     return false;

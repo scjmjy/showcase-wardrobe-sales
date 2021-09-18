@@ -66,8 +66,7 @@
         </el-collapse-transition>
         <div class="cat-tab__parts-title">{{ partTitle }}</div>
         <div ref="refScroll" class="cat-tab__parts" @scroll="onScroll">
-            <part-card v-for="part in parts" :key="part.id" :part="part" @click="onPartClick" style="width: 40%">
-            </part-card>
+            <part-card v-for="part in parts" :key="part.id" :part="part" @click="onPartClick"> </part-card>
             <load-more :state="loadState" @loadmore="onScroll" />
         </div>
         <!-- <el-row ref="elRow" class="cat-tab__parts" :gutter="20" @scroll="onScroll">

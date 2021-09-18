@@ -511,9 +511,15 @@ $header-height: 56px;
     }
 }
 
-// @media (max-width: 1200px) {
-//     .parts-menu {
-//         --menu-width: 378px;
-//     }
-// }
+@media (max-width: 1200px) {
+    .parts-menu {
+        --menu-width: 358px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .parts-menu {
+        --menu-width: 278px;
+    }
+}
 </style>
