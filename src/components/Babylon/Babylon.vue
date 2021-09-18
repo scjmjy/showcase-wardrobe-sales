@@ -305,7 +305,10 @@ export default defineComponent({
                 case 1:
                     {
                         // SS TODO: remove the hardcode below.
-                        this.graphics.setCameraPosition(0, 1.1, 6);
+                        if( this.bizdata.totalWidth <= 2.85 )
+                            this.graphics.setCameraPosition(0, 1.75, 4.5);
+                        else
+                            this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
                         this.graphics.lockCamera(false);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
@@ -331,7 +334,10 @@ export default defineComponent({
                 case 2:
                     {
                         // SS TODO: remove the hardcode below.
-                        this.graphics.setCameraPosition(0, 1.1, 5);
+                        if( this.bizdata.totalWidth <= 2.85 )
+                            this.graphics.setCameraPosition(0, 1.75, 4.5);
+                        else
+                            this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
                         this.graphics.lockCamera(true);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
