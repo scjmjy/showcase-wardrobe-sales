@@ -8,7 +8,7 @@
 import { defineComponent, PropType } from "vue";
 import * as BABYLON from "babylonjs";
 import { Graphics, GraphicsEvent } from "@/lib/graphics";
-import { Scheme, Cube, Item, Door, Part, Position, RelativeItem, Location, Area, Size } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, PartType, Position, Location, Area, Size } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
 import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
@@ -16,15 +16,7 @@ import request from "@/utils/request";
 import { drobeUtil } from "@/lib/drobe.util";
 import * as event from "@/lib/biz.event";
 import { PopupGUI } from "@/lib/hm_gui";
-
-export interface PartType {
-    id: number;
-    width: number;
-    height: number;
-    depth: number;
-    manifest: string;
-    catId: number;
-}
+import { ElMessage } from "element-plus";
 
 export default defineComponent({
     name: "Babylon",
@@ -96,12 +88,18 @@ export default defineComponent({
                     console.log("[Watch selectedPart] ", newPart);
                     this.newPart = newPart;
 
-                    // TODO: remove the hardcode of adjusting whether it is a cube.
-                    if (newPart.catId !== 20) {
-                        const availableArea = this.getAvailableAreaByPart(newPart);
-                        this.ShowAvailableArea(newPart, availableArea);
+                    if (this.graphics.currentMesh !== null) {
+                        const info = this.graphics.currentMesh.name.split("_");
+                        const itemId = info[1];
+                        this.changeItemApi(itemId, newPart);
                     } else {
-                        this.ShowCubeAddArea(newPart);
+                        // TODO: remove the hardcode of adjusting whether it is a cube.
+                        if (newPart.catId !== 20) {
+                            const availableArea = this.getAvailableAreaByPart(newPart);
+                            this.ShowAvailableArea(newPart, availableArea);
+                        } else {
+                            this.ShowCubeAddArea(newPart);
+                        }
                     }
                 }
             },
@@ -182,7 +180,65 @@ export default defineComponent({
          * @param itemId 需要修改的item id
          * @param newPartId 修改后配件对应的partId
          */
-        changeItemApi(itemId: string, newPartId: number, newManifest: string): void {},
+        changeItemApi(itemId: string, newPart: PartType): void {
+            const meshName = ObjectType.ITEM + "_" + itemId;
+            const mesh = this.graphics.scene.getMeshByName(meshName);
+            if (mesh !== null) {
+                const cubeItem = this.bizdata.findCubeItemByItemId(itemId);
+                debugger
+                if (
+                    cubeItem.cube !== undefined &&
+                    cubeItem.item !== undefined &&
+                    cubeItem.item.size.x === newPart.width &&
+                    cubeItem.item.size.y === newPart.height &&
+                    cubeItem.item.size.z === newPart.depth
+                ) {
+                    const pos = mesh.position.clone();
+                    request({
+                        url: this.baseOSSUrl + newPart.manifest,
+                        method: "GET",
+                        responseType: "json",
+                    })
+                        .then((res) => {
+                            const itemMf = res.data;
+                            itemMf.models.forEach((model: any) => {
+                                const modelPos = new BABYLON.Vector3(
+                                    pos.x + model.position.x,
+                                    pos.y + model.position.y,
+                                    pos.z + model.position.z,
+                                );
+                                const modelScaling = new BABYLON.Vector3(
+                                    model.scaling.x,
+                                    model.scaling.y,
+                                    model.scaling.z,
+                                );
+                                const modelUrl = this.baseOSSUrl + model.url;
+                                this.graphics.importMesh(
+                                    modelUrl,
+                                    meshName,
+                                    modelPos,
+                                    BABYLON.Vector3.Zero(),
+                                    modelScaling,
+                                    true,
+                                );
+                            });
+
+                            // clear select item
+                            this.clearSelectionApi();
+                            // remove the old item
+                            mesh.dispose();
+                        })
+                        .catch((err) => {
+                            throw Error(`Load part manifest by error: ${err}`);
+                        });
+                } else {
+                    ElMessage({
+                        type: "warning",
+                        message: "不能更换不同尺寸的内配",
+                    });
+                }
+            }
+        },
 
         /**
          * 增加一个合页门或者滑门
@@ -232,7 +288,7 @@ export default defineComponent({
                                     modelPos,
                                     BABYLON.Vector3.Zero(),
                                     modelScaling,
-                                    false,
+                                    true,
                                 );
 
                                 startX -= doorWidth;

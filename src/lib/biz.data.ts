@@ -1,4 +1,4 @@
-import { Scheme, Cube, Item, Door, Part } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, Part, PartType } from "@/lib/scheme";
 import { StObject } from "./utility/st_object";
 import { v4 as uuidv4 } from "uuid";
 
@@ -154,6 +154,23 @@ export class BizData {
             this.removePart(cubeItem.item.partId);
         }
 
+        this.scheme.dirty = true;
+    }
+
+    changeItem(itemId: string, newPart: PartType): void {
+        const cubeItem = this.findCubeItemByItemId(itemId);
+        if (cubeItem.cube !== undefined && cubeItem.item !== undefined) {
+            const oldPartId = cubeItem.item.partId;
+            cubeItem.item.partId = newPart.id;
+            cubeItem.item.catId = newPart.catId;
+            cubeItem.item.manifest = newPart.manifest;
+            cubeItem.item.size.x = newPart.width;
+            cubeItem.item.size.y = newPart.height;
+            cubeItem.item.size.z = newPart.depth;
+
+            this.removePart(oldPartId);
+            this.addPart(newPart.id);
+        }
         this.scheme.dirty = true;
     }
 

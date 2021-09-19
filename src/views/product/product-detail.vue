@@ -140,7 +140,7 @@ import { computed, defineComponent, ref, watch, Ref, nextTick, onMounted, provid
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { ElMessage, ElLoading } from "element-plus";
-import Babylon, { PartType } from "@/components/Babylon/Babylon.vue";
+import Babylon from "@/components/Babylon/Babylon.vue";
 import { StateType } from "@/store";
 import { BackgroundType, Part, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
@@ -149,7 +149,7 @@ import { Area, Door, Position, Size } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
 import GooeyMenu, { MenuItem } from "@/components/GooeyMenu.vue";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
-import { Scheme as Scheme3D } from "@/lib/scheme";
+import { Scheme as Scheme3D, PartType } from "@/lib/scheme";
 import type { ImgCardItemType } from "./components/ImgCardItem.vue";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
