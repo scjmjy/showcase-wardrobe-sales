@@ -648,24 +648,14 @@ export default defineComponent({
                     return;
                 }
                 const marnifestUrl = part.manifest.replace(baseUrl.value || "", "");
-                // TODO remove test code
-                if (cat.id === 2) {
-                    // onDeleteClick("door");
-                    refBabylon.value?.removeDoorsApi();
-                    onAddDoorClick("slide", +part.id, marnifestUrl);
-                } else if (cat.id === 3) {
-                    refBabylon.value?.removeDoorsApi();
-                    onAddDoorClick("left", +part.id, marnifestUrl);
-                } else {
-                    selectedPart.value = {
-                        id: +part.id,
-                        width: part.width,
-                        height: part.height,
-                        depth: part.depth,
-                        manifest: marnifestUrl,
-                        catId: +cat.id,
-                    };
-                }
+                selectedPart.value = {
+                    id: +part.id,
+                    width: part.width,
+                    height: part.height,
+                    depth: part.depth,
+                    manifest: marnifestUrl,
+                    catId: +cat.id,
+                };
             },
             onBgSelect(bg: ImgCardItemType, bgType: BackgroundType) {
                 if (bgType === BackgroundType.WALL) {

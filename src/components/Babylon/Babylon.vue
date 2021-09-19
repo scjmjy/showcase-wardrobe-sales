@@ -97,6 +97,10 @@ export default defineComponent({
                                 this.changeCubeApi(objectId, newPart);
                                 break;
                             case ObjectType.DOOR:
+                                {
+                                    const doorIndex = parseInt(info[2]);
+                                    this.changeDoorApi(objectId, newPart, doorIndex);
+                                }
                                 break;
                             case ObjectType.ITEM:
                                 this.changeItemApi(objectId, newPart);
@@ -104,14 +108,16 @@ export default defineComponent({
                         }
                     } else {
                         // TODO: remove the hardcode of adjusting whether it is a cube.
-                        if (newPart.catId !== 20) {
-                            const availableArea = this.getAvailableAreaByPart(newPart);
-                            this.ShowAvailableArea(newPart, availableArea);
-                        } else {
+                        if (newPart.catId === 20) {
                             // TODO: remove the function of adding new cube.
                             this.ShowCubeAddArea(newPart);
                             // Change all cubes if no cube is selected.
                             this.changeAllCubes(newPart);
+                        } else if (newPart.catId === 2 || newPart.catId === 3) {
+                            this.changeAllDoors(newPart);
+                        } else {
+                            const availableArea = this.getAvailableAreaByPart(newPart);
+                            this.ShowAvailableArea(newPart, availableArea);
                         }
                     }
                 }
@@ -219,6 +225,8 @@ export default defineComponent({
                             this.clearSelectionApi();
                             // remove the old item
                             mesh.dispose();
+
+                            this.bizdata.changeCube(cubeId, newPart);
                         })
                         .catch((err) => {
                             throw Error(`Load part manifest by error: ${err}`);
@@ -314,6 +322,8 @@ export default defineComponent({
                             this.clearSelectionApi();
                             // remove the old item
                             mesh.dispose();
+
+                            this.bizdata.changeItem(itemId, newPart);
                         })
                         .catch((err) => {
                             throw Error(`Load part manifest by error: ${err}`);
@@ -328,7 +338,7 @@ export default defineComponent({
         },
 
         /**
-         * 增加一个合页门或者滑门
+         * 增加一组合页门或者滑门
          * @param newDoor 新增加的Door
          */
         addDoorApi(newDoor: Door): void {
@@ -355,7 +365,7 @@ export default defineComponent({
                     } else {
                         let startX = firstCubeData.origin.x + firstCubeData.width * 0.5;
                         for (let i = 0; i < doorNum; i += itemMf.models.length) {
-                            let doorIndex = 0;
+                            let modelIndex = 0;
                             itemMf.models.forEach((model: any) => {
                                 const modelPos = new BABYLON.Vector3(
                                     startX - doorWidth * 0.5 + model.position.x,
@@ -367,6 +377,7 @@ export default defineComponent({
                                     model.scaling.y,
                                     model.scaling.z,
                                 );
+                                const doorIndex = i + modelIndex;
                                 const doorName = ObjectType.DOOR + "_" + newDoor.id + "_" + doorIndex;
                                 const modelUrl = this.baseOSSUrl + model.url;
                                 this.graphics.importMesh(
@@ -379,7 +390,7 @@ export default defineComponent({
                                 );
 
                                 startX -= doorWidth;
-                                doorIndex++;
+                                modelIndex++;
                             });
                         }
                     }
@@ -400,9 +411,83 @@ export default defineComponent({
         /**
          * 修改合页门或滑门的材质或颜色
          * @param doorId 需要修改的door uuid
-         * @param newPartId
+         * @param newPart
          */
-        changeDoorApi(doorId: string, newPartId: number, newManifest: string): void {},
+        changeDoorApi(doorId: string, newPart: PartType, doorIndex: number): void {
+            const meshName = ObjectType.DOOR + "_" + doorId + "_" + doorIndex;
+            const mesh = this.graphics.scene.getMeshByName(meshName);
+            if (mesh !== null) {
+                const door = this.bizdata.findDoorById(doorId);
+                if (
+                    door !== undefined &&
+                    door.size.x === newPart.width &&
+                    door.size.y === newPart.height &&
+                    door.size.z === newPart.depth
+                ) {
+                    const pos = mesh.position.clone();
+                    request({
+                        url: this.baseOSSUrl + newPart.manifest,
+                        method: "GET",
+                        responseType: "json",
+                    })
+                        .then((res) => {
+                            const itemMf = res.data;
+                            const modelIndex = doorIndex % itemMf.models.length;
+                            const model = itemMf.models[modelIndex];
+                            const modelPos = new BABYLON.Vector3(
+                                pos.x + model.position.x,
+                                pos.y + model.position.y,
+                                pos.z + model.position.z,
+                            );
+                            const modelScaling = new BABYLON.Vector3(model.scaling.x, model.scaling.y, model.scaling.z);
+                            const modelUrl = this.baseOSSUrl + model.url;
+                            this.graphics.importMesh(
+                                modelUrl,
+                                meshName,
+                                modelPos,
+                                BABYLON.Vector3.Zero(),
+                                modelScaling,
+                                true,
+                            );
+
+                            // clear select item
+                            this.clearSelectionApi();
+                            // remove the old item
+                            mesh.dispose();
+
+                            this.bizdata.changeDoor(doorId, newPart);
+                        })
+                        .catch((err) => {
+                            throw Error(`Load part manifest by error: ${err}`);
+                        });
+                } else {
+                    ElMessage({
+                        type: "warning",
+                        message: "不能更换不同尺寸的门",
+                    });
+                }
+            }
+        },
+
+        changeAllDoors(newPart: PartType): void {
+            this.graphics.scene.meshes.forEach((mesh) => {
+                const info = mesh.name.split("_");
+                const objectType = info[0];
+                const objectId = info[1];
+                if (objectType === ObjectType.DOOR) {
+                    const door = this.bizdata.findDoorById(objectId);
+                    if (
+                        door !== undefined &&
+                        door.size.x === newPart.width &&
+                        door.size.y === newPart.height &&
+                        door.size.z === newPart.depth
+                    ) {
+                        const doorIndex = parseInt(info[2]);
+                        this.changeDoorApi(objectId, newPart, doorIndex);
+                    }
+                }
+            });
+        },
 
         /**
          * 批量操作，比如：合页门换滑门（删除合页门，再增加滑门）
