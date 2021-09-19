@@ -90,15 +90,28 @@ export default defineComponent({
 
                     if (this.graphics.currentMesh !== null) {
                         const info = this.graphics.currentMesh.name.split("_");
-                        const itemId = info[1];
-                        this.changeItemApi(itemId, newPart);
+                        const objectType = info[0];
+                        const objectId = info[1];
+                        switch (objectType) {
+                            case ObjectType.CUBE:
+                                this.changeCubeApi(objectId, newPart);
+                                break;
+                            case ObjectType.DOOR:
+                                break;
+                            case ObjectType.ITEM:
+                                this.changeItemApi(objectId, newPart);
+                                break;
+                        }
                     } else {
                         // TODO: remove the hardcode of adjusting whether it is a cube.
                         if (newPart.catId !== 20) {
                             const availableArea = this.getAvailableAreaByPart(newPart);
                             this.ShowAvailableArea(newPart, availableArea);
                         } else {
+                            // TODO: remove the function of adding new cube.
                             this.ShowCubeAddArea(newPart);
+                            // Change all cubes if no cube is selected.
+                            this.changeAllCubes(newPart);
                         }
                     }
                 }
@@ -159,9 +172,84 @@ export default defineComponent({
         /**
          * 修改单元柜的材质或颜色
          * @param cubeId 需要修改的单元柜id
-         * @param newPartId 修改后单元柜对应的partId
+         * @param newPart 修改后单元柜对应的part
          */
-        changeCubeApi(cubeId: string, newPartId: number, newManifest: string): void {},
+        changeCubeApi(cubeId: string, newPart: PartType): void {
+            const meshName = ObjectType.CUBE + "_" + cubeId;
+            const mesh = this.graphics.scene.getMeshByName(meshName);
+            if (mesh !== null) {
+                const cube = this.bizdata.findCubeById(cubeId);
+                if (
+                    cube !== undefined &&
+                    cube.size.x === newPart.width &&
+                    cube.size.y === newPart.height &&
+                    cube.size.z === newPart.depth
+                ) {
+                    const pos = mesh.position.clone();
+                    request({
+                        url: this.baseOSSUrl + newPart.manifest,
+                        method: "GET",
+                        responseType: "json",
+                    })
+                        .then((res) => {
+                            const itemMf = res.data;
+                            itemMf.models.forEach((model: any) => {
+                                const modelPos = new BABYLON.Vector3(
+                                    pos.x + model.position.x,
+                                    pos.y + model.position.y,
+                                    pos.z + model.position.z,
+                                );
+                                const modelScaling = new BABYLON.Vector3(
+                                    model.scaling.x,
+                                    model.scaling.y,
+                                    model.scaling.z,
+                                );
+                                const modelUrl = this.baseOSSUrl + model.url;
+                                this.graphics.importMesh(
+                                    modelUrl,
+                                    meshName,
+                                    modelPos,
+                                    BABYLON.Vector3.Zero(),
+                                    modelScaling,
+                                    true,
+                                );
+                            });
+
+                            // clear select item
+                            this.clearSelectionApi();
+                            // remove the old item
+                            mesh.dispose();
+                        })
+                        .catch((err) => {
+                            throw Error(`Load part manifest by error: ${err}`);
+                        });
+                } else {
+                    ElMessage({
+                        type: "warning",
+                        message: "不能更换不同尺寸的柜体",
+                    });
+                }
+            }
+        },
+
+        changeAllCubes(newPart: PartType): void {
+            this.graphics.scene.meshes.forEach((mesh) => {
+                const info = mesh.name.split("_");
+                const objectType = info[0];
+                const cubeId = info[1];
+                if (objectType === ObjectType.CUBE) {
+                    const cube = this.bizdata.findCubeById(cubeId);
+                    if (
+                        cube !== undefined &&
+                        cube.size.x === newPart.width &&
+                        cube.size.y === newPart.height &&
+                        cube.size.z === newPart.depth
+                    ) {
+                        this.changeCubeApi(cubeId, newPart);
+                    }
+                }
+            });
+        },
 
         /**
          * 增加一个item
@@ -178,14 +266,13 @@ export default defineComponent({
         /**
          * 修改配件的材质或颜色
          * @param itemId 需要修改的item id
-         * @param newPartId 修改后配件对应的partId
+         * @param newPartId 修改后配件对应的part
          */
         changeItemApi(itemId: string, newPart: PartType): void {
             const meshName = ObjectType.ITEM + "_" + itemId;
             const mesh = this.graphics.scene.getMeshByName(meshName);
             if (mesh !== null) {
                 const cubeItem = this.bizdata.findCubeItemByItemId(itemId);
-                debugger
                 if (
                     cubeItem.cube !== undefined &&
                     cubeItem.item !== undefined &&
@@ -361,10 +448,8 @@ export default defineComponent({
                 case 1:
                     {
                         // SS TODO: remove the hardcode below.
-                        if( this.bizdata.totalWidth <= 2.85 )
-                            this.graphics.setCameraPosition(0, 1.75, 4.5);
-                        else
-                            this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
+                        if (this.bizdata.totalWidth <= 2.85) this.graphics.setCameraPosition(0, 1.75, 4.5);
+                        else this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
                         this.graphics.lockCamera(false);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
@@ -390,10 +475,8 @@ export default defineComponent({
                 case 2:
                     {
                         // SS TODO: remove the hardcode below.
-                        if( this.bizdata.totalWidth <= 2.85 )
-                            this.graphics.setCameraPosition(0, 1.75, 4.5);
-                        else
-                            this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
+                        if (this.bizdata.totalWidth <= 2.85) this.graphics.setCameraPosition(0, 1.75, 4.5);
+                        else this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
                         this.graphics.lockCamera(true);
 
                         this.graphics.scene.meshes.forEach((mesh) => {

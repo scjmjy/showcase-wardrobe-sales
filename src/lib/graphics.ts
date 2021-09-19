@@ -701,6 +701,8 @@ export class Graphics {
     public removeCurrentHighlight(): void {
         if (this._currentMesh !== null) {
             this.removeHighlightMesh(this._currentMesh);
+            this._currentHighlightMesh = null;
+            this._currentMesh = null;
         }
     }
 
