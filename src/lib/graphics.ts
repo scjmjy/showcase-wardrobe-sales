@@ -701,6 +701,8 @@ export class Graphics {
     public removeCurrentHighlight(): void {
         if (this._currentMesh !== null) {
             this.removeHighlightMesh(this._currentMesh);
+            this._currentHighlightMesh = null;
+            this._currentMesh = null;
         }
     }
 
@@ -754,6 +756,10 @@ export class Graphics {
         } else {
             console.log("Caution: SetBackgroundColor: called before 3D scene is created!!!");
         }
+    }
+
+    public get currentMesh(): BABYLON.Nullable<BABYLON.AbstractMesh> {
+        return this._currentMesh;
     }
 
     public get hoverColor(): BABYLON.Color3 {

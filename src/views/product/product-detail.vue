@@ -139,7 +139,7 @@ import { computed, defineComponent, ref, watch, Ref, nextTick, onMounted, provid
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { ElMessage, ElLoading } from "element-plus";
-import Babylon, { PartType } from "@/components/Babylon/Babylon.vue";
+import Babylon from "@/components/Babylon/Babylon.vue";
 import { StateType } from "@/store";
 import { BackgroundType, Part, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
@@ -148,7 +148,7 @@ import { Area, Door, Position, Size } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
 import GooeyMenu, { MenuItem } from "@/components/GooeyMenu.vue";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
-import { Scheme as Scheme3D } from "@/lib/scheme";
+import { Scheme as Scheme3D, PartType } from "@/lib/scheme";
 import type { ImgCardItemType } from "./components/ImgCardItem.vue";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
@@ -646,24 +646,14 @@ export default defineComponent({
                     return;
                 }
                 const marnifestUrl = part.manifest.replace(baseUrl.value || "", "");
-                // TODO remove test code
-                if (cat.id === 2) {
-                    // onDeleteClick("door");
-                    refBabylon.value?.removeDoorsApi();
-                    onAddDoorClick("slide", +part.id, marnifestUrl);
-                } else if (cat.id === 3) {
-                    refBabylon.value?.removeDoorsApi();
-                    onAddDoorClick("left", +part.id, marnifestUrl);
-                } else {
-                    selectedPart.value = {
-                        id: +part.id,
-                        width: part.width,
-                        height: part.height,
-                        depth: part.depth,
-                        manifest: marnifestUrl,
-                        catId: +cat.id,
-                    };
-                }
+                selectedPart.value = {
+                    id: +part.id,
+                    width: part.width,
+                    height: part.height,
+                    depth: part.depth,
+                    manifest: marnifestUrl,
+                    catId: +cat.id,
+                };
             },
             onBgSelect(bg: ImgCardItemType, bgType: BackgroundType) {
                 if (bgType === BackgroundType.WALL) {

@@ -162,3 +162,12 @@ export class Hint {
         this.message = message;
     }
 }
+
+export interface PartType {
+    id: number;
+    width: number;
+    height: number;
+    depth: number;
+    manifest: string;
+    catId: number;
+}

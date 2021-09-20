@@ -1,4 +1,4 @@
-import { Scheme, Cube, Item, Door, Part } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, Part, PartType } from "@/lib/scheme";
 import { StObject } from "./utility/st_object";
 import { v4 as uuidv4 } from "uuid";
 
@@ -134,6 +134,23 @@ export class BizData {
         this.scheme.dirty = true;
     }
 
+    changeCube(cubeId: string, newPart: PartType): void {
+        const cube = this.findCubeById(cubeId);
+        if (cube !== undefined) {
+            const oldPartId = cube.partId;
+            cube.partId = newPart.id;
+            cube.catId = newPart.catId;
+            cube.manifest = newPart.manifest;
+            cube.size.x = newPart.width;
+            cube.size.y = newPart.height;
+            cube.size.z = newPart.depth;
+
+            this.removePart(oldPartId);
+            this.addPart(newPart.id);
+        }
+        this.scheme.dirty = true;
+    }
+
     addItem(newItem: Item, cubeId: string): void {
         const cube = this.findCubeById(cubeId);
         if (cube !== undefined) {
@@ -154,6 +171,23 @@ export class BizData {
             this.removePart(cubeItem.item.partId);
         }
 
+        this.scheme.dirty = true;
+    }
+
+    changeItem(itemId: string, newPart: PartType): void {
+        const cubeItem = this.findCubeItemByItemId(itemId);
+        if (cubeItem.cube !== undefined && cubeItem.item !== undefined) {
+            const oldPartId = cubeItem.item.partId;
+            cubeItem.item.partId = newPart.id;
+            cubeItem.item.catId = newPart.catId;
+            cubeItem.item.manifest = newPart.manifest;
+            cubeItem.item.size.x = newPart.width;
+            cubeItem.item.size.y = newPart.height;
+            cubeItem.item.size.z = newPart.depth;
+
+            this.removePart(oldPartId);
+            this.addPart(newPart.id);
+        }
         this.scheme.dirty = true;
     }
 
@@ -220,6 +254,23 @@ export class BizData {
         this.scheme.dirty = true;
 
         return array[0];
+    }
+
+    changeDoor(doorId: string, newPart: PartType): void {
+        const door = this.findDoorById(doorId);
+        if (door !== undefined) {
+            const oldPartId = door.partId;
+            door.partId = newPart.id;
+            door.catId = newPart.catId;
+            door.manifest = newPart.manifest;
+            door.size.x = newPart.width;
+            door.size.y = newPart.height;
+            door.size.z = newPart.depth;
+
+            this.removePart(oldPartId);
+            this.addPart(newPart.id);
+        }
+        this.scheme.dirty = true;
     }
 
     getAllDoorsId(): string[] {
