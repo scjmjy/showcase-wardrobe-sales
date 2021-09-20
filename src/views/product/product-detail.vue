@@ -110,7 +110,6 @@
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
                 @bg="onBgSelect"
-                @metalCount="onMetalCount"
             ></parts-menu>
         </template>
         <customize-dlg
@@ -504,7 +503,6 @@ export default defineComponent({
             }
         }
         provide("updateSchemeMetalCount", ({ partId = 0, value = 0 }) => {
-            console.log("[onMetalCount]", partId, value);
             if (scheme.value) {
                 util.updateSchemeMetalCount(scheme.value, partId, value);
             }
