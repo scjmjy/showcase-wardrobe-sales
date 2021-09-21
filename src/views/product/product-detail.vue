@@ -378,7 +378,6 @@ export default defineComponent({
             }
         }
         function onAddDoorClick(type: string, partId?: number, mfUrl?: string) {
-            // debugger;
             if (!refBabylon.value) {
                 console.error("refBabylon.value is not defined!");
                 throw Error("refBabylon.value is not defined!");

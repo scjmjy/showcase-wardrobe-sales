@@ -191,56 +191,10 @@ export class BizData {
         this.scheme.dirty = true;
     }
 
-    findCubeById(id: string): Cube | undefined {
-        return this.scheme.cubes.find((cube: { id: string }) => cube.id === id);
-    }
-
-    findCubeItemByItemId(itemId: string): CubeItem {
-        let retCube = undefined;
-        let retItem = undefined;
-        this.scheme.cubes.some((cube: { items: Item[] }) => {
-            const item = cube.items.find((item: { id: string }) => item.id === itemId);
-            if (item !== undefined) {
-                retItem = item;
-                retCube = cube;
-                return true;
-            }
-        });
-
-        return { cube: retCube, item: retItem };
-    }
-
-    findItemById(id: string): Item | undefined {
-        let retItem = undefined;
-        this.scheme.cubes.some((cube: { items: Item[] }) => {
-            const item = cube.items.find((item: { id: string }) => item.id === id);
-            if (item !== undefined) {
-                retItem = item;
-                return true;
-            }
-        });
-
-        return retItem;
-    }
-
-    addDoor(door: Door): string {
-        const door_cubes_ids = door.cubes;
-        const old_door = this.scheme.doors.find((d) => {
-            for (const id of door_cubes_ids) {
-                if (d.cubes.includes(id)) return true;
-            }
-            return false;
-        });
-        if (old_door) {
-            throw Error(`Delete previous door: ${StObject.buildString(old_door)}`);
-        }
-        door.id = uuidv4();
-        this.scheme.doors.push(door);
-
-        this.addPart(door.partId);
+    addDoor(newDoor: Door): void {
+        this.scheme.doors.push(newDoor);
+        this.addPart(newDoor.partId);
         this.scheme.dirty = true;
-
-        return door.id;
     }
 
     removeDoor(id: string): Door | undefined {
@@ -281,6 +235,38 @@ export class BizData {
         return ids;
     }
 
+    findCubeById(id: string): Cube | undefined {
+        return this.scheme.cubes.find((cube: { id: string }) => cube.id === id);
+    }
+
+    findCubeItemByItemId(itemId: string): CubeItem {
+        let retCube = undefined;
+        let retItem = undefined;
+        this.scheme.cubes.some((cube: { items: Item[] }) => {
+            const item = cube.items.find((item: { id: string }) => item.id === itemId);
+            if (item !== undefined) {
+                retItem = item;
+                retCube = cube;
+                return true;
+            }
+        });
+
+        return { cube: retCube, item: retItem };
+    }
+
+    findItemById(id: string): Item | undefined {
+        let retItem = undefined;
+        this.scheme.cubes.some((cube: { items: Item[] }) => {
+            const item = cube.items.find((item: { id: string }) => item.id === id);
+            if (item !== undefined) {
+                retItem = item;
+                return true;
+            }
+        });
+
+        return retItem;
+    }
+
     findDoorById(id: string): Door | undefined {
         return this.scheme.doors.find((door: { id: string }) => door.id === id);
     }
@@ -304,5 +290,17 @@ export class BizData {
         }
         if (!cube) return null;
         return cube.items;
+    }
+
+    findDoorByCubeId(cubeId: string): Door | undefined {
+        let resDoor = undefined;
+        this.scheme.doors.some((door) => {
+            if (door.cubes.indexOf(cubeId) !== -1) {
+                resDoor = door;
+                return true;
+            }
+        });
+
+        return resDoor;
     }
 }
