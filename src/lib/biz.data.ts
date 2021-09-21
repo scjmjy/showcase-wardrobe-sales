@@ -197,7 +197,7 @@ export class BizData {
         this.scheme.dirty = true;
     }
 
-    removeDoor(id: string, doorNum: number = 1): Door | undefined {
+    removeDoor(id: string, doorNum = 1): Door | undefined {
         const idx = this.scheme.doors.findIndex((d) => {
             return d.id === id;
         });
@@ -205,7 +205,7 @@ export class BizData {
         const array = this.scheme.doors.splice(idx, 1);
 
         // Handle the case of left and right door.
-        for(let i = 0; i < doorNum; i++) this.removePart(array[0].partId);
+        for (let i = 0; i < doorNum; i++) this.removePart(array[0].partId);
         this.scheme.dirty = true;
 
         return array[0];

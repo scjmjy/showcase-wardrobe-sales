@@ -37,7 +37,7 @@ export class PopupGUI {
             this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, graphics.scene);
         }
 
-        // clear previous delet panel to avoid delete previous mesh 
+        // clear previous delet panel to avoid delete previous mesh
         if (this._deletePanel != null) {
             this._deletePanel.dispose();
             this._deletePanel = null;

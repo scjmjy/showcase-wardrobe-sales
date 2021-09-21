@@ -257,7 +257,7 @@ export default defineComponent({
                 value: "d3",
                 icon: "d3",
                 onActive() {
-                    refBabylon.value?.setCamera30();
+                    refBabylon.value?.setCameraAlpha(Math.PI / 3);
                 },
                 onUnactive() {
                     refBabylon.value?.setDefaultCamera();

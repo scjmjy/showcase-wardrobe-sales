@@ -654,11 +654,10 @@ export default defineComponent({
             this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
         },
 
-        setCamera30() {
+        setCameraAlpha(alpha: number) {
             const radius = this.bizdata.totalWidth * 0.75;
-            const angle = Math.PI / 3;
-            const x = radius * Math.tanh(angle);
-            const y = radius * Math.tan(angle);
+            const x = radius * Math.tanh(alpha);
+            const y = radius * Math.tan(alpha);
             this.graphics.setCameraPosition(-x, 1.75, y);
         },
 

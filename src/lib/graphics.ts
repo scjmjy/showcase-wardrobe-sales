@@ -614,10 +614,6 @@ export class Graphics {
         this._camera.target = new BABYLON.Vector3(x, y, z);
     }
 
-    public setCameraBeta(beta: number) {
-        this._camera.beta = beta;
-    }
-
     public lockCamera(lock: boolean): void {
         if (lock) this._camera.detachControl(this._canvas);
         else this._camera.attachControl(this._canvas);
