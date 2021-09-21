@@ -937,7 +937,6 @@ export default defineComponent({
                 switch (pointerInfo.type) {
                     case BABYLON.PointerEventTypes.POINTERDOWN:
                         if (pointerInfo && pointerInfo.pickInfo && pointerInfo.pickInfo.pickedMesh) {
-                            this.gui.display(this.graphics, this.bizdata as BizData, null);
                             const rootMesh = this.graphics.getRootMesh(pointerInfo.pickInfo.pickedMesh);
                             this.gui.display(this.graphics, this.bizdata as BizData, rootMesh);
 
