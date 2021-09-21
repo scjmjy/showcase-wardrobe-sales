@@ -582,7 +582,7 @@ export default defineComponent({
                     {
                         // SS TODO: remove the hardcode below.
                         if (this.bizdata.totalWidth <= 2.85) this.graphics.setCameraPosition(0, 1.75, 4.5);
-                        else this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
+                        else this.setDefaultCamera();
                         this.graphics.lockCamera(false);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
@@ -609,7 +609,7 @@ export default defineComponent({
                     {
                         // SS TODO: remove the hardcode below.
                         if (this.bizdata.totalWidth <= 2.85) this.graphics.setCameraPosition(0, 1.75, 4.5);
-                        else this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
+                        else this.setDefaultCamera();
                         this.graphics.lockCamera(true);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
@@ -648,6 +648,18 @@ export default defineComponent({
                     }
                     break;
             }
+        },
+
+        setDefaultCamera() {
+            this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
+        },
+
+        setCamera30() {
+            const radius = this.bizdata.totalWidth * 0.75;
+            const angle = Math.PI / 3;
+            const x = radius * Math.tanh(angle);
+            const y = radius * Math.tan(angle);
+            this.graphics.setCameraPosition(-x, 1.75, y);
         },
 
         /**

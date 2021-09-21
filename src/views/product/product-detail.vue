@@ -257,16 +257,10 @@ export default defineComponent({
                 value: "d3",
                 icon: "d3",
                 onActive() {
-                    ElMessage({
-                        type: "warning",
-                        message: "TODO: 3D固定视图 on",
-                    });
+                    refBabylon.value?.setCamera30();
                 },
                 onUnactive() {
-                    ElMessage({
-                        type: "warning",
-                        message: "TODO: 3D固定视图 off",
-                    });
+                    refBabylon.value?.setDefaultCamera();
                 },
             },
             {
