@@ -19,7 +19,7 @@
             v-for="(item, index) in items"
             :key="index"
             class="menu-item"
-            :class="{ 'is-active': item.active }"
+            :class="{ 'is-active': item.active, 'is-button': item.type === 'button' }"
             @click="onItemClick(item)"
         >
             <i class="iconfont" :class="'icon-' + item.icon"></i>
@@ -71,8 +71,10 @@ export interface MenuItem {
     value: string | number;
     icon: string;
     active?: boolean;
+    type?: "menuitem" | "button";
     onActive?: () => void;
     onUnactive?: () => void;
+    onClick?: () => void;
 }
 
 export default defineComponent({
@@ -96,7 +98,9 @@ export default defineComponent({
                 item.active = !item.active;
                 ctx.emit("click", item);
                 ctx.emit("update:modelValue", false);
-                if (item.active) {
+                if (item.type === "button") {
+                    item.onClick && item.onClick();
+                } else if (item.active) {
                     item.onActive && item.onActive();
                 } else {
                     item.onUnactive && item.onUnactive();
@@ -214,6 +218,17 @@ $hamburger-spacing: 8px;
     }
     &.is-active {
         background-color: var(--el-color-primary);
+        &:hover {
+            background-color: white;
+            color: $fg;
+        }
+    }
+    &.is-button {
+        background-color: var(--el-color-primary);
+        &:hover {
+            background-color: white;
+            color: $fg;
+        }
     }
 }
 
