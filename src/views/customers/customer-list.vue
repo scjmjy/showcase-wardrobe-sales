@@ -10,8 +10,18 @@
             <div v-if="services.length === 0" class="customer-list__empty">
                 <new-scheme-card @new="newScheme" />
             </div>
-            <el-collapse v-else v-model="openedServices" @change="handleOpenedChange" @scroll="onScroll">
+            <el-collapse
+                class="customer-list__list"
+                v-else
+                v-model="openedServices"
+                @change="handleOpenedChange"
+                @scroll="onScroll"
+            >
                 <el-collapse-item :title="svc.no" :name="svc.no" v-for="svc of services" :key="svc.id">
+                    <template #title>
+                        <span class="service__no">服务单号：{{ svc.no }}</span>
+                        <span class="service__time">创建时间：{{ svc.ctime }}</span>
+                    </template>
                     <scheme-list
                         :svcId="svc.id"
                         :menu="menu"
@@ -169,8 +179,8 @@ export default defineComponent({
                 router.push({
                     path: "/select-product",
                     query: {
-                        svc: svc ? svc.id : 0
-                    }
+                        svc: svc ? svc.id : 0,
+                    },
                 });
             },
             gotoDetail(svc: Service, scheme: Scheme) {
@@ -182,8 +192,8 @@ export default defineComponent({
                 router.push({
                     path: "/product-detail",
                     query: {
-                        svc: svc ? svc.id : 0
-                    }
+                        svc: svc ? svc.id : 0,
+                    },
                 });
             },
             onScroll,
@@ -235,6 +245,15 @@ export default defineComponent({
     &__list {
         // flex: 1;
         overflow-y: auto;
+    }
+}
+.service {
+    &__no {
+        font-weight: bold;
+        font-size: 22px;
+    }
+    &__time {
+        margin-left: 20px;
     }
 }
 </style>

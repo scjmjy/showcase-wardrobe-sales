@@ -257,6 +257,14 @@ export default defineComponent({
                     refBabylon.value?.CreateReferenceRuler(false);
                 },
             },
+            {
+                value: "ruler",
+                icon: "ruler",
+                type: "button", // default to true
+                onClick() {
+                    // TODO
+                },
+            },
         ]);
         const gooeyMenuOpened = ref(false);
         onMounted(() => {});
@@ -717,6 +725,7 @@ $infoWidthBig: 428px;
         top: 0px;
         bottom: 0px;
         right: 0px;
+        padding: 0 20px;
         // width: 428px;
         width: $infoWidthBig;
         white-space: nowrap;
