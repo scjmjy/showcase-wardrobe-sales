@@ -70,9 +70,9 @@ export class Graphics {
             this.scene,
         );
         this._camera.maxZ = size * 3.75;
-        this._camera.panningSensibility = 100;
+        this._camera.panningSensibility = 0;
         this._camera.wheelDeltaPercentage = 0.0025;
-        this._camera.pinchDeltaPercentage = 0.0001;
+        this._camera.pinchDeltaPercentage = 0.01;
         this._camera.lowerAlphaLimit = 0;
         this._camera.upperAlphaLimit = Math.PI;
         this._camera.lowerBetaLimit = Math.PI / 2;
