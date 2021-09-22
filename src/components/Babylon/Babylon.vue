@@ -373,7 +373,7 @@ export default defineComponent({
          * 增加一组合页门或者滑门
          * @param newDoor 新增加的Door
          */
-        addDoorApi(newDoor: Door, updateBizdata = true): void {
+        addDoorApi(newDoor: Door, isPickable = true, updateBizdata = true): void {
             request({
                 url: this.baseOSSUrl + newDoor.manifest,
                 method: "GET",
@@ -426,7 +426,7 @@ export default defineComponent({
                                     modelPos,
                                     BABYLON.Vector3.Zero(),
                                     modelScaling,
-                                    true,
+                                    isPickable,
                                 );
 
                                 startX -= doorWidth;
@@ -897,7 +897,7 @@ export default defineComponent({
             });
 
             this.scheme.doors.forEach((door: Door) => {
-                this.addDoorApi(door, false);
+                this.addDoorApi(door, false, false);
             });
         },
 
