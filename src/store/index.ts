@@ -7,6 +7,7 @@ import emitter from "@/event";
 const state = {
     user: User.load(),
     currentCustomer: Customer.load(),
+    // currentSvcId: 0,
     pageChannel: {
         productDetailData: undefined as undefined | Product | Scheme,
     },

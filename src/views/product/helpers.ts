@@ -18,3 +18,5 @@ export function hideSchemeSaveLoading() {
         loading = undefined;
     }
 }
+
+export type CustomizeMode = "new" | "continue" | "copy";

@@ -17,6 +17,7 @@ import {
     Scheme,
     SchemeManifest,
     SchemeOffer,
+    Service,
 } from "../interface/provider.interface";
 import LocalProvider from "./local.provider";
 import emitter from "@/event";
@@ -222,6 +223,7 @@ export default class RestProvider extends LocalProvider {
     }
     createNewScheme(
         name: string,
+        svcid: number,
         eid: string | number,
         cid: string | number,
         pid?: string | number,
@@ -233,6 +235,7 @@ export default class RestProvider extends LocalProvider {
                 url: "/api/v1/biz/scheme",
                 data: {
                     name,
+                    svcid,
                     eid,
                     cid,
                     pid,
@@ -256,14 +259,68 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
-
-    requestSchemes(cid: string | number, page = 1, pageSize = 10): Promise<AjaxResponse<Scheme[]>> {
+    createNewService(eid: string | number, cid: string | number): Promise<AjaxResponse<Service>> {
+        return new Promise((resolve) => {
+            request({
+                method: "POST",
+                url: "/api/v1/biz/service",
+                data: {
+                    cid,
+                    eid,
+                },
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "创建服务出错",
+                    });
+                });
+        });
+    }
+    requestServices(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Service[]>> {
+        return new Promise((resolve) => {
+            request({
+                method: "POST",
+                url: "/api/v1/biz/customer/services",
+                data: {
+                    cid,
+                    page,
+                    pageSize,
+                },
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取客户服务列表出错",
+                    });
+                });
+        });
+    }
+    requestSchemes(svcid: number, page = 1, pageSize = 10): Promise<AjaxResponse<Scheme[]>> {
         return new Promise((resolve) => {
             request({
                 method: "POST",
                 url: "/api/v1/biz/customer/schemes",
                 data: {
-                    cid,
+                    svcid,
                     page,
                     pageSize,
                 },

@@ -7,20 +7,38 @@
                 <strong class="customer-list__info-label">{{ customerName }}</strong>
                 <el-button v-if="showServeBtn" size="small" type="dark" round @click="serve">为此客户服务</el-button>
             </div>
-            <div v-if="services.length === 0" class="customer-list__empty">
-                <new-scheme-card @new="newScheme" />
-            </div>
-            <el-collapse v-else v-model="openedServices" @change="handleOpenedChange" @scroll="onScroll">
-                <el-collapse-item :title="svc.no" :name="svc.no" v-for="svc of services" :key="svc.id">
-                    <scheme-list
-                        :svcId="svc.id"
-                        :menu="menu"
-                        :offer="!showServeBtn"
-                        @new-scheme="newScheme(svc)"
-                        @detail="gotoDetail(svc, $event)"
-                    ></scheme-list>
-                </el-collapse-item>
-            </el-collapse>
+            <!-- <el-empty v-if="showServeBtn && schemeList.length === 0" description="暂无定制方案" style="flex: 1">
+            </el-empty> -->
+            <el-row
+                ref="elRow"
+                class="customer-list__list"
+                :gutter="20"
+                :justify="schemeList.length ? '' : 'center'"
+                :align="schemeList.length ? '' : 'middle'"
+                :style="{
+                    height: schemeList.length ? 'auto' : '100%',
+                }"
+                @scroll="onScroll"
+            >
+                <el-col
+                    v-if="!showServeBtn && customerId"
+                    :span="colSpan"
+                    style="text-align: center; padding-top: 10px; padding-bottom: 10px"
+                >
+                    <new-scheme-card @new="newScheme" />
+                </el-col>
+                <transition-group name="el-zoom-in-top">
+                    <el-col
+                        v-for="(s, index) in schemeList"
+                        :key="index"
+                        :span="colSpan"
+                        style="text-align: center; padding-top: 10px; padding-bottom: 10px"
+                    >
+                        <scheme-card :offer="!showServeBtn" :scheme="s" @detail="gotoDetail" />
+                    </el-col>
+                </transition-group>
+                <load-more :state="loadState" />
+            </el-row>
         </div>
     </div>
 </template>
@@ -29,21 +47,21 @@
 import { computed, defineComponent, reactive, ref, nextTick, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { ElRow } from "element-plus";
-import { StateType } from "@/store";
 import apiProvider from "@/api/provider";
-import { Service, Scheme } from "@/api/interface/provider.interface";
+import CustomerMenu from "./components/CustomerMenu.vue";
 import AppHeader from "@/views/home/components/AppHeader.vue";
+import { Scheme } from "@/api/interface/provider.interface";
+import SchemeCard from "./components/SchemeCard.vue";
+import NewSchemeCard from "./components/NewSchemeCard.vue";
 import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 import LoadMore from "@/components/LoadMore.vue";
-import NewSchemeCard from "./components/NewSchemeCard.vue";
-import CustomerMenu from "./components/CustomerMenu.vue";
-import SchemeList from "./components/SchemeList.vue";
+import { ElRow } from "element-plus";
+import { StateType } from "@/store";
 
-// interface SortedSchemes {
-//     date: string;
-//     schemes: Scheme[];
-// }
+interface SortedSchemes {
+    date: string;
+    schemes: Scheme[];
+}
 
 export default defineComponent({
     name: "CustomerList",
@@ -56,17 +74,14 @@ export default defineComponent({
     components: {
         CustomerMenu,
         AppHeader,
-        SchemeList,
+        SchemeCard,
         NewSchemeCard,
-        // SchemeCard,
-        // LoadMore,
+        LoadMore,
     },
     setup(props) {
         const router = useRouter();
         const store = useStore<StateType>();
-        const openedServices = ref<string[]>([]);
-        // const schemeList = ref([] as Scheme[]);
-        const services = ref<Service[]>([]);
+        const schemeList = ref([] as Scheme[]);
         const customerId = ref("");
         const loadingSchemeList = ref(false);
         const showServeBtn = computed(
@@ -75,20 +90,17 @@ export default defineComponent({
         const refMenu = ref<InstanceType<typeof CustomerMenu>>();
         const refSchemeList = ref<HTMLDivElement>();
 
-        const elScroll = ref<InstanceType<typeof ElRow>>();
+        const elRow = ref<InstanceType<typeof ElRow>>();
         const loadState = ref<LOAD_STATE>("");
-        const pageScroll = new PageScroll(undefined, requestApi, loadState, services, {
+        const pageScroll = new PageScroll(undefined, requestApi, loadState, schemeList, {
             onDataFinish: () => {
                 setTimeout(() => {
                     loadingSchemeList.value = false;
-                    if (services.value.length && openedServices.value.length === 0) {
-                        openedServices.value.push(services.value[0].no);
-                    }
                 }, 200);
             },
         });
         function requestApi(page: number, pageSize: number) {
-            return apiProvider.requestServices(customerId.value, page, pageSize);
+            return apiProvider.requestSchemes(customerId.value, page, pageSize);
         }
         function onScroll(e?: Event) {
             pageScroll.onScroll();
@@ -100,7 +112,7 @@ export default defineComponent({
             pageScroll.reload(300);
         }
         onMounted(() => {
-            const el = elScroll.value?.$el as HTMLElement;
+            const el = elRow.value?.$el as HTMLElement;
             pageScroll.el = el;
             if (!props.menu) {
                 customerId.value = store.state.currentCustomer.customerId;
@@ -123,7 +135,7 @@ export default defineComponent({
                             console.log("[PageScroll reload ] customerList");
                         }
                         if (store.state.dirty.schemeList.has(customerId.value)) {
-                            // pageScroll.reload();
+                            pageScroll.reload();
                             store.commit("SET-DIRTY-SCHEME", { cid: customerId.value, dirty: false });
                             console.log("[PageScroll reload ] schemeList");
                         }
@@ -136,21 +148,19 @@ export default defineComponent({
         );
 
         return {
-            openedServices,
-            handleOpenedChange(_services: string[]) {},
             loadingSchemeList,
             loadState,
-            elScroll,
+            elRow,
             refMenu,
             refSchemeList,
-            services,
-            // schemeList,
+            schemeList,
             customerId,
             customerName: computed(() => {
                 const customer = refMenu.value?.getFullCustomer(customerId.value);
                 return customer ? customer.name : "";
             }),
             showServeBtn,
+            colSpan: computed(() => (props.menu ? 8 : 6)),
             onBackClick() {
                 router.back();
             },
@@ -165,15 +175,12 @@ export default defineComponent({
                     });
                 }
             },
-            newScheme(svc?: Service) {
+            newScheme() {
                 router.push({
                     path: "/select-product",
-                    query: {
-                        svc: svc ? svc.id : 0
-                    }
                 });
             },
-            gotoDetail(svc: Service, scheme: Scheme) {
+            gotoDetail(scheme: Scheme) {
                 scheme.cid = customerId.value;
                 store.commit("SET-PAGE-CHANNEL", {
                     key: "productDetailData",
@@ -181,9 +188,6 @@ export default defineComponent({
                 });
                 router.push({
                     path: "/product-detail",
-                    query: {
-                        svc: svc ? svc.id : 0
-                    }
                 });
             },
             onScroll,
@@ -227,10 +231,6 @@ export default defineComponent({
             color: #172021;
             margin-right: 35px;
         }
-    }
-    &__empty {
-        text-align: center;
-        margin-top: 10%;
     }
     &__list {
         // flex: 1;
