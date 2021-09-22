@@ -16,6 +16,7 @@ import ApiProvider, {
     Scheme,
     SchemeManifest,
     SchemeOffer,
+    Service,
 } from "../interface/provider.interface";
 
 export default class LocalProvider implements ApiProvider {
@@ -288,7 +289,13 @@ export default class LocalProvider implements ApiProvider {
     requestCustomerList(uid: string | number, page?: number, pageSize?: number): Promise<AjaxResponse<Customer[]>> {
         throw new Error("Method not implemented.");
     }
-    requestSchemes(cid: string | number, page = 1, pageSize = 1): Promise<AjaxResponse<Scheme[]>> {
+    createNewService(eid: string | number, cid: string | number): Promise<AjaxResponse<Service>> {
+        throw new Error("Method not implemented.");
+    }
+    requestServices(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Service[]>> {
+        throw new Error("Method not implemented.");
+    }
+    requestSchemes(svcid: number, page = 1, pageSize = 1): Promise<AjaxResponse<Scheme[]>> {
         const mockDate = ["2021-08-10 14:00:00", "2021-08-11 14:00:00", "2021-08-12 14:00:00"];
         const mockOffer = ["13999", "", "1500", "", "14000"];
         return Promise.resolve({
@@ -297,9 +304,9 @@ export default class LocalProvider implements ApiProvider {
             data: new Array(10).fill(0).map((val, index) => {
                 return {
                     id: index + "",
-                    name: cid + "-方案-" + index,
-                    cid: cid + "",
-                    customer: "客户" + cid,
+                    name: svcid + "-方案-" + index,
+                    cid: svcid + "",
+                    customer: "客户" + svcid,
                     product: "方案来源",
                     pid: index,
                     manifest: "manifest",
@@ -307,9 +314,9 @@ export default class LocalProvider implements ApiProvider {
                     offer: mockOffer[index % mockOffer.length],
                     ptime: mockDate[index % mockDate.length],
                     cover: [
-                        "https://picsum.photos/300/300?random=" + index + cid,
-                        "https://picsum.photos/300/300?random=1" + index + cid,
-                        "https://picsum.photos/300/300?random=2" + index + cid,
+                        "https://picsum.photos/300/300?random=" + index + svcid,
+                        "https://picsum.photos/300/300?random=1" + index + svcid,
+                        "https://picsum.photos/300/300?random=2" + index + svcid,
                     ],
                 };
             }),
@@ -340,6 +347,7 @@ export default class LocalProvider implements ApiProvider {
     }
     createNewScheme(
         name: string,
+        svcid: number,
         eid: string | number,
         cid: string | number,
         pid?: string | number,

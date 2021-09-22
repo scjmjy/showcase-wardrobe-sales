@@ -22,7 +22,11 @@ export interface LoginResult {
 //     uuid: number;
 //     img: string;
 // }
-
+export interface Service {
+    id: number;
+    no: string;
+    ctime: string;
+}
 export interface Product {
     id: string;
     name: string;
@@ -267,16 +271,24 @@ export default interface ApiProvider {
 
     requestCustomerList(uid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Customer[]>>;
 
+    createNewService(eid: string | number, cid: string | number): Promise<AjaxResponse<Service>>;
     /**
      * 获取某客户的方案列表
      * @param cid 客户 id
      */
-    requestSchemes(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Scheme[]>>;
+    requestServices(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Service[]>>;
+
+    /**
+     * 获取某客户的方案列表
+     * @param svcid 服务 id
+     */
+    requestSchemes(svcid: number, page: number, pageSize: number): Promise<AjaxResponse<Scheme[]>>;
 
     requestSchemeDetail(sid: string | number): Promise<AjaxResponse<Scheme>>;
 
     createNewScheme(
         name: string,
+        svcid: number,
         eid: string | number,
         cid: string | number,
         pid?: string | number,

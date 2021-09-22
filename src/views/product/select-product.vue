@@ -29,7 +29,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, ref, DefineComponent, onMounted, nextTick } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import apiProvider from "@/api/provider";
 import ProdCatMenu from "./components/ProdCatMenu.vue";
@@ -54,6 +54,7 @@ export default defineComponent({
         const loadingFirstpageProduct = ref(false);
         const currentCid = ref("");
         const router = useRouter();
+        const route = useRoute();
         const store = useStore();
         let products = ref<Product[]>([]);
         const elScrollbar = ref<InstanceType<typeof ElScrollbar>>();
@@ -101,6 +102,7 @@ export default defineComponent({
                 });
                 router.push({
                     path: "/product-detail",
+                    query: route.query,
                 });
             },
             onProdFilter(filters: any) {

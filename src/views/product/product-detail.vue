@@ -36,16 +36,9 @@
                     <span class="product-detail__info-offer-symbol">.{{ offerPrice.decimal }} </span>
                 </div>
                 <div class="product-detail__info-action">
-                    <el-button type="primary" round v-if="isNew" @click="newScheme" :loading="loadingCreating"
-                        >开始定制</el-button
-                    >
+                    <el-button type="primary" round v-if="isNew" @click="newScheme">开始定制</el-button>
                     <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
-                    <el-button
-                        type="primary"
-                        round
-                        v-if="isSelf || isOther"
-                        @click="copyScheme"
-                        :loading="loadingCopying"
+                    <el-button type="primary" round v-if="isSelf || isOther" @click="copyScheme"
                         >由此方案定制</el-button
                     >
                     <el-button v-if="isSelf && !product.offer" type="success" round @click="onPartsMenuAction('offer')"
@@ -110,12 +103,12 @@
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
                 @bg="onBgSelect"
-                @metalCount="onMetalCount"
             ></parts-menu>
         </template>
         <customize-dlg
             v-model="showCustomizeDlg"
-            :title="customizeDlgTitle"
+            :mode="customizeMode"
+            :loading="creatingScheme"
             @confirm="onCustomizeConfirm"
             @cancel="onCustomizeCancel"
         />
@@ -156,7 +149,7 @@ import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
 import PartsMenu, { ActionType } from "./components/PartsMenu.vue";
 import { splitPrice } from "@/utils/currency";
-import { showSchemeSaveLoading, hideSchemeSaveLoading } from "./helpers";
+import { showSchemeSaveLoading, hideSchemeSaveLoading, CustomizeMode } from "./helpers";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -175,6 +168,7 @@ export default defineComponent({
         const store = useStore<StateType>();
 
         const mode = ref<"view" | "edit" | "">("view");
+        let svcId = +(route.query.svc || 0);
 
         const productDetailData = store.state.pageChannel.productDetailData;
         // store.commit("SET-PAGE-CHANNEL", { key: "productDetailData", value: undefined });
@@ -195,28 +189,17 @@ export default defineComponent({
                 ? "scheme-self"
                 : "scheme-other";
         });
-        const customizeMode = ref<"new" | "continue" | "copy">("new");
+        const customizeMode = ref<CustomizeMode>("new");
         const showCustomizeDlg = ref(false);
         const showOfferDlg = ref(false);
         const showMetalsDlg = ref(false);
-        const loadingCreating = ref(false);
-        const loadingCopying = ref(false);
+        const creatingScheme = ref(false);
 
         async function gotoEditScheme() {
             showCustomizeDlg.value = false;
             mode.value = ""; // after-leave="mode=edit"
             // mode.value = "edit";
         }
-
-        const customizeDlgTitle = computed(() => {
-            switch (customizeMode.value) {
-                case "copy":
-                    return "复制方案";
-                case "new":
-                default:
-                    return "新方案定制";
-            }
-        });
         const showMenu = ref(false);
 
         const state3D = ref<"active" | "">("");
@@ -300,13 +283,18 @@ export default defineComponent({
                     break;
             }
         }
-        function onCustomizeConfirm() {
+        async function onCustomizeConfirm() {
             const cid = store.state.currentCustomer.customerId.toString();
+            const eid = store.state.user.eid;
+            if (svcId === 0) {
+                const service = (await apiProvider.createNewService(eid, cid)).data!;
+                svcId = service.id;
+            }
             if (customizeMode.value === "new") {
-                loadingCreating.value = true;
+                creatingScheme.value = true;
                 const p = product.value as Product;
                 apiProvider
-                    .createNewScheme(p.name, store.state.user.eid, cid, p.id)
+                    .createNewScheme(p.name, svcId, eid, cid, p.id)
                     .then((res) => {
                         if (res.ok && res.data) {
                             store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
@@ -326,13 +314,13 @@ export default defineComponent({
                         }
                     })
                     .finally(() => {
-                        loadingCreating.value = false;
+                        creatingScheme.value = false;
                     });
             } else if (customizeMode.value === "copy") {
-                loadingCopying.value = true;
+                creatingScheme.value = true;
                 const scheme = product.value as Scheme;
                 apiProvider
-                    .createNewScheme(scheme.product, store.state.user.eid, cid, undefined, scheme.id)
+                    .createNewScheme(scheme.product, svcId, eid, cid, undefined, scheme.id)
                     .then((res) => {
                         if (res.ok && res.data) {
                             store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
@@ -351,7 +339,7 @@ export default defineComponent({
                         }
                     })
                     .finally(() => {
-                        loadingCopying.value = false;
+                        creatingScheme.value = false;
                     });
             }
         }
@@ -497,7 +485,6 @@ export default defineComponent({
             }
         }
         provide("updateSchemeMetalCount", ({ partId = 0, value = 0 }) => {
-            console.log("[onMetalCount]", partId, value);
             if (scheme.value) {
                 util.updateSchemeMetalCount(scheme.value, partId, value);
             }
@@ -515,6 +502,7 @@ export default defineComponent({
             scheme,
             setSchemeDirty,
             schemeDetailDirty,
+            customizeMode,
             selectedPart,
             selectedMetalPart,
             selectedPartId,
@@ -551,9 +539,7 @@ export default defineComponent({
             showCustomizeDlg,
             showOfferDlg,
             showMetalsDlg,
-            customizeDlgTitle,
-            loadingCreating,
-            loadingCopying,
+            creatingScheme,
             customerName,
             titles: computed(() => {
                 let productName = "";
@@ -582,8 +568,8 @@ export default defineComponent({
                     return;
                 }
                 customizeMode.value = "new";
-                onCustomizeConfirm();
-                // showCustomizeDlg.value = true;
+                // onCustomizeConfirm();
+                showCustomizeDlg.value = true;
             },
             continueEditScheme() {
                 customizeMode.value = "continue";
@@ -598,8 +584,8 @@ export default defineComponent({
                     return;
                 }
                 customizeMode.value = "copy";
-                onCustomizeConfirm();
-                // showCustomizeDlg.value = true;
+                // onCustomizeConfirm();
+                showCustomizeDlg.value = true;
             },
             onCustomizeConfirm,
             onCustomizeCancel() {
@@ -649,16 +635,6 @@ export default defineComponent({
                     manifest: marnifestUrl,
                     catId: +cat.id,
                 };
-            },
-            onBgSelect(bg: ImgCardItemType, bgType: BackgroundType) {
-                if (bgType === BackgroundType.WALL) {
-                    onUpdateWallClick(bg);
-                } else {
-                    onUpdateFloorClick(bg);
-                }
-            },
-            onOfferDlgClosed() {
-                requestSchemeDetail();
             },
             offerPrice: computed(() => {
                 const scheme = product.value as Scheme;
