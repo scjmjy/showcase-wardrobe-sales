@@ -37,6 +37,12 @@ export class PopupGUI {
             this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, graphics.scene);
         }
 
+        // clear previous delet panel to avoid delete previous mesh
+        if (this._deletePanel != null) {
+            this._deletePanel.dispose();
+            this._deletePanel = null;
+        }
+
         if (this._deletePanel == null) {
             this._deletePanel = new GUI.Rectangle();
             this._deletePanel.width = "48px";
@@ -74,7 +80,17 @@ export class PopupGUI {
                             bizdata.removeItem(objectID);
                             break;
                         case ObjectType.DOOR:
-                            bizdata.removeDoor(objectID);
+                            {
+                                const doorName = ObjectType.DOOR + "_" + objectID;
+                                let doorNum = 1;
+                                graphics.scene.meshes.forEach((mesh) => {
+                                    if (mesh.name.startsWith(doorName)) {
+                                        mesh.dispose();
+                                        doorNum++;
+                                    }
+                                });
+                                bizdata.removeDoor(objectID, doorNum);
+                            }
                             break;
                     }
                     mesh = null;

@@ -191,6 +191,51 @@ export class BizData {
         this.scheme.dirty = true;
     }
 
+    addDoor(newDoor: Door): void {
+        this.scheme.doors.push(newDoor);
+        this.addPart(newDoor.partId);
+        this.scheme.dirty = true;
+    }
+
+    removeDoor(id: string, doorNum = 1): Door | undefined {
+        const idx = this.scheme.doors.findIndex((d) => {
+            return d.id === id;
+        });
+        if (idx == -1) return;
+        const array = this.scheme.doors.splice(idx, 1);
+
+        // Handle the case of left and right door.
+        for (let i = 0; i < doorNum; i++) this.removePart(array[0].partId);
+        this.scheme.dirty = true;
+
+        return array[0];
+    }
+
+    changeDoor(doorId: string, newPart: PartType): void {
+        const door = this.findDoorById(doorId);
+        if (door !== undefined) {
+            const oldPartId = door.partId;
+            door.partId = newPart.id;
+            door.catId = newPart.catId;
+            door.manifest = newPart.manifest;
+            door.size.x = newPart.width;
+            door.size.y = newPart.height;
+            door.size.z = newPart.depth;
+
+            this.removePart(oldPartId);
+            this.addPart(newPart.id);
+        }
+        this.scheme.dirty = true;
+    }
+
+    getAllDoorsId(): string[] {
+        const ids: string[] = [];
+        this.scheme.doors.forEach((d) => {
+            ids.push(d.id);
+        });
+        return ids;
+    }
+
     findCubeById(id: string): Cube | undefined {
         return this.scheme.cubes.find((cube: { id: string }) => cube.id === id);
     }
@@ -223,64 +268,6 @@ export class BizData {
         return retItem;
     }
 
-    addDoor(door: Door): string {
-        const door_cubes_ids = door.cubes;
-        const old_door = this.scheme.doors.find((d) => {
-            for (const id of door_cubes_ids) {
-                if (d.cubes.includes(id)) return true;
-            }
-            return false;
-        });
-        if (old_door) {
-            throw Error(`Delete previous door: ${StObject.buildString(old_door)}`);
-        }
-        door.id = uuidv4();
-        this.scheme.doors.push(door);
-
-        this.addPart(door.partId);
-        this.scheme.dirty = true;
-
-        return door.id;
-    }
-
-    removeDoor(id: string): Door | undefined {
-        const idx = this.scheme.doors.findIndex((d) => {
-            return d.id === id;
-        });
-        if (idx == -1) return;
-        const array = this.scheme.doors.splice(idx, 1);
-
-        this.removePart(array[0].partId);
-        this.scheme.dirty = true;
-
-        return array[0];
-    }
-
-    changeDoor(doorId: string, newPart: PartType): void {
-        const door = this.findDoorById(doorId);
-        if (door !== undefined) {
-            const oldPartId = door.partId;
-            door.partId = newPart.id;
-            door.catId = newPart.catId;
-            door.manifest = newPart.manifest;
-            door.size.x = newPart.width;
-            door.size.y = newPart.height;
-            door.size.z = newPart.depth;
-
-            this.removePart(oldPartId);
-            this.addPart(newPart.id);
-        }
-        this.scheme.dirty = true;
-    }
-
-    getAllDoorsId(): string[] {
-        const ids: string[] = [];
-        this.scheme.doors.forEach((d) => {
-            ids.push(d.id);
-        });
-        return ids;
-    }
-
     findDoorById(id: string): Door | undefined {
         return this.scheme.doors.find((door: { id: string }) => door.id === id);
     }
@@ -304,5 +291,17 @@ export class BizData {
         }
         if (!cube) return null;
         return cube.items;
+    }
+
+    findDoorByCubeId(cubeId: string): Door | undefined {
+        let resDoor = undefined;
+        this.scheme.doors.some((door) => {
+            if (door.cubes.indexOf(cubeId) !== -1) {
+                resDoor = door;
+                return true;
+            }
+        });
+
+        return resDoor;
     }
 }

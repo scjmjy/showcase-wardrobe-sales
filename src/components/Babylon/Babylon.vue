@@ -9,7 +9,6 @@ import { defineComponent, PropType } from "vue";
 import * as BABYLON from "babylonjs";
 import { Graphics, GraphicsEvent } from "@/lib/graphics";
 import { Scheme, Cube, Item, Door, PartType, Position, Location, Area, Size } from "@/lib/scheme";
-import * as util from "@/lib/scheme.util";
 import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
 import request from "@/utils/request";
@@ -94,7 +93,40 @@ export default defineComponent({
                         const objectId = info[1];
                         switch (objectType) {
                             case ObjectType.CUBE:
-                                this.changeCubeApi(objectId, newPart);
+                                {
+                                    // TODO: remove the hardcode of adjusting whether it is a cube or door.
+                                    if (newPart.catId === 20) {
+                                        this.changeCubeApi(objectId, newPart);
+                                    } else if (newPart.catId === 2 || newPart.catId === 3) {
+                                        const door = this.bizdata.findDoorByCubeId(objectId);
+                                        if (door !== undefined) {
+                                            const doorName = ObjectType.DOOR + "_" + door.id;
+                                            this.graphics.scene.meshes.forEach((mesh) => {
+                                                if (mesh.name.startsWith(doorName)) {
+                                                    const doorInfo = mesh.name.split("_");
+                                                    const doorIndex = parseInt(doorInfo[2]);
+                                                    this.changeDoorApi(door.id, newPart, doorIndex);
+                                                }
+                                            });
+                                        } else {
+                                            const doorId = uuidv4();
+                                            const size = new Size(newPart.width, newPart.height, newPart.depth);
+                                            let doorType = 1;
+                                            if (newPart.catId === 2) doorType = 2;
+                                            const cubes = [objectId];
+                                            const newDoor = new Door(
+                                                doorId,
+                                                newPart.id,
+                                                newPart.manifest,
+                                                newPart.catId,
+                                                size,
+                                                doorType,
+                                                cubes,
+                                            );
+                                            this.addDoorApi(newDoor);
+                                        }
+                                    }
+                                }
                                 break;
                             case ObjectType.DOOR:
                                 {
@@ -107,7 +139,7 @@ export default defineComponent({
                                 break;
                         }
                     } else {
-                        // TODO: remove the hardcode of adjusting whether it is a cube.
+                        // TODO: remove the hardcode of adjusting whether it is a cube or door.
                         if (newPart.catId === 20) {
                             // TODO: remove the function of adding new cube.
                             this.ShowCubeAddArea(newPart);
@@ -341,7 +373,7 @@ export default defineComponent({
          * 增加一组合页门或者滑门
          * @param newDoor 新增加的Door
          */
-        addDoorApi(newDoor: Door): void {
+        addDoorApi(newDoor: Door, updateBizdata = true): void {
             request({
                 url: this.baseOSSUrl + newDoor.manifest,
                 method: "GET",
@@ -358,15 +390,23 @@ export default defineComponent({
 
                     const itemMf = res.data;
                     const doorWidth = itemMf.size.x;
-                    const doorNum = Math.floor(cubesWidth / doorWidth);
+                    let doorNum = Math.floor(cubesWidth / doorWidth);
+                    if (doorNum === 0) {
+                        doorNum = 1;
+
+                        ElMessage({
+                            type: "warning",
+                            message: "门的宽度超过了当前柜体的宽度",
+                        });
+                    }
                     const firstCubeData = this.bizdata.findCubeDataById(newDoor.cubes[0]);
                     if (firstCubeData === undefined) {
                         throw Error(`cannot find cube data by id: ${newDoor.cubes[0]}`);
                     } else {
                         let startX = firstCubeData.origin.x + firstCubeData.width * 0.5;
                         for (let i = 0; i < doorNum; i += itemMf.models.length) {
-                            let modelIndex = 0;
-                            itemMf.models.forEach((model: any) => {
+                            for (let j = 0; j < itemMf.models.length && j < doorNum; j++) {
+                                const model = itemMf.models[j];
                                 const modelPos = new BABYLON.Vector3(
                                     startX - doorWidth * 0.5 + model.position.x,
                                     0.03 + model.position.y,
@@ -377,7 +417,7 @@ export default defineComponent({
                                     model.scaling.y,
                                     model.scaling.z,
                                 );
-                                const doorIndex = i + modelIndex;
+                                const doorIndex = i + j;
                                 const doorName = ObjectType.DOOR + "_" + newDoor.id + "_" + doorIndex;
                                 const modelUrl = this.baseOSSUrl + model.url;
                                 this.graphics.importMesh(
@@ -390,8 +430,16 @@ export default defineComponent({
                                 );
 
                                 startX -= doorWidth;
-                                modelIndex++;
-                            });
+                            }
+                        }
+                    }
+
+                    // clear select item
+                    this.clearSelectionApi();
+
+                    if (updateBizdata) {
+                        for (let i = 0; i < doorNum; i++) {
+                            this.bizdata.addDoor(newDoor);
                         }
                     }
                 })
@@ -534,7 +582,7 @@ export default defineComponent({
                     {
                         // SS TODO: remove the hardcode below.
                         if (this.bizdata.totalWidth <= 2.85) this.graphics.setCameraPosition(0, 1.75, 4.5);
-                        else this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
+                        else this.setDefaultCamera();
                         this.graphics.lockCamera(false);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
@@ -561,7 +609,7 @@ export default defineComponent({
                     {
                         // SS TODO: remove the hardcode below.
                         if (this.bizdata.totalWidth <= 2.85) this.graphics.setCameraPosition(0, 1.75, 4.5);
-                        else this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
+                        else this.setDefaultCamera();
                         this.graphics.lockCamera(true);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
@@ -600,6 +648,17 @@ export default defineComponent({
                     }
                     break;
             }
+        },
+
+        setDefaultCamera() {
+            this.graphics.setCameraPosition(0, 1.75, this.bizdata.totalWidth * 1.5);
+        },
+
+        setCameraAlpha(alpha: number) {
+            const radius = this.bizdata.totalWidth * 0.75;
+            const x = radius * Math.tanh(alpha);
+            const y = radius * Math.tan(alpha);
+            this.graphics.setCameraPosition(-x, 1.75, y);
         },
 
         /**
@@ -838,7 +897,7 @@ export default defineComponent({
             });
 
             this.scheme.doors.forEach((door: Door) => {
-                this.addDoorApi(door);
+                this.addDoorApi(door, false);
             });
         },
 

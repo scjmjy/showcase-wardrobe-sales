@@ -240,16 +240,10 @@ export default defineComponent({
                 value: "d3",
                 icon: "d3",
                 onActive() {
-                    ElMessage({
-                        type: "warning",
-                        message: "TODO: 3D固定视图 on",
-                    });
+                    refBabylon.value?.setCameraAlpha(Math.PI / 3);
                 },
                 onUnactive() {
-                    ElMessage({
-                        type: "warning",
-                        message: "TODO: 3D固定视图 off",
-                    });
+                    refBabylon.value?.setDefaultCamera();
                 },
             },
             {
@@ -366,7 +360,6 @@ export default defineComponent({
             }
         }
         function onAddDoorClick(type: string, partId?: number, mfUrl?: string) {
-            // debugger;
             if (!refBabylon.value) {
                 console.error("refBabylon.value is not defined!");
                 throw Error("refBabylon.value is not defined!");
