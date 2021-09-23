@@ -6,31 +6,29 @@
             <div class="customer-list__info">
                 <strong class="customer-list__info-label">{{ customerName }}</strong>
                 <el-button v-if="showServeBtn" size="small" type="dark" round @click="serve">为此客户服务</el-button>
+                <el-button v-else size="small" type="primary" round @click="newServe">开始新服务</el-button>
             </div>
             <div v-if="services.length === 0" class="customer-list__empty">
-                <new-scheme-card @new="newScheme" />
+                <!-- <new-scheme-card @new="newScheme" /> -->
+                <el-empty></el-empty>
             </div>
-            <el-collapse
-                class="customer-list__list"
-                v-else
-                v-model="openedServices"
-                @change="handleOpenedChange"
-                @scroll="onScroll"
-            >
-                <el-collapse-item :title="svc.no" :name="svc.no" v-for="svc of services" :key="svc.id">
-                    <template #title>
-                        <span class="service__no">服务单号：{{ svc.no }}</span>
-                        <span class="service__time">创建时间：{{ svc.ctime }}</span>
-                    </template>
-                    <scheme-list
-                        :svcId="svc.id"
-                        :menu="menu"
-                        :offer="!showServeBtn"
-                        @new-scheme="newScheme(svc)"
-                        @detail="gotoDetail(svc, $event)"
-                    ></scheme-list>
-                </el-collapse-item>
-            </el-collapse>
+            <div v-else class="customer-list__list">
+                <el-collapse v-model="openedServices" @change="handleOpenedChange" @scroll="onScroll">
+                    <el-collapse-item :name="svc.no" v-for="svc of services" :key="svc.id">
+                        <template #title>
+                            <span class="service__no">服务单号：{{ svc.no }}</span>
+                            <span class="service__time">创建时间：{{ svc.ctime }}</span>
+                        </template>
+                        <scheme-list
+                            :svcId="svc.id"
+                            :menu="menu"
+                            :offer="!showServeBtn"
+                            @new-scheme="newScheme(svc)"
+                            @detail="gotoDetail(svc, $event)"
+                        ></scheme-list>
+                    </el-collapse-item>
+                </el-collapse>
+            </div>
         </div>
     </div>
 </template>
@@ -45,8 +43,8 @@ import apiProvider from "@/api/provider";
 import { Service, Scheme } from "@/api/interface/provider.interface";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
-import LoadMore from "@/components/LoadMore.vue";
-import NewSchemeCard from "./components/NewSchemeCard.vue";
+// import LoadMore from "@/components/LoadMore.vue";
+// import NewSchemeCard from "./components/NewSchemeCard.vue";
 import CustomerMenu from "./components/CustomerMenu.vue";
 import SchemeList from "./components/SchemeList.vue";
 
@@ -67,14 +65,14 @@ export default defineComponent({
         CustomerMenu,
         AppHeader,
         SchemeList,
-        NewSchemeCard,
+        // NewSchemeCard,
         // SchemeCard,
         // LoadMore,
     },
     setup(props) {
         const router = useRouter();
         const store = useStore<StateType>();
-        const openedServices = ref<string[]>([]);
+        const openedServices = ref<string[]>();
         // const schemeList = ref([] as Scheme[]);
         const services = ref<Service[]>([]);
         const customerId = ref("");
@@ -91,8 +89,8 @@ export default defineComponent({
             onDataFinish: () => {
                 setTimeout(() => {
                     loadingSchemeList.value = false;
-                    if (services.value.length && openedServices.value.length === 0) {
-                        openedServices.value.push(services.value[0].no);
+                    if (services.value.length && !openedServices.value) {
+                        openedServices.value = [services.value[0].no];
                     }
                 }, 200);
             },
@@ -107,6 +105,7 @@ export default defineComponent({
         function onCustomerSelect(cid: string) {
             customerId.value = cid;
             loadingSchemeList.value = true;
+            openedServices.value = undefined;
             pageScroll.reload(300);
         }
         onMounted(() => {
@@ -133,7 +132,7 @@ export default defineComponent({
                             console.log("[PageScroll reload ] customerList");
                         }
                         if (store.state.dirty.schemeList.has(customerId.value)) {
-                            // pageScroll.reload();
+                            pageScroll.reload();
                             store.commit("SET-DIRTY-SCHEME", { cid: customerId.value, dirty: false });
                             console.log("[PageScroll reload ] schemeList");
                         }
@@ -175,6 +174,11 @@ export default defineComponent({
                     });
                 }
             },
+            newServe() {
+                router.push({
+                    path: "/select-product",
+                });
+            },
             newScheme(svc?: Service) {
                 router.push({
                     path: "/select-product",
@@ -204,6 +208,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+$paddingX: 20px;
 .customer-list {
     display: flex;
     position: relative;
@@ -217,15 +222,16 @@ export default defineComponent({
     &__schemes {
         flex: 1;
         overflow-y: hidden;
-        padding: 10px 20px;
+        padding: 10px $paddingX;
         background-color: var(--el-color-bg);
         display: flex;
         flex-direction: column;
     }
     &__info {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        margin-bottom: 15px;
+        margin-bottom: 25px;
         &-label {
             font-size: 26px;
             color: #172021;
@@ -245,6 +251,15 @@ export default defineComponent({
     &__list {
         // flex: 1;
         overflow-y: auto;
+        margin: 0 -#{$paddingX};
+        :deep(.el-collapse-item__header) {
+            padding: 0 $paddingX;
+            // background-color: unset;
+        }
+        :deep(.el-collapse-item__wrap) {
+            padding: 0 $paddingX;
+            background-color: unset;
+        }
     }
 }
 .service {

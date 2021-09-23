@@ -64,7 +64,7 @@ export default defineComponent({
         function requestApi(page: number, pageSize: number) {
             return apiProvider.requestProducts(currentCid.value, page, pageSize);
         }
-        function onScroll(e?: Event) {
+        function onScroll(_e?: Event) {
             pageScroll?.onScroll();
         }
         onMounted(() => {

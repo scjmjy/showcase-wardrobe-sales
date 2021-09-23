@@ -100,7 +100,7 @@ $imgSizeBig: 220px;
     }
     &__offer {
         width: 109px;
-        padding: 4px 0px;
+        // padding: 4px 0px;
         border: 1px solid var(--el-color-danger);
         border-radius: 40px;
         color: var(--el-color-danger);

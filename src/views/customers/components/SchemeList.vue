@@ -1,6 +1,6 @@
 <template>
     <el-row ref="elRow" class="scheme-list" :gutter="20">
-        <el-col :span="colSpan" style="text-align: center; padding-top: 10px; padding-bottom: 10px">
+        <el-col v-if="offer" :span="colSpan" style="text-align: center; padding-top: 10px; padding-bottom: 10px">
             <new-scheme-card @new="newScheme" />
         </el-col>
         <el-col

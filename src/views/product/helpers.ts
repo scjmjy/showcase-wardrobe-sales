@@ -13,10 +13,22 @@ export function showSchemeSaveLoading() {
 }
 
 export function hideSchemeSaveLoading() {
-    if (loading) {
-        loading.close();
-        loading = undefined;
+    const loading_ = loading;
+    if (loading_) {
+        setTimeout(() => {
+            loading_.close();
+            loading = undefined;
+        }, 150);
     }
 }
 
 export type CustomizeMode = "new" | "continue" | "copy";
+export interface CustomizeSize {
+    height: number;
+    depth: number;
+    width: number;
+}
+// scheme-new：从某个商品模板来定制新的方案
+// scheme-self：自己的方案
+// scheme-other：他人的方案
+export type SchemeMode = "scheme-new" | "scheme-self" | "scheme-other";

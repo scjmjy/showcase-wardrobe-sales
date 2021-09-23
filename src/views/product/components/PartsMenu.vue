@@ -77,7 +77,7 @@
             </div> -->
         </div>
         <i
-            class="parts-menu__trigger"
+            class="collapse-trigger"
             :class="{
                 'el-icon-arrow-left': !opened,
                 'el-icon-arrow-right': opened,
@@ -486,28 +486,6 @@ $header-height: 56px;
         //         font-size: 41px;
         //     }
         // }
-    }
-    &__trigger {
-        z-index: 10;
-        position: absolute;
-        bottom: 0px;
-        left: 0px;
-        color: var(--el-color-primary);
-        font-size: 40px;
-        font-weight: bolder;
-        padding: 20px 20px;
-        text-align: center;
-        // background-color: var(--el-color-primary);
-        // background-color: var(--el-color-primary);
-
-        &:hover {
-            color: white;
-            background-color: var(--el-color-primary-light-3);
-        }
-        &:active {
-            color: white;
-            background-color: var(--el-color-primary-dark);
-        }
     }
 }
 
