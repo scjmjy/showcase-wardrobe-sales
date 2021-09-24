@@ -11,13 +11,14 @@
         </el-image>
         <div v-if="showBottom" class="product-card__bottom">
             <div class="product-card__name">{{ productName }}</div>
+            <div class="product-card__size">{{ sizeText }}</div>
         </div>
         <!-- <el-button class="product-card__btn" type="primary" size="small" round @click="onBtnClick">开始定制</el-button> -->
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { computed, defineComponent, ref } from "vue";
 
 export default defineComponent({
     props: {
@@ -29,6 +30,18 @@ export default defineComponent({
             type: String,
             default: "",
         },
+        height: {
+            type: Number,
+            default: 0,
+        },
+        depth: {
+            type: Number,
+            default: 0,
+        },
+        width: {
+            type: Number,
+            default: 0,
+        },
     },
     emits: ["detail"],
     setup(props, context) {
@@ -38,6 +51,7 @@ export default defineComponent({
             onImgLoad() {
                 showBottom.value = true;
             },
+            sizeText: computed(() => `高:${props.height} × 深:${props.depth} × 宽:${props.width}`),
             // onBtnClick() {
             //     context.emit("detail", props.productName);
             // },
@@ -69,13 +83,17 @@ export default defineComponent({
         left: 0px;
         right: 0px;
         bottom: 0px;
-        padding: 20px 0px;
+        padding: 10px 0px;
         background-color: rgba(128, 128, 128, 0.6);
     }
     &__name {
         font-size: 22px;
         color: white;
         text-shadow: 0 0 10px var(--el-color-primary);
+    }
+    &__size {
+        font-size: 16px;
+        color: white;
     }
     &__btn {
         margin: 16px auto;

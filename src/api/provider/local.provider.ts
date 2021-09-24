@@ -422,4 +422,7 @@ export default class LocalProvider implements ApiProvider {
     requestSchemeManifest(schemeId: string | number): Promise<AjaxResponse<SchemeManifest>> {
         throw new Error("Method not implemented.");
     }
+    requestSchemeManifestV2(partIds: number[]): Promise<AjaxResponse<SchemeManifest>> {
+        throw new Error("Method not implemented.");
+    }
 }

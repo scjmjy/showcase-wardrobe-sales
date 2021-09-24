@@ -18,7 +18,14 @@
                     :span="12"
                     style="text-align: center; padding-top: 10px; padding-bottom: 10px"
                 >
-                    <product-card :productName="p.name" :cover="p.pic" @detail="onProductClick(p)" />
+                    <product-card
+                        :productName="p.name"
+                        :cover="p.pic"
+                        :height="p.height"
+                        :depth="p.depth"
+                        :width="p.width"
+                        @detail="onProductClick(p)"
+                    />
                 </el-col>
                 <!-- </transition-group> -->
                 <load-more :state="loadState" />

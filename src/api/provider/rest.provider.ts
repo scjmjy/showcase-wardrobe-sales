@@ -273,7 +273,7 @@ export default class RestProvider extends LocalProvider {
                     resolve({
                         ok: true,
                         status: res.status,
-                        data: res.data
+                        data: res.data,
                     });
                 })
                 .catch(() => {
@@ -301,7 +301,7 @@ export default class RestProvider extends LocalProvider {
                     resolve({
                         ok: true,
                         status: res.status,
-                        data: res.data
+                        data: res.data,
                     });
                 })
                 .catch(() => {
@@ -584,6 +584,37 @@ export default class RestProvider extends LocalProvider {
             request({
                 method: "GET",
                 url: `/api/v1/biz/scheme/${schemeId}/checklist`,
+            })
+                .then((res) => {
+                    const data = res.data || [];
+                    for (const item of data) {
+                        item.type = item.type === 2 ? "2d" : "3d";
+                        item.count = +item.count || 0;
+                    }
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取方案清单失败",
+                    });
+                });
+        });
+    }
+    requestSchemeManifestV2(partIds: number[]): Promise<AjaxResponse<SchemeManifest>> {
+        return new Promise((resolve) => {
+            request({
+                method: "POST",
+                url: `/api/v1/biz/scheme/checklist`,
+                data: {
+                    partIds: partIds,
+                },
             })
                 .then((res) => {
                     const data = res.data || [];

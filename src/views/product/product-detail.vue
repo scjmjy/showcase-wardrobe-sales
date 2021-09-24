@@ -26,7 +26,7 @@
                 class="product-detail__info"
                 :price="product.offer"
                 :titles="titles"
-                :createScheme="creatingScheme"
+                :creatingScheme="creatingScheme"
                 :prepareContinue="prepareContinue"
                 :isNew="isNew"
                 :isSelf="isSelf"
@@ -449,14 +449,23 @@ export default defineComponent({
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
-                    if (scheme.value?.dirty) {
-                        await saveScheme();
-                    }
-                    await refPartsMenu.value?.showManifest(scheme2d.id, false);
+                    await refPartsMenu.value?.showManifest(scheme.value!.parts);
                     break;
                 case "offer":
                     if (scheme.value?.dirty) {
+                        // try {
+                        //     await ElMessageBox.confirm("报价前请先保存方案！", "温馨提示", {
+                        //         confirmButtonText: "保存方案",
+                        //         cancelButtonText: "不保存",
+                        //         type: "warning",
+                        //     });
+                        showSchemeSaveLoading();
                         await saveScheme();
+                        hideSchemeSaveLoading();
+                        // } catch (_) {
+                        //     ElMessage.warning("取消报价");
+                        //     break;
+                        // }
                     }
                     showOfferDlg.value = true;
                     store.commit("SET-DIRTY-SCHEME", { cid: scheme2d.cid, dirty: true });
@@ -692,7 +701,7 @@ export default defineComponent({
         position: absolute;
         top: 0px;
         bottom: 0px;
-        right: -345px;
+        right: -190px;
         white-space: nowrap;
         transition: right 0.3s ease;
     }
@@ -747,17 +756,17 @@ export default defineComponent({
     }
 }
 
-@media (max-width: 1200px) {
+@media (min-width: 1150px) {
     .product-detail {
         &__menu2d {
             right: -270px;
         }
     }
 }
-@media (max-width: 1100px) {
+@media (min-width: 1366px) {
     .product-detail {
         &__menu2d {
-            right: -190px;
+            right: -345px;
         }
     }
 }

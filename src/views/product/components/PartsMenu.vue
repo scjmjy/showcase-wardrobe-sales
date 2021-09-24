@@ -89,8 +89,10 @@
 </template>
 
 <script lang="ts">
+import { computed, defineComponent, PropType, provide, ref, watch } from "vue";
+import { useStore } from "vuex";
+import { StateType } from "@/store";
 import {
-    Background,
     BackgroundType,
     findSiblingCats,
     Part,
@@ -99,13 +101,9 @@ import {
     ProductCategory,
     SchemeManifest,
 } from "@/api/interface/provider.interface";
-import { computed, defineComponent, PropType, provide, ref, watch } from "vue";
-import { useStore } from "vuex";
 import apiProvider from "@/api/provider";
-import PartCatCard from "./PartCatCard.vue";
+import { Part as Part3D } from "@/lib/scheme";
 import CatTab from "./CatTab.vue";
-import { ElTabPane } from "element-plus";
-import { StateType } from "@/store";
 import PartBgTab from "./PartBgTab.vue";
 import CatsList from "./CatsList.vue";
 import type { ImgCardItemType } from "./ImgCardItem.vue";
@@ -143,7 +141,6 @@ export default defineComponent({
         PartBgTab,
         CatsList,
         ManifestItem,
-        // PartCatCard,
     },
     emits: ["update:opened", "part", "action", "bg"],
     setup(props, ctx) {
@@ -341,14 +338,26 @@ export default defineComponent({
                 selectedPartId.value = 0;
                 selectedCatId.value = 0;
             },
-            showManifest(shcemeId: number | string, offer: boolean) {
+            showManifest(parts: Part3D[]) {
                 slide("left");
-                return apiProvider.requestSchemeManifest(shcemeId).then((res) => {
+                const partIds = parts.filter((p) => p.count > 0).map((p) => p.partId);
+                return apiProvider.requestSchemeManifestV2(partIds).then((res) => {
                     if (res.ok && res.data) {
-                        schemeManifest.value = res.data;
+                        schemeManifest.value = res.data || [];
+                        for (const item of schemeManifest.value) {
+                            item.count = parts.find((p) => p.partId === item.partid)?.count || 0;
+                        }
                     }
                 });
             },
+            // showManifest(shcemeId: number | string, offer: boolean) {
+            //     slide("left");
+            //     return apiProvider.requestSchemeManifest(shcemeId).then((res) => {
+            //         if (res.ok && res.data) {
+            //             schemeManifest.value = res.data;
+            //         }
+            //     });
+            // },
             // offerPrice: computed(() => {
             //     if (!schemeManifest.value) {
             //         return {
@@ -367,7 +376,7 @@ export default defineComponent({
 <style scoped lang="scss">
 $header-height: 56px;
 .parts-menu {
-    --menu-width: 428px;
+    --menu-width: 278px;
     // border-radius: 10px 0px 0px 10px;
     position: relative;
     box-shadow: 0px 10px 18px rgba(0, 0, 0, 0.07);
@@ -489,15 +498,14 @@ $header-height: 56px;
     }
 }
 
-@media (max-width: 1200px) {
+@media (min-width: 1150px) {
     .parts-menu {
         --menu-width: 358px;
     }
 }
-
-@media (max-width: 1100px) {
+@media (min-width: 1366px) {
     .parts-menu {
-        --menu-width: 278px;
+        --menu-width: 428px;
     }
 }
 </style>

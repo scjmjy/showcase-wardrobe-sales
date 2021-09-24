@@ -246,7 +246,7 @@ export interface SchemeOffer {
 
 export interface ManifestPart {
     pname: string;
-    count: string;
+    count: number;
     pic: string;
     partid: number;
     type: "3d" | "2d"; // 配件类型（1 for 3d; 2 for 2d）
@@ -343,4 +343,5 @@ export default interface ApiProvider {
 
     requestSchemeOffer(schemeId: number | string): Promise<AjaxResponse<SchemeOffer>>;
     requestSchemeManifest(schemeId: number | string): Promise<AjaxResponse<SchemeManifest>>;
+    requestSchemeManifestV2(partIds: number[]): Promise<AjaxResponse<SchemeManifest>>;
 }
