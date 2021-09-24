@@ -97,11 +97,17 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .customer-menu {
+    background-color: white;
+    :deep(.el-menu) {
+        background-color: white;
+    }
     :deep(.el-menu-item) {
+        background-color: white;
         padding-left: 30px !important;
         height: 86px !important;
         line-height: 86px !important;
-        // font-weight: bold;
+        color: var(--el-color-primary);
+        font-weight: bold;
     }
     &__avatar {
         display: inline-flex;
@@ -112,7 +118,7 @@ export default defineComponent({
         border-radius: 50%;
         overflow: hidden;
         background-color: #d8d8d8;
-        color: white;
+        color: var(--el-color-primary);
     }
     &__name {
         margin-left: 10px;

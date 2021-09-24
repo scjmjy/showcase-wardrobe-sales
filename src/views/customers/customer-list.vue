@@ -11,7 +11,8 @@
             <div v-if="services.length === 0" class="customer-list__empty">
                 <el-empty></el-empty>
             </div>
-            <div v-else class="customer-list__list">
+            <!-- use v-show because of PageScroll -->
+            <div v-show="services.length !== 0" class="customer-list__list">
                 <el-collapse ref="elScroll" v-model="openedServices" @change="handleOpenedChange" @scroll="onScroll">
                     <el-collapse-item :name="svc.no" v-for="svc of services" :key="svc.id">
                         <template #title>
