@@ -97,7 +97,8 @@ import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import { Area, Door, Position, Size } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
-import GooeyMenu, { MenuItem } from "@/components/GooeyMenu.vue";
+import GooeyMenu from "@/components/GooeyMenu.vue";
+import { MenuItem } from "@/components/GooeyMenu.helper";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
 import { Scheme as Scheme3D, PartType } from "@/lib/scheme";
 import type { ImgCardItemType } from "./components/ImgCardItem.vue";
@@ -106,7 +107,14 @@ import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
 import PartsMenu, { ActionType } from "./components/PartsMenu.vue";
 import ProductInfoMenu from "./components/ProductInfoMenu.vue";
-import { showSchemeSaveLoading, hideSchemeSaveLoading, CustomizeMode, CustomizeSize, SchemeMode } from "./helpers";
+import {
+    showSchemeSaveLoading,
+    hideSchemeSaveLoading,
+    CustomizeMode,
+    CustomizeSize,
+    SchemeMode,
+    resetGooeyMenu,
+} from "./helpers";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -174,9 +182,6 @@ export default defineComponent({
         const showMenu = ref(false);
         const collapseInfoMenu = ref(true);
 
-        const state3D = ref<"active" | "">("");
-        const stateRuler = ref<"active" | "">("");
-        const stateSelect = ref<"active" | "">("");
         const stateInOut = ref<"in" | "out">("out");
         const inOutStates = [
             {
@@ -198,14 +203,7 @@ export default defineComponent({
         let selectedPartId = ref(0);
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
-        const scheme = ref<Scheme3D>();
-        const schemeDetailDirty = ref(false);
-        util.importSchemeJson(product.value.manifest).then((s) => {
-            scheme.value = s;
-            nextTick(() => {
-                refBabylon.value?.CreateReferenceRuler(true);
-            });
-        });
+
         const gooeyMenuItems = ref<MenuItem[]>([
             {
                 value: "d3",
@@ -220,7 +218,6 @@ export default defineComponent({
             {
                 value: "ruler",
                 icon: "ruler",
-                active: true, // default to true
                 onActive() {
                     refBabylon.value?.CreateReferenceRuler(true);
                 },
@@ -238,6 +235,25 @@ export default defineComponent({
             },
         ]);
         const gooeyMenuOpened = ref(false);
+        const scheme = ref<Scheme3D>();
+        const schemeDetailDirty = ref(false);
+        async function requestScheme3D() {
+            await util.importSchemeJson(product.value.manifest).then((s) => {
+                if (scheme.value) {
+                    scheme.value = s;
+                    // TODO reload scheme
+                    refBabylon.value?.reloadScheme();
+                    ElMessage.warning("TODO：重新加载之前的方案");
+                } else {
+                    scheme.value = s;
+                    nextTick(() => {
+                        resetGooeyMenu(gooeyMenuItems.value);
+                    });
+                }
+            });
+        }
+        requestScheme3D();
+
         onMounted(() => {});
         function eventHandle(event: Event) {
             switch (event.type) {
@@ -400,12 +416,6 @@ export default defineComponent({
             else selectedWallId.value = 100001;
             refBabylon.value?.changeWallApi(selectedWallId.value);
         }
-        function onShowRulerClick(_wall?: ImgCardItemType) {
-            refBabylon.value?.CreateReferenceRuler(true);
-        }
-        function onHideRulerClick(_wall?: ImgCardItemType) {
-            refBabylon.value?.CreateReferenceRuler(false);
-        }
         function onUpdateFloorClick(floor?: ImgCardItemType) {
             if (floor) {
                 const key = floor.value.toString();
@@ -511,12 +521,6 @@ export default defineComponent({
             onAddDoorClick,
             onUpdateWallClick,
             onUpdateFloorClick,
-            onShowRulerClick,
-            onHideRulerClick,
-            state3D,
-            stateRuler,
-            stateSelect,
-            // stateMetals,
             stateInOut,
             inOutStates,
             showMenu,
@@ -603,32 +607,21 @@ export default defineComponent({
                         await saveScheme();
                         hideSchemeSaveLoading();
                     } catch (_) {
-                        // TODO reload scheme
-                        ElMessage.warning("TODO：重新加载之前的方案");
+                        requestScheme3D();
                     }
                 }
                 if (schemeDetailDirty.value) {
                     requestSchemeDetail();
                 }
+
+                // reset states
+                stateInOut.value = "out";
+                resetGooeyMenu(gooeyMenuItems.value);
                 mode.value = "view";
             },
-            // onSaveClick() {},
-            // onOfferClick() {},
-            // onSelectAllClick() {
-            //     // stateSelect.value = stateSelect.value === "active" ? "" : "active";
-            // },
-            // onMetalsClick(val: string) {
-            //     // stateMetals.value = stateMetals.value === "active" ? "" : "active";
-            //     // showMenu.value = val === "active" ? true : false;
-            //     showMetalsDlg.value = !showMetalsDlg.value;
-            // },
             onInOutChange(_val: string) {
-                // showMenu.value = val === "active" ? true : false;
                 showMenu.value = true;
             },
-            // onPartsClick(val: string) {
-            //     showMenu.value = !showMenu.value;
-            // },
             onPartSelect(part: Part, cat: PartCategory) {
                 if (!part.manifest) {
                     selectedMetalPart.value = part;

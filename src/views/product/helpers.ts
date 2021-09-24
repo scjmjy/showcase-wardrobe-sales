@@ -1,3 +1,4 @@
+import { MenuItem } from "@/components/GooeyMenu.helper";
 import { ElMessage, ElLoading, ILoadingInstance } from "element-plus";
 
 let loading: ILoadingInstance | undefined = undefined;
@@ -32,3 +33,11 @@ export interface CustomizeSize {
 // scheme-self：自己的方案
 // scheme-other：他人的方案
 export type SchemeMode = "scheme-new" | "scheme-self" | "scheme-other";
+
+export function resetGooeyMenu(menuItems: MenuItem[]) {
+    const ruler = menuItems.find((item) => item.value === "ruler");
+    if (ruler && !ruler.active) {
+        ruler.active = true;
+        ruler.onActive!();
+    }
+}

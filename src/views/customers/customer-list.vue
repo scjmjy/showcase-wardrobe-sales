@@ -132,6 +132,7 @@ export default defineComponent({
                             console.log("[PageScroll reload ] customerList");
                         }
                         if (store.state.dirty.schemeList.has(customerId.value)) {
+                            openedServices.value = undefined;
                             pageScroll.reload();
                             store.commit("SET-DIRTY-SCHEME", { cid: customerId.value, dirty: false });
                             console.log("[PageScroll reload ] schemeList");

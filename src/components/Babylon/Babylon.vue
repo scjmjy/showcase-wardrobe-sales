@@ -900,7 +900,12 @@ export default defineComponent({
                 this.addDoorApi(door, false, false);
             });
         },
-
+        /**
+         * product-detail.vue 从oss重新读取了scheme，此时scheme已经发生变化，需要reload
+         */
+        reloadScheme() {
+            // TODO
+        },
         ShowAvailableArea(part: PartType, areas: Area[]): void {
             this.clearSelectionApi();
             this.clearAvailableAreas();
