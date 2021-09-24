@@ -1202,7 +1202,7 @@ export default defineComponent({
 
             var wall_material = new BABYLON.StandardMaterial("groundMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.diffuseTexture = new BABYLON.Texture(
-                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/wall/9c07a00f-856f-4977-836c-7733515706d4.jpg",
+                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/wall/5214664c-4422-4c84-8f2b-7fa1e9c67426.jpg",
                 this.graphics.scene as BABYLON.Scene,
             );
             this.wall.material = wall_material;
