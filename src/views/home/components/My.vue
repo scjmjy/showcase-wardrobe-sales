@@ -3,7 +3,7 @@
         <div class="my__info">
             <!-- <fluid-bg class="my__info-bg" /> -->
 
-            <span class="my__info-my">我的</span>
+            <!-- <span class="my__info-my">我的</span> -->
 
             <div class="my__info-profile">
                 <el-image
@@ -18,10 +18,9 @@
                 <!-- <el-tag class="app-header__job" type="primary" color="#5EB6B366">店长助理</el-tag> -->
             </div>
             <!-- <i class="my__info-settings icon-btn icon-settings" /> -->
-            <i></i>
         </div>
         <div class="my__functions">
-            <el-row :gutter="20" justify="center">
+            <el-row :gutter="20">
                 <el-col :span="6" style="text-align: center">
                     <function-card
                         functionName="我的客户"
@@ -40,8 +39,8 @@
                     <function-card functionName="设置" icon="settings-fill-2" color="#859DA7" @click="gotoXXX" />
                 </el-col>
                 <!-- <div style="width: 100%; height: 30px"></div>
-                <el-col v-for="index in 4" :key="index" :span="6" style="text-align: center">
-                    <function-card functionName="待定菜单" icon="empty" color="grey" @click="gotoXXX" />
+                <el-col :span="6" style="text-align: center">
+                    <function-card functionName="工具" icon="empty" color="grey" @click="gotoXXX" />
                 </el-col> -->
             </el-row>
         </div>
@@ -85,7 +84,7 @@ export default defineComponent({
     &__info {
         display: flex;
         padding: 30px 51px 80px;
-        justify-content: space-between;
+        justify-content: space-around;
         align-items: flex-start;
         background-image: url(~@/assets/img/bg-my.png);
         background-size: cover;

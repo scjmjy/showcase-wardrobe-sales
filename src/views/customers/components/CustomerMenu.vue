@@ -101,7 +101,7 @@ export default defineComponent({
         padding-left: 30px !important;
         height: 86px !important;
         line-height: 86px !important;
-        font-weight: bold;
+        // font-weight: bold;
     }
     &__avatar {
         display: inline-flex;

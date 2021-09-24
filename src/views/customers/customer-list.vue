@@ -15,8 +15,10 @@
                 <el-collapse ref="elScroll" v-model="openedServices" @change="handleOpenedChange" @scroll="onScroll">
                     <el-collapse-item :name="svc.no" v-for="svc of services" :key="svc.id">
                         <template #title>
-                            <span class="service__no">服务单号：{{ svc.no }}</span>
-                            <span class="service__time">创建时间：{{ svc.ctime }}</span>
+                            <div class="service">
+                                <span class="service__no">服务单号：{{ svc.no }}</span>
+                                <span class="service__time">创建时间：{{ svc.ctime }}</span>
+                            </div>
                         </template>
                         <scheme-list
                             :svcId="svc.id"
@@ -86,6 +88,12 @@ export default defineComponent({
         const elScroll = ref<InstanceType<typeof ElRow>>();
         const loadState = ref<LOAD_STATE>("");
         const pageScroll = new PageScroll(undefined, requestApi, loadState, services, {
+            beforeDataHandler(result) {
+                for (const item of result) {
+                    item.ctime = item.ctime.substr(0, 16);
+                }
+                return result;
+            },
             async afterDataHandler() {
                 // 初始化 pageScroll.el
                 if (!pageScroll.el) {
@@ -270,12 +278,14 @@ $paddingX: 20px;
     }
 }
 .service {
-    &__no {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+    margin-right: 30px;
+    &__no,
+    &__time {
         font-weight: bold;
         font-size: 22px;
-    }
-    &__time {
-        margin-left: 20px;
     }
 }
 </style>
