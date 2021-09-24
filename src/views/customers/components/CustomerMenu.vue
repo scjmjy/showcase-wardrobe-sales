@@ -3,7 +3,7 @@
         <el-menu-item v-for="(customer, index) of customers" :key="index" :index="customer.cid.toString()">
             <span class="customer-menu__avatar">{{ getFirstWord(customer.name) }}</span>
             <div class="customer-menu__name">
-                <span class="u-line-1">{{ customer.name }}</span>
+                <span class="u-line-1">{{ getCustomeName(customer.name) }}</span>
                 <span style="font-size: 18px">{{ customer.phone || "" }}</span>
             </div>
         </el-menu-item>
@@ -81,6 +81,12 @@ export default defineComponent({
             getFirstWord(name: string) {
                 return name ? name[0] : "";
             },
+            getCustomeName(name: string) {
+                if(name.length > 10 )
+                    return name ? name.substring(2,14) : "";
+                else
+                    return name ? name : "";
+            },
             onScroll,
             resetLoadstate() {
                 const el = elMenu.value?.$el as HTMLElement;
@@ -107,8 +113,8 @@ export default defineComponent({
         display: inline-flex;
         justify-content: center;
         align-items: center;
-        width: 48px;
-        height: 48px;
+        width: 0px;
+        height: 0px;
         border-radius: 50%;
         overflow: hidden;
         background-color: #d8d8d8;
@@ -119,7 +125,9 @@ export default defineComponent({
         display: inline-flex;
         flex-direction: column;
         line-height: normal;
+        flex-wrap: wrap;
         font-size: 24px;
+        font-family: "Micorsoft YaHei";
         width: calc(100% - 48px);
     }
 }
