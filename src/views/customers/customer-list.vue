@@ -9,11 +9,10 @@
                 <el-button v-else size="small" type="primary" round @click="newServe">开始新服务</el-button>
             </div>
             <div v-if="services.length === 0" class="customer-list__empty">
-                <!-- <new-scheme-card @new="newScheme" /> -->
                 <el-empty></el-empty>
             </div>
             <div v-else class="customer-list__list">
-                <el-collapse v-model="openedServices" @change="handleOpenedChange" @scroll="onScroll">
+                <el-collapse ref="elScroll" v-model="openedServices" @change="handleOpenedChange" @scroll="onScroll">
                     <el-collapse-item :name="svc.no" v-for="svc of services" :key="svc.id">
                         <template #title>
                             <span class="service__no">服务单号：{{ svc.no }}</span>
@@ -28,6 +27,7 @@
                         ></scheme-list>
                     </el-collapse-item>
                 </el-collapse>
+                <load-more :state="loadState" />
             </div>
         </div>
     </div>
@@ -43,7 +43,7 @@ import apiProvider from "@/api/provider";
 import { Service, Scheme } from "@/api/interface/provider.interface";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
-// import LoadMore from "@/components/LoadMore.vue";
+import LoadMore from "@/components/LoadMore.vue";
 // import NewSchemeCard from "./components/NewSchemeCard.vue";
 import CustomerMenu from "./components/CustomerMenu.vue";
 import SchemeList from "./components/SchemeList.vue";
@@ -65,9 +65,9 @@ export default defineComponent({
         CustomerMenu,
         AppHeader,
         SchemeList,
+        LoadMore,
         // NewSchemeCard,
         // SchemeCard,
-        // LoadMore,
     },
     setup(props) {
         const router = useRouter();
@@ -86,6 +86,14 @@ export default defineComponent({
         const elScroll = ref<InstanceType<typeof ElRow>>();
         const loadState = ref<LOAD_STATE>("");
         const pageScroll = new PageScroll(undefined, requestApi, loadState, services, {
+            async afterDataHandler() {
+                // 初始化 pageScroll.el
+                if (!pageScroll.el) {
+                    await nextTick();
+                    const el = elScroll.value?.$el as HTMLElement;
+                    pageScroll.el = el;
+                }
+            },
             onDataFinish: () => {
                 setTimeout(() => {
                     loadingSchemeList.value = false;
@@ -98,7 +106,7 @@ export default defineComponent({
         function requestApi(page: number, pageSize: number) {
             return apiProvider.requestServices(customerId.value, page, pageSize);
         }
-        function onScroll(e?: Event) {
+        function onScroll(_e?: Event) {
             pageScroll.onScroll();
         }
 
@@ -109,8 +117,6 @@ export default defineComponent({
             pageScroll.reload(300);
         }
         onMounted(() => {
-            const el = elScroll.value?.$el as HTMLElement;
-            pageScroll.el = el;
             if (!props.menu) {
                 customerId.value = store.state.currentCustomer.customerId;
                 onCustomerSelect(customerId.value);
