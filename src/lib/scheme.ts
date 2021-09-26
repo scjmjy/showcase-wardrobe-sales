@@ -91,7 +91,7 @@ export class Cube extends SchemeObject {
     }
 }
 
-export type DoorInstallLocation = {
+export type DoorLocation = {
     id: string;
     index: number[];
 };
@@ -99,7 +99,7 @@ export type DoorInstallLocation = {
 export class Door extends SchemeObject {
     size: Size;
     doorType: number; // 1-合页门，2-滑门
-    cubes: DoorInstallLocation[];
+    locations: DoorLocation[];
 
     // TODO: 需要考虑合页门的开合方向吗？
     // 目前，对于单扇合页门，默认往左开
@@ -111,12 +111,12 @@ export class Door extends SchemeObject {
         catId: number,
         size: Size,
         doorType: number,
-        cubes: DoorInstallLocation[],
+        locations: DoorLocation[],
     ) {
         super(id, partId, manifest, catId);
         this.size = size;
         this.doorType = doorType;
-        this.cubes = cubes;
+        this.locations = locations;
     }
 }
 

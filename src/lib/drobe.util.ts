@@ -281,19 +281,19 @@ class DrobeUtil extends StObject {
         const door_pos = new BABYLON.Vector3(0, 0, 500);
 
         if (door.doorType == 1) {
-            this.assertTrue(door.cubes.length == 1, `ONLY ONE cube is needed to add a HINGE DOOR: ${door}`);
-            const cube_data = bizdata.findCubeDataById(door.cubes[0].id);
+            this.assertTrue(door.locations.length == 1, `ONLY ONE cube is needed to add a HINGE DOOR: ${door}`);
+            const cube_data = bizdata.findCubeDataById(door.locations[0].id);
             if (!cube_data) {
-                throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
+                throw Error(`cannot find cube data by id: ${door.locations[0]}`);
             }
             door_pos.x += cube_data.origin.x;
             door_pos.y += 20;
             door_pos.z = cube_data.depth / 2;
         } else if (door.doorType == 2) {
-            this.assertTrue(door.cubes.length == 2, `TWO cubes are needed to add a SLIDE DOOR: ${door}`);
-            const cube_data = bizdata.findCubeDataById(door.cubes[0].id);
+            this.assertTrue(door.locations.length == 2, `TWO cubes are needed to add a SLIDE DOOR: ${door}`);
+            const cube_data = bizdata.findCubeDataById(door.locations[0].id);
             if (!cube_data) {
-                throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
+                throw Error(`cannot find cube data by id: ${door.locations[0]}`);
             }
             door_pos.y += 20;
             door_pos.z = cube_data.depth / 2;

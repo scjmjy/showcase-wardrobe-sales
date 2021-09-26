@@ -10,7 +10,7 @@ import {
     Size,
     RelativeItem,
     Location,
-    DoorInstallLocation,
+    DoorLocation,
 } from "@/lib/scheme";
 import request from "@/utils/request";
 import apiProvider from "@/api/provider";
@@ -98,18 +98,18 @@ export function importSchemeJson(url: string): Promise<Scheme> {
 
                 const doors: Door[] = [];
                 mf.manifest.doors.forEach((door: any) => {
-                    const doorCubes: DoorInstallLocation[] = [];
-                    door.cubes.forEach((cube: any) => {
+                    const locations: DoorLocation[] = [];
+                    door.cubes.forEach((location: any) => {
                         const indexArr: number[] = [];
-                        cube.index.forEach((doorIndex: number) => {
+                        location.index.forEach((doorIndex: number) => {
                             indexArr.push(doorIndex);
                         });
 
-                        const doorCube = {
-                            id: cube.id,
+                        const doorLocation = {
+                            id: location.id,
                             index: indexArr,
                         };
-                        doorCubes.push(doorCube);
+                        locations.push(doorLocation);
                     });
 
                     const size = new Size(door.size.x, door.size.y, door.size.z);
@@ -120,7 +120,7 @@ export function importSchemeJson(url: string): Promise<Scheme> {
                         door.catId,
                         size,
                         door.doorType,
-                        doorCubes,
+                        locations,
                     );
                     doors.push(newDoor);
                 });

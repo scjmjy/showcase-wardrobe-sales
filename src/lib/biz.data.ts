@@ -1,4 +1,4 @@
-import { Scheme, Cube, Item, Door, Part, PartType, Size, DoorInstallLocation } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, Part, PartType, Size, DoorLocation } from "@/lib/scheme";
 import { StObject } from "./utility/st_object";
 import { v4 as uuidv4 } from "uuid";
 
@@ -195,8 +195,8 @@ export class BizData {
         this.scheme.doors.push(newDoor);
 
         let doorNum = 0;
-        newDoor.cubes.forEach((cube) => {
-            doorNum += cube.index.length;
+        newDoor.locations.forEach((location) => {
+            doorNum += location.index.length;
         });
         for (let i = 0; i < doorNum; i++) this.addPart(newDoor.partId);
         this.scheme.dirty = true;
@@ -208,17 +208,17 @@ export class BizData {
         });
         if (doorIndex !== -1) {
             const door = this.scheme.doors[doorIndex];
-            for (let i = 0; i < door.cubes.length; i++) {
-                const cube = door.cubes[i];
-                const idx = cube.index.findIndex((idx) => {
+            for (let i = 0; i < door.locations.length; i++) {
+                const location = door.locations[i];
+                const idx = location.index.findIndex((idx) => {
                     return idx === index;
                 });
                 if (idx !== -1) {
                     this.removePart(door.partId);
 
-                    cube.index.splice(idx, 1);
-                    if (cube.index.length === 0) door.cubes.splice(i, 1);
-                    if (door.cubes.length === 0) this.scheme.doors.splice(doorIndex, 1);
+                    location.index.splice(idx, 1);
+                    if (location.index.length === 0) door.locations.splice(i, 1);
+                    if (door.locations.length === 0) this.scheme.doors.splice(doorIndex, 1);
                     break;
                 }
             }
@@ -235,18 +235,18 @@ export class BizData {
         if (doorIndex !== -1) {
             let cubeId = "";
             const door = this.scheme.doors[doorIndex];
-            for (let i = 0; i < door.cubes.length; i++) {
-                const cube = door.cubes[i];
-                const idx = cube.index.findIndex((idx) => {
+            for (let i = 0; i < door.locations.length; i++) {
+                const location = door.locations[i];
+                const idx = location.index.findIndex((idx) => {
                     return idx === index;
                 });
                 if (idx !== -1) {
                     this.removePart(door.partId);
 
-                    cubeId = cube.id;
-                    cube.index.splice(idx, 1);
-                    if (cube.index.length === 0) door.cubes.splice(i, 1);
-                    if (door.cubes.length === 0) this.scheme.doors.splice(doorIndex, 1);
+                    cubeId = location.id;
+                    location.index.splice(idx, 1);
+                    if (location.index.length === 0) door.locations.splice(i, 1);
+                    if (door.locations.length === 0) this.scheme.doors.splice(doorIndex, 1);
                     break;
                 }
             }
@@ -256,9 +256,9 @@ export class BizData {
                 if (resDoor !== undefined) break;
 
                 if (door.partId === newPart.id) {
-                    for (const cube of door.cubes) {
-                        if (cube.id === cubeId) {
-                            cube.index.push(index);
+                    for (const location of door.locations) {
+                        if (location.id === cubeId) {
+                            location.index.push(index);
                             resDoor = door;
                             break;
                         }
@@ -269,7 +269,7 @@ export class BizData {
             if (resDoor === undefined) {
                 const newDoorId = uuidv4();
                 const size = new Size(newPart.width, newPart.height, newPart.depth);
-                const loc: DoorInstallLocation = {
+                const loc: DoorLocation = {
                     id: cubeId,
                     index: [index],
                 };
@@ -352,8 +352,8 @@ export class BizData {
     findDoorsByCubeId(cubeId: string): Door[] {
         const doors: Door[] = [];
         this.scheme.doors.forEach((door) => {
-            for (const cube of door.cubes) {
-                if (cube.id === cubeId) {
+            for (const location of door.locations) {
+                if (location.id === cubeId) {
                     doors.push(door);
                     break;
                 }

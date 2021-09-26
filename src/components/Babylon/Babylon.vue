@@ -398,13 +398,13 @@ export default defineComponent({
                 .then((res) => {
                     const itemMf = res.data;
                     const doorWidth = itemMf.size.x;
-                    newDoor.cubes.forEach((cube) => {
-                        const cubeId = cube["id"];
+                    newDoor.locations.forEach((location) => {
+                        const cubeId = location.id;
                         const cubeData = this.bizdata.findCubeDataById(cubeId);
                         if (cubeData === undefined) {
                             throw Error(`cannot find cube data by id: ${cubeId}`);
                         } else {
-                            cube.index.forEach((index) => {
+                            location.index.forEach((index) => {
                                 const doorPosX = cubeData.origin.x + cubeData.width * 0.5 - doorWidth * (index + 0.5);
                                 const doorPosY = 0.03;
                                 const modelIndex = index % itemMf.models.length;
