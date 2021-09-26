@@ -1,4 +1,4 @@
-import { Scheme, Cube, Item, Door, Part, PartType } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, Part, PartType, Size, DoorInstallLocation } from "@/lib/scheme";
 import { StObject } from "./utility/st_object";
 import { v4 as uuidv4 } from "uuid";
 
@@ -193,39 +193,97 @@ export class BizData {
 
     addDoor(newDoor: Door): void {
         this.scheme.doors.push(newDoor);
-        this.addPart(newDoor.partId);
-        this.scheme.dirty = true;
-    }
 
-    removeDoor(id: string, doorNum = 1): Door | undefined {
-        const idx = this.scheme.doors.findIndex((d) => {
-            return d.id === id;
+        let doorNum = 0;
+        newDoor.cubes.forEach((cube) => {
+            doorNum += cube.index.length;
         });
-        if (idx == -1) return;
-        const array = this.scheme.doors.splice(idx, 1);
-
-        // Handle the case of left and right door.
-        for (let i = 0; i < doorNum; i++) this.removePart(array[0].partId);
+        for (let i = 0; i < doorNum; i++) this.addPart(newDoor.partId);
         this.scheme.dirty = true;
-
-        return array[0];
     }
 
-    changeDoor(doorId: string, newPart: PartType): void {
-        const door = this.findDoorById(doorId);
-        if (door !== undefined) {
-            const oldPartId = door.partId;
-            door.partId = newPart.id;
-            door.catId = newPart.catId;
-            door.manifest = newPart.manifest;
-            door.size.x = newPart.width;
-            door.size.y = newPart.height;
-            door.size.z = newPart.depth;
+    removeDoor(doorId: string, index = 0): void {
+        const doorIndex = this.scheme.doors.findIndex((door) => {
+            return door.id === doorId;
+        });
+        if (doorIndex !== -1) {
+            const door = this.scheme.doors[doorIndex];
+            for (let i = 0; i < door.cubes.length; i++) {
+                const cube = door.cubes[i];
+                const idx = cube.index.findIndex((idx) => {
+                    return idx === index;
+                });
+                if (idx !== -1) {
+                    this.removePart(door.partId);
 
-            this.removePart(oldPartId);
-            this.addPart(newPart.id);
+                    cube.index.splice(idx, 1);
+                    if (cube.index.length === 0) door.cubes.splice(i, 1);
+                    if (door.cubes.length === 0) this.scheme.doors.splice(doorIndex, 1);
+                    break;
+                }
+            }
+
+            this.scheme.dirty = true;
         }
+    }
+
+    changeDoor(doorId: string, newPart: PartType, index: number): Door | undefined {
+        let resDoor = undefined;
+        const doorIndex = this.scheme.doors.findIndex((door) => {
+            return door.id === doorId;
+        });
+        if (doorIndex !== -1) {
+            let cubeId = "";
+            const door = this.scheme.doors[doorIndex];
+            for (let i = 0; i < door.cubes.length; i++) {
+                const cube = door.cubes[i];
+                const idx = cube.index.findIndex((idx) => {
+                    return idx === index;
+                });
+                if (idx !== -1) {
+                    this.removePart(door.partId);
+
+                    cubeId = cube.id;
+                    cube.index.splice(idx, 1);
+                    if (cube.index.length === 0) door.cubes.splice(i, 1);
+                    if (door.cubes.length === 0) this.scheme.doors.splice(doorIndex, 1);
+                    break;
+                }
+            }
+
+            // Find the door with same part and cube and combine index into it.
+            for (let door of this.scheme.doors) {
+                if (resDoor !== undefined) break;
+
+                if (door.partId === newPart.id) {
+                    for (const cube of door.cubes) {
+                        if (cube.id === cubeId) {
+                            cube.index.push(index);
+                            resDoor = door;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (resDoor === undefined) {
+                const newDoorId = uuidv4();
+                const size = new Size(newPart.width, newPart.height, newPart.depth);
+                const loc: DoorInstallLocation = {
+                    id: cubeId,
+                    index: [index],
+                };
+                resDoor = new Door(newDoorId, newPart.id, newPart.manifest, newPart.catId, size, door.doorType, [
+                    loc,
+                ]);
+                this.addDoor(resDoor);
+            } else {
+                this.addPart(resDoor.partId);
+            }
+        }
+
         this.scheme.dirty = true;
+        return resDoor;
     }
 
     getAllDoorsId(): string[] {
@@ -293,15 +351,17 @@ export class BizData {
         return cube.items;
     }
 
-    findDoorByCubeId(cubeId: string): Door | undefined {
-        let resDoor = undefined;
-        this.scheme.doors.some((door) => {
-            if (door.cubes.indexOf(cubeId) !== -1) {
-                resDoor = door;
-                return true;
+    findDoorsByCubeId(cubeId: string): Door[] {
+        const doors: Door[] = [];
+        this.scheme.doors.forEach((door) => {
+            for (const cube of door.cubes) {
+                if (cube.id === cubeId) {
+                    doors.push(door);
+                    break;
+                }
             }
         });
 
-        return resDoor;
+        return doors;
     }
 }

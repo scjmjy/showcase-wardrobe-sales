@@ -81,15 +81,8 @@ export class PopupGUI {
                             break;
                         case ObjectType.DOOR:
                             {
-                                const doorName = ObjectType.DOOR + "_" + objectID;
-                                let doorNum = 1;
-                                graphics.scene.meshes.forEach((mesh) => {
-                                    if (mesh.name.startsWith(doorName)) {
-                                        mesh.dispose();
-                                        doorNum++;
-                                    }
-                                });
-                                bizdata.removeDoor(objectID, doorNum);
+                                const doorIndex = parseInt(info[2]);
+                                bizdata.removeDoor(objectID, doorIndex);
                             }
                             break;
                     }

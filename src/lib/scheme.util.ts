@@ -1,5 +1,17 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
-import { Scheme, SchemeObject, Cube, Item, Door, Part, Position, Size, RelativeItem, Location } from "@/lib/scheme";
+import {
+    Scheme,
+    SchemeObject,
+    Cube,
+    Item,
+    Door,
+    Part,
+    Position,
+    Size,
+    RelativeItem,
+    Location,
+    DoorInstallLocation,
+} from "@/lib/scheme";
 import request from "@/utils/request";
 import apiProvider from "@/api/provider";
 
@@ -86,9 +98,18 @@ export function importSchemeJson(url: string): Promise<Scheme> {
 
                 const doors: Door[] = [];
                 mf.manifest.doors.forEach((door: any) => {
-                    const doorCubes: string[] = [];
-                    door.cubes.forEach((cube: string) => {
-                        doorCubes.push(cube);
+                    const doorCubes: DoorInstallLocation[] = [];
+                    door.cubes.forEach((cube: any) => {
+                        const indexArr: number[] = [];
+                        cube.index.forEach((doorIndex: number) => {
+                            indexArr.push(doorIndex);
+                        });
+
+                        const doorCube = {
+                            id: cube.id,
+                            index: indexArr,
+                        };
+                        doorCubes.push(doorCube);
                     });
 
                     const size = new Size(door.size.x, door.size.y, door.size.z);

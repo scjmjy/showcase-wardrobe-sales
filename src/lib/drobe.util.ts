@@ -262,12 +262,12 @@ class DrobeUtil extends StObject {
     }
 
     private _removeDoor(graphics: Graphics, bizdata: BizData, id: string): void {
-        const door = bizdata.removeDoor(id);
-        if (door) {
-            console.log(`Remove door: ${StObject.buildString(door)}`);
-        } else {
-            console.log(`Err: Door is NOT found: ${id}`);
-        }
+        bizdata.removeDoor(id);
+        // if (door) {
+        //     console.log(`Remove door: ${StObject.buildString(door)}`);
+        // } else {
+        //     console.log(`Err: Door is NOT found: ${id}`);
+        // }
     }
 
     /**
@@ -282,7 +282,7 @@ class DrobeUtil extends StObject {
 
         if (door.doorType == 1) {
             this.assertTrue(door.cubes.length == 1, `ONLY ONE cube is needed to add a HINGE DOOR: ${door}`);
-            const cube_data = bizdata.findCubeDataById(door.cubes[0]);
+            const cube_data = bizdata.findCubeDataById(door.cubes[0].id);
             if (!cube_data) {
                 throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
             }
@@ -291,7 +291,7 @@ class DrobeUtil extends StObject {
             door_pos.z = cube_data.depth / 2;
         } else if (door.doorType == 2) {
             this.assertTrue(door.cubes.length == 2, `TWO cubes are needed to add a SLIDE DOOR: ${door}`);
-            const cube_data = bizdata.findCubeDataById(door.cubes[0]);
+            const cube_data = bizdata.findCubeDataById(door.cubes[0].id);
             if (!cube_data) {
                 throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
             }
@@ -310,7 +310,7 @@ class DrobeUtil extends StObject {
                 const url = baseUrl + res.models[0].url;
                 return graphics
                     .importMesh(url, door_name, door_pos)
-                    .then((res) => {
+                    .then(() => {
                         return door.id;
                     })
                     .catch((err) => {

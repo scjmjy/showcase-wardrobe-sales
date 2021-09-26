@@ -98,22 +98,34 @@ export default defineComponent({
                                     if (newPart.catId === 20) {
                                         this.changeCubeApi(objectId, newPart);
                                     } else if (newPart.catId === 2 || newPart.catId === 3) {
-                                        const door = this.bizdata.findDoorByCubeId(objectId);
-                                        if (door !== undefined) {
-                                            const doorName = ObjectType.DOOR + "_" + door.id;
-                                            this.graphics.scene.meshes.forEach((mesh) => {
-                                                if (mesh.name.startsWith(doorName)) {
-                                                    const doorInfo = mesh.name.split("_");
-                                                    const doorIndex = parseInt(doorInfo[2]);
-                                                    this.changeDoorApi(door.id, newPart, doorIndex);
-                                                }
-                                            });
-                                        } else {
-                                            const doorId = uuidv4();
-                                            const size = new Size(newPart.width, newPart.height, newPart.depth);
-                                            let doorType = 1;
-                                            if (newPart.catId === 2) doorType = 2;
-                                            const cubes = [objectId];
+                                        const doors = this.bizdata.findDoorsByCubeId(objectId);
+                                        doors.forEach((door) => {
+                                            this.removeDoorApi(door);
+                                        });
+
+                                        // Add new door.
+                                        const doorId = uuidv4();
+                                        const size = new Size(newPart.width, newPart.height, newPart.depth);
+                                        let doorType = 1;
+                                        if (newPart.catId === 2) doorType = 2;
+
+                                        const cube = this.bizdata.findCubeById(objectId);
+                                        if (cube !== undefined) {
+                                            let doorNum = Math.floor(cube.size.x / newPart.width);
+                                            if (doorNum === 0) {
+                                                doorNum = 1;
+                                                ElMessage({
+                                                    type: "warning",
+                                                    message: "门的宽度超过了当前柜体的宽度",
+                                                });
+                                            }
+
+                                            const indexArr = [];
+                                            for (let i = 0; i < doorNum; i++) indexArr.push(i);
+                                            const loc = {
+                                                id: objectId,
+                                                index: indexArr,
+                                            };
                                             const newDoor = new Door(
                                                 doorId,
                                                 newPart.id,
@@ -121,7 +133,7 @@ export default defineComponent({
                                                 newPart.catId,
                                                 size,
                                                 doorType,
-                                                cubes,
+                                                [loc],
                                             );
                                             this.addDoorApi(newDoor);
                                         }
@@ -295,13 +307,17 @@ export default defineComponent({
          * 增加一个item
          * @param newItem 增加的Item
          */
-        addItemApi(newItem: Item): void {},
+        addItemApi(newItem: Item): void {
+            newItem;
+        },
 
         /**
          * 移除多个items
          * @param itemIds 被移除item的uuid列表
          */
-        removeItemsApi(itemIds: string[]): void {},
+        removeItemsApi(itemIds: string[]): void {
+            itemIds;
+        },
 
         /**
          * 修改配件的材质或颜色
@@ -380,45 +396,30 @@ export default defineComponent({
                 responseType: "json",
             })
                 .then((res) => {
-                    let cubesWidth = 0;
-                    newDoor.cubes.forEach((cubeId: string) => {
-                        const cube = this.bizdata.findCubeById(cubeId);
-                        if (cube !== undefined) {
-                            cubesWidth += cube.size.x;
-                        }
-                    });
-
                     const itemMf = res.data;
                     const doorWidth = itemMf.size.x;
-                    let doorNum = Math.floor(cubesWidth / doorWidth);
-                    if (doorNum === 0) {
-                        doorNum = 1;
-
-                        ElMessage({
-                            type: "warning",
-                            message: "门的宽度超过了当前柜体的宽度",
-                        });
-                    }
-                    const firstCubeData = this.bizdata.findCubeDataById(newDoor.cubes[0]);
-                    if (firstCubeData === undefined) {
-                        throw Error(`cannot find cube data by id: ${newDoor.cubes[0]}`);
-                    } else {
-                        let startX = firstCubeData.origin.x + firstCubeData.width * 0.5;
-                        for (let i = 0; i < doorNum; i += itemMf.models.length) {
-                            for (let j = 0; j < itemMf.models.length && j < doorNum; j++) {
-                                const model = itemMf.models[j];
+                    newDoor.cubes.forEach((cube) => {
+                        const cubeId = cube["id"];
+                        const cubeData = this.bizdata.findCubeDataById(cubeId);
+                        if (cubeData === undefined) {
+                            throw Error(`cannot find cube data by id: ${cubeId}`);
+                        } else {
+                            cube.index.forEach((index) => {
+                                const doorPosX = cubeData.origin.x + cubeData.width * 0.5 - doorWidth * (index + 0.5);
+                                const doorPosY = 0.03;
+                                const modelIndex = index % itemMf.models.length;
+                                const model = itemMf.models[modelIndex];
                                 const modelPos = new BABYLON.Vector3(
-                                    startX - doorWidth * 0.5 + model.position.x,
-                                    0.03 + model.position.y,
-                                    firstCubeData.depth * 0.5 + model.position.z,
+                                    doorPosX + model.position.x,
+                                    doorPosY + model.position.y,
+                                    cubeData.depth * 0.5 + model.position.z,
                                 );
                                 const modelScaling = new BABYLON.Vector3(
                                     model.scaling.x,
                                     model.scaling.y,
                                     model.scaling.z,
                                 );
-                                const doorIndex = i + j;
-                                const doorName = ObjectType.DOOR + "_" + newDoor.id + "_" + doorIndex;
+                                const doorName = ObjectType.DOOR + "_" + newDoor.id + "_" + index;
                                 const modelUrl = this.baseOSSUrl + model.url;
                                 this.graphics.importMesh(
                                     modelUrl,
@@ -428,20 +429,14 @@ export default defineComponent({
                                     modelScaling,
                                     isPickable,
                                 );
+                            });
 
-                                startX -= doorWidth;
-                            }
+                            if (updateBizdata) this.bizdata.addDoor(newDoor);
                         }
-                    }
+                    });
 
                     // clear select item
                     this.clearSelectionApi();
-
-                    if (updateBizdata) {
-                        for (let i = 0; i < doorNum; i++) {
-                            this.bizdata.addDoor(newDoor);
-                        }
-                    }
                 })
                 .catch((err) => {
                     throw Error(`Load part manifest by error: ${err}`);
@@ -450,10 +445,18 @@ export default defineComponent({
 
         /**
          * 移除合页门或者滑门
-         * @param doorIds 被移除门的uuid列表
          */
-        removeDoorsApi(doorIds?: string[]): void {
-            drobeUtil.removeDoors(this.graphics, this.bizdata as BizData, doorIds);
+        removeDoorApi(door: Door): void {
+            const doorName = ObjectType.DOOR + "_" + door.id;
+            this.graphics.scene.meshes.forEach((mesh) => {
+                if (mesh.name.startsWith(doorName)) {
+                    mesh.dispose();
+
+                    const doorInfo = mesh.name.split("_");
+                    const index = parseInt(doorInfo[2]);
+                    this.bizdata.removeDoor(door.id, index);
+                }
+            });
         },
 
         /**
@@ -461,8 +464,8 @@ export default defineComponent({
          * @param doorId 需要修改的door uuid
          * @param newPart
          */
-        changeDoorApi(doorId: string, newPart: PartType, doorIndex: number): void {
-            const meshName = ObjectType.DOOR + "_" + doorId + "_" + doorIndex;
+        changeDoorApi(doorId: string, newPart: PartType, index: number): void {
+            const meshName = ObjectType.DOOR + "_" + doorId + "_" + index;
             const mesh = this.graphics.scene.getMeshByName(meshName);
             if (mesh !== null) {
                 const door = this.bizdata.findDoorById(doorId);
@@ -479,31 +482,33 @@ export default defineComponent({
                         responseType: "json",
                     })
                         .then((res) => {
-                            const itemMf = res.data;
-                            const modelIndex = doorIndex % itemMf.models.length;
-                            const model = itemMf.models[modelIndex];
-                            const modelPos = new BABYLON.Vector3(
-                                pos.x + model.position.x,
-                                pos.y + model.position.y,
-                                pos.z + model.position.z,
-                            );
-                            const modelScaling = new BABYLON.Vector3(model.scaling.x, model.scaling.y, model.scaling.z);
-                            const modelUrl = this.baseOSSUrl + model.url;
-                            this.graphics.importMesh(
-                                modelUrl,
-                                meshName,
-                                modelPos,
-                                BABYLON.Vector3.Zero(),
-                                modelScaling,
-                                true,
-                            );
+                            const newDoor = this.bizdata.changeDoor(doorId, newPart, index);
+                            if (newDoor !== undefined) {
+                                const itemMf = res.data;
+                                const modelIndex = index % itemMf.models.length;
+                                const model = itemMf.models[modelIndex];
+                                const modelPos = new BABYLON.Vector3(
+                                    pos.x + model.position.x,
+                                    pos.y + model.position.y,
+                                    pos.z + model.position.z,
+                                );
+                                const modelScaling = new BABYLON.Vector3(model.scaling.x, model.scaling.y, model.scaling.z);
+                                const modelUrl = this.baseOSSUrl + model.url;
+                                const newMeshName = ObjectType.DOOR + "_" + newDoor.id + "_" + index;
+                                this.graphics.importMesh(
+                                    modelUrl,
+                                    newMeshName,
+                                    modelPos,
+                                    BABYLON.Vector3.Zero(),
+                                    modelScaling,
+                                    true,
+                                );
 
-                            // clear select item
-                            this.clearSelectionApi();
-                            // remove the old item
-                            mesh.dispose();
-
-                            this.bizdata.changeDoor(doorId, newPart);
+                                // clear select item
+                                this.clearSelectionApi();
+                                // remove the old door.
+                                mesh.dispose();
+                            }
                         })
                         .catch((err) => {
                             throw Error(`Load part manifest by error: ${err}`);
@@ -549,7 +554,9 @@ export default defineComponent({
                     param: any[]; // api函数的参数列表
                 },
             ],
-        ): void {},
+        ): void {
+            actions;
+        },
 
         // /**
         //  * 显示多个有效区域（用于添加配件的待选区域）
@@ -674,7 +681,9 @@ export default defineComponent({
          * 备注：在全选或者多选模式下使用
          * @param itemIds 需要被选择item的uuid列表
          */
-        selectItemsApi(itemIds: string[]): void {},
+        selectItemsApi(itemIds: string[]): void {
+            itemIds;
+        },
 
         /**
          * 清空所有的内配
@@ -1056,7 +1065,7 @@ export default defineComponent({
                                             const newCube = new Cube(cubeUUID, partId, manifest, catId, size, items);
                                             this.bizdata.addCube(newCube, isFirstCube);
                                         })
-                                        .catch((err) => {
+                                        .catch(() => {
                                             throw Error(`Require manifest by error: ${manifest}`);
                                         });
                                 } else {
@@ -1133,7 +1142,7 @@ export default defineComponent({
                                                 );
                                                 this.bizdata.addItem(newItem, cubeId);
                                             })
-                                            .catch((err) => {
+                                            .catch(() => {
                                                 throw Error(`Require manifest by error: ${manifest}`);
                                             });
                                     }

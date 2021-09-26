@@ -51,16 +51,6 @@
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
                 >返回</el-button
             >
-            <!-- TODO: remove the test codes -->
-            <!-- <div class="product-detail__action-test state-icon-group-h">
-                <state-icon icon="offer" label="合页门" @change="onAddDoorClick('left')"></state-icon>
-                <state-icon icon="offer" label="滑门" @change="onAddDoorClick('slide')"></state-icon>
-                <state-icon icon="offer" label="清除门" @change="onDeleteClick('door')"></state-icon>
-                <state-icon icon="offer" label="替换墙面" @change="onUpdateWallClick()"></state-icon>
-                <state-icon icon="offer" label="替换地板" @change="onUpdateFloorClick()"></state-icon>
-                <state-icon icon="offer" label="显示标尺" @change="onShowRulerClick()"></state-icon>
-                <state-icon icon="offer" label="隐藏标尺" @change="onHideRulerClick()"></state-icon>
-            </div> -->
             <div class="product-detail__action-left state-icon-group-h">
                 <!-- <state-icon
                     v-model="stateSelect"
@@ -352,102 +342,6 @@ export default defineComponent({
             }
         }
 
-        function onDeleteClick(part_type: string) {
-            // debugger;
-            if (!refBabylon.value) {
-                console.error("refBabylon.value is not defined!");
-                throw Error("refBabylon.value is not defined!");
-            }
-
-            switch (part_type) {
-                case "door":
-                    refBabylon.value.removeDoorsApi();
-                    break;
-                default:
-                    throw Error(`unknown part type: ${part_type}`);
-            }
-        }
-        function onAddDoorClick(type: string, partId?: number, mfUrl?: string) {
-            if (!refBabylon.value) {
-                console.error("refBabylon.value is not defined!");
-                throw Error("refBabylon.value is not defined!");
-            }
-
-            // 测试: addDoorApi()
-            let door_part_id = partId || -1;
-            let door_mf_url = "";
-            let door_cubes: string[] = [];
-            switch (type) {
-                case "left":
-                    {
-                        const catId = 3;
-                        // 合页门 (type: 1): add 2 doors for both cubes
-                        door_mf_url = mfUrl || "43b3e66e-c416-4602-bb76-97a172138737.json";
-                        door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d"];
-                        const size = new Size(750, 2360, 40);
-                        refBabylon.value.addDoorApi(
-                            new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes),
-                        );
-
-                        door_cubes = ["ce28f905-a6e1-4f68-9998-ed13f950ea91"];
-                        refBabylon.value.addDoorApi(
-                            new Door("", door_part_id, door_mf_url, catId, size, 1, door_cubes),
-                        );
-                    }
-                    break;
-
-                case "slide":
-                    {
-                        // 滑门 (type: 2). 需要指定2个连续的cube
-                        door_mf_url = mfUrl || "bbf7f299-7ae8-4977-a26e-5e09b761a8fe.json";
-                        door_cubes = ["4cd170f8-291b-4236-b515-b5d27ac1209d", "ce28f905-a6e1-4f68-9998-ed13f950ea91"];
-                        const catId = 2;
-                        const size = new Size(1500, 2360, 40);
-                        refBabylon.value.addDoorApi(
-                            new Door("", door_part_id, door_mf_url, catId, size, 2, door_cubes),
-                        );
-                    }
-                    break;
-
-                case "right":
-                    throw Error("TODO: a door is fixed at RIGHT");
-
-                default:
-                    throw Error(`Error: unkonwn door type: ${type}`);
-            }
-        }
-        function onUpdateWallClick(wall?: ImgCardItemType) {
-            if (wall) {
-                const key = wall.value.toString();
-                refBabylon.value?.bizdata.partManifestMap.set(key, wall.url);
-                selectedWallId.value = +key;
-            } else if (selectedWallId.value === 0) selectedWallId.value = 100001;
-            else if (selectedWallId.value === 100001) selectedWallId.value = 100002;
-            else if (selectedWallId.value === 100002) selectedWallId.value = 100003;
-            else if (selectedWallId.value === 100003) selectedWallId.value = 100004;
-            else if (selectedWallId.value === 100004) selectedWallId.value = 100001;
-            else selectedWallId.value = 100001;
-            refBabylon.value?.changeWallApi(selectedWallId.value);
-        }
-        function onShowRulerClick(wall?: ImgCardItemType) {
-            refBabylon.value?.CreateReferenceRuler(true);
-        }
-        function onHideRulerClick(wall?: ImgCardItemType) {
-            refBabylon.value?.CreateReferenceRuler(false);
-        }
-        function onUpdateFloorClick(floor?: ImgCardItemType) {
-            if (floor) {
-                const key = floor.value.toString();
-                refBabylon.value?.bizdata.partManifestMap.set(key, floor.url);
-                selectedFloorId.value = +key;
-            } else if (selectedFloorId.value === 0) selectedFloorId.value = 110001;
-            else if (selectedFloorId.value === 110001) selectedFloorId.value = 110002;
-            else if (selectedFloorId.value === 110002) selectedFloorId.value = 110003;
-            else if (selectedFloorId.value === 110003) selectedFloorId.value = 110004;
-            else if (selectedFloorId.value === 110004) selectedFloorId.value = 110001;
-            else selectedFloorId.value = 110001;
-            refBabylon.value?.changeFloorApi(selectedFloorId.value);
-        }
         const baseUrl = computed(() => store.state.globalCfg?.baseUrl);
 
         const { customerName } = store.state.currentCustomer;
@@ -525,12 +419,6 @@ export default defineComponent({
                 }
             }),
             eventHandle,
-            onDeleteClick,
-            onAddDoorClick,
-            onUpdateWallClick,
-            onUpdateFloorClick,
-            onShowRulerClick,
-            onHideRulerClick,
             state3D,
             stateRuler,
             stateSelect,
@@ -623,6 +511,7 @@ export default defineComponent({
             // },
             onInOutChange(val: string) {
                 // showMenu.value = val === "active" ? true : false;
+                val;
                 showMenu.value = true;
             },
             // onPartsClick(val: string) {
