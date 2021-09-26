@@ -436,7 +436,7 @@ export default defineComponent({
                 }
             }),
             eventHandle,
-            // stateMetals,            stateInOut,
+            stateInOut,
             inOutStates,
             showMenu,
             collapseInfoMenu,
