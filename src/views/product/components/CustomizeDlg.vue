@@ -1,5 +1,13 @@
 <template>
-    <el-dialog class="customize-dlg" :title="title" center width="500px" @closed="onClosed" v-bind="$attrs">
+    <el-dialog
+        class="customize-dlg"
+        :title="title"
+        center
+        width="500px"
+        @opened="onOpened"
+        @closed="onClosed"
+        v-bind="$attrs"
+    >
         <el-form ref="elForm" :model="formData" :rules="formRules" label-width="140px" label-position="left">
             <el-form-item label="单元柜高度" prop="height">
                 <el-input v-model.number="formData.height"></el-input>
@@ -13,7 +21,7 @@
             <div class="customize-dlg__unit">单位：cm</div>
         </el-form>
         <template #footer>
-            <el-button @click="doCancel">放 弃</el-button>
+            <el-button @click="doCancel">不修改</el-button>
             <el-button type="primary" :loading="loading" @click="doConfirm">{{ okText }}</el-button>
         </template>
     </el-dialog>
@@ -21,13 +29,13 @@
 
 <script lang="ts">
 import { computed, defineComponent, PropType, reactive } from "vue";
-import { CustomizeMode } from "../helpers";
+import { CustomizeMode, CustomizeSize } from "../helpers";
 
-function defaultSize() {
+function defaultSize(): CustomizeSize {
     return {
         height: 240,
         depth: 50,
-        width: 50,
+        width: 120,
     };
 }
 
@@ -42,6 +50,10 @@ export default defineComponent({
         loading: {
             type: Boolean,
             default: false,
+        },
+        size: {
+            type: Object as PropType<CustomizeSize>,
+            default: defaultSize(),
         },
     },
     setup(props, ctx) {
@@ -64,8 +76,8 @@ export default defineComponent({
                     {
                         type: "number",
                         min: 30,
-                        max: 50,
-                        message: "深度在 30cm 到 50cm 之间",
+                        max: 60,
+                        message: "深度在 30cm 到 60cm 之间",
                         trigger: ["blur", "change"],
                     },
                 ],
@@ -81,25 +93,27 @@ export default defineComponent({
                 ],
             },
             title: computed(() => {
-                switch (props.mode) {
-                    case "copy":
-                        return "复制方案";
-                    case "new":
-                    default:
-                        return "新方案定制";
-                }
+                return "修改柜体尺寸";
+                // switch (props.mode) {
+                //     case "copy":
+                //         return "复制方案";
+                //     case "new":
+                //     default:
+                //         return "新方案定制";
+                // }
             }),
             okText: computed(() => {
-                switch (props.mode) {
-                    case "new":
-                        return "确认创建";
-                    case "copy":
-                        return "确认复制";
-                    // case "continue":
-                    //     return "确认创建";
-                    default:
-                        return "确认";
-                }
+                return "确认修改";
+                // switch (props.mode) {
+                //     case "new":
+                //         return "确认创建";
+                //     case "copy":
+                //         return "确认复制";
+                //     // case "continue":
+                //     //     return "确认创建";
+                //     default:
+                //         return "确认";
+                // }
             }),
             doCancel() {
                 ctx.emit("cancel", false);
@@ -107,8 +121,11 @@ export default defineComponent({
             doConfirm() {
                 ctx.emit("confirm", formData);
             },
+            onOpened() {
+                Object.assign(formData, props.size);
+            },
             onClosed() {
-                Object.assign(formData, defaultSize());
+                // Object.assign(formData, defaultSize());
             },
         };
     },

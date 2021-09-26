@@ -263,6 +263,15 @@ export default class LocalProvider implements ApiProvider {
                     compostion: "compostion",
                     description: "description",
                     pic: "https://picsum.photos/300/300?random=" + index + cid,
+                    width: 0,
+                    height: 0,
+                    depth: 0,
+                    depthmax: 0,
+                    depthmin: 0,
+                    widthmax: 0,
+                    widthmin: 0,
+                    heightmax: 0,
+                    heightmin: 0,
                 };
             }),
         });
@@ -279,6 +288,15 @@ export default class LocalProvider implements ApiProvider {
                 compostion: "compostion",
                 description: "description",
                 pic: "https://picsum.photos/300/300?random=" + pid,
+                width: 0,
+                height: 0,
+                depth: 0,
+                depthmax: 0,
+                depthmin: 0,
+                widthmax: 0,
+                widthmin: 0,
+                heightmax: 0,
+                heightmin: 0,
             },
         });
     }
@@ -318,6 +336,15 @@ export default class LocalProvider implements ApiProvider {
                         "https://picsum.photos/300/300?random=1" + index + svcid,
                         "https://picsum.photos/300/300?random=2" + index + svcid,
                     ],
+                    width: 0,
+                    height: 0,
+                    depth: 0,
+                    pdepthmax: 0,
+                    pdepthmin: 0,
+                    pwidthmax: 0,
+                    pwidthmin: 0,
+                    pheightmax: 0,
+                    pheightmin: 0,
                 };
             }),
         });
@@ -342,6 +369,15 @@ export default class LocalProvider implements ApiProvider {
                     "https://picsum.photos/300/300?random=1" + sid,
                     "https://picsum.photos/300/300?random=2" + sid,
                 ],
+                width: 0,
+                height: 0,
+                depth: 0,
+                pdepthmax: 0,
+                pdepthmin: 0,
+                pwidthmax: 0,
+                pwidthmin: 0,
+                pheightmax: 0,
+                pheightmin: 0,
             },
         });
     }
@@ -384,6 +420,9 @@ export default class LocalProvider implements ApiProvider {
         throw new Error("Method not implemented.");
     }
     requestSchemeManifest(schemeId: string | number): Promise<AjaxResponse<SchemeManifest>> {
+        throw new Error("Method not implemented.");
+    }
+    requestSchemeManifestV2(partIds: number[]): Promise<AjaxResponse<SchemeManifest>> {
         throw new Error("Method not implemented.");
     }
 }

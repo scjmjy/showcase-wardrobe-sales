@@ -43,8 +43,8 @@ export default defineComponent({
     vertical-align: top;
     margin: 10px;
     &__img {
-        width: 140px;
-        height: 140px;
+        width: 70px;
+        height: 70px;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         border-radius: 10px;
         overflow: hidden;
@@ -63,7 +63,7 @@ export default defineComponent({
     }
 }
 
-@media (max-width: 1200px) {
+@media (min-width: 1150px) {
     .part-cat-card {
         &__img {
             width: 110px;
@@ -72,15 +72,15 @@ export default defineComponent({
     }
 }
 
-@media (max-width: 1100px) {
+@media (min-width: 1366px) {
     .part-cat-card {
         &__img {
-            width: 70px;
-            height: 70px;
+            width: 140px;
+            height: 140px;
         }
-        &__label {
-            font-size: 18px;
-        }
+        // &__label {
+        //     font-size: 18px;
+        // }
     }
 }
 </style>

@@ -2,17 +2,10 @@
     <div
         v-if="product"
         class="product-detail"
-        :class="{ 'slide-left-3d': showMenu || mode === 'view', 'menu-opened': showMenu }"
+        :class="{ 'slide-left-3d': showMenu || (mode === 'view' && !collapseInfoMenu), 'menu-opened': showMenu }"
     >
         <transition name="el-zoom-in-top">
-            <app-header
-                v-if="mode === 'view'"
-                type="dark"
-                :stop="false"
-                icon=""
-                :title="titles.title"
-                :subTitle="titles.subTitle"
-            />
+            <app-header v-if="mode === 'view'" type="dark" :stop="false" icon="" />
         </transition>
         <Babylon
             v-if="scheme"
@@ -27,63 +20,37 @@
             :baseOSSUrl="baseUrl"
         />
         <el-collapse-transition-h @after-leave="mode = 'edit'">
-            <div v-if="mode === 'view'" class="product-detail__info">
-                <div class="product-detail__info-name">{{ titles.title + titles.subTitle }}</div>
-                <!-- <div v-if="!isNew" class="product-detail__info-offer">{{ '￥26955.00' }}</div> -->
-                <div v-if="!isNew && product.offer" class="product-detail__info-offer">
-                    <span class="product-detail__info-offer-symbol"> ￥ </span>
-                    <span class="product-detail__info-offer-offer">{{ offerPrice.integer }}</span>
-                    <span class="product-detail__info-offer-symbol">.{{ offerPrice.decimal }} </span>
-                </div>
-                <div class="product-detail__info-action">
-                    <el-button type="primary" round v-if="isNew" @click="newScheme">开始定制</el-button>
-                    <el-button type="primary" round v-if="isSelf" @click="continueEditScheme">继续定制</el-button>
-                    <el-button type="primary" round v-if="isSelf || isOther" @click="copyScheme"
-                        >由此方案定制</el-button
-                    >
-                    <el-button v-if="isSelf && !product.offer" type="success" round @click="onPartsMenuAction('offer')"
-                        >报价</el-button
-                    >
-                </div>
-            </div>
+            <product-info-menu
+                v-if="mode === 'view'"
+                v-model:collapse="collapseInfoMenu"
+                class="product-detail__info"
+                :price="product.offer"
+                :titles="titles"
+                :creatingScheme="creatingScheme"
+                :prepareContinue="prepareContinue"
+                :isNew="isNew"
+                :isSelf="isSelf"
+                :isOther="isOther"
+                @newScheme="newScheme"
+                @continueScheme="continueEditScheme"
+                @copyScheme="copyScheme"
+                @offer="onPartsMenuAction('offer')"
+            />
         </el-collapse-transition-h>
         <template v-if="mode === 'edit'">
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
                 >返回</el-button
             >
             <div class="product-detail__action-left state-icon-group-h">
-                <!-- <state-icon
-                    v-model="stateSelect"
-                    icon="select-all"
-                    label="全选"
-                    @change="onSelectAllClick"
-                ></state-icon>
-                <state-icon icon="metals" label="五金" @change="onMetalsClick"></state-icon> -->
                 <state-icon
                     v-model="stateInOut"
                     icon="parts-indoor"
                     :states="inOutStates"
                     @change="onInOutChange"
                 ></state-icon>
-                <!-- <state-icon v-model="state3D" icon="empty" @change="on3DClick"></state-icon> -->
-                <!-- <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
-                <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon> -->
-                <!-- <state-icon
-                    icon="parts"
-                    label="部件"
-                    iconColor="white"
-                    iconBg="#5EB6B3"
-                    @change="onPartsClick"
-                ></state-icon> -->
             </div>
             <gooey-menu v-model="gooeyMenuOpened" class="product-detail__gooeyMenu" :items="gooeyMenuItems" />
 
-            <!-- <div class="product-detail__action-top state-icon-group-v">
-                <state-icon v-model="state3D" icon="d3" @change="on3DClick"></state-icon>
-                <state-icon v-model="stateRuler" icon="ruler" @change="onRulerClick"></state-icon>
-            </div> -->
-            <!-- <el-collapse-transition-h>
-            </el-collapse-transition-h> -->
             <parts-menu
                 ref="refPartsMenu"
                 v-show="mode === 'edit'"
@@ -98,7 +65,7 @@
         <customize-dlg
             v-model="showCustomizeDlg"
             :mode="customizeMode"
-            :loading="creatingScheme"
+            :size="customizeSize"
             @confirm="onCustomizeConfirm"
             @cancel="onCustomizeCancel"
         />
@@ -122,7 +89,7 @@
 import { computed, defineComponent, ref, watch, Ref, nextTick, onMounted, provide } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { ElMessage, ElLoading } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import Babylon from "@/components/Babylon/Babylon.vue";
 import { StateType } from "@/store";
 import { BackgroundType, Part, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
@@ -130,7 +97,8 @@ import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import { Area, Door, Position, Size } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
-import GooeyMenu, { MenuItem } from "@/components/GooeyMenu.vue";
+import GooeyMenu from "@/components/GooeyMenu.vue";
+import { MenuItem } from "@/components/GooeyMenu.helper";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
 import { Scheme as Scheme3D, PartType } from "@/lib/scheme";
 import type { ImgCardItemType } from "./components/ImgCardItem.vue";
@@ -138,8 +106,15 @@ import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
 import PartsMenu, { ActionType } from "./components/PartsMenu.vue";
-import { splitPrice } from "@/utils/currency";
-import { showSchemeSaveLoading, hideSchemeSaveLoading, CustomizeMode } from "./helpers";
+import ProductInfoMenu from "./components/ProductInfoMenu.vue";
+import {
+    showSchemeSaveLoading,
+    hideSchemeSaveLoading,
+    CustomizeMode,
+    CustomizeSize,
+    SchemeMode,
+    resetGooeyMenu,
+} from "./helpers";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -151,6 +126,7 @@ export default defineComponent({
         Babylon,
         PartsMenu,
         GooeyMenu,
+        ProductInfoMenu,
     },
     setup() {
         const route = useRoute();
@@ -170,7 +146,7 @@ export default defineComponent({
             return p.pid === undefined;
         }
 
-        const schemeMode = computed<"scheme-new" | "scheme-self" | "scheme-other">(() => {
+        const schemeMode = computed<SchemeMode>(() => {
             const p = product.value;
             if (isProduct(p)) {
                 return "scheme-new";
@@ -184,17 +160,28 @@ export default defineComponent({
         const showOfferDlg = ref(false);
         const showMetalsDlg = ref(false);
         const creatingScheme = ref(false);
+        const prepareContinue = ref(false);
 
         async function gotoEditScheme() {
-            showCustomizeDlg.value = false;
+            // showCustomizeDlg.value = false;
             mode.value = ""; // after-leave="mode=edit"
             // mode.value = "edit";
+            setTimeout(() => {
+                switch (customizeMode.value) {
+                    case "new":
+                    case "copy":
+                        showCustomizeDlg.value = true;
+                        break;
+                    case "continue":
+                        break;
+                    default:
+                        break;
+                }
+            }, 200);
         }
         const showMenu = ref(false);
+        const collapseInfoMenu = ref(true);
 
-        const state3D = ref<"active" | "">("");
-        const stateRuler = ref<"active" | "">("");
-        const stateSelect = ref<"active" | "">("");
         const stateInOut = ref<"in" | "out">("out");
         const inOutStates = [
             {
@@ -216,15 +203,7 @@ export default defineComponent({
         let selectedPartId = ref(0);
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
-        const scheme = ref<Scheme3D>();
-        const schemeDetailDirty = ref(false);
-        util.importSchemeJson(product.value.manifest).then((s) => {
-            scheme.value = s;
-            nextTick(() => {
-                refBabylon.value?.CreateReferenceRuler(true);
-            });
-        });
-        const schemeManifest = ref(product.value.manifest);
+
         const gooeyMenuItems = ref<MenuItem[]>([
             {
                 value: "d3",
@@ -239,7 +218,6 @@ export default defineComponent({
             {
                 value: "ruler",
                 icon: "ruler",
-                active: true, // default to true
                 onActive() {
                     refBabylon.value?.CreateReferenceRuler(true);
                 },
@@ -248,15 +226,34 @@ export default defineComponent({
                 },
             },
             {
-                value: "ruler",
-                icon: "ruler",
-                type: "button", // default to true
+                value: "size-3d",
+                icon: "size-3d",
+                type: "button",
                 onClick() {
-                    // TODO
+                    showCustomizeDlg.value = true;
                 },
             },
         ]);
         const gooeyMenuOpened = ref(false);
+        const scheme = ref<Scheme3D>();
+        const schemeDetailDirty = ref(false);
+        async function requestScheme3D() {
+            await util.importSchemeJson(product.value.manifest).then((s) => {
+                if (scheme.value) {
+                    scheme.value = s;
+                    // TODO reload scheme
+                    refBabylon.value?.reloadScheme();
+                    ElMessage.warning("TODO：重新加载之前的方案");
+                } else {
+                    scheme.value = s;
+                    nextTick(() => {
+                        resetGooeyMenu(gooeyMenuItems.value);
+                    });
+                }
+            });
+        }
+        requestScheme3D();
+
         onMounted(() => {});
         function eventHandle(event: Event) {
             switch (event.type) {
@@ -281,7 +278,7 @@ export default defineComponent({
                     break;
             }
         }
-        async function onCustomizeConfirm() {
+        async function createNewScheme() {
             const cid = store.state.currentCustomer.customerId.toString();
             const eid = store.state.user.eid;
             if (svcId === 0) {
@@ -362,14 +359,23 @@ export default defineComponent({
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
-                    if (scheme.value?.dirty) {
-                        await saveScheme();
-                    }
-                    await refPartsMenu.value?.showManifest(scheme2d.id, false);
+                    await refPartsMenu.value?.showManifest(scheme.value!.parts);
                     break;
                 case "offer":
                     if (scheme.value?.dirty) {
+                        // try {
+                        //     await ElMessageBox.confirm("报价前请先保存方案！", "温馨提示", {
+                        //         confirmButtonText: "保存方案",
+                        //         cancelButtonText: "不保存",
+                        //         type: "warning",
+                        //     });
+                        showSchemeSaveLoading();
                         await saveScheme();
+                        hideSchemeSaveLoading();
+                        // } catch (_) {
+                        //     ElMessage.warning("取消报价");
+                        //     break;
+                        // }
                     }
                     showOfferDlg.value = true;
                     store.commit("SET-DIRTY-SCHEME", { cid: scheme2d.cid, dirty: true });
@@ -405,6 +411,17 @@ export default defineComponent({
             setSchemeDirty,
             schemeDetailDirty,
             customizeMode,
+            customizeSize: computed<CustomizeSize | undefined>(() => {
+                const p = product.value;
+                if (isProduct(p)) {
+                    return undefined;
+                }
+                return {
+                    width: p.width,
+                    height: p.height,
+                    depth: p.depth,
+                };
+            }),
             selectedPart,
             selectedMetalPart,
             selectedPartId,
@@ -419,13 +436,10 @@ export default defineComponent({
                 }
             }),
             eventHandle,
-            state3D,
-            stateRuler,
-            stateSelect,
-            // stateMetals,
-            stateInOut,
+            // stateMetals,            stateInOut,
             inOutStates,
             showMenu,
+            collapseInfoMenu,
             mode,
             schemeMode,
             product,
@@ -436,6 +450,7 @@ export default defineComponent({
             showOfferDlg,
             showMetalsDlg,
             creatingScheme,
+            prepareContinue,
             customerName,
             titles: computed(() => {
                 let productName = "";
@@ -464,11 +479,14 @@ export default defineComponent({
                     return;
                 }
                 customizeMode.value = "new";
-                // onCustomizeConfirm();
-                showCustomizeDlg.value = true;
+                createNewScheme();
+                // showCustomizeDlg.value = true;
             },
-            continueEditScheme() {
+            async continueEditScheme() {
                 customizeMode.value = "continue";
+                prepareContinue.value = true;
+                await requestSchemeDetail();
+                prepareContinue.value = false;
                 gotoEditScheme();
             },
             copyScheme() {
@@ -480,43 +498,47 @@ export default defineComponent({
                     return;
                 }
                 customizeMode.value = "copy";
-                // onCustomizeConfirm();
-                showCustomizeDlg.value = true;
+                createNewScheme();
+                // showCustomizeDlg.value = true;
             },
-            onCustomizeConfirm,
+            onCustomizeConfirm(_size: CustomizeSize) {
+                _size;
+                showCustomizeDlg.value = false;
+                // TODO
+                ElMessage.warning("TODO：修改柜体尺寸");
+            },
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;
             },
             onPartsMenuAction,
             async gotoBack() {
                 if (scheme.value?.dirty) {
-                    showSchemeSaveLoading();
-                    await saveScheme();
-                    hideSchemeSaveLoading();
+                    try {
+                        await ElMessageBox.confirm("确认保存方案吗？", "温馨提示", {
+                            confirmButtonText: "保存方案",
+                            cancelButtonText: "不保存",
+                            type: "warning",
+                        });
+                        showSchemeSaveLoading();
+                        await saveScheme();
+                        hideSchemeSaveLoading();
+                    } catch (_) {
+                        requestScheme3D();
+                    }
                 }
                 if (schemeDetailDirty.value) {
                     requestSchemeDetail();
                 }
+
+                // reset states
+                stateInOut.value = "out";
+                resetGooeyMenu(gooeyMenuItems.value);
                 mode.value = "view";
             },
-            // onSaveClick() {},
-            // onOfferClick() {},
-            // onSelectAllClick() {
-            //     // stateSelect.value = stateSelect.value === "active" ? "" : "active";
-            // },
-            // onMetalsClick(val: string) {
-            //     // stateMetals.value = stateMetals.value === "active" ? "" : "active";
-            //     // showMenu.value = val === "active" ? true : false;
-            //     showMetalsDlg.value = !showMetalsDlg.value;
-            // },
-            onInOutChange(val: string) {
-                // showMenu.value = val === "active" ? true : false;
-                val;
+            onInOutChange(_val: string) {
+                _val;
                 showMenu.value = true;
             },
-            // onPartsClick(val: string) {
-            //     showMenu.value = !showMenu.value;
-            // },
             onPartSelect(part: Part, cat: PartCategory) {
                 if (!part.manifest) {
                     selectedMetalPart.value = part;
@@ -533,26 +555,12 @@ export default defineComponent({
                     catId: +cat.id,
                 };
             },
-            offerPrice: computed(() => {
-                const scheme = product.value as Scheme;
-
-                if (!scheme.offer) {
-                    return {
-                        integer: "",
-                        decimal: "",
-                    };
-                } else {
-                    return splitPrice(+scheme.offer);
-                }
-            }),
         };
     },
 });
 </script>
 
 <style scoped lang="scss">
-$infoWidthSmall: 328px;
-$infoWidthBig: 428px;
 .product-detail {
     position: relative;
     display: flex;
@@ -601,7 +609,7 @@ $infoWidthBig: 428px;
         position: absolute;
         top: 0px;
         bottom: 0px;
-        right: -345px;
+        right: -190px;
         white-space: nowrap;
         transition: right 0.3s ease;
     }
@@ -615,45 +623,9 @@ $infoWidthBig: 428px;
         bottom: 0px;
         right: 0px;
         padding: 0 20px;
-        // width: 428px;
-        width: $infoWidthBig;
         white-space: nowrap;
         text-align: center;
         background-color: white;
-        &-name,
-        &-offer {
-            font-size: 32px;
-            font-weight: bold;
-            color: black;
-            &-label {
-                font-size: 26px;
-            }
-            &-symbol {
-                color: #bb4050;
-                font-size: 19px;
-            }
-            &-offer {
-                color: #bb4050;
-                font-size: 41px;
-            }
-        }
-        &-name {
-            white-space: pre-wrap;
-        }
-        &-offer {
-            margin-top: 15px;
-        }
-
-        &-action {
-            margin-top: 42px;
-            text-align: center;
-            :deep(.el-button) {
-                display: block;
-                width: 220px;
-                margin-left: 0 !important;
-                margin-bottom: 40px;
-            }
-        }
     }
     &__action-left {
         position: absolute;
@@ -692,20 +664,17 @@ $infoWidthBig: 428px;
     }
 }
 
-@media (max-width: 1200px) {
+@media (min-width: 1150px) {
     .product-detail {
-        &__info {
-            width: $infoWidthSmall;
-        }
         &__menu2d {
             right: -270px;
         }
     }
 }
-@media (max-width: 1100px) {
+@media (min-width: 1366px) {
     .product-detail {
         &__menu2d {
-            right: -190px;
+            right: -345px;
         }
     }
 }

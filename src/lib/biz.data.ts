@@ -252,7 +252,7 @@ export class BizData {
             }
 
             // Find the door with same part and cube and combine index into it.
-            for (let door of this.scheme.doors) {
+            for (const door of this.scheme.doors) {
                 if (resDoor !== undefined) break;
 
                 if (door.partId === newPart.id) {
@@ -273,9 +273,7 @@ export class BizData {
                     id: cubeId,
                     index: [index],
                 };
-                resDoor = new Door(newDoorId, newPart.id, newPart.manifest, newPart.catId, size, door.doorType, [
-                    loc,
-                ]);
+                resDoor = new Door(newDoorId, newPart.id, newPart.manifest, newPart.catId, size, door.doorType, [loc]);
                 this.addDoor(resDoor);
             } else {
                 this.addPart(resDoor.partId);

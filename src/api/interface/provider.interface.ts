@@ -34,6 +34,15 @@ export interface Product {
     compostion: string;
     description: string;
     pic: string;
+    depth: number;
+    width: number;
+    height: number;
+    depthmax: number;
+    depthmin: number;
+    widthmax: number;
+    widthmin: number;
+    heightmax: number;
+    heightmin: number;
 }
 
 // export interface Category {
@@ -101,6 +110,15 @@ export interface Scheme {
     ptime: string;
     pic?: string;
     cover: string[];
+    depth: number;
+    width: number;
+    height: number;
+    pdepthmax: number;
+    pdepthmin: number;
+    pwidthmax: number;
+    pwidthmin: number;
+    pheightmax: number;
+    pheightmin: number;
 }
 
 export interface CreateSchemeResult {
@@ -228,7 +246,7 @@ export interface SchemeOffer {
 
 export interface ManifestPart {
     pname: string;
-    count: string;
+    count: number;
     pic: string;
     partid: number;
     type: "3d" | "2d"; // 配件类型（1 for 3d; 2 for 2d）
@@ -325,4 +343,5 @@ export default interface ApiProvider {
 
     requestSchemeOffer(schemeId: number | string): Promise<AjaxResponse<SchemeOffer>>;
     requestSchemeManifest(schemeId: number | string): Promise<AjaxResponse<SchemeManifest>>;
+    requestSchemeManifestV2(partIds: number[]): Promise<AjaxResponse<SchemeManifest>>;
 }

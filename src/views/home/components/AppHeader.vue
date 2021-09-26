@@ -166,7 +166,7 @@ export default defineComponent({
     &__username {
         margin-left: 7px;
         font-size: 22px;
-        color: #222222;
+        color: white;
     }
     &__job {
         margin-left: 11px;
@@ -177,7 +177,7 @@ export default defineComponent({
     &__logout {
         // margin-left: 14px;
         // color: inherit !important;
-        color: black !important;
+        color: white !important;
     }
 }
 </style>

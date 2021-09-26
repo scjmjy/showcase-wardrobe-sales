@@ -64,18 +64,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, ref } from "vue";
-import { LabelValue } from "@/api/interface/common.interfact";
-
-export interface MenuItem {
-    label?: string;
-    value: string | number;
-    icon: string;
-    active?: boolean;
-    type?: "menuitem" | "button";
-    onActive?: () => void;
-    onUnactive?: () => void;
-    onClick?: () => void;
-}
+import { MenuItem } from "./GooeyMenu.helper";
 
 export default defineComponent({
     name: "GooeyMenu",
