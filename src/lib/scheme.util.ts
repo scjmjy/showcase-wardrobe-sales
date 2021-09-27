@@ -11,6 +11,7 @@ import {
     RelativeItem,
     Location,
     DoorLocation,
+    Config,
 } from "@/lib/scheme";
 import request from "@/utils/request";
 import apiProvider from "@/api/provider";
@@ -44,6 +45,34 @@ export function importSchemeJson(url: string): Promise<Scheme> {
         })
             .then((res) => {
                 const mf = res.data;
+                console.log(mf);
+
+                let config: Config | null = null;
+                if (mf.config !== undefined) {
+                    let cubeSize = null;
+                    let standardCube = null;
+                    if (mf.config.cubeSize !== undefined) {
+                        cubeSize = {
+                            top: mf.config.cubeSize.top,
+                            bottom: mf.config.cubeSize.bottom,
+                            left: mf.config.cubeSize.left,
+                            right: mf.config.cubeSize.right,
+                            back: mf.config.cubeSize.back,
+                        };
+                    }
+
+                    if (mf.config.standardCube !== undefined) {
+                        const size = mf.config.standardCube.size;
+                        standardCube = {
+                            partId: mf.config.standardCube.partId,
+                            catId: mf.config.standardCube.catId,
+                            manifest: mf.config.standardCube.manifest,
+                            size: new Size(size.x, size.y, size.z),
+                        };
+                    }
+
+                    config = new Config(cubeSize, standardCube);
+                }
 
                 const background: SchemeObject[] = [];
                 mf.manifest.background.forEach((element: any) => {
@@ -99,7 +128,7 @@ export function importSchemeJson(url: string): Promise<Scheme> {
                 const doors: Door[] = [];
                 mf.manifest.doors.forEach((door: any) => {
                     const locations: DoorLocation[] = [];
-                    door.cubes.forEach((location: any) => {
+                    door.locations.forEach((location: any) => {
                         const indexArr: number[] = [];
                         location.index.forEach((doorIndex: number) => {
                             indexArr.push(doorIndex);
@@ -131,7 +160,7 @@ export function importSchemeJson(url: string): Promise<Scheme> {
                     parts.push(newPart);
                 });
 
-                const scheme = new Scheme(background, cubes, doors, parts);
+                const scheme = new Scheme(config, background, cubes, doors, parts);
                 resolve(scheme);
             })
             .catch((err) => {

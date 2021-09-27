@@ -1,5 +1,4 @@
 import { Scheme, Cube, Item, Door, Part, PartType, Size, DoorLocation } from "@/lib/scheme";
-import { StObject } from "./utility/st_object";
 import { v4 as uuidv4 } from "uuid";
 
 export const ObjectType = {
@@ -96,8 +95,8 @@ export class BizData {
         this.scheme.dirty = true;
     }
 
-    addCube(newCube: Cube, isFirstCube: boolean): void {
-        if (isFirstCube) {
+    addCube(newCube: Cube, addToLeft: boolean): void {
+        if (addToLeft) {
             this.startX += newCube.size.x;
             this.scheme.cubes.unshift(newCube);
         } else {

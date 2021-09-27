@@ -502,10 +502,8 @@ export default defineComponent({
                 // showCustomizeDlg.value = true;
             },
             onCustomizeConfirm(_size: CustomizeSize) {
-                _size;
                 showCustomizeDlg.value = false;
-                // TODO
-                ElMessage.warning("TODO：修改柜体尺寸");
+                refBabylon.value?.changeSchemeSize(_size.width, _size.height, _size.depth);
             },
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;

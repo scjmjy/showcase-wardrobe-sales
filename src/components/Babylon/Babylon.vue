@@ -154,7 +154,7 @@ export default defineComponent({
                         // TODO: remove the hardcode of adjusting whether it is a cube or door.
                         if (newPart.catId === 20) {
                             // TODO: remove the function of adding new cube.
-                            this.ShowCubeAddArea(newPart);
+                            // this.ShowCubeAddArea(newPart);
                             // Change all cubes if no cube is selected.
                             this.changeAllCubes(newPart);
                         } else if (newPart.catId === 2 || newPart.catId === 3) {
@@ -301,6 +301,77 @@ export default defineComponent({
                     }
                 }
             });
+        },
+
+        // Change scheme size
+        changeSchemeSize(width: number, height: number, depth: number) {
+            height;
+            depth;
+            if (this.scheme.config === null || this.scheme.config.standardCube === null) return;
+
+            const standardCube = this.scheme.config.standardCube;
+            if (width * 0.01 > this.bizdata.totalWidth) {
+                const cubeNum = Math.floor((width * 0.01 - this.bizdata.totalWidth) / standardCube.size.x);
+                const manifest = standardCube.manifest;
+                for (let i = 0; i < cubeNum; i++) {
+                    request({
+                        url: this.baseOSSUrl + standardCube.manifest,
+                        method: "GET",
+                        responseType: "json",
+                    })
+                        .then((res) => {
+                            const leftRight = i % 2;
+                            const addToLeft = leftRight === 0;
+                            const index = Math.floor(i / 2);
+
+                            const cubeMf = res.data;
+                            const cubeUUID = uuidv4();
+                            const originX = addToLeft
+                                ? this.bizdata.startX + standardCube.size.x * (index + 0.5)
+                                : this.bizdata.endX - standardCube.size.x * (index + 0.5);
+                            const itemOrigin = new BABYLON.Vector3(originX, 0, 0);
+
+                            // TODO: create a parent mesh to contain all import meshes.
+                            cubeMf.models.forEach((model: any) => {
+                                const modelPos = new BABYLON.Vector3(
+                                    itemOrigin.x + model.position.x,
+                                    itemOrigin.y + model.position.y,
+                                    itemOrigin.z + model.position.z,
+                                );
+                                const modelScaling = new BABYLON.Vector3(
+                                    model.scaling.x,
+                                    model.scaling.y,
+                                    model.scaling.z,
+                                );
+                                const itemName = ObjectType.CUBE + "_" + cubeUUID;
+                                const modelUrl = this.baseOSSUrl + model.url;
+                                this.graphics.importMesh(
+                                    modelUrl,
+                                    itemName,
+                                    modelPos,
+                                    BABYLON.Vector3.Zero(),
+                                    modelScaling,
+                                );
+                            });
+
+                            const partId = standardCube.partId;
+                            const catId = standardCube.catId;
+
+                            const size = new Size(standardCube.size.x, standardCube.size.y, standardCube.size.z);
+
+                            const items: Item[] = [];
+                            const newCube = new Cube(cubeUUID, partId, manifest, catId, size, items);
+                            this.bizdata.addCube(newCube, addToLeft);
+                        })
+                        .catch(() => {
+                            throw Error(`Require manifest by error: ${manifest}`);
+                        });
+                }
+            } else {
+                // const cubeNum = Math.floor((this.bizdata.totalWidth - width * 0.01) / standardCube.size.x);
+                // for (let i = 0; i < cubeNum; i++) {
+                // }
+            }
         },
 
         /**
@@ -748,7 +819,7 @@ export default defineComponent({
                 // console.log("Object unselected: ", data.name);
 
                 const info = data.name.split("_");
-                const objectType = info[0];
+                // const objectType = info[0];
                 const id = info[1];
                 switch (info[0]) {
                     case ObjectType.CUBE:

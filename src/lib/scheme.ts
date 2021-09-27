@@ -131,13 +131,15 @@ export class Part {
 }
 
 export class Scheme {
+    config: Config | null;
     background: SchemeObject[]; // wall(只需要正面墙)，floor
     cubes: Cube[]; // 从左到右排列
     doors: Door[];
     parts: Part[];
     dirty: boolean;
 
-    constructor(background: SchemeObject[], cubes: Cube[], doors: Door[], parts: Part[]) {
+    constructor(config: Config | null, background: SchemeObject[], cubes: Cube[], doors: Door[], parts: Part[]) {
+        this.config = config;
         this.background = background;
         this.cubes = cubes;
         this.doors = doors;
@@ -175,4 +177,29 @@ export interface PartType {
     depth: number;
     manifest: string;
     catId: number;
+}
+
+export type CubeSize = {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+    back: number;
+};
+
+export type StandardCube = {
+    partId: number;
+    catId: number;
+    manifest: string;
+    size: Size;
+};
+
+export class Config {
+    cubeSize: CubeSize | null;
+    standardCube: StandardCube | null;
+
+    constructor(cubeSize: CubeSize | null, standardCube: StandardCube | null) {
+        this.cubeSize = cubeSize;
+        this.standardCube = standardCube;
+    }
 }
