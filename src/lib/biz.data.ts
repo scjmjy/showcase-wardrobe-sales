@@ -31,47 +31,10 @@ export class BizData {
     public totalHeight = 0;
     public totalDepth = 0;
     public cubeMap: Map<string, CubeData>;
-    public partManifestMap: Map<string, string>;
 
     constructor(scheme: Scheme) {
         this.scheme = scheme;
         this.cubeMap = new Map<string, CubeData>();
-        this.partManifestMap = new Map<string, string>();
-
-        // TODO: get the map of partId & manifest from backend.
-        this.partManifestMap.set(
-            "100001",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/69771f55-f709-4f9b-96b6-0af6eafc4a26.jpg",
-        );
-        this.partManifestMap.set(
-            "100002",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/d8282dee-13f2-4884-99c0-5d56962d95ac.jpg",
-        );
-        this.partManifestMap.set(
-            "100003",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/d6733d2b-a73f-449f-aec9-4da25a980e30.jpg",
-        );
-        this.partManifestMap.set(
-            "100004",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/d6505e88-aa64-4ce8-adae-2b62796d9397.jpg",
-        );
-
-        this.partManifestMap.set(
-            "110001",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/00ac1404-b1c5-4a88-bc5c-2fe1480d9e30.jpg",
-        );
-        this.partManifestMap.set(
-            "110002",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/97b67520-88f8-4b92-ae9a-e39c4e641215.jpg",
-        );
-        this.partManifestMap.set(
-            "110003",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/cc720923-b9d4-4ad1-af1e-db98151cacec.jpg",
-        );
-        this.partManifestMap.set(
-            "110004",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/dc5eb19b-2879-47fe-a517-720b39e0f445.jpg",
-        );
     }
 
     addPart(partId: number): void {
@@ -95,7 +58,7 @@ export class BizData {
         this.scheme.dirty = true;
     }
 
-    addCube(newCube: Cube, addToLeft: boolean): void {
+    addCube(newCube: Cube, addToLeft = false): void {
         if (addToLeft) {
             this.startX += newCube.size.x;
             this.scheme.cubes.unshift(newCube);
@@ -336,16 +299,11 @@ export class BizData {
         return data;
     }
 
-    findCubeItems(id: string): Item[] | null {
-        let cube: Cube | null = null;
-        for (const c of this.scheme.cubes) {
-            if (c.id == id) {
-                cube = c;
-                break;
-            }
-        }
-        if (!cube) return null;
-        return cube.items;
+    findItemsByCubeId(id: string): Item[] {
+        let items: Item[] = [];
+        const cube = this.findCubeById(id);
+        if (cube !== undefined) items = cube.items;
+        return items;
     }
 
     findDoorsByCubeId(cubeId: string): Door[] {

@@ -170,13 +170,20 @@ export function importSchemeJson(url: string): Promise<Scheme> {
 }
 
 function scheme2manifest(scheme: Scheme) {
+    let config = null;
+    if (scheme.config !== null) {
+        config = {
+            cubeSize: scheme.config.cubeSize,
+            standardCube: scheme.config.standardCube,
+        };
+    }
     const manifest = {
         background: scheme.background,
         cubes: scheme.cubes,
         doors: scheme.doors,
     };
     const composition = scheme.parts.filter((p) => p.count > 0);
-    const mf = { manifest, composition };
+    const mf = { config, manifest, composition };
     return JSON.stringify(mf, undefined, 4);
 }
 

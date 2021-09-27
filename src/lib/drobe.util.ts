@@ -9,10 +9,9 @@
  */
 
 import * as BABYLON from "babylonjs";
-import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
-import { Area, Door, Position, Scheme } from "@/lib/scheme";
+import { Area, Door, Position, Item } from "@/lib/scheme";
 import { StObject } from "@/lib/utility/st_object";
 import { StSketchVector3 } from "./geometry/st_geometric_3d";
 import { BizData, CubeData, ObjectType } from "@/lib/biz.data";
@@ -163,13 +162,13 @@ class DrobeUtil extends StObject {
 
     private _findCubeOccupied(bizdata: BizData, id: string, cube: CubeData): StSketchRect[] {
         const rects: StSketchRect[] = [];
-        const items = bizdata.findCubeItems(id);
+        const items = bizdata.findItemsByCubeId(id);
         const cube_lb = this._findCubeLeftBottom(cube);
-        if (items == null || items.length == 0) {
+        if (items.length == 0) {
             console.log(`Find NONE occupied rect!`);
             return rects;
         }
-        items.forEach((e) => {
+        items.forEach((e: Item) => {
             // const mf = HmPartManifest.buildFromUrl(e.manifest) as HmPartManifest;
             this.assertValid(e.location);
             this.assertValid(e.location!.startPos);
@@ -212,14 +211,6 @@ class DrobeUtil extends StObject {
     ): Area[] {
         const part_size = new StVector(part.width, part.height);
         return this._calcAvailableArea(bizdata, part_size);
-    }
-
-    getAvailableAreaById(bizdata: BizData, part_id: string): Area[] {
-        const mf_url = bizdata.partManifestMap.get(`${part_id}`);
-        if (!mf_url) {
-            throw Error(`NO manifest is found by ID; ${part_id}`);
-        }
-        return this.getAvailableAreaByMfUrl(bizdata, mf_url);
     }
 
     /**

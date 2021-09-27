@@ -191,13 +191,12 @@ export default defineComponent({
     methods: {
         /**
          * 修改墙面
-         * @param newPartId
          */
-        changeWallApi(newPartId: number): void {
+        changeWallApi(partType: PartType): void {
             const wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            const temp = this.bizdata.partManifestMap.get(newPartId.toString());
-            const texture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
+            const url = this.baseOSSUrl + partType.manifest;
+            const texture = new BABYLON.Texture(url, this.graphics.scene as BABYLON.Scene);
             texture.uScale = 1;
             texture.vScale = 1;
             wall_material.diffuseTexture = texture;
@@ -206,13 +205,12 @@ export default defineComponent({
 
         /**
          * 修改地板
-         * @param newPartId
          */
-        changeFloorApi(newPartId: number): void {
+        changeFloorApi(partType: PartType): void {
             const floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            const temp = this.bizdata.partManifestMap.get(newPartId.toString());
-            const texture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
+            const url = this.baseOSSUrl + partType.manifest;
+            const texture = new BABYLON.Texture(url, this.graphics.scene as BABYLON.Scene);
             texture.uScale = 2;
             texture.vScale = 2;
             floor_material.diffuseTexture = texture;
@@ -284,6 +282,29 @@ export default defineComponent({
             }
         },
 
+        // Remove cube and its relatived items and doors.
+        // TODO: re-arrage the position of other cubes if removing middle cube.
+        removeCubeApi(cube: Cube): void {
+            const items = this.bizdata.findItemsByCubeId(cube.id);
+            const itemNum = items.length;
+            for (let i = itemNum - 1; i >= 0; i--) {
+                this.removeItemApi(items[i]);
+            }
+
+            const doors = this.bizdata.findDoorsByCubeId(cube.id);
+            const doorNum = doors.length;
+            for (let i = doorNum - 1; i >= 0; i--) {
+                this.removeDoorApi(doors[i]);
+            }
+
+            const meshName = ObjectType.CUBE + "_" + cube.id;
+            const mesh = this.graphics.scene.getMeshByName(meshName);
+            if (mesh !== null) {
+                mesh.dispose();
+                this.bizdata.removeCube(cube.id);
+            }
+        },
+
         changeAllCubes(newPart: PartType): void {
             this.graphics.scene.meshes.forEach((mesh) => {
                 const info = mesh.name.split("_");
@@ -311,7 +332,8 @@ export default defineComponent({
 
             const standardCube = this.scheme.config.standardCube;
             if (width * 0.01 > this.bizdata.totalWidth) {
-                const cubeNum = Math.floor((width * 0.01 - this.bizdata.totalWidth) / standardCube.size.x);
+                const endX = this.bizdata.endX;
+                const cubeNum = Math.round((width * 0.01 - this.bizdata.totalWidth) / standardCube.size.x);
                 const manifest = standardCube.manifest;
                 for (let i = 0; i < cubeNum; i++) {
                     request({
@@ -320,15 +342,9 @@ export default defineComponent({
                         responseType: "json",
                     })
                         .then((res) => {
-                            const leftRight = i % 2;
-                            const addToLeft = leftRight === 0;
-                            const index = Math.floor(i / 2);
-
                             const cubeMf = res.data;
                             const cubeUUID = uuidv4();
-                            const originX = addToLeft
-                                ? this.bizdata.startX + standardCube.size.x * (index + 0.5)
-                                : this.bizdata.endX - standardCube.size.x * (index + 0.5);
+                            const originX = endX - standardCube.size.x * (i + 0.5);
                             const itemOrigin = new BABYLON.Vector3(originX, 0, 0);
 
                             // TODO: create a parent mesh to contain all import meshes.
@@ -356,38 +372,42 @@ export default defineComponent({
 
                             const partId = standardCube.partId;
                             const catId = standardCube.catId;
-
                             const size = new Size(standardCube.size.x, standardCube.size.y, standardCube.size.z);
-
                             const items: Item[] = [];
                             const newCube = new Cube(cubeUUID, partId, manifest, catId, size, items);
-                            this.bizdata.addCube(newCube, addToLeft);
+                            this.bizdata.addCube(newCube);
                         })
                         .catch(() => {
                             throw Error(`Require manifest by error: ${manifest}`);
                         });
                 }
             } else {
-                // const cubeNum = Math.floor((this.bizdata.totalWidth - width * 0.01) / standardCube.size.x);
-                // for (let i = 0; i < cubeNum; i++) {
-                // }
+                const cubeNum = Math.round((this.bizdata.totalWidth - width * 0.01) / standardCube.size.x);
+                for (let i = 0; i < cubeNum; i++) {
+                    const cube = this.scheme.cubes[this.scheme.cubes.length - 1];
+                    this.removeCubeApi(cube);
+                }
             }
         },
 
         /**
          * 增加一个item
-         * @param newItem 增加的Item
          */
-        addItemApi(newItem: Item): void {
-            newItem;
+        addItemApi(item: Item): void {
+            item;
         },
 
         /**
-         * 移除多个items
-         * @param itemIds 被移除item的uuid列表
+         * 移除item
+         * @param itemId 被移除item的uuid
          */
-        removeItemsApi(itemIds: string[]): void {
-            itemIds;
+        removeItemApi(item: Item): void {
+            const meshName = ObjectType.ITEM + "_" + item.id;
+            const mesh = this.graphics.scene.getMeshByName(meshName);
+            if (mesh !== null) {
+                mesh.dispose();
+                this.bizdata.removeItem(item.id);
+            }
         },
 
         /**
@@ -519,15 +539,20 @@ export default defineComponent({
          */
         removeDoorApi(door: Door): void {
             const doorName = ObjectType.DOOR + "_" + door.id;
+            const meshes: BABYLON.AbstractMesh[] = [];
             this.graphics.scene.meshes.forEach((mesh) => {
                 if (mesh.name.startsWith(doorName)) {
-                    mesh.dispose();
-
-                    const doorInfo = mesh.name.split("_");
-                    const index = parseInt(doorInfo[2]);
-                    this.bizdata.removeDoor(door.id, index);
+                    meshes.push(mesh);
                 }
             });
+
+            for (const mesh of meshes) {
+                const doorInfo = mesh.name.split("_");
+                const index = parseInt(doorInfo[2]);
+                this.bizdata.removeDoor(door.id, index);
+
+                mesh.dispose();
+            }
         },
 
         /**
@@ -1061,11 +1086,6 @@ export default defineComponent({
             this.availableAreas.push(cubeArea2);
         },
 
-        getAvailableArea(partId: string): Area[] {
-            const biz: BizData = this.bizdata as BizData;
-            return drobeUtil.getAvailableAreaById(biz, partId);
-        },
-
         getAvailableAreaByPart(part: PartType): Area[] {
             const biz: BizData = this.bizdata as BizData;
             return drobeUtil.getAvailableAreaByPart(biz, part);
@@ -1102,10 +1122,10 @@ export default defineComponent({
                                         responseType: "json",
                                     })
                                         .then((res) => {
-                                            const isFirstCube = cubeId === "StartCube";
+                                            const addToLeft = cubeId === "StartCube";
                                             const cubeMf = res.data;
                                             const cubeUUID = uuidv4();
-                                            const originX = isFirstCube
+                                            const originX = addToLeft
                                                 ? this.bizdata.startX + this.newPart.width * 0.5
                                                 : this.bizdata.endX - this.newPart.width * 0.5;
                                             const itemOrigin = new BABYLON.Vector3(originX, 0, 0);
@@ -1143,7 +1163,7 @@ export default defineComponent({
 
                                             const items: Item[] = [];
                                             const newCube = new Cube(cubeUUID, partId, manifest, catId, size, items);
-                                            this.bizdata.addCube(newCube, isFirstCube);
+                                            this.bizdata.addCube(newCube, addToLeft);
                                         })
                                         .catch(() => {
                                             throw Error(`Require manifest by error: ${manifest}`);
@@ -1247,6 +1267,7 @@ export default defineComponent({
                         switch (kbInfo.event.key) {
                             case "5":
                                 console.log("Log Scheme: ", this.scheme);
+                                console.log("Log Scene: ", this.graphics.scene);
                                 break;
                         }
                         break;
