@@ -181,6 +181,8 @@ export default defineComponent({
         this.graphics.init(7.5 * this.bizdata.SceneUnit);
         this.graphics.render();
 
+        this.graphics.setBackgroundColor( BABYLON.Color4.FromHexString("#F2F4F0FF") );
+
         this.setupInteraction();
         this.setupKeyboard();
         this.handleGraphicsEvent(this.graphics);
