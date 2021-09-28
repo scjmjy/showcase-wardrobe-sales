@@ -253,6 +253,14 @@ export interface ManifestPart {
 }
 
 export type SchemeManifest = ManifestPart[];
+
+export interface VisitorRecordItem {
+    no: string;
+    customerName: string;
+    etime?: string;
+    ltime?: string;
+}
+
 export default interface ApiProvider {
     /**
      * 登录接口
@@ -287,7 +295,7 @@ export default interface ApiProvider {
      */
     createCustomer(name: string, phone?: string): Promise<AjaxResponse<string>>;
 
-    requestCustomerList(uid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Customer[]>>;
+    requestCustomerList(eid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Customer[]>>;
 
     createNewService(eid: string | number, cid: string | number): Promise<AjaxResponse<Service>>;
     /**
@@ -344,4 +352,13 @@ export default interface ApiProvider {
     requestSchemeOffer(schemeId: number | string): Promise<AjaxResponse<SchemeOffer>>;
     requestSchemeManifest(schemeId: number | string): Promise<AjaxResponse<SchemeManifest>>;
     requestSchemeManifestV2(partIds: number[]): Promise<AjaxResponse<SchemeManifest>>;
+
+    requestVisitorRecordList(
+        eid: number | string,
+        pageNum: number,
+        pageSize: number,
+    ): Promise<AjaxResponse<VisitorRecordItem[]>>;
+    recordVisitor(eid: number | string): Promise<AjaxResponse<string>>;
+    updateVisitorItem(item: VisitorRecordItem): Promise<AjaxResponse<boolean>>;
+    deleteVisitorItem(no: string): Promise<AjaxResponse<boolean>>;
 }

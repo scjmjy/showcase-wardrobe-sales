@@ -51,10 +51,13 @@ export default class PageScroll<T> {
         public pageSize = 10,
         public reachBottomOffset = 40,
     ) {}
-    requestPage() {
+    /**
+     * 请求数据，如果当前页已满，则请求的是下一页；否则请求当前页的数据
+     */
+    doRequestPage() {
         // nomore 说明 currentPage 还没有满足 pageSize 个数据，所以不用 + 1
         this.loadState.value = "loading";
-        this.requestApi(this.nextRequestPage, this.pageSize)
+        return this.requestApi(this.nextRequestPage, this.pageSize)
             .then((res) => {
                 if (res.ok) {
                     let result = res.data || [];
@@ -94,6 +97,24 @@ export default class PageScroll<T> {
                 this.handlers && this.handlers.onDataFinish && this.handlers.onDataFinish();
             });
     }
+    requestPageIfAllowed() {
+        if (["nomore", "loading", "empty"].includes(this.loadState.value)) {
+            return;
+        }
+        return this.doRequestPage();
+    }
+    requestPageForced() {
+        if (this.loadState.value !== "loading") {
+            this.loadState.value = "more";
+            return this.doRequestPage();
+        }
+    }
+    requestPageIfNeed() {
+        if (this.loadState.value !== "loading") {
+            this.loadState.value = "more";
+            this.onScroll();
+        }
+    }
     reload(delay?: number) {
         this.currentPage = 0;
         this.nextRequestPage = 1;
@@ -103,28 +124,19 @@ export default class PageScroll<T> {
             this.loadState.value = "";
             if (delay) {
                 setTimeout(() => {
-                    this.requestPage();
+                    this.doRequestPage();
                 }, delay);
             } else {
-                this.requestPage();
+                this.doRequestPage();
             }
         });
-    }
-    reloadCurrentPage() {
-        if (this.loadState.value !== "loading") {
-            this.loadState.value = "more";
-            this.onScroll();
-        }
     }
     onScroll() {
         if (!this.el) {
             return;
         }
         checkReachBottom(this.el, () => {
-            if (["nomore", "loading", "empty"].includes(this.loadState.value)) {
-                return;
-            }
-            this.requestPage();
+            this.requestPageIfAllowed();
         });
     }
 }

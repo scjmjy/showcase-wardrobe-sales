@@ -12,8 +12,8 @@
                 <el-empty></el-empty>
             </div>
             <!-- use v-show because of PageScroll -->
-            <div v-show="services.length !== 0" class="customer-list__list">
-                <el-collapse ref="elScroll" v-model="openedServices" @change="handleOpenedChange" @scroll="onScroll">
+            <div v-show="services.length !== 0" ref="elScroll" class="customer-list__list" @scroll="onScroll">
+                <el-collapse v-model="openedServices" @change="handleOpenedChange">
                     <el-collapse-item :name="svc.no" v-for="svc of services" :key="svc.id">
                         <template #title>
                             <div class="service">
@@ -40,21 +40,14 @@
 import { computed, defineComponent, reactive, ref, nextTick, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { ElRow } from "element-plus";
 import { StateType } from "@/store";
 import apiProvider from "@/api/provider";
 import { Service, Scheme } from "@/api/interface/provider.interface";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 import LoadMore from "@/components/LoadMore.vue";
-// import NewSchemeCard from "./components/NewSchemeCard.vue";
 import CustomerMenu from "./components/CustomerMenu.vue";
 import SchemeList from "./components/SchemeList.vue";
-
-// interface SortedSchemes {
-//     date: string;
-//     schemes: Scheme[];
-// }
 
 export default defineComponent({
     name: "CustomerList",
@@ -69,14 +62,11 @@ export default defineComponent({
         AppHeader,
         SchemeList,
         LoadMore,
-        // NewSchemeCard,
-        // SchemeCard,
     },
     setup(props) {
         const router = useRouter();
         const store = useStore<StateType>();
         const openedServices = ref<string[]>();
-        // const schemeList = ref([] as Scheme[]);
         const services = ref<Service[]>([]);
         const customerId = ref("");
         const loadingSchemeList = ref(false);
@@ -86,7 +76,7 @@ export default defineComponent({
         const refMenu = ref<InstanceType<typeof CustomerMenu>>();
         const refSchemeList = ref<HTMLDivElement>();
 
-        const elScroll = ref<InstanceType<typeof ElRow>>();
+        const elScroll = ref<HTMLDivElement>();
         const loadState = ref<LOAD_STATE>("");
         const pageScroll = new PageScroll(undefined, requestApi, loadState, services, {
             beforeDataHandler(result) {
@@ -99,7 +89,7 @@ export default defineComponent({
                 // 初始化 pageScroll.el
                 if (!pageScroll.el) {
                     await nextTick();
-                    const el = elScroll.value?.$el as HTMLElement;
+                    const el = elScroll.value as HTMLElement;
                     pageScroll.el = el;
                 }
             },

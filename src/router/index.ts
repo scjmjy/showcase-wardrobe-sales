@@ -8,6 +8,7 @@ import SelectProduct from "@/views/product/select-product.vue";
 import ProductDetail from "@/views/product/product-detail.vue";
 import SchemeDetail from "@/views/product/scheme-detail.vue";
 import CustomerList from "@/views/customers/customer-list.vue";
+import VisitorRecord from "@/views/tools/visitor-record.vue";
 import DemoModel from "@/views/demo/demo-model.vue";
 import DemoCube from "@/views/demo/demo-cube.vue";
 import DemoStorage from "@/views/demo/demo-storage.vue";
@@ -18,7 +19,6 @@ import DemoDemo3 from "@/views/demo/demo-demo3.vue";
 import StBuild3d from "@/views/demo/StBuild3d.vue";
 import StDisplay3D from "@/views/demo/StDisplay3D.vue";
 import StGeometry2dTest from "@/views/demo/StGeometry2dTest.vue";
-
 const routes: Array<RouteRecordRaw> = [
     { path: "/demo/build3d", name: "Build 3D", component: StBuild3d },
     { path: "/demo/display3d", name: "Display 3D", component: StDisplay3D },
@@ -53,6 +53,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "/customers",
         name: "CustomerList",
         component: CustomerList,
+    },
+    {
+        path: "/visitor-record",
+        name: "VisitorRecord",
+        component: VisitorRecord,
     },
     {
         path: "/demo-model",
