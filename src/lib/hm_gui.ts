@@ -94,9 +94,9 @@ export class PopupGUI {
     }
 
     private drawRuler(graphics: Graphics, length: number, center: Vector3, direction: Vector3, title = ""): void {
-        const distance = 0.05;
+        const distance = 0.15;
         const heightValue = 1 * 0.054;
-        const halfHeightValue = heightValue * 0.0005;
+        const halfHeightValue = heightValue * 0.15;
         const widthValue = 0.2 * 0.054;
         const endPointLength = 0.5 * 0.054;
 
@@ -140,7 +140,10 @@ export class PopupGUI {
         this._popupUI.addControl(lengthText);
         lengthText.linkWithMesh(frameRulerMiddle);
         lengthText.linkOffsetYInPixels = -20;
-        if (!title.startsWith("width")) lengthText.linkOffsetXInPixels = 45;
+        if (!title.startsWith("width")){
+            lengthText.linkOffsetXInPixels = 75;
+            lengthText.linkOffsetYInPixels = -35;
+        } 
         lengthText.isVisible = true;
 
         if (title.startsWith("height")) {
@@ -221,6 +224,10 @@ export class PopupGUI {
 
             frameRulerTop.position.z += -length / 2 + halfHeightValue;
             frameRulerDown.position.z += length / 2 - halfHeightValue;
+
+            frameRulerTop.position.x -= distance / 2;
+            frameRulerMiddle.position.x -= distance / 2;
+            frameRulerDown.position.x -= distance / 2;
         }
         const frameRulerMat = new BABYLON.StandardMaterial("frameRulerMat", graphics.scene);
         frameRulerMat.emissiveColor = new BABYLON.Color3(0.0, 0.0, 0.0);

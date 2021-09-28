@@ -1298,21 +1298,21 @@ export default defineComponent({
             // this.floor.receiveShadows = true;
 
             // Wall
-            this.wall = BABYLON.MeshBuilder.CreateBox(
-                "Background_Wall",
-                { width: 5.0, height: 3.0, depth: 0.01 },
-                this.graphics.scene as BABYLON.Scene,
-            );
-            this.wall.position = new BABYLON.Vector3(0, 1.5, -0.31);
+            // this.wall = BABYLON.MeshBuilder.CreateBox(
+            //     "Background_Wall",
+            //     { width: 5.0, height: 3.0, depth: 0.01 },
+            //     this.graphics.scene as BABYLON.Scene,
+            // );
+            // this.wall.position = new BABYLON.Vector3(0, 1.5, -0.31);
 
-            var wall_material = new BABYLON.StandardMaterial("groundMaterial", this.graphics.scene as BABYLON.Scene);
-            wall_material.diffuseTexture = new BABYLON.Texture(
-                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/wall/5214664c-4422-4c84-8f2b-7fa1e9c67426.jpg",
-                this.graphics.scene as BABYLON.Scene,
-            );
-            this.wall.material = wall_material;
-            this.wall.isPickable = false;
-            this.wall.receiveShadows = true;
+            // var wall_material = new BABYLON.StandardMaterial("groundMaterial", this.graphics.scene as BABYLON.Scene);
+            // wall_material.diffuseTexture = new BABYLON.Texture(
+            //     "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/wall/5214664c-4422-4c84-8f2b-7fa1e9c67426.jpg",
+            //     this.graphics.scene as BABYLON.Scene,
+            // );
+            // this.wall.material = wall_material;
+            // this.wall.isPickable = false;
+            // this.wall.receiveShadows = true;
         },
 
         CreateReferenceRuler(showRuler: boolean): void {
