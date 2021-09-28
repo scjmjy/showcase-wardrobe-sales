@@ -242,8 +242,10 @@ export default defineComponent({
                 if (scheme.value) {
                     scheme.value = s;
                     // TODO reload scheme
-                    refBabylon.value?.reloadScheme();
-                    ElMessage.warning("TODO：重新加载之前的方案");
+                    nextTick(() => {
+                        refBabylon.value?.reloadScheme();
+                        ElMessage.warning("TODO：重新加载之前的方案");
+                    });
                 } else {
                     scheme.value = s;
                     nextTick(() => {
