@@ -2,7 +2,7 @@ import * as BABYLON from "babylonjs";
 import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
-import { BizData, CubeData, ObjectType } from "@/lib/biz.data";
+import { BizData, ObjectType } from "@/lib/biz.data";
 import { Vector3 } from "babylonjs/Maths/math.vector";
 
 export class PopupGUI {
@@ -140,10 +140,10 @@ export class PopupGUI {
         this._popupUI.addControl(lengthText);
         lengthText.linkWithMesh(frameRulerMiddle);
         lengthText.linkOffsetYInPixels = -20;
-        if (!title.startsWith("width")){
+        if (!title.startsWith("width")) {
             lengthText.linkOffsetXInPixels = 75;
             lengthText.linkOffsetYInPixels = -35;
-        } 
+        }
         lengthText.isVisible = true;
 
         if (title.startsWith("height")) {

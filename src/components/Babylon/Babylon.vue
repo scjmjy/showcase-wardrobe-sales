@@ -67,6 +67,8 @@ export default defineComponent({
             floor: {} as BABYLON.Mesh,
             wall: {} as BABYLON.Mesh,
             newPart: {} as PartType,
+            schemeModelCount: 0,
+            loadedModelCount: 0,
         };
     },
     computed: {
@@ -376,6 +378,8 @@ export default defineComponent({
                             const items: Item[] = [];
                             const newCube = new Cube(cubeUUID, partId, manifest, catId, size, items);
                             this.bizdata.addCube(newCube);
+
+                            this.adjustCamera();
                         })
                         .catch(() => {
                             throw Error(`Require manifest by error: ${manifest}`);
@@ -387,6 +391,8 @@ export default defineComponent({
                     const cube = this.scheme.cubes[this.scheme.cubes.length - 1];
                     this.removeCubeApi(cube);
                 }
+
+                this.adjustCamera();
             }
         },
 
@@ -480,7 +486,7 @@ export default defineComponent({
          * 增加一组合页门或者滑门
          * @param newDoor 新增加的Door
          */
-        addDoorApi(newDoor: Door, isPickable = true, updateBizdata = true): void {
+        addDoorApi(newDoor: Door, isPickable = true, loadingSheme = false): void {
             request({
                 url: this.baseOSSUrl + newDoor.manifest,
                 method: "GET",
@@ -495,6 +501,8 @@ export default defineComponent({
                         if (cubeData === undefined) {
                             throw Error(`cannot find cube data by id: ${cubeId}`);
                         } else {
+                            this.schemeModelCount += location.index.length;
+
                             location.index.forEach((index) => {
                                 const doorPosX = cubeData.origin.x + cubeData.width * 0.5 - doorWidth * (index + 0.5);
                                 const doorPosY = 0.03;
@@ -512,17 +520,22 @@ export default defineComponent({
                                 );
                                 const doorName = ObjectType.DOOR + "_" + newDoor.id + "_" + index;
                                 const modelUrl = this.baseOSSUrl + model.url;
-                                this.graphics.importMesh(
-                                    modelUrl,
-                                    doorName,
-                                    modelPos,
-                                    BABYLON.Vector3.Zero(),
-                                    modelScaling,
-                                    isPickable,
-                                );
+                                this.graphics
+                                    .importMesh(
+                                        modelUrl,
+                                        doorName,
+                                        modelPos,
+                                        BABYLON.Vector3.Zero(),
+                                        modelScaling,
+                                        isPickable,
+                                    )
+                                    .then((/*mesh*/) => {
+                                        if (loadingSheme && ++this.loadedModelCount >= this.schemeModelCount)
+                                            this.loadSchemeCompleted();
+                                    });
                             });
 
-                            if (updateBizdata) this.bizdata.addDoor(newDoor);
+                            if (!loadingSheme) this.bizdata.addDoor(newDoor);
                         }
                     });
 
@@ -684,12 +697,11 @@ export default defineComponent({
             this.clearSelectionApi();
             this.clearAvailableAreas();
 
+            this.adjustCamera();
+
             switch (mode) {
                 case 1:
                     {
-                        // SS TODO: remove the hardcode below.
-                        if (this.bizdata.totalWidth <= 2.85) this.graphics.setCameraPosition(0, 1.75, 4.5);
-                        else this.setDefaultCamera();
                         this.graphics.lockCamera(false);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
@@ -714,9 +726,6 @@ export default defineComponent({
                     break;
                 case 2:
                     {
-                        // SS TODO: remove the hardcode below.
-                        if (this.bizdata.totalWidth <= 2.85) this.graphics.setCameraPosition(0, 1.75, 4.5);
-                        else this.setDefaultCamera();
                         this.graphics.lockCamera(true);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
@@ -742,8 +751,6 @@ export default defineComponent({
                     break;
                 case 3:
                     {
-                        // SS TODO: remove the hardcode below.
-                        this.graphics.setCameraPosition(0, 1.1, 6);
                         this.graphics.lockCamera(false);
 
                         this.graphics.scene.meshes.forEach((mesh) => {
@@ -766,6 +773,20 @@ export default defineComponent({
             const x = radius * Math.tanh(alpha);
             const y = radius * Math.tan(alpha);
             this.graphics.setCameraPosition(-x, 1.75, y);
+        },
+
+        adjustCamera() {
+            const cameraPosX = (this.bizdata.startX + this.bizdata.endX) * 0.5;
+
+            let cameraHeight = this.bizdata.totalHeight * 0.45;
+            if (this.mode === 3) cameraHeight = this.bizdata.totalHeight * 0.55;
+
+            let viewDistance = Math.max(this.bizdata.totalWidth, this.bizdata.totalHeight);
+            if (viewDistance < 3) viewDistance *= 1.8;
+            else viewDistance *= 1.3;
+
+            this.graphics.setCameraPosition(cameraPosX, cameraHeight, viewDistance);
+            this.graphics.setCameraTarget(cameraPosX, cameraHeight, 0);
         },
 
         /**
@@ -891,6 +912,9 @@ export default defineComponent({
         },
 
         loadScheme() {
+            this.loadedModelCount = 0;
+            this.schemeModelCount = 0;
+
             // TODO: load background.
 
             this.scheme.cubes.forEach((cube: Cube) => {
@@ -902,6 +926,8 @@ export default defineComponent({
             let startX = this.bizdata.totalWidth * 0.5;
             this.bizdata.startX = startX;
             this.bizdata.endX = -startX;
+            this.adjustCamera();
+
             this.scheme.cubes.forEach((cube: Cube) => {
                 const cubeOriginX = startX - cube.size.x * 0.5;
                 startX -= cube.size.x;
@@ -921,6 +947,7 @@ export default defineComponent({
                 })
                     .then((res) => {
                         const cubeMf = res.data;
+                        this.schemeModelCount += cubeMf.models.length;
 
                         cubeMf.models.forEach((model: any) => {
                             const modelPos = new BABYLON.Vector3(
@@ -931,14 +958,11 @@ export default defineComponent({
                             const modelScaling = new BABYLON.Vector3(model.scaling.x, model.scaling.y, model.scaling.z);
                             const cubeName = ObjectType.CUBE + "_" + cube.id;
                             const modelUrl = this.baseOSSUrl + model.url;
-                            this.graphics.importMesh(
-                                modelUrl,
-                                cubeName,
-                                modelPos,
-                                BABYLON.Vector3.Zero(),
-                                modelScaling,
-                                false,
-                            );
+                            this.graphics
+                                .importMesh(modelUrl, cubeName, modelPos, BABYLON.Vector3.Zero(), modelScaling, false)
+                                .then((/*mesh*/) => {
+                                    if (++this.loadedModelCount >= this.schemeModelCount) this.loadSchemeCompleted();
+                                });
                         });
 
                         cube.items.forEach((item: Item) => {
@@ -961,6 +985,8 @@ export default defineComponent({
                                                 })
                                                     .then((res) => {
                                                         const itemMf = res.data;
+                                                        this.schemeModelCount += itemMf.models.length;
+
                                                         itemMf.models.forEach((model: any) => {
                                                             const modelPos = new BABYLON.Vector3(
                                                                 itemOrigin.x + model.position.x,
@@ -974,14 +1000,21 @@ export default defineComponent({
                                                             );
                                                             const itemName = ObjectType.ITEM + "_" + item.id;
                                                             const modelUrl = this.baseOSSUrl + model.url;
-                                                            this.graphics.importMesh(
-                                                                modelUrl,
-                                                                itemName,
-                                                                modelPos,
-                                                                BABYLON.Vector3.Zero(),
-                                                                modelScaling,
-                                                                false,
-                                                            );
+                                                            this.graphics
+                                                                .importMesh(
+                                                                    modelUrl,
+                                                                    itemName,
+                                                                    modelPos,
+                                                                    BABYLON.Vector3.Zero(),
+                                                                    modelScaling,
+                                                                    false,
+                                                                )
+                                                                .then((/*mesh*/) => {
+                                                                    if (
+                                                                        ++this.loadedModelCount >= this.schemeModelCount
+                                                                    )
+                                                                        this.loadSchemeCompleted();
+                                                                });
                                                         });
                                                     })
                                                     .catch((err) => {
@@ -1006,15 +1039,22 @@ export default defineComponent({
             });
 
             this.scheme.doors.forEach((door: Door) => {
-                this.addDoorApi(door, false, false);
+                this.addDoorApi(door, false, true);
             });
         },
+
         /**
          * product-detail.vue 从oss重新读取了scheme，此时scheme已经发生变化，需要reload
          */
         reloadScheme() {
             // TODO
         },
+
+        loadSchemeCompleted() {
+            const e = new event.SchemeLoadCompletedEvent();
+            this.eventEmit(e);
+        },
+
         ShowAvailableArea(part: PartType, areas: Area[]): void {
             this.clearSelectionApi();
             this.clearAvailableAreas();
@@ -1269,6 +1309,9 @@ export default defineComponent({
                                 console.log("Log Scheme: ", this.scheme);
                                 console.log("Log Scene: ", this.graphics.scene);
                                 break;
+                            case "6":
+                                this.adjustCamera();
+                                break;
                         }
                         break;
                     case BABYLON.KeyboardEventTypes.KEYUP:
@@ -1296,7 +1339,6 @@ export default defineComponent({
             // this.floor.material = floor_material;
             // this.floor.isPickable = false;
             // this.floor.receiveShadows = true;
-
             // Wall
             // this.wall = BABYLON.MeshBuilder.CreateBox(
             //     "Background_Wall",
@@ -1304,7 +1346,6 @@ export default defineComponent({
             //     this.graphics.scene as BABYLON.Scene,
             // );
             // this.wall.position = new BABYLON.Vector3(0, 1.5, -0.31);
-
             // var wall_material = new BABYLON.StandardMaterial("groundMaterial", this.graphics.scene as BABYLON.Scene);
             // wall_material.diffuseTexture = new BABYLON.Texture(
             //     "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/wall/5214664c-4422-4c84-8f2b-7fa1e9c67426.jpg",
