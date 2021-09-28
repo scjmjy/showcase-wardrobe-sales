@@ -47,7 +47,7 @@ export default defineComponent({
             onClick() {
                 if (props.state === "more") {
                     ctx.emit("loadmore");
-                    props.scroll && props.scroll.reloadCurrentPage();
+                    props.scroll && props.scroll.requestPageIfNeed();
                 }
             },
         };

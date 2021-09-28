@@ -18,6 +18,7 @@ import {
     SchemeManifest,
     SchemeOffer,
     Service,
+    VisitorRecordItem,
 } from "../interface/provider.interface";
 import LocalProvider from "./local.provider";
 import emitter from "@/event";
@@ -634,6 +635,111 @@ export default class RestProvider extends LocalProvider {
                         status: 500,
                         show: "error",
                         msg: "获取方案清单失败",
+                    });
+                });
+        });
+    }
+    requestVisitorRecordList(
+        eid: string | number,
+        pageNum: number,
+        pageSize: number,
+    ): Promise<AjaxResponse<VisitorRecordItem[]>> {
+        return new Promise((resolve) => {
+            request({
+                method: "POST",
+                url: "/api/v1/misc/visitorlogs",
+                data: {
+                    page: pageNum,
+                },
+            })
+                .then((res) => {
+                    const data = res.data || [];
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取游客记录失败",
+                    });
+                });
+        });
+    }
+    recordVisitor(eid: number | string): Promise<AjaxResponse<string>> {
+        return new Promise((resolve) => {
+            request({
+                method: "POST",
+                url: "/api/v1/misc/visitorlog",
+                data: {
+                    eid,
+                },
+            })
+                .then((res) => {
+                    const data = res.data || [];
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "添加游客记录失败",
+                    });
+                });
+        });
+    }
+    updateVisitorItem(item: VisitorRecordItem): Promise<AjaxResponse<boolean>> {
+        return new Promise((resolve) => {
+            request({
+                method: "PUT",
+                url: "/api/v1/misc/visitorlog",
+                data: item,
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: true,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "更新游客记录失败",
+                    });
+                });
+        });
+    }
+    deleteVisitorItem(no: string): Promise<AjaxResponse<boolean>> {
+        return new Promise((resolve) => {
+            request({
+                method: "DELETE",
+                url: `/api/v1/misc/visitorlog/${no}`,
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: true,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "删除游客记录失败",
                     });
                 });
         });

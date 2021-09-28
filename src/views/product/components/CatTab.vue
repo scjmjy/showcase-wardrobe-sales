@@ -153,7 +153,7 @@ export default defineComponent({
             // const el = elRow.value?.$el as HTMLElement;
             const el = refScroll.value as HTMLElement;
             pageScroll = new PageScroll(el, requestApi, loadState, parts);
-            pageScroll.requestPage();
+            pageScroll.doRequestPage();
         });
         function requestPartCatMeta() {
             const catId = selectedChildCatId.value || props.cat.id;
@@ -243,7 +243,7 @@ export default defineComponent({
             async onFilterToggleClick() {
                 showFilter.value = !showFilter.value;
                 setTimeout(() => {
-                    pageScroll?.reloadCurrentPage();
+                    pageScroll?.requestPageIfNeed();
                 }, 200);
             },
             onScroll,

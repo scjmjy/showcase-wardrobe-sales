@@ -38,10 +38,10 @@
                 <el-col :span="6" style="text-align: center">
                     <function-card functionName="设置" icon="settings-fill-2" color="#859DA7" @click="gotoXXX" />
                 </el-col>
-                <!-- <div style="width: 100%; height: 30px"></div>
+                <div style="width: 100%; height: 30px"></div>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="工具" icon="empty" color="grey" @click="gotoXXX" />
-                </el-col> -->
+                    <function-card functionName="工具" icon="tool" color="#e6a23c" @click="gotoTool" />
+                </el-col>
             </el-row>
         </div>
     </div>
@@ -68,6 +68,9 @@ export default defineComponent({
             },
             gotoProductList() {
                 router.push("/select-product");
+            },
+            gotoTool() {
+                router.push("/visitor-record");
             },
             gotoXXX() {
                 ElMessage.warning("未实现");

@@ -42,6 +42,7 @@ export default defineComponent({
     align-items: center;
     vertical-align: top;
     margin: 10px;
+    width: 70px;
     &__img {
         width: 70px;
         height: 70px;
@@ -65,6 +66,7 @@ export default defineComponent({
 
 @media (min-width: 1150px) {
     .part-cat-card {
+        width: 110px;
         &__img {
             width: 110px;
             height: 110px;
@@ -74,6 +76,7 @@ export default defineComponent({
 
 @media (min-width: 1366px) {
     .part-cat-card {
+        width: 140px;
         &__img {
             width: 140px;
             height: 140px;

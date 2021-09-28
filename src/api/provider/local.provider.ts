@@ -17,8 +17,10 @@ import ApiProvider, {
     SchemeManifest,
     SchemeOffer,
     Service,
+    VisitorRecordItem,
 } from "../interface/provider.interface";
 
+const localVisitorRecordList: VisitorRecordItem[] = [];
 export default class LocalProvider implements ApiProvider {
     login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>> {
         return Promise.resolve({
@@ -304,7 +306,7 @@ export default class LocalProvider implements ApiProvider {
     createCustomer(name: string, phone?: string): Promise<AjaxResponse<string>> {
         throw new Error("Method not implemented.");
     }
-    requestCustomerList(uid: string | number, page?: number, pageSize?: number): Promise<AjaxResponse<Customer[]>> {
+    requestCustomerList(eid: string | number, page?: number, pageSize?: number): Promise<AjaxResponse<Customer[]>> {
         throw new Error("Method not implemented.");
     }
     createNewService(eid: string | number, cid: string | number): Promise<AjaxResponse<Service>> {
@@ -424,5 +426,60 @@ export default class LocalProvider implements ApiProvider {
     }
     requestSchemeManifestV2(partIds: number[]): Promise<AjaxResponse<SchemeManifest>> {
         throw new Error("Method not implemented.");
+    }
+    requestVisitorRecordList(
+        eid: string | number,
+        pageNum: number,
+        pageSize: number,
+    ): Promise<AjaxResponse<VisitorRecordItem[]>> {
+        const start = (pageNum - 1) * pageSize;
+        const end = start + pageSize;
+        return Promise.resolve({
+            ok: true,
+            status: 200,
+            data: localVisitorRecordList.slice(start, end),
+            // data: new Array(10).fill(0).map((val) => ({
+            //     id: val,
+            //     etime: new Date().toLocaleString(),
+            //     ltime: new Date().toLocaleString(),
+            //     customerName: "~~~",
+            // })),
+        });
+    }
+    recordVisitor(eid: number | string): Promise<AjaxResponse<string>> {
+        const no = Date.now() + "";
+        const record: VisitorRecordItem = {
+            no,
+            customerName: eid + "",
+        };
+        localVisitorRecordList.push(record);
+        return Promise.resolve({
+            ok: true,
+            status: 200,
+            data: no,
+        });
+    }
+    updateVisitorItem(item: VisitorRecordItem): Promise<AjaxResponse<boolean>> {
+        const found = localVisitorRecordList.find((item) => item.no === item.no);
+        if (found) {
+            found.etime = item.etime;
+            found.ltime = item.ltime;
+        }
+        return Promise.resolve({
+            ok: true,
+            status: 200,
+            data: true,
+        });
+    }
+    deleteVisitorItem(no: string): Promise<AjaxResponse<boolean>> {
+        const foundIndex = localVisitorRecordList.findIndex((item) => item.no === no);
+        if (foundIndex !== -1) {
+            localVisitorRecordList.splice(foundIndex, 1);
+        }
+        return Promise.resolve({
+            ok: true,
+            status: 200,
+            data: true,
+        });
     }
 }

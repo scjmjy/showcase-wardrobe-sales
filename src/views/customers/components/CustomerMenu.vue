@@ -7,7 +7,7 @@
                 <span style="font-size: 18px">{{ customer.phone || "" }}</span>
             </div>
         </el-menu-item>
-        <load-more :state="loadState" type="smoke" />
+        <load-more :state="loadState" />
     </el-menu>
 </template>
 
@@ -57,7 +57,7 @@ export default defineComponent({
         onMounted(() => {
             const el = elMenu.value?.$el as HTMLElement;
             pageScroll = new PageScroll(el, requestApi, loadState, customers, { afterDataHandler });
-            pageScroll.requestPage();
+            pageScroll.doRequestPage();
         });
         // onBeforeRouteUpdate(async (to, from) => {
         //     console.log("【CustomerMenu:onBeforeRouteUpdate】");
@@ -82,10 +82,8 @@ export default defineComponent({
                 return name ? name[0] : "";
             },
             getCustomeName(name: string) {
-                if(name.length > 10 )
-                    return name ? name.substring(2,14) : "";
-                else
-                    return name ? name : "";
+                if (name.length > 10) return name ? name.substring(2, 14) : "";
+                else return name ? name : "";
             },
             onScroll,
             resetLoadstate() {
@@ -93,7 +91,6 @@ export default defineComponent({
                 el.scrollTo({
                     top: lastestScrollY,
                 });
-                // pageScroll?.reloadCurrentPage();
                 pageScroll?.reload();
             },
         };

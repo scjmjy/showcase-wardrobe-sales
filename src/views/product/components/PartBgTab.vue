@@ -75,7 +75,7 @@ export default defineComponent({
             const el = refScroll.value as HTMLElement;
 
             pageScroll = new PageScroll(el, requestApi, loadState, bgs, { afterDataHandler });
-            pageScroll.requestPage();
+            pageScroll.doRequestPage();
         });
 
         function onBgTypeChange() {
