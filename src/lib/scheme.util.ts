@@ -128,7 +128,7 @@ export function importSchemeJson(url: string): Promise<Scheme> {
                 const doors: Door[] = [];
                 mf.manifest.doors.forEach((door: any) => {
                     const locations: DoorLocation[] = [];
-                    door.locations.forEach((location: any) => {
+                    door.locations?.forEach((location: any) => {
                         const indexArr: number[] = [];
                         location.index.forEach((doorIndex: number) => {
                             indexArr.push(doorIndex);
