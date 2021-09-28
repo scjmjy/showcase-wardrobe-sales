@@ -219,10 +219,10 @@ export default defineComponent({
                 value: "ruler",
                 icon: "ruler",
                 onActive() {
-                    refBabylon.value?.CreateReferenceRuler(true);
+                    refBabylon.value?.showReferenceRuler(true);
                 },
                 onUnactive() {
-                    refBabylon.value?.CreateReferenceRuler(false);
+                    refBabylon.value?.showReferenceRuler(false);
                 },
             },
             {
@@ -241,10 +241,9 @@ export default defineComponent({
             await util.importSchemeJson(product.value.manifest).then((s) => {
                 if (scheme.value) {
                     scheme.value = s;
-                    // TODO reload scheme
+
                     nextTick(() => {
                         refBabylon.value?.reloadScheme();
-                        ElMessage.warning("TODO：重新加载之前的方案");
                     });
                 } else {
                     scheme.value = s;

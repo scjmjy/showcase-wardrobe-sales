@@ -916,6 +916,7 @@ export default defineComponent({
         loadScheme() {
             this.loadedModelCount = 0;
             this.schemeModelCount = 0;
+            this.bizdata.totalWidth = 0;
 
             // TODO: load background.
 
@@ -1049,7 +1050,19 @@ export default defineComponent({
          * product-detail.vue 从oss重新读取了scheme，此时scheme已经发生变化，需要reload
          */
         reloadScheme() {
-            // TODO
+            // Remove 3D reference ruler firstly.
+            this.showReferenceRuler(false);
+
+            // Clear old scene.
+            this.graphics.clearScene();
+
+            // Recreate the bizdata.
+            this.bizdata = new BizData(this.scheme);
+            // Reload the old scheme which is updated in product-detail.vue.
+            this.loadScheme();
+
+            // Re-enable 3D reference ruler.
+            this.showReferenceRuler(true);
         },
 
         loadSchemeCompleted() {
@@ -1371,7 +1384,7 @@ export default defineComponent({
             this.wall.receiveShadows = true;
         },
 
-        CreateReferenceRuler(showRuler: boolean): void {
+        showReferenceRuler(showRuler: boolean): void {
             this.gui.showRuler(this.graphics, this.bizdata as BizData, showRuler);
         },
     },
