@@ -1,5 +1,18 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
-import { Scheme, SchemeObject, Cube, Item, Door, Part, Position, Size, RelativeItem, Location } from "@/lib/scheme";
+import {
+    Scheme,
+    SchemeObject,
+    Cube,
+    Item,
+    Door,
+    Part,
+    Position,
+    Size,
+    RelativeItem,
+    Location,
+    DoorLocation,
+    Config,
+} from "@/lib/scheme";
 import request from "@/utils/request";
 import apiProvider from "@/api/provider";
 
@@ -32,6 +45,34 @@ export function importSchemeJson(url: string): Promise<Scheme> {
         })
             .then((res) => {
                 const mf = res.data;
+                console.log(mf);
+
+                let config: Config | null = null;
+                if (mf.config !== undefined) {
+                    let cubeSize = null;
+                    let standardCube = null;
+                    if (mf.config.cubeSize !== undefined) {
+                        cubeSize = {
+                            top: mf.config.cubeSize.top,
+                            bottom: mf.config.cubeSize.bottom,
+                            left: mf.config.cubeSize.left,
+                            right: mf.config.cubeSize.right,
+                            back: mf.config.cubeSize.back,
+                        };
+                    }
+
+                    if (mf.config.standardCube !== undefined) {
+                        const size = mf.config.standardCube.size;
+                        standardCube = {
+                            partId: mf.config.standardCube.partId,
+                            catId: mf.config.standardCube.catId,
+                            manifest: mf.config.standardCube.manifest,
+                            size: new Size(size.x, size.y, size.z),
+                        };
+                    }
+
+                    config = new Config(cubeSize, standardCube);
+                }
 
                 const background: SchemeObject[] = [];
                 mf.manifest.background.forEach((element: any) => {
@@ -86,9 +127,18 @@ export function importSchemeJson(url: string): Promise<Scheme> {
 
                 const doors: Door[] = [];
                 mf.manifest.doors.forEach((door: any) => {
-                    const doorCubes: string[] = [];
-                    door.cubes.forEach((cube: string) => {
-                        doorCubes.push(cube);
+                    const locations: DoorLocation[] = [];
+                    door.locations.forEach((location: any) => {
+                        const indexArr: number[] = [];
+                        location.index.forEach((doorIndex: number) => {
+                            indexArr.push(doorIndex);
+                        });
+
+                        const doorLocation = {
+                            id: location.id,
+                            index: indexArr,
+                        };
+                        locations.push(doorLocation);
                     });
 
                     const size = new Size(door.size.x, door.size.y, door.size.z);
@@ -99,7 +149,7 @@ export function importSchemeJson(url: string): Promise<Scheme> {
                         door.catId,
                         size,
                         door.doorType,
-                        doorCubes,
+                        locations,
                     );
                     doors.push(newDoor);
                 });
@@ -110,7 +160,7 @@ export function importSchemeJson(url: string): Promise<Scheme> {
                     parts.push(newPart);
                 });
 
-                const scheme = new Scheme(background, cubes, doors, parts);
+                const scheme = new Scheme(config, background, cubes, doors, parts);
                 resolve(scheme);
             })
             .catch((err) => {
@@ -120,13 +170,20 @@ export function importSchemeJson(url: string): Promise<Scheme> {
 }
 
 function scheme2manifest(scheme: Scheme) {
+    let config = null;
+    if (scheme.config !== null) {
+        config = {
+            cubeSize: scheme.config.cubeSize,
+            standardCube: scheme.config.standardCube,
+        };
+    }
     const manifest = {
         background: scheme.background,
         cubes: scheme.cubes,
         doors: scheme.doors,
     };
     const composition = scheme.parts.filter((p) => p.count > 0);
-    const mf = { manifest, composition };
+    const mf = { config, manifest, composition };
     return JSON.stringify(mf, undefined, 4);
 }
 

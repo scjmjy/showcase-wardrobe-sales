@@ -45,6 +45,7 @@ export default defineComponent({
     },
     emits: ["detail"],
     setup(props, context) {
+        context;
         const showBottom = ref(false);
         return {
             showBottom,

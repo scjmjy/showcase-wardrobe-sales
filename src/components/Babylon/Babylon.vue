@@ -98,22 +98,34 @@ export default defineComponent({
                                     if (newPart.catId === 20) {
                                         this.changeCubeApi(objectId, newPart);
                                     } else if (newPart.catId === 2 || newPart.catId === 3) {
-                                        const door = this.bizdata.findDoorByCubeId(objectId);
-                                        if (door !== undefined) {
-                                            const doorName = ObjectType.DOOR + "_" + door.id;
-                                            this.graphics.scene.meshes.forEach((mesh) => {
-                                                if (mesh.name.startsWith(doorName)) {
-                                                    const doorInfo = mesh.name.split("_");
-                                                    const doorIndex = parseInt(doorInfo[2]);
-                                                    this.changeDoorApi(door.id, newPart, doorIndex);
-                                                }
-                                            });
-                                        } else {
-                                            const doorId = uuidv4();
-                                            const size = new Size(newPart.width, newPart.height, newPart.depth);
-                                            let doorType = 1;
-                                            if (newPart.catId === 2) doorType = 2;
-                                            const cubes = [objectId];
+                                        const doors = this.bizdata.findDoorsByCubeId(objectId);
+                                        doors.forEach((door) => {
+                                            this.removeDoorApi(door);
+                                        });
+
+                                        // Add new door.
+                                        const doorId = uuidv4();
+                                        const size = new Size(newPart.width, newPart.height, newPart.depth);
+                                        let doorType = 1;
+                                        if (newPart.catId === 2) doorType = 2;
+
+                                        const cube = this.bizdata.findCubeById(objectId);
+                                        if (cube !== undefined) {
+                                            let doorNum = Math.floor(cube.size.x / newPart.width);
+                                            if (doorNum === 0) {
+                                                doorNum = 1;
+                                                ElMessage({
+                                                    type: "warning",
+                                                    message: "门的宽度超过了当前柜体的宽度",
+                                                });
+                                            }
+
+                                            const indexArr = [];
+                                            for (let i = 0; i < doorNum; i++) indexArr.push(i);
+                                            const loc = {
+                                                id: objectId,
+                                                index: indexArr,
+                                            };
                                             const newDoor = new Door(
                                                 doorId,
                                                 newPart.id,
@@ -121,7 +133,7 @@ export default defineComponent({
                                                 newPart.catId,
                                                 size,
                                                 doorType,
-                                                cubes,
+                                                [loc],
                                             );
                                             this.addDoorApi(newDoor);
                                         }
@@ -142,7 +154,7 @@ export default defineComponent({
                         // TODO: remove the hardcode of adjusting whether it is a cube or door.
                         if (newPart.catId === 20) {
                             // TODO: remove the function of adding new cube.
-                            this.ShowCubeAddArea(newPart);
+                            // this.ShowCubeAddArea(newPart);
                             // Change all cubes if no cube is selected.
                             this.changeAllCubes(newPart);
                         } else if (newPart.catId === 2 || newPart.catId === 3) {
@@ -169,6 +181,8 @@ export default defineComponent({
         this.graphics.init(7.5 * this.bizdata.SceneUnit);
         this.graphics.render();
 
+        this.graphics.setBackgroundColor( BABYLON.Color4.FromHexString("#F2F4F0FF") );
+
         this.setupInteraction();
         this.setupKeyboard();
         this.handleGraphicsEvent(this.graphics);
@@ -179,13 +193,12 @@ export default defineComponent({
     methods: {
         /**
          * 修改墙面
-         * @param newPartId
          */
-        changeWallApi(newPartId: number): void {
+        changeWallApi(partType: PartType): void {
             const wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            const temp = this.bizdata.partManifestMap.get(newPartId.toString());
-            const texture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
+            const url = this.baseOSSUrl + partType.manifest;
+            const texture = new BABYLON.Texture(url, this.graphics.scene as BABYLON.Scene);
             texture.uScale = 1;
             texture.vScale = 1;
             wall_material.diffuseTexture = texture;
@@ -194,13 +207,12 @@ export default defineComponent({
 
         /**
          * 修改地板
-         * @param newPartId
          */
-        changeFloorApi(newPartId: number): void {
+        changeFloorApi(partType: PartType): void {
             const floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            const temp = this.bizdata.partManifestMap.get(newPartId.toString());
-            const texture = new BABYLON.Texture(String(temp), this.graphics.scene as BABYLON.Scene);
+            const url = this.baseOSSUrl + partType.manifest;
+            const texture = new BABYLON.Texture(url, this.graphics.scene as BABYLON.Scene);
             texture.uScale = 2;
             texture.vScale = 2;
             floor_material.diffuseTexture = texture;
@@ -272,6 +284,29 @@ export default defineComponent({
             }
         },
 
+        // Remove cube and its relatived items and doors.
+        // TODO: re-arrage the position of other cubes if removing middle cube.
+        removeCubeApi(cube: Cube): void {
+            const items = this.bizdata.findItemsByCubeId(cube.id);
+            const itemNum = items.length;
+            for (let i = itemNum - 1; i >= 0; i--) {
+                this.removeItemApi(items[i]);
+            }
+
+            const doors = this.bizdata.findDoorsByCubeId(cube.id);
+            const doorNum = doors.length;
+            for (let i = doorNum - 1; i >= 0; i--) {
+                this.removeDoorApi(doors[i]);
+            }
+
+            const meshName = ObjectType.CUBE + "_" + cube.id;
+            const mesh = this.graphics.scene.getMeshByName(meshName);
+            if (mesh !== null) {
+                mesh.dispose();
+                this.bizdata.removeCube(cube.id);
+            }
+        },
+
         changeAllCubes(newPart: PartType): void {
             this.graphics.scene.meshes.forEach((mesh) => {
                 const info = mesh.name.split("_");
@@ -291,17 +326,91 @@ export default defineComponent({
             });
         },
 
-        /**
-         * 增加一个item
-         * @param newItem 增加的Item
-         */
-        addItemApi(newItem: Item): void {},
+        // Change scheme size
+        changeSchemeSize(width: number, height: number, depth: number) {
+            height;
+            depth;
+            if (this.scheme.config === null || this.scheme.config.standardCube === null) return;
+
+            const standardCube = this.scheme.config.standardCube;
+            if (width * 0.01 > this.bizdata.totalWidth) {
+                const endX = this.bizdata.endX;
+                const cubeNum = Math.round((width * 0.01 - this.bizdata.totalWidth) / standardCube.size.x);
+                const manifest = standardCube.manifest;
+                for (let i = 0; i < cubeNum; i++) {
+                    request({
+                        url: this.baseOSSUrl + standardCube.manifest,
+                        method: "GET",
+                        responseType: "json",
+                    })
+                        .then((res) => {
+                            const cubeMf = res.data;
+                            const cubeUUID = uuidv4();
+                            const originX = endX - standardCube.size.x * (i + 0.5);
+                            const itemOrigin = new BABYLON.Vector3(originX, 0, 0);
+
+                            // TODO: create a parent mesh to contain all import meshes.
+                            cubeMf.models.forEach((model: any) => {
+                                const modelPos = new BABYLON.Vector3(
+                                    itemOrigin.x + model.position.x,
+                                    itemOrigin.y + model.position.y,
+                                    itemOrigin.z + model.position.z,
+                                );
+                                const modelScaling = new BABYLON.Vector3(
+                                    model.scaling.x,
+                                    model.scaling.y,
+                                    model.scaling.z,
+                                );
+                                const itemName = ObjectType.CUBE + "_" + cubeUUID;
+                                const modelUrl = this.baseOSSUrl + model.url;
+                                this.graphics.importMesh(
+                                    modelUrl,
+                                    itemName,
+                                    modelPos,
+                                    BABYLON.Vector3.Zero(),
+                                    modelScaling,
+                                );
+                            });
+
+                            const partId = standardCube.partId;
+                            const catId = standardCube.catId;
+                            const size = new Size(standardCube.size.x, standardCube.size.y, standardCube.size.z);
+                            const items: Item[] = [];
+                            const newCube = new Cube(cubeUUID, partId, manifest, catId, size, items);
+                            this.bizdata.addCube(newCube);
+                        })
+                        .catch(() => {
+                            throw Error(`Require manifest by error: ${manifest}`);
+                        });
+                }
+            } else {
+                const cubeNum = Math.round((this.bizdata.totalWidth - width * 0.01) / standardCube.size.x);
+                for (let i = 0; i < cubeNum; i++) {
+                    const cube = this.scheme.cubes[this.scheme.cubes.length - 1];
+                    this.removeCubeApi(cube);
+                }
+            }
+        },
 
         /**
-         * 移除多个items
-         * @param itemIds 被移除item的uuid列表
+         * 增加一个item
          */
-        removeItemsApi(itemIds: string[]): void {},
+        addItemApi(item: Item): void {
+            item;
+        },
+
+        /**
+         * 移除item
+         * @param itemId 被移除item的uuid
+         */
+        removeItemApi(item: Item): void {
+            const meshName = ObjectType.ITEM + "_" + item.id;
+            const mesh = this.graphics.scene.getMeshByName(meshName);
+            if (mesh !== null) {
+                mesh.dispose();
+                this.bizdata.removeItem(item.id);
+            }
+        },
 
         /**
          * 修改配件的材质或颜色
@@ -380,45 +489,30 @@ export default defineComponent({
                 responseType: "json",
             })
                 .then((res) => {
-                    let cubesWidth = 0;
-                    newDoor.cubes.forEach((cubeId: string) => {
-                        const cube = this.bizdata.findCubeById(cubeId);
-                        if (cube !== undefined) {
-                            cubesWidth += cube.size.x;
-                        }
-                    });
-
                     const itemMf = res.data;
                     const doorWidth = itemMf.size.x;
-                    let doorNum = Math.floor(cubesWidth / doorWidth);
-                    if (doorNum === 0) {
-                        doorNum = 1;
-
-                        ElMessage({
-                            type: "warning",
-                            message: "门的宽度超过了当前柜体的宽度",
-                        });
-                    }
-                    const firstCubeData = this.bizdata.findCubeDataById(newDoor.cubes[0]);
-                    if (firstCubeData === undefined) {
-                        throw Error(`cannot find cube data by id: ${newDoor.cubes[0]}`);
-                    } else {
-                        let startX = firstCubeData.origin.x + firstCubeData.width * 0.5;
-                        for (let i = 0; i < doorNum; i += itemMf.models.length) {
-                            for (let j = 0; j < itemMf.models.length && j < doorNum; j++) {
-                                const model = itemMf.models[j];
+                    newDoor.locations.forEach((location) => {
+                        const cubeId = location.id;
+                        const cubeData = this.bizdata.findCubeDataById(cubeId);
+                        if (cubeData === undefined) {
+                            throw Error(`cannot find cube data by id: ${cubeId}`);
+                        } else {
+                            location.index.forEach((index) => {
+                                const doorPosX = cubeData.origin.x + cubeData.width * 0.5 - doorWidth * (index + 0.5);
+                                const doorPosY = 0.03;
+                                const modelIndex = index % itemMf.models.length;
+                                const model = itemMf.models[modelIndex];
                                 const modelPos = new BABYLON.Vector3(
-                                    startX - doorWidth * 0.5 + model.position.x,
-                                    0.03 + model.position.y,
-                                    firstCubeData.depth * 0.5 + model.position.z,
+                                    doorPosX + model.position.x,
+                                    doorPosY + model.position.y,
+                                    cubeData.depth * 0.5 + model.position.z,
                                 );
                                 const modelScaling = new BABYLON.Vector3(
                                     model.scaling.x,
                                     model.scaling.y,
                                     model.scaling.z,
                                 );
-                                const doorIndex = i + j;
-                                const doorName = ObjectType.DOOR + "_" + newDoor.id + "_" + doorIndex;
+                                const doorName = ObjectType.DOOR + "_" + newDoor.id + "_" + index;
                                 const modelUrl = this.baseOSSUrl + model.url;
                                 this.graphics.importMesh(
                                     modelUrl,
@@ -428,20 +522,14 @@ export default defineComponent({
                                     modelScaling,
                                     isPickable,
                                 );
+                            });
 
-                                startX -= doorWidth;
-                            }
+                            if (updateBizdata) this.bizdata.addDoor(newDoor);
                         }
-                    }
+                    });
 
                     // clear select item
                     this.clearSelectionApi();
-
-                    if (updateBizdata) {
-                        for (let i = 0; i < doorNum; i++) {
-                            this.bizdata.addDoor(newDoor);
-                        }
-                    }
                 })
                 .catch((err) => {
                     throw Error(`Load part manifest by error: ${err}`);
@@ -450,10 +538,23 @@ export default defineComponent({
 
         /**
          * 移除合页门或者滑门
-         * @param doorIds 被移除门的uuid列表
          */
-        removeDoorsApi(doorIds?: string[]): void {
-            drobeUtil.removeDoors(this.graphics, this.bizdata as BizData, doorIds);
+        removeDoorApi(door: Door): void {
+            const doorName = ObjectType.DOOR + "_" + door.id;
+            const meshes: BABYLON.AbstractMesh[] = [];
+            this.graphics.scene.meshes.forEach((mesh) => {
+                if (mesh.name.startsWith(doorName)) {
+                    meshes.push(mesh);
+                }
+            });
+
+            for (const mesh of meshes) {
+                const doorInfo = mesh.name.split("_");
+                const index = parseInt(doorInfo[2]);
+                this.bizdata.removeDoor(door.id, index);
+
+                mesh.dispose();
+            }
         },
 
         /**
@@ -461,8 +562,8 @@ export default defineComponent({
          * @param doorId 需要修改的door uuid
          * @param newPart
          */
-        changeDoorApi(doorId: string, newPart: PartType, doorIndex: number): void {
-            const meshName = ObjectType.DOOR + "_" + doorId + "_" + doorIndex;
+        changeDoorApi(doorId: string, newPart: PartType, index: number): void {
+            const meshName = ObjectType.DOOR + "_" + doorId + "_" + index;
             const mesh = this.graphics.scene.getMeshByName(meshName);
             if (mesh !== null) {
                 const door = this.bizdata.findDoorById(doorId);
@@ -479,31 +580,37 @@ export default defineComponent({
                         responseType: "json",
                     })
                         .then((res) => {
-                            const itemMf = res.data;
-                            const modelIndex = doorIndex % itemMf.models.length;
-                            const model = itemMf.models[modelIndex];
-                            const modelPos = new BABYLON.Vector3(
-                                pos.x + model.position.x,
-                                pos.y + model.position.y,
-                                pos.z + model.position.z,
-                            );
-                            const modelScaling = new BABYLON.Vector3(model.scaling.x, model.scaling.y, model.scaling.z);
-                            const modelUrl = this.baseOSSUrl + model.url;
-                            this.graphics.importMesh(
-                                modelUrl,
-                                meshName,
-                                modelPos,
-                                BABYLON.Vector3.Zero(),
-                                modelScaling,
-                                true,
-                            );
+                            const newDoor = this.bizdata.changeDoor(doorId, newPart, index);
+                            if (newDoor !== undefined) {
+                                const itemMf = res.data;
+                                const modelIndex = index % itemMf.models.length;
+                                const model = itemMf.models[modelIndex];
+                                const modelPos = new BABYLON.Vector3(
+                                    pos.x + model.position.x,
+                                    pos.y + model.position.y,
+                                    pos.z + model.position.z,
+                                );
+                                const modelScaling = new BABYLON.Vector3(
+                                    model.scaling.x,
+                                    model.scaling.y,
+                                    model.scaling.z,
+                                );
+                                const modelUrl = this.baseOSSUrl + model.url;
+                                const newMeshName = ObjectType.DOOR + "_" + newDoor.id + "_" + index;
+                                this.graphics.importMesh(
+                                    modelUrl,
+                                    newMeshName,
+                                    modelPos,
+                                    BABYLON.Vector3.Zero(),
+                                    modelScaling,
+                                    true,
+                                );
 
-                            // clear select item
-                            this.clearSelectionApi();
-                            // remove the old item
-                            mesh.dispose();
-
-                            this.bizdata.changeDoor(doorId, newPart);
+                                // clear select item
+                                this.clearSelectionApi();
+                                // remove the old door.
+                                mesh.dispose();
+                            }
                         })
                         .catch((err) => {
                             throw Error(`Load part manifest by error: ${err}`);
@@ -549,7 +656,9 @@ export default defineComponent({
                     param: any[]; // api函数的参数列表
                 },
             ],
-        ): void {},
+        ): void {
+            actions;
+        },
 
         // /**
         //  * 显示多个有效区域（用于添加配件的待选区域）
@@ -674,7 +783,9 @@ export default defineComponent({
          * 备注：在全选或者多选模式下使用
          * @param itemIds 需要被选择item的uuid列表
          */
-        selectItemsApi(itemIds: string[]): void {},
+        selectItemsApi(itemIds: string[]): void {
+            itemIds;
+        },
 
         /**
          * 清空所有的内配
@@ -735,7 +846,7 @@ export default defineComponent({
                 // console.log("Object unselected: ", data.name);
 
                 const info = data.name.split("_");
-                const objectType = info[0];
+                // const objectType = info[0];
                 const id = info[1];
                 switch (info[0]) {
                     case ObjectType.CUBE:
@@ -977,11 +1088,6 @@ export default defineComponent({
             this.availableAreas.push(cubeArea2);
         },
 
-        getAvailableArea(partId: string): Area[] {
-            const biz: BizData = this.bizdata as BizData;
-            return drobeUtil.getAvailableAreaById(biz, partId);
-        },
-
         getAvailableAreaByPart(part: PartType): Area[] {
             const biz: BizData = this.bizdata as BizData;
             return drobeUtil.getAvailableAreaByPart(biz, part);
@@ -1018,10 +1124,10 @@ export default defineComponent({
                                         responseType: "json",
                                     })
                                         .then((res) => {
-                                            const isFirstCube = cubeId === "StartCube";
+                                            const addToLeft = cubeId === "StartCube";
                                             const cubeMf = res.data;
                                             const cubeUUID = uuidv4();
-                                            const originX = isFirstCube
+                                            const originX = addToLeft
                                                 ? this.bizdata.startX + this.newPart.width * 0.5
                                                 : this.bizdata.endX - this.newPart.width * 0.5;
                                             const itemOrigin = new BABYLON.Vector3(originX, 0, 0);
@@ -1059,9 +1165,9 @@ export default defineComponent({
 
                                             const items: Item[] = [];
                                             const newCube = new Cube(cubeUUID, partId, manifest, catId, size, items);
-                                            this.bizdata.addCube(newCube, isFirstCube);
+                                            this.bizdata.addCube(newCube, addToLeft);
                                         })
-                                        .catch((err) => {
+                                        .catch(() => {
                                             throw Error(`Require manifest by error: ${manifest}`);
                                         });
                                 } else {
@@ -1138,7 +1244,7 @@ export default defineComponent({
                                                 );
                                                 this.bizdata.addItem(newItem, cubeId);
                                             })
-                                            .catch((err) => {
+                                            .catch(() => {
                                                 throw Error(`Require manifest by error: ${manifest}`);
                                             });
                                     }
@@ -1163,6 +1269,7 @@ export default defineComponent({
                         switch (kbInfo.event.key) {
                             case "5":
                                 console.log("Log Scheme: ", this.scheme);
+                                console.log("Log Scene: ", this.graphics.scene);
                                 break;
                         }
                         break;
@@ -1193,21 +1300,21 @@ export default defineComponent({
             // this.floor.receiveShadows = true;
 
             // Wall
-            this.wall = BABYLON.MeshBuilder.CreateBox(
-                "Background_Wall",
-                { width: 5.0, height: 3.0, depth: 0.01 },
-                this.graphics.scene as BABYLON.Scene,
-            );
-            this.wall.position = new BABYLON.Vector3(0, 1.5, -0.31);
+            // this.wall = BABYLON.MeshBuilder.CreateBox(
+            //     "Background_Wall",
+            //     { width: 5.0, height: 3.0, depth: 0.01 },
+            //     this.graphics.scene as BABYLON.Scene,
+            // );
+            // this.wall.position = new BABYLON.Vector3(0, 1.5, -0.31);
 
-            var wall_material = new BABYLON.StandardMaterial("groundMaterial", this.graphics.scene as BABYLON.Scene);
-            wall_material.diffuseTexture = new BABYLON.Texture(
-                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/wall/5214664c-4422-4c84-8f2b-7fa1e9c67426.jpg",
-                this.graphics.scene as BABYLON.Scene,
-            );
-            this.wall.material = wall_material;
-            this.wall.isPickable = false;
-            this.wall.receiveShadows = true;
+            // var wall_material = new BABYLON.StandardMaterial("groundMaterial", this.graphics.scene as BABYLON.Scene);
+            // wall_material.diffuseTexture = new BABYLON.Texture(
+            //     "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/wall/5214664c-4422-4c84-8f2b-7fa1e9c67426.jpg",
+            //     this.graphics.scene as BABYLON.Scene,
+            // );
+            // this.wall.material = wall_material;
+            // this.wall.isPickable = false;
+            // this.wall.receiveShadows = true;
         },
 
         CreateReferenceRuler(showRuler: boolean): void {

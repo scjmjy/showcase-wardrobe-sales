@@ -124,7 +124,7 @@ export default defineComponent({
         color: var(--el-color-primary);
     }
     &__name {
-        margin-left: 10px;
+        margin-left: 0px;
         display: inline-flex;
         flex-direction: column;
         line-height: normal;

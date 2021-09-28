@@ -9,10 +9,9 @@
  */
 
 import * as BABYLON from "babylonjs";
-import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
-import { Area, Door, Position, Scheme } from "@/lib/scheme";
+import { Area, Door, Position, Item } from "@/lib/scheme";
 import { StObject } from "@/lib/utility/st_object";
 import { StSketchVector3 } from "./geometry/st_geometric_3d";
 import { BizData, CubeData, ObjectType } from "@/lib/biz.data";
@@ -163,13 +162,13 @@ class DrobeUtil extends StObject {
 
     private _findCubeOccupied(bizdata: BizData, id: string, cube: CubeData): StSketchRect[] {
         const rects: StSketchRect[] = [];
-        const items = bizdata.findCubeItems(id);
+        const items = bizdata.findItemsByCubeId(id);
         const cube_lb = this._findCubeLeftBottom(cube);
-        if (items == null || items.length == 0) {
+        if (items.length == 0) {
             console.log(`Find NONE occupied rect!`);
             return rects;
         }
-        items.forEach((e) => {
+        items.forEach((e: Item) => {
             // const mf = HmPartManifest.buildFromUrl(e.manifest) as HmPartManifest;
             this.assertValid(e.location);
             this.assertValid(e.location!.startPos);
@@ -214,14 +213,6 @@ class DrobeUtil extends StObject {
         return this._calcAvailableArea(bizdata, part_size);
     }
 
-    getAvailableAreaById(bizdata: BizData, part_id: string): Area[] {
-        const mf_url = bizdata.partManifestMap.get(`${part_id}`);
-        if (!mf_url) {
-            throw Error(`NO manifest is found by ID; ${part_id}`);
-        }
-        return this.getAvailableAreaByMfUrl(bizdata, mf_url);
-    }
-
     /**
      * Search all cubes for all the available areas
      */
@@ -262,12 +253,12 @@ class DrobeUtil extends StObject {
     }
 
     private _removeDoor(graphics: Graphics, bizdata: BizData, id: string): void {
-        const door = bizdata.removeDoor(id);
-        if (door) {
-            console.log(`Remove door: ${StObject.buildString(door)}`);
-        } else {
-            console.log(`Err: Door is NOT found: ${id}`);
-        }
+        bizdata.removeDoor(id);
+        // if (door) {
+        //     console.log(`Remove door: ${StObject.buildString(door)}`);
+        // } else {
+        //     console.log(`Err: Door is NOT found: ${id}`);
+        // }
     }
 
     /**
@@ -281,19 +272,19 @@ class DrobeUtil extends StObject {
         const door_pos = new BABYLON.Vector3(0, 0, 500);
 
         if (door.doorType == 1) {
-            this.assertTrue(door.cubes.length == 1, `ONLY ONE cube is needed to add a HINGE DOOR: ${door}`);
-            const cube_data = bizdata.findCubeDataById(door.cubes[0]);
+            this.assertTrue(door.locations.length == 1, `ONLY ONE cube is needed to add a HINGE DOOR: ${door}`);
+            const cube_data = bizdata.findCubeDataById(door.locations[0].id);
             if (!cube_data) {
-                throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
+                throw Error(`cannot find cube data by id: ${door.locations[0]}`);
             }
             door_pos.x += cube_data.origin.x;
             door_pos.y += 20;
             door_pos.z = cube_data.depth / 2;
         } else if (door.doorType == 2) {
-            this.assertTrue(door.cubes.length == 2, `TWO cubes are needed to add a SLIDE DOOR: ${door}`);
-            const cube_data = bizdata.findCubeDataById(door.cubes[0]);
+            this.assertTrue(door.locations.length == 2, `TWO cubes are needed to add a SLIDE DOOR: ${door}`);
+            const cube_data = bizdata.findCubeDataById(door.locations[0].id);
             if (!cube_data) {
-                throw Error(`cannot find cube data by id: ${door.cubes[0]}`);
+                throw Error(`cannot find cube data by id: ${door.locations[0]}`);
             }
             door_pos.y += 20;
             door_pos.z = cube_data.depth / 2;
@@ -310,7 +301,7 @@ class DrobeUtil extends StObject {
                 const url = baseUrl + res.models[0].url;
                 return graphics
                     .importMesh(url, door_name, door_pos)
-                    .then((res) => {
+                    .then(() => {
                         return door.id;
                     })
                     .catch((err) => {

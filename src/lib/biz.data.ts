@@ -1,5 +1,4 @@
-import { Scheme, Cube, Item, Door, Part, PartType } from "@/lib/scheme";
-import { StObject } from "./utility/st_object";
+import { Scheme, Cube, Item, Door, Part, PartType, Size, DoorLocation } from "@/lib/scheme";
 import { v4 as uuidv4 } from "uuid";
 
 export const ObjectType = {
@@ -32,47 +31,10 @@ export class BizData {
     public totalHeight = 0;
     public totalDepth = 0;
     public cubeMap: Map<string, CubeData>;
-    public partManifestMap: Map<string, string>;
 
     constructor(scheme: Scheme) {
         this.scheme = scheme;
         this.cubeMap = new Map<string, CubeData>();
-        this.partManifestMap = new Map<string, string>();
-
-        // TODO: get the map of partId & manifest from backend.
-        this.partManifestMap.set(
-            "100001",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/69771f55-f709-4f9b-96b6-0af6eafc4a26.jpg",
-        );
-        this.partManifestMap.set(
-            "100002",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/d8282dee-13f2-4884-99c0-5d56962d95ac.jpg",
-        );
-        this.partManifestMap.set(
-            "100003",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/d6733d2b-a73f-449f-aec9-4da25a980e30.jpg",
-        );
-        this.partManifestMap.set(
-            "100004",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/wall/d6505e88-aa64-4ce8-adae-2b62796d9397.jpg",
-        );
-
-        this.partManifestMap.set(
-            "110001",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/00ac1404-b1c5-4a88-bc5c-2fe1480d9e30.jpg",
-        );
-        this.partManifestMap.set(
-            "110002",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/97b67520-88f8-4b92-ae9a-e39c4e641215.jpg",
-        );
-        this.partManifestMap.set(
-            "110003",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/cc720923-b9d4-4ad1-af1e-db98151cacec.jpg",
-        );
-        this.partManifestMap.set(
-            "110004",
-            "https://cld-dev-oss.oss-cn-hangzhou.aliyuncs.com/salestool/img/floor/dc5eb19b-2879-47fe-a517-720b39e0f445.jpg",
-        );
     }
 
     addPart(partId: number): void {
@@ -96,8 +58,8 @@ export class BizData {
         this.scheme.dirty = true;
     }
 
-    addCube(newCube: Cube, isFirstCube: boolean): void {
-        if (isFirstCube) {
+    addCube(newCube: Cube, addToLeft = false): void {
+        if (addToLeft) {
             this.startX += newCube.size.x;
             this.scheme.cubes.unshift(newCube);
         } else {
@@ -193,39 +155,95 @@ export class BizData {
 
     addDoor(newDoor: Door): void {
         this.scheme.doors.push(newDoor);
-        this.addPart(newDoor.partId);
-        this.scheme.dirty = true;
-    }
 
-    removeDoor(id: string, doorNum = 1): Door | undefined {
-        const idx = this.scheme.doors.findIndex((d) => {
-            return d.id === id;
+        let doorNum = 0;
+        newDoor.locations.forEach((location) => {
+            doorNum += location.index.length;
         });
-        if (idx == -1) return;
-        const array = this.scheme.doors.splice(idx, 1);
-
-        // Handle the case of left and right door.
-        for (let i = 0; i < doorNum; i++) this.removePart(array[0].partId);
+        for (let i = 0; i < doorNum; i++) this.addPart(newDoor.partId);
         this.scheme.dirty = true;
-
-        return array[0];
     }
 
-    changeDoor(doorId: string, newPart: PartType): void {
-        const door = this.findDoorById(doorId);
-        if (door !== undefined) {
-            const oldPartId = door.partId;
-            door.partId = newPart.id;
-            door.catId = newPart.catId;
-            door.manifest = newPart.manifest;
-            door.size.x = newPart.width;
-            door.size.y = newPart.height;
-            door.size.z = newPart.depth;
+    removeDoor(doorId: string, index = 0): void {
+        const doorIndex = this.scheme.doors.findIndex((door) => {
+            return door.id === doorId;
+        });
+        if (doorIndex !== -1) {
+            const door = this.scheme.doors[doorIndex];
+            for (let i = 0; i < door.locations.length; i++) {
+                const location = door.locations[i];
+                const idx = location.index.findIndex((idx) => {
+                    return idx === index;
+                });
+                if (idx !== -1) {
+                    this.removePart(door.partId);
 
-            this.removePart(oldPartId);
-            this.addPart(newPart.id);
+                    location.index.splice(idx, 1);
+                    if (location.index.length === 0) door.locations.splice(i, 1);
+                    if (door.locations.length === 0) this.scheme.doors.splice(doorIndex, 1);
+                    break;
+                }
+            }
+
+            this.scheme.dirty = true;
         }
+    }
+
+    changeDoor(doorId: string, newPart: PartType, index: number): Door | undefined {
+        let resDoor = undefined;
+        const doorIndex = this.scheme.doors.findIndex((door) => {
+            return door.id === doorId;
+        });
+        if (doorIndex !== -1) {
+            let cubeId = "";
+            const door = this.scheme.doors[doorIndex];
+            for (let i = 0; i < door.locations.length; i++) {
+                const location = door.locations[i];
+                const idx = location.index.findIndex((idx) => {
+                    return idx === index;
+                });
+                if (idx !== -1) {
+                    this.removePart(door.partId);
+
+                    cubeId = location.id;
+                    location.index.splice(idx, 1);
+                    if (location.index.length === 0) door.locations.splice(i, 1);
+                    if (door.locations.length === 0) this.scheme.doors.splice(doorIndex, 1);
+                    break;
+                }
+            }
+
+            // Find the door with same part and cube and combine index into it.
+            for (const door of this.scheme.doors) {
+                if (resDoor !== undefined) break;
+
+                if (door.partId === newPart.id) {
+                    for (const location of door.locations) {
+                        if (location.id === cubeId) {
+                            location.index.push(index);
+                            resDoor = door;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (resDoor === undefined) {
+                const newDoorId = uuidv4();
+                const size = new Size(newPart.width, newPart.height, newPart.depth);
+                const loc: DoorLocation = {
+                    id: cubeId,
+                    index: [index],
+                };
+                resDoor = new Door(newDoorId, newPart.id, newPart.manifest, newPart.catId, size, door.doorType, [loc]);
+                this.addDoor(resDoor);
+            } else {
+                this.addPart(resDoor.partId);
+            }
+        }
+
         this.scheme.dirty = true;
+        return resDoor;
     }
 
     getAllDoorsId(): string[] {
@@ -281,27 +299,24 @@ export class BizData {
         return data;
     }
 
-    findCubeItems(id: string): Item[] | null {
-        let cube: Cube | null = null;
-        for (const c of this.scheme.cubes) {
-            if (c.id == id) {
-                cube = c;
-                break;
-            }
-        }
-        if (!cube) return null;
-        return cube.items;
+    findItemsByCubeId(id: string): Item[] {
+        let items: Item[] = [];
+        const cube = this.findCubeById(id);
+        if (cube !== undefined) items = cube.items;
+        return items;
     }
 
-    findDoorByCubeId(cubeId: string): Door | undefined {
-        let resDoor = undefined;
-        this.scheme.doors.some((door) => {
-            if (door.cubes.indexOf(cubeId) !== -1) {
-                resDoor = door;
-                return true;
+    findDoorsByCubeId(cubeId: string): Door[] {
+        const doors: Door[] = [];
+        this.scheme.doors.forEach((door) => {
+            for (const location of door.locations) {
+                if (location.id === cubeId) {
+                    doors.push(door);
+                    break;
+                }
             }
         });
 
-        return resDoor;
+        return doors;
     }
 }
