@@ -1168,6 +1168,14 @@ export default defineComponent({
                     case BABYLON.PointerEventTypes.POINTERDOWN:
                         if (pointerInfo && pointerInfo.pickInfo && pointerInfo.pickInfo.pickedMesh) {
                             const rootMesh = this.graphics.getRootMesh(pointerInfo.pickInfo.pickedMesh);
+
+                            // to do : computer the movement min max
+                            // let cube = manifest.cubes[0];
+                            // let scope1 = this.stl.computeMovementScope(cube, rootMesh);
+                            // let min = scope1.intervalsX.min;
+                            // let max = scope1.intervalsX.max;
+                            // this.gui.display(this.graphics, this.bizdata as BizData, rootMesh, min, max);
+
                             this.gui.display(this.graphics, this.bizdata as BizData, rootMesh);
 
                             const meshName = pointerInfo.pickInfo.pickedMesh.name;
