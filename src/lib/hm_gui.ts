@@ -6,6 +6,7 @@ import { BizData, ObjectType } from "@/lib/biz.data";
 import { Vector3 } from "babylonjs/Maths/math.vector";
 
 export class PopupGUI {
+    public rulerDisplayed = false;
     private _popupUI!: GUI.AdvancedDynamicTexture;
     private _popupPanel!: GUI.Container;
     private _deletePanel: BABYLON.Nullable<GUI.Rectangle> = null;
@@ -31,7 +32,7 @@ export class PopupGUI {
     private _rulerTextHeight!: GUI.TextBlock;
     private _rulerTextDepth!: GUI.TextBlock;
     private _rulerTextWidth!: GUI.TextBlock;
-    
+
     public loading(graphics: Graphics) {
         // GUI
         if (this._popupUI == null) {
@@ -93,19 +94,19 @@ export class PopupGUI {
             this._loadingHintInfo.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
             this._loadingPanel.addControl(this._loadingHintInfo)
         }
-        if( this._loadingSlider ){
+        if (this._loadingSlider) {
             // this._loadingSlider.value = this.loadedTemplateMeshCount / this.needToLoadCount
             // if (this._loadingSlider.value === 1) {
-                setTimeout(() => {
-                    if(this._loadingPanel)
-                        this._loadingPanel.dispose()
-                    this._loadingPanel = null
-                }, 3500)
+            setTimeout(() => {
+                if (this._loadingPanel)
+                    this._loadingPanel.dispose()
+                this._loadingPanel = null
+            }, 3500)
             // }
         }
     }
 
-    private displayPanel(graphics: Graphics, bizdata: BizData, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min:Number, max:Number): void {
+    private displayPanel(graphics: Graphics, bizdata: BizData, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min: Number, max: Number): void {
         //  hide GUI when click empty area
         if (mesh == null) {
             if (this._deletePanel) {
@@ -130,14 +131,14 @@ export class PopupGUI {
         }
         const info = mesh.name.split("_");
         const objectType = info[0];
-        
-        if (this._sliderPanel == null && ObjectType.ITEM == objectType ) {
+
+        if (this._sliderPanel == null && ObjectType.ITEM == objectType) {
             this._sliderPanel = new GUI.StackPanel();
-            
+
             // this._sliderPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
             // this._sliderPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER
             // this._sliderPanel.linkOffsetXInPixels = 300;
-            
+
             this._sliderPanel.width = "220px";
             this._popupUI.addControl(this._sliderPanel);
 
@@ -148,9 +149,9 @@ export class PopupGUI {
             this._sliderPanel.addControl(header);
 
             var slider = new GUI.ImageBasedSlider();
-            if (min==-1)
+            if (min == -1)
                 slider.minimum = 0.42;
-            if (max==-1)
+            if (max == -1)
                 slider.maximum = 1.76;
             slider.isVertical = true;
             slider.isThumbClamped = true;
@@ -161,10 +162,10 @@ export class PopupGUI {
             slider.valueBarImage = new GUI.Image("value", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/valueImage-vertical.png");
             slider.thumbImage = new GUI.Image("thumb", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png");
 
-            slider.onValueChangedObservable.add( (value) => {
+            slider.onValueChangedObservable.add((value) => {
                 header.text = " " + value + " \u7c73";
                 //if(mesh) mesh.position.y = value;
-                if(mesh) mesh.position.y = parseFloat(value.toFixed(2));
+                if (mesh) mesh.position.y = parseFloat(value.toFixed(2));
             });
 
             slider.value = mesh.position.y;
@@ -173,14 +174,14 @@ export class PopupGUI {
             // this._sliderPanel.linkOffsetX = -100;
             // this._sliderPanel.linkWithMesh(graphics.getMeshByName("cube0"));
         }
-        
+
 
         // clear previous delete panel to avoid delete previous mesh
         if (this._deletePanel != null) {
             this._deletePanel.dispose();
             this._deletePanel = null;
         }
-        
+
         if (this._deletePanel == null && ObjectType.CUBE != objectType) {
             this._deletePanel = new GUI.Rectangle();
             this._deletePanel.width = "48px";
@@ -229,7 +230,7 @@ export class PopupGUI {
             });
             this._deletePanel.linkWithMesh(mesh);
         }
-        
+
     }
 
     private drawRuler(graphics: Graphics, length: number, center: Vector3, direction: Vector3, title = ""): void {
@@ -376,11 +377,13 @@ export class PopupGUI {
         frameRulerDown.material = frameRulerMat;
     }
 
-    public display(graphics: Graphics, bizdata: BizData, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min:Number = -1, max:Number = -1) {
+    public display(graphics: Graphics, bizdata: BizData, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min: Number = -1, max: Number = -1) {
         this.displayPanel(graphics, bizdata, pickedMesh, min, max);
     }
 
     public showRuler(graphics: Graphics, bizdata: BizData, isDisplay: boolean) {
+        this.rulerDisplayed = isDisplay;
+
         if (!isDisplay) {
             if (this._rulerTextDepth) this._rulerTextDepth.dispose();
             if (this._rulerTextHeight) this._rulerTextHeight.dispose();

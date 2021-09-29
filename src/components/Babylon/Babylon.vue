@@ -183,7 +183,7 @@ export default defineComponent({
         this.graphics.init(7.5 * this.bizdata.SceneUnit);
         this.graphics.render();
 
-        this.graphics.setBackgroundColor( BABYLON.Color4.FromHexString("#F2F4F0FF") );
+        this.graphics.setBackgroundColor(BABYLON.Color4.FromHexString("#F2F4F0FF"));
 
         this.setupInteraction();
         this.setupKeyboard();
@@ -1336,16 +1336,8 @@ export default defineComponent({
                                 break;
                             case "7":
                                 // Add test codes:
-                                const size = { width: 800, height: 600 };
-                                // Method 1:
-                                // this.graphics.createScreenshotAsync(size).then((data) => {
-                                //     console.log("screen shot 1: ", data);
-                                // });
-                                // Method 2:
-                                // TODO: cannot render font?
-                                this.showReferenceRuler(false);
-                                this.graphics.createScreenshotUsingRenderTargetAsync(size, 8, false).then((data) => {
-                                    console.log("screen shot 2: ", data);
+                                this.screenshotApi().then((data) => {
+                                    console.log(data);
                                 });
                                 break;
                         }
@@ -1394,6 +1386,20 @@ export default defineComponent({
 
         showReferenceRuler(showRuler: boolean): void {
             this.gui.showRuler(this.graphics, this.bizdata as BizData, showRuler);
+        },
+
+        async screenshotApi(size = { width: 800, height: 600 }): Promise<string> {
+            const rulerDisplayed = this.gui.rulerDisplayed;
+            if (rulerDisplayed) this.showReferenceRuler(false);
+
+            // Method 1:
+            // const ret = await this.graphics.createScreenshotAsync(size);
+
+            // Method 2: cannot render font.
+            const ret = await this.graphics.createScreenshotUsingRenderTargetAsync(size, 8, false);
+
+            if (rulerDisplayed) this.showReferenceRuler(true);
+            return ret;
         },
     },
 });
