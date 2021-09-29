@@ -10,6 +10,15 @@ export class PopupGUI {
     private _popupPanel!: GUI.Container;
     private _deletePanel: BABYLON.Nullable<GUI.Rectangle> = null;
     private _deleteButton!: GUI.Button;
+
+    private _sliderPanel: BABYLON.Nullable<GUI.StackPanel> = null;
+    private _silder!: GUI.ImageBasedSlider;
+
+    private _loadingPanel: BABYLON.Nullable<GUI.Rectangle> = null;
+    private _loadingInfo: BABYLON.Nullable<GUI.TextBlock> = null;
+    private _loadingSlider: BABYLON.Nullable<GUI.Slider> = null;
+    private _loadingHintInfo: BABYLON.Nullable<GUI.TextBlock> = null;
+
     private rulerHeightTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
     private rulerWidthTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
     private rulerDepthTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
@@ -22,13 +31,90 @@ export class PopupGUI {
     private _rulerTextHeight!: GUI.TextBlock;
     private _rulerTextDepth!: GUI.TextBlock;
     private _rulerTextWidth!: GUI.TextBlock;
+    
+    public loading(graphics: Graphics) {
+        // GUI
+        if (this._popupUI == null) {
+            this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, graphics.scene);
+        }
+        // console.log('=================> setup ui')
 
-    private displayPanel(graphics: Graphics, bizdata: BizData, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>): void {
+        // Level one panel : undo redo all clear
+        if (this._loadingPanel == null) {
+            this._loadingPanel = new GUI.Rectangle()
+            this._loadingPanel.width = '528px'
+            this._loadingPanel.height = '181px'
+            this._loadingPanel.color = '#EAE7EAFF'
+            this._loadingPanel.background = 'white'
+            this._loadingPanel.cornerRadius = 4
+            this._loadingPanel.thickness = 1
+            //  this._loadingPanel.isVertical = false
+            this._popupUI.addControl(this._loadingPanel)
+
+            this._loadingInfo = new GUI.TextBlock()
+            this._loadingInfo.text = '衣柜加载中…'
+            this._loadingInfo.width = '144px'
+            this._loadingInfo.height = '32px'
+            this._loadingInfo.fontStyle = 'bold'
+            this._loadingInfo.fontSize = 24
+            this._loadingInfo.color = 'black'
+            //  this._loadingInfo.isVertical = false
+            this._loadingInfo.top = 34
+            this._loadingInfo.left = 44
+            this._loadingInfo.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP
+            this._loadingInfo.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
+            this._loadingPanel.addControl(this._loadingInfo)
+
+            this._loadingSlider = new GUI.Slider()
+            this._loadingSlider.left = 44
+            this._loadingSlider.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
+            this._loadingSlider.minimum = 0
+            this._loadingSlider.maximum = 1
+            this._loadingSlider.value = 0.55
+            this._loadingSlider.isThumbClamped = true
+            this._loadingSlider.isVertical = false
+            this._loadingSlider.displayThumb = false
+            this._loadingSlider.height = '24px'
+            this._loadingSlider.width = '455px'
+            this._loadingSlider.background = '#E5EEF5FF'
+            this._loadingSlider.color = '#0058A3FF'
+            this._loadingPanel.addControl(this._loadingSlider)
+
+            this._loadingHintInfo = new GUI.TextBlock()
+            this._loadingHintInfo.text = '小贴士：进行测量时，确保距离天花板还有9厘米的高度'
+            this._loadingHintInfo.width = '402px'
+            this._loadingHintInfo.height = '24px'
+            this._loadingHintInfo.fontSize = 16
+            this._loadingHintInfo.color = 'gray'
+            //  this._loadingHintInfo.isVertical = false
+            this._loadingHintInfo.top = -24
+            this._loadingHintInfo.left = 44
+            this._loadingHintInfo.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM
+            this._loadingHintInfo.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
+            this._loadingPanel.addControl(this._loadingHintInfo)
+        }
+        if( this._loadingSlider ){
+            // this._loadingSlider.value = this.loadedTemplateMeshCount / this.needToLoadCount
+            // if (this._loadingSlider.value === 1) {
+                setTimeout(() => {
+                    if(this._loadingPanel)
+                        this._loadingPanel.dispose()
+                    this._loadingPanel = null
+                }, 3500)
+            // }
+        }
+    }
+
+    private displayPanel(graphics: Graphics, bizdata: BizData, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min:Number, max:Number): void {
         //  hide GUI when click empty area
         if (mesh == null) {
             if (this._deletePanel) {
                 this._deletePanel.dispose();
                 this._deletePanel = null;
+            }
+            if (this._sliderPanel) {
+                this._sliderPanel.dispose();
+                this._sliderPanel = null;
             }
             return;
         }
@@ -37,13 +123,65 @@ export class PopupGUI {
             this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, graphics.scene);
         }
 
-        // clear previous delet panel to avoid delete previous mesh
+        // clear previous silder panel to avoid adjust previous mesh
+        if (this._sliderPanel != null) {
+            this._sliderPanel.dispose();
+            this._sliderPanel = null;
+        }
+        const info = mesh.name.split("_");
+        const objectType = info[0];
+        
+        if (this._sliderPanel == null && ObjectType.ITEM == objectType ) {
+            this._sliderPanel = new GUI.StackPanel();
+            
+            // this._sliderPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
+            // this._sliderPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER
+            // this._sliderPanel.linkOffsetXInPixels = 300;
+            
+            this._sliderPanel.width = "220px";
+            this._popupUI.addControl(this._sliderPanel);
+
+            var header = new GUI.TextBlock();
+            header.text = "Current Height";
+            header.height = "30px";
+            header.color = "black";
+            this._sliderPanel.addControl(header);
+
+            var slider = new GUI.ImageBasedSlider();
+            if (min==-1)
+                slider.minimum = 0.42;
+            if (max==-1)
+                slider.maximum = 1.76;
+            slider.isVertical = true;
+            slider.isThumbClamped = true;
+            slider.displayThumb = true;
+            slider.width = "22px";
+            slider.height = "200px";
+            slider.backgroundImage = new GUI.Image("back", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/backgroundImage-vertical.png");
+            slider.valueBarImage = new GUI.Image("value", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/valueImage-vertical.png");
+            slider.thumbImage = new GUI.Image("thumb", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png");
+
+            slider.onValueChangedObservable.add( (value) => {
+                header.text = " " + value + " \u7c73";
+                //if(mesh) mesh.position.y = value;
+                if(mesh) mesh.position.y = parseFloat(value.toFixed(2));
+            });
+
+            slider.value = mesh.position.y;
+            this._sliderPanel.addControl(slider);
+            // TODO
+            // this._sliderPanel.linkOffsetX = -100;
+            // this._sliderPanel.linkWithMesh(graphics.getMeshByName("cube0"));
+        }
+        
+
+        // clear previous delete panel to avoid delete previous mesh
         if (this._deletePanel != null) {
             this._deletePanel.dispose();
             this._deletePanel = null;
         }
-
-        if (this._deletePanel == null) {
+        
+        if (this._deletePanel == null && ObjectType.CUBE != objectType) {
             this._deletePanel = new GUI.Rectangle();
             this._deletePanel.width = "48px";
             this._deletePanel.height = "48px";
@@ -65,7 +203,7 @@ export class PopupGUI {
             this._deleteButton.onPointerUpObservable.add(() => {
                 if (mesh != null) {
                     // hide the popup ui.
-                    this.displayPanel(graphics, bizdata, null);
+                    this.displayPanel(graphics, bizdata, null, -1, -1);
                     this._deleteButton.isVisible = false;
 
                     const info = mesh.name.split("_");
@@ -89,8 +227,9 @@ export class PopupGUI {
                     mesh = null;
                 }
             });
+            this._deletePanel.linkWithMesh(mesh);
         }
-        this._deletePanel.linkWithMesh(mesh);
+        
     }
 
     private drawRuler(graphics: Graphics, length: number, center: Vector3, direction: Vector3, title = ""): void {
@@ -237,8 +376,8 @@ export class PopupGUI {
         frameRulerDown.material = frameRulerMat;
     }
 
-    public display(graphics: Graphics, bizdata: BizData, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
-        this.displayPanel(graphics, bizdata, pickedMesh);
+    public display(graphics: Graphics, bizdata: BizData, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min:Number = -1, max:Number = -1) {
+        this.displayPanel(graphics, bizdata, pickedMesh, min, max);
     }
 
     public showRuler(graphics: Graphics, bizdata: BizData, isDisplay: boolean) {
