@@ -93,6 +93,8 @@ export class BizData {
         this.scheme.cubes.splice(idx, 1);
         this.removePart(partId);
 
+        this.cubeMap.delete(cubeId);
+
         this.scheme.dirty = true;
     }
 

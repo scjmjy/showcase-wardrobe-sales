@@ -381,6 +381,13 @@ export default defineComponent({
                             const newCube = new Cube(cubeUUID, partId, manifest, catId, size, items);
                             this.bizdata.addCube(newCube);
 
+                            this.bizdata.cubeMap.set(newCube.id, {
+                                origin: itemOrigin,
+                                width: newCube.size.x,
+                                height: newCube.size.y,
+                                depth: newCube.size.z,
+                            });
+
                             this.adjustCamera();
                         })
                         .catch(() => {
@@ -1331,14 +1338,15 @@ export default defineComponent({
                                 // Add test codes:
                                 const size = { width: 800, height: 600 };
                                 // Method 1:
-                                this.graphics.createScreenshotAsync(size).then((data) => {
-                                    console.log("screen shot 1: ", data);
-                                });
+                                // this.graphics.createScreenshotAsync(size).then((data) => {
+                                //     console.log("screen shot 1: ", data);
+                                // });
                                 // Method 2:
                                 // TODO: cannot render font?
-                                // this.graphics.createScreenshotUsingRenderTargetAsync(size, 8, false).then((data) => {
-                                //     console.log("screen shot 2: ", data);
-                                // });
+                                this.showReferenceRuler(false);
+                                this.graphics.createScreenshotUsingRenderTargetAsync(size, 8, false).then((data) => {
+                                    console.log("screen shot 2: ", data);
+                                });
                                 break;
                         }
                         break;
