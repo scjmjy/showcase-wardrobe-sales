@@ -88,7 +88,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch, Ref, nextTick, onMounted, provide } from "vue";
+import { computed, defineComponent, ref, watch, Ref, nextTick, onMounted, provide, h } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -397,6 +397,32 @@ export default defineComponent({
                         hideSchemeSaveLoading();
                     }
                     break;
+                case "complete":
+                    try {
+                        await ElMessageBox.confirm(
+                            h("div", undefined, [
+                                h("p", undefined, "您确定保存方案，"),
+                                h("p", undefined, "并回到“客户服务页面”吗？"),
+                            ]),
+                            "温馨提示",
+                            {
+                                confirmButtonText: "确认",
+                                cancelButtonText: "取消",
+                                type: "warning",
+                            },
+                        );
+                        // if (scheme.value?.dirty) {
+                        showSchemeSaveLoading();
+                        await saveScheme();
+                        hideSchemeSaveLoading();
+                        // }
+                        router.push({
+                            path: "/",
+                        });
+                    } catch (_err) {
+                        //
+                    }
+                    break;
 
                 default:
                     break;
@@ -563,7 +589,6 @@ export default defineComponent({
                 mode.value = "view";
             },
             onInOutChange(_val: string) {
-                _val;
                 showMenu.value = true;
             },
             onPartSelect(part: Part, cat: PartCategory) {

@@ -8,7 +8,7 @@
         v-bind="$attrs"
         @opened="doOffer"
     >
-        <div class="offer-dlg__list">
+        <div v-if="offerInfo.otype === 'part'" class="offer-dlg__list">
             <offer-item
                 v-for="(item, index) of itemList"
                 :key="index"
@@ -17,6 +17,10 @@
                 :price="item.price"
                 :count="item.count"
             ></offer-item>
+        </div>
+        <div v-else class="offer-dlg__area">
+            <div>单价：{{ offerInfo.areaUnitPrice }} 元/㎡</div>
+            <div>投影面积：{{ offerInfo.area }} ㎡</div>
         </div>
         <div class="offer-dlg__price">
             <span class="offer-dlg__price-label">合计：</span>
@@ -53,7 +57,7 @@ export default defineComponent({
             default: "",
         },
     },
-    setup(props, ctx) {
+    setup(props) {
         const schemeOffer = ref<SchemeOffer>();
         return {
             dlgTitle: computed(() => `${props.customerName}，您的${props.schemeName}报价`),
@@ -67,6 +71,20 @@ export default defineComponent({
                     };
                 } else {
                     return splitPrice(+schemeOffer.value.offer);
+                }
+            }),
+            offerInfo: computed(() => {
+                if (!schemeOffer.value) {
+                    return {
+                        otype: "part",
+                    };
+                } else {
+                    const { otype, price, area } = schemeOffer.value;
+                    return {
+                        otype: otype === 1 ? "area" : "part",
+                        area: area,
+                        areaUnitPrice: price,
+                    };
                 }
             }),
             doOffer() {
@@ -86,6 +104,15 @@ export default defineComponent({
     &__list {
         height: 450px;
         overflow-y: auto;
+    }
+    &__area {
+        div {
+            font-weight: bold;
+            font-size: x-large;
+            &:first-of-type {
+                margin-bottom: 20px;
+            }
+        }
     }
     &__price {
         padding: 30px 30px 0px;

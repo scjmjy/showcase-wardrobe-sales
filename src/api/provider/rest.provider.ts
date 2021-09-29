@@ -10,6 +10,7 @@ import {
     LoginResult,
     OssSignature,
     Part,
+    PartAttachment,
     PartCategory,
     PartCategoryMeta,
     Product,
@@ -98,6 +99,28 @@ export default class RestProvider extends LocalProvider {
                         ok: false,
                         status: 500,
                         msg: "获取全局配置出错",
+                    });
+                });
+        });
+    }
+    requestPartAttachments(): Promise<AjaxResponse<PartAttachment>> {
+        return new Promise((resolve) => {
+            request({
+                method: "GET",
+                url: "/api/v1/biz/parts/attachments",
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        msg: "获取附带配件出错",
                     });
                 });
         });

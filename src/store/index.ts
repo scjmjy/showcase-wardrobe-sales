@@ -1,6 +1,6 @@
 import { createStore } from "vuex";
 import apiProvider from "@/api/provider";
-import { GlobalCfg, LoginResult, Product, Scheme } from "@/api/interface/provider.interface";
+import { GlobalCfg, LoginResult, PartAttachment, Product, Scheme } from "@/api/interface/provider.interface";
 import { Customer, User } from "@/api/dto/user";
 import emitter from "@/event";
 
@@ -12,6 +12,7 @@ const state = {
         productDetailData: undefined as undefined | Product | Scheme,
     },
     globalCfg: undefined as GlobalCfg | undefined,
+    attachments: [] as PartAttachment[],
     dirty: {
         customerList: false,
         schemeList: new Set<string>(),
@@ -59,6 +60,9 @@ export default createStore({
         "SET-GLOBAL-CONFIG"(state, cfg?: GlobalCfg) {
             state.globalCfg = cfg;
         },
+        "SET-PART-ATTACHMENTS"(state, attachments: PartAttachment[]) {
+            state.attachments = attachments;
+        },
         "SET-DIRTY-CUSTOMER"(state, dirty: boolean) {
             state.dirty.customerList = dirty;
         },
@@ -87,20 +91,18 @@ export default createStore({
             });
         },
 
-        config({ state, commit, dispatch }) {
-            return new Promise((resolve, reject) => {
-                apiProvider
-                    .requestGlobalCfg()
-                    .then((cfgRes) => {
-                        commit("SET-GLOBAL-CONFIG", cfgRes.data);
-                        emitter.emit("logged-in", "");
-                        resolve(cfgRes.data);
-                    })
-                    .catch(async (err) => {
-                        await dispatch("logout");
-                        reject(err);
-                    });
-            });
+        async config({ state, commit, dispatch }) {
+            try {
+                const cfg = (await apiProvider.requestGlobalCfg()).data;
+                commit("SET-GLOBAL-CONFIG", cfg);
+                const attachments = (await apiProvider.requestPartAttachments()).data;
+                commit("SET-PART-ATTACHMENTS", attachments);
+                emitter.emit("logged-in", "");
+                return cfg;
+            } catch (error) {
+                await dispatch("logout");
+                return Promise.reject(error);
+            }
         },
         logout({ commit }) {
             return apiProvider.logout().then(() => {

@@ -13,13 +13,13 @@ export function showSchemeSaveLoading() {
     }
 }
 
-export function hideSchemeSaveLoading() {
+export function hideSchemeSaveLoading(delay = 150) {
     const loading_ = loading;
     if (loading_) {
         setTimeout(() => {
             loading_.close();
             loading = undefined;
-        }, 150);
+        }, delay);
     }
 }
 

@@ -8,7 +8,7 @@
                 <div>
                     <el-button type="primary" plain @click="$emit('action', 'manifest')">清单</el-button>
                     <el-button type="primary" plain @click="$emit('action', 'offer')">报价</el-button>
-                    <el-button type="primary" plain @click="$emit('action', 'save')">保存</el-button>
+                    <el-button type="primary" plain @click="$emit('action', 'complete')">完成</el-button>
                 </div>
                 <div></div>
             </div>
@@ -118,7 +118,7 @@ interface TabType {
     on?: any;
 }
 
-export type ActionType = "manifest" | "offer" | "save";
+export type ActionType = "manifest" | "offer" | "save" | "complete";
 
 export default defineComponent({
     name: "PartsMenu",

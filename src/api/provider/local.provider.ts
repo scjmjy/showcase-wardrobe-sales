@@ -9,6 +9,7 @@ import ApiProvider, {
     LoginResult,
     OssSignature,
     Part,
+    PartAttachment,
     PartCategory,
     PartCategoryMeta,
     Product,
@@ -22,6 +23,9 @@ import ApiProvider, {
 
 const localVisitorRecordList: VisitorRecordItem[] = [];
 export default class LocalProvider implements ApiProvider {
+    requestPartAttachments(): Promise<AjaxResponse<PartAttachment>> {
+        throw new Error("Method not implemented.");
+    }
     login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>> {
         return Promise.resolve({
             status: 200,

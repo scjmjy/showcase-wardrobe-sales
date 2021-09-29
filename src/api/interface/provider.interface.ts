@@ -242,6 +242,9 @@ export interface SchemeOffer {
     offer: string;
     ptime: string;
     details: PartOffer[];
+    price: string; // 单价（元/㎡）
+    area: string; // 投影面积（㎡）
+    otype: number; // 报价方式（0：按配件；1：按投影面积）
 }
 
 export interface ManifestPart {
@@ -261,6 +264,11 @@ export interface VisitorRecordItem {
     ltime?: string;
 }
 
+export interface PartAttachment {
+    apcmid: number;
+    count: number;
+}
+
 export default interface ApiProvider {
     /**
      * 登录接口
@@ -273,6 +281,7 @@ export default interface ApiProvider {
     logout(): Promise<AjaxResponse<string>>;
 
     requestGlobalCfg(): Promise<AjaxResponse<GlobalCfg>>;
+    requestPartAttachments(): Promise<AjaxResponse<PartAttachment>>;
 
     // getCaptchaImage(): Promise<AjaxResponse<CaptchaResult>>;
 
