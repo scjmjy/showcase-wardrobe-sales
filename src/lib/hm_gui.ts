@@ -12,7 +12,7 @@ export class PopupGUI {
     private _deleteButton!: GUI.Button;
 
     private _sliderPanel: BABYLON.Nullable<GUI.StackPanel> = null;
-    private _silder!: GUI.ImageBasedSlider;
+    private _grid: BABYLON.Nullable<GUI.Grid> = null;
 
     private _loadingPanel: BABYLON.Nullable<GUI.Rectangle> = null;
     private _loadingInfo: BABYLON.Nullable<GUI.TextBlock> = null;
@@ -132,17 +132,23 @@ export class PopupGUI {
         const objectType = info[0];
         
         if (this._sliderPanel == null && ObjectType.ITEM == objectType ) {
+
+            this._grid = new GUI.Grid();
+            this._popupUI.addControl(this._grid);
+
+            // TO DO : silder position code 
+            this._grid.addColumnDefinition(0.5);
+            this._grid.addColumnDefinition(0.5);
+            this._grid.addRowDefinition(0.25);
+            this._grid.addRowDefinition(0.5);
+            this._grid.addRowDefinition(0.25);
+
             this._sliderPanel = new GUI.StackPanel();
-            
-            // this._sliderPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
-            // this._sliderPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER
-            // this._sliderPanel.linkOffsetXInPixels = 300;
-            
-            this._sliderPanel.width = "220px";
-            this._popupUI.addControl(this._sliderPanel);
+            this._sliderPanel.width = "320px";
+            this._grid.addControl(this._sliderPanel, 1, 0);
 
             var header = new GUI.TextBlock();
-            header.text = "Current Height";
+            header.text = "调整物体位置";
             header.height = "30px";
             header.color = "black";
             this._sliderPanel.addControl(header);
@@ -162,16 +168,12 @@ export class PopupGUI {
             slider.thumbImage = new GUI.Image("thumb", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png");
 
             slider.onValueChangedObservable.add( (value) => {
-                header.text = " " + value + " \u7c73";
-                //if(mesh) mesh.position.y = value;
-                if(mesh) mesh.position.y = parseFloat(value.toFixed(2));
+                if(mesh) mesh.position.y = value;
+                header.text = " " + value.toFixed(2) + " \u7c73";
             });
 
             slider.value = mesh.position.y;
             this._sliderPanel.addControl(slider);
-            // TODO
-            // this._sliderPanel.linkOffsetX = -100;
-            // this._sliderPanel.linkWithMesh(graphics.getMeshByName("cube0"));
         }
         
 
