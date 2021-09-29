@@ -6,7 +6,7 @@
         :title="dlgTitle"
         width="650px"
         v-bind="$attrs"
-        @opened="onOpened"
+        @opened="doOffer"
     >
         <div class="offer-dlg__list">
             <offer-item
@@ -69,8 +69,8 @@ export default defineComponent({
                     return splitPrice(+schemeOffer.value.offer);
                 }
             }),
-            onOpened() {
-                apiProvider.requestSchemeOffer(props.schemeId).then((res) => {
+            doOffer() {
+                return apiProvider.requestSchemeOffer(props.schemeId).then((res) => {
                     if (res.ok && res.data) {
                         schemeOffer.value = res.data;
                     }

@@ -9,27 +9,29 @@
             <el-table-column label="游客" prop="no" width="200" align="center" />
             <el-table-column label="进店时间" align="center">
                 <template #default="scope">
-                    <el-time-picker
+                    <el-date-picker
                         v-model="scope.row.etime"
+                        type="datetime"
                         placeholder="选择进店时间"
                         format="YYYY-MM-DD HH:mm"
                         @change="onItemChange(scope.$index, scope.row)"
                     >
-                    </el-time-picker>
+                    </el-date-picker>
                 </template>
             </el-table-column>
             <el-table-column label="离店时间" align="center">
                 <template #default="scope">
-                    <el-time-picker
+                    <el-date-picker
                         v-model="scope.row.ltime"
+                        type="datetime"
                         placeholder="选择离店时间"
                         format="YYYY-MM-DD HH:mm"
                         @change="onItemChange(scope.$index, scope.row)"
                     >
-                    </el-time-picker>
+                    </el-date-picker>
                 </template>
             </el-table-column>
-            <el-table-column label="" width="200" align="center">
+            <el-table-column label="" width="200" align="right">
                 <template #default="scope">
                     <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                 </template>
@@ -154,7 +156,7 @@ export default defineComponent({
     max-width: 1440px;
     height: 100%;
     overflow: hidden;
-    margin: 80px auto 20px;
+    margin: 40px auto 20px;
     display: flex;
     flex-direction: column;
 

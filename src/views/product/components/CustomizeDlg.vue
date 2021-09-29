@@ -18,7 +18,7 @@
             <el-form-item label="单元柜宽度" prop="width">
                 <el-input v-model.number="formData.width"></el-input>
             </el-form-item>
-            <div class="customize-dlg__unit">单位：cm</div>
+            <div class="customize-dlg__unit">单位：米</div>
         </el-form>
         <template #footer>
             <el-button @click="doCancel">不修改</el-button>
@@ -29,13 +29,26 @@
 
 <script lang="ts">
 import { computed, defineComponent, PropType, reactive } from "vue";
-import { CustomizeMode, CustomizeSize } from "../helpers";
+import { CustomizeMode, CustomizeSize, CustomizeMinMax } from "../helpers";
 
 function defaultSize(): CustomizeSize {
     return {
-        height: 240,
-        depth: 50,
-        width: 120,
+        height: 2.4,
+        depth: 0.6,
+        width: 1.2,
+    };
+}
+function defaultMinMax(): CustomizeMinMax {
+    return {
+        depthMax: 1.0,
+        // depthMin: p.pdepthmin,
+        depthMin: 0.6,
+        widthMax: 6.0,
+        // widthMin: p.pwidthmin,
+        widthMin: 1.0,
+        heightMax: 2.8,
+        // heightMin: p.pheightmin,
+        heightMin: 2.4,
     };
 }
 
@@ -55,19 +68,23 @@ export default defineComponent({
             type: Object as PropType<CustomizeSize>,
             default: defaultSize(),
         },
+        minMax: {
+            type: Object as PropType<CustomizeMinMax>,
+            default: defaultMinMax(),
+        },
     },
     setup(props, ctx) {
         const formData = reactive(defaultSize());
         return {
             formData,
-            formRules: {
+            formRules: computed(() => ({
                 height: [
                     { required: true, message: "请输入单元柜高度", trigger: ["blur", "change"] },
                     {
                         type: "number",
                         min: 240,
                         max: 280,
-                        message: "高度在 240cm 到 280cm 之间",
+                        message: `高度在 ${props.minMax.heightMin}米 到 ${props.minMax.heightMax}米 之间`,
                         trigger: ["blur", "change"],
                     },
                 ],
@@ -77,7 +94,7 @@ export default defineComponent({
                         type: "number",
                         min: 30,
                         max: 60,
-                        message: "深度在 30cm 到 60cm 之间",
+                        message: `深度在 ${props.minMax.depthMin}米 到 ${props.minMax.depthMax}米 之间`,
                         trigger: ["blur", "change"],
                     },
                 ],
@@ -87,11 +104,11 @@ export default defineComponent({
                         type: "number",
                         min: 50,
                         max: 600,
-                        message: "宽度在 50cm 到 600cm 之间",
+                        message: `宽度在 ${props.minMax.widthMin}米 到 ${props.minMax.widthMax}米 之间`,
                         trigger: ["blur", "change"],
                     },
                 ],
-            },
+            })),
             title: computed(() => {
                 return "修改柜体尺寸";
                 // switch (props.mode) {

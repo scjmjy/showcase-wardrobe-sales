@@ -2,7 +2,7 @@
     <div
         v-if="product"
         class="product-detail"
-        :class="{ 'slide-left-3d': showMenu || (mode === 'view' && !collapseInfoMenu), 'menu-opened': showMenu }"
+        :class="{ 'slide-left-3d': showMenu || (mode === 'view' && !collapseInfoMenu) }"
     >
         <transition name="el-zoom-in-top">
             <app-header v-if="mode === 'view'" type="dark" :stop="false" icon="" />
@@ -19,24 +19,23 @@
             :mode="mode3D"
             :baseOSSUrl="baseUrl"
         />
-        <el-collapse-transition-h @after-leave="mode = 'edit'">
-            <product-info-menu
-                v-if="mode === 'view'"
-                v-model:collapse="collapseInfoMenu"
-                class="product-detail__info"
-                :price="product.offer"
-                :titles="titles"
-                :creatingScheme="creatingScheme"
-                :prepareContinue="prepareContinue"
-                :isNew="isNew"
-                :isSelf="isSelf"
-                :isOther="isOther"
-                @newScheme="newScheme"
-                @continueScheme="continueEditScheme"
-                @copyScheme="copyScheme"
-                @offer="onPartsMenuAction('offer')"
-            />
-        </el-collapse-transition-h>
+        <product-info-menu
+            v-if="mode === 'view'"
+            v-model:collapse="collapseInfoMenu"
+            class="product-detail__info"
+            :class="{ collapse: collapseInfoMenu }"
+            :offer="product.offer"
+            :titles="titles"
+            :creatingScheme="creatingScheme"
+            :prepareContinue="prepareContinue"
+            :isNew="isNew"
+            :isSelf="isSelf"
+            :isOther="isOther"
+            @newScheme="newScheme"
+            @continueScheme="continueEditScheme"
+            @copyScheme="copyScheme"
+            @offer="onPartsMenuAction('offer')"
+        />
         <template v-if="mode === 'edit'">
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
                 >返回</el-button
@@ -56,6 +55,7 @@
                 v-show="mode === 'edit'"
                 v-model:opened="showMenu"
                 class="product-detail__menu2d"
+                :class="{ collapse: !showMenu }"
                 :type="stateInOut"
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
@@ -66,10 +66,12 @@
             v-model="showCustomizeDlg"
             :mode="customizeMode"
             :size="customizeSize"
+            :minMax="customizeMinMax"
             @confirm="onCustomizeConfirm"
             @cancel="onCustomizeCancel"
         />
         <offer-dlg
+            ref="refOfferDlg"
             v-model="showOfferDlg"
             :schemeId="product.id"
             :schemeName="product.product"
@@ -112,6 +114,7 @@ import {
     hideSchemeSaveLoading,
     CustomizeMode,
     CustomizeSize,
+    CustomizeMinMax,
     SchemeMode,
     resetGooeyMenu,
 } from "./helpers";
@@ -164,8 +167,8 @@ export default defineComponent({
 
         async function gotoEditScheme() {
             // showCustomizeDlg.value = false;
-            mode.value = ""; // after-leave="mode=edit"
-            // mode.value = "edit";
+            // mode.value = ""; // after-leave="mode=edit"
+            mode.value = "edit";
             setTimeout(() => {
                 switch (customizeMode.value) {
                     case "new":
@@ -344,8 +347,14 @@ export default defineComponent({
 
         const { customerName } = store.state.currentCustomer;
 
+        const refOfferDlg = ref<InstanceType<typeof OfferDlg>>();
+
         async function saveScheme() {
             await util.saveSchemeAsync(product.value.id, scheme.value!);
+            const scheme2d = product.value as Scheme;
+            if (scheme2d.offer && refOfferDlg.value) {
+                await refOfferDlg.value.doOffer();
+            }
             if (scheme.value !== undefined) scheme.value.dirty = false;
             schemeDetailDirty.value = true;
         }
@@ -408,6 +417,7 @@ export default defineComponent({
             gooeyMenuOpened,
             refBabylon,
             refPartsMenu,
+            refOfferDlg,
             scheme,
             setSchemeDirty,
             schemeDetailDirty,
@@ -418,9 +428,26 @@ export default defineComponent({
                     return undefined;
                 }
                 return {
-                    width: p.width,
-                    height: p.height,
-                    depth: p.depth,
+                    width: p.width / 1000,
+                    height: p.height / 1000,
+                    depth: p.depth / 1000,
+                };
+            }),
+            customizeMinMax: computed<CustomizeMinMax | undefined>(() => {
+                const p = product.value;
+                if (isProduct(p)) {
+                    return undefined;
+                }
+                return {
+                    depthMax: p.pdepthmax / 1000,
+                    // depthMin: p.pdepthmin,
+                    depthMin: p.depth / 1000,
+                    widthMax: p.pwidthmax / 1000,
+                    // widthMin: p.pwidthmin,
+                    widthMin: p.width / 1000,
+                    heightMax: p.pheightmax / 1000,
+                    // heightMin: p.pheightmin,
+                    heightMin: p.height / 1000,
                 };
             }),
             selectedPart,
@@ -531,6 +558,7 @@ export default defineComponent({
 
                 // reset states
                 stateInOut.value = "out";
+                showMenu.value = false;
                 resetGooeyMenu(gooeyMenuItems.value);
                 mode.value = "view";
             },
@@ -560,6 +588,8 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+$menu-width: 20%;
+// $menu-min-width: 250px;
 .product-detail {
     position: relative;
     display: flex;
@@ -608,9 +638,10 @@ export default defineComponent({
         position: absolute;
         top: 0px;
         bottom: 0px;
-        right: -190px;
+        right: 0;
         white-space: nowrap;
         transition: right 0.3s ease;
+        width: $menu-width;
     }
     &__info {
         position: absolute;
@@ -621,10 +652,13 @@ export default defineComponent({
         top: 0px;
         bottom: 0px;
         right: 0px;
-        padding: 0 20px;
+        padding: 0 1%;
         white-space: nowrap;
         text-align: center;
         background-color: white;
+
+        width: $menu-width;
+        // min-width: $menu-min-width;
     }
     &__action-left {
         position: absolute;
@@ -656,25 +690,29 @@ export default defineComponent({
     //     right: 348px;
     // }
     &.slide-left-3d &__3d {
-        left: -170px;
+        // left: -170px;
+        left: calc(-#{$menu-width} / 2);
     }
     &.menu-opened &__menu2d {
         right: 0px;
     }
 }
 
-@media (min-width: 1150px) {
-    .product-detail {
-        &__menu2d {
-            right: -270px;
-        }
-    }
+.collapse {
+    right: calc(-#{$menu-width} + 80px);
 }
-@media (min-width: 1366px) {
-    .product-detail {
-        &__menu2d {
-            right: -345px;
-        }
-    }
-}
+// @media (min-width: 1150px) {
+//     .product-detail {
+//         &__menu2d {
+//             right: -270px;
+//         }
+//     }
+// }
+// @media (min-width: 1366px) {
+//     .product-detail {
+//         &__menu2d {
+//             right: -345px;
+//         }
+//     }
+// }
 </style>

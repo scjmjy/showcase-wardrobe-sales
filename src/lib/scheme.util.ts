@@ -48,7 +48,7 @@ export function importSchemeJson(url: string): Promise<Scheme> {
                 console.log(mf);
 
                 let config: Config | null = null;
-                if (mf.config !== undefined) {
+                if (mf.config) {
                     let cubeSize = null;
                     let standardCube = null;
                     if (mf.config.cubeSize !== undefined) {

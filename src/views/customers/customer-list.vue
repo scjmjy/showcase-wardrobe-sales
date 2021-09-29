@@ -5,7 +5,7 @@
         <div ref="refSchemeList" class="customer-list__schemes" v-loading="loadingSchemeList">
             <div class="customer-list__info">
                 <strong class="customer-list__info-label">{{ customerName }}</strong>
-                <el-button v-if="showServeBtn" size="small" type="dark" round @click="serve">为此客户服务</el-button>
+                <el-button v-if="showServeBtn" size="small" type="warning" round @click="serve">为此客户服务</el-button>
                 <el-button v-else size="small" type="primary" round @click="newServe">开始新服务</el-button>
             </div>
             <div v-if="services.length === 0" class="customer-list__empty">

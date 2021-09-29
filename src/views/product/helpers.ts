@@ -29,6 +29,14 @@ export interface CustomizeSize {
     depth: number;
     width: number;
 }
+export interface CustomizeMinMax {
+    depthMax: number;
+    depthMin: number;
+    widthMax: number;
+    widthMin: number;
+    heightMax: number;
+    heightMin: number;
+}
 // scheme-new：从某个商品模板来定制新的方案
 // scheme-self：自己的方案
 // scheme-other：他人的方案

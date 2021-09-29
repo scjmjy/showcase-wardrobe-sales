@@ -41,12 +41,14 @@ export default defineComponent({
         }
         function afterDataHandler(page: number) {
             if (customers.value.length > 0 && !defaultActive.value && page === 1) {
-                if (store.state.currentCustomer.customerId) {
-                    defaultActive.value = store.state.currentCustomer.customerId.toString();
-                } else {
-                    defaultActive.value = customers.value[0].cid.toString();
-                }
-                context.emit("select", defaultActive.value);
+                nextTick(() => {
+                    if (store.state.currentCustomer.customerId) {
+                        defaultActive.value = store.state.currentCustomer.customerId.toString();
+                    } else {
+                        defaultActive.value = customers.value[0].cid.toString();
+                    }
+                    context.emit("select", defaultActive.value);
+                });
             }
         }
         function onScroll(e?: Event) {
@@ -111,6 +113,14 @@ export default defineComponent({
         line-height: 86px !important;
         color: var(--el-color-primary);
         font-weight: bold;
+    }
+    :deep(.el-menu-item.is-active) {
+        background-color: var(--el-color-primary);
+        color: white;
+    }
+    :deep(.el-menu-item:hover) {
+        background-color: var(--el-color-primary-light-5);
+        color: white;
     }
     &__avatar {
         display: inline-flex;

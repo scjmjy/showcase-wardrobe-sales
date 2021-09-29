@@ -310,6 +310,7 @@ export default defineComponent({
             },
             onUpLevelClick,
             selectPart(catId: string | number, partId: string | number) {
+                slide("right");
                 selectedPartId.value = +partId;
                 for (const tab of activeTabs.value) {
                     if (tab.cat && tab.cat.id == catId) {
@@ -334,7 +335,7 @@ export default defineComponent({
                     selectedCatId.value = +catId;
                 }
             },
-            unselectPart(catId: string | number, partId: string | number) {
+            unselectPart(_catId: string | number, _partId: string | number) {
                 selectedPartId.value = 0;
                 selectedCatId.value = 0;
             },
@@ -375,14 +376,13 @@ export default defineComponent({
 
 <style scoped lang="scss">
 $header-height: 56px;
+// $menu-width: 20%;
+
 .parts-menu {
-    --menu-width: 278px;
-    // border-radius: 10px 0px 0px 10px;
     position: relative;
     box-shadow: 0px 10px 18px rgba(0, 0, 0, 0.07);
     background-color: var(--el-color-bg);
-    width: var(--menu-width);
-    // max-width: $menu-width;
+    // width: $menu-width;
     overflow: hidden;
     white-space: nowrap;
 
@@ -396,7 +396,7 @@ $header-height: 56px;
         display: inline-flex;
         flex-direction: column;
         overflow: hidden;
-        width: var(--menu-width);
+        width: 100%;
         height: 100%;
         vertical-align: top;
         &-header {
@@ -444,13 +444,13 @@ $header-height: 56px;
         display: inline-flex;
         flex-direction: column;
         overflow: hidden;
-        width: var(--menu-width);
+        width: 100%;
         height: 100%;
         transition: transform 0.3s ease;
         background-color: white;
         z-index: 100;
         &.slide-to-left {
-            transform: translateX(-428px);
+            transform: translateX(-100%);
         }
         &-header {
             display: flex;
@@ -498,14 +498,14 @@ $header-height: 56px;
     }
 }
 
-@media (min-width: 1150px) {
-    .parts-menu {
-        --menu-width: 358px;
-    }
-}
-@media (min-width: 1366px) {
-    .parts-menu {
-        --menu-width: 428px;
-    }
-}
+// @media (min-width: 1150px) {
+//     .parts-menu {
+//         --menu-width: 358px;
+//     }
+// }
+// @media (min-width: 1366px) {
+//     .parts-menu {
+//         --menu-width: 428px;
+//     }
+// }
 </style>
