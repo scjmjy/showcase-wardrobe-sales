@@ -192,7 +192,7 @@ export default defineComponent({
         },
     },
     async mounted() {
-        this.stl = new GeneralStl(new StlConfig(0.1, 0, 0, this.scheme.config.sizeConfig));
+        this.stl = new GeneralStl(new StlConfig(0.1, 0, 0.1, this.scheme.config.sizeConfig));
         this.bizdata = new BizData(this.scheme);
 
         // set the scene size as 7.5m.
@@ -536,7 +536,7 @@ export default defineComponent({
                                 const modelPos = new BABYLON.Vector3(
                                     doorPosX + model.position.x,
                                     doorPosY + model.position.y,
-                                    cubeData.depth * 0.5 + model.position.z,
+                                    cubeData.depth * 0.5 + newDoor.size.z * 0.5 + model.position.z,
                                 );
                                 const modelScaling = new BABYLON.Vector3(
                                     model.scaling.x,
@@ -1191,20 +1191,28 @@ export default defineComponent({
                     case BABYLON.PointerEventTypes.POINTERDOWN:
                         if (pointerInfo && pointerInfo.pickInfo && pointerInfo.pickInfo.pickedMesh) {
                             const rootMesh = this.graphics.getRootMesh(pointerInfo.pickInfo.pickedMesh);
+                            if (rootMesh === null) return;
 
-                            // to do : computer the movement min max
-                            // let cube = manifest.cubes[0];
-                            // let scope1 = this.stl.computeMovementScope(cube, rootMesh);
-                            // let min = scope1.intervalsX.min;
-                            // let max = scope1.intervalsX.max;
-                            // this.gui.display(this.graphics, this.bizdata as BizData, rootMesh, min, max);
+                            const meshName = rootMesh.name;
+                            const info = meshName.split("_");
+                            const objectType = info[0];
 
-                            this.gui.display(this.graphics, this.bizdata as BizData, rootMesh);
+                            // Compute the movement min max
+                            let min = -1;
+                            let max = -1;
+                            if (objectType === ObjectType.ITEM) {
+                                const itemId = info[1];
+                                const cubeItem = this.bizdata.findCubeItemByItemId(itemId);
+                                if (cubeItem.cube !== undefined && cubeItem.item !== undefined) {
+                                    const scope = this.stl.computeMovementScope(cubeItem.cube, cubeItem.item);
+                                    min = scope.intervalsY[0].min;
+                                    max = scope.intervalsY[0].max;
+                                }
+                            }
+                            this.gui.display(this.graphics, this.bizdata as BizData, rootMesh, min, max);
 
-                            const meshName = pointerInfo.pickInfo.pickedMesh.name;
-                            if (meshName.startsWith("BackgroundArea")) {
+                            if (objectType === "BackgroundArea") {
                                 // Hit the available area.
-                                const info = meshName.split("_");
                                 const cubeId = info[1];
                                 const manifest = this.newPart.manifest;
 

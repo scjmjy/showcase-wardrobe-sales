@@ -104,7 +104,7 @@ export class GeneralStl implements IStl {
         let config = this.config.sizeConfig;
         let cubeArea: Area = new Area(cube.id,
             new Position(cube.size.x / 2 - config.cube_thick_left, config.cube_thick_bottom, cube.size.z / 2),
-            new Position(-cube.size.x / 2 + config.cube_thick_left, cube.size.y - config.cube_thick_top,
+            new Position(-cube.size.x / 2 + config.cube_thick_right, cube.size.y - config.cube_thick_top,
                 -cube.size.z / 2 + config.cube_thick_back));
         return this.divideArea(this.divider, cubeArea, items);
     }
