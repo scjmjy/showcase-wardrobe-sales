@@ -18,7 +18,8 @@ import { PopupGUI } from "@/lib/hm_gui";
 import { ElMessage } from "element-plus";
 
 import { GeneralStl, StlConfig } from "@/lib/stl";
-import { AreaHints, CubeAreaHint, Area } from "@/lib/model/hint";
+import { AreaHints, Area } from "@/lib/model/hint";
+import { AnchorMeta } from "@/lib/model/pscope";
 
 export default defineComponent({
     name: "Babylon",
@@ -72,7 +73,9 @@ export default defineComponent({
             newPart: {} as Part,
             schemeModelCount: 0,
             loadedModelCount: 0,
-            stl: new GeneralStl(new StlConfig(0.1, 0, 0)),
+            stl: {} as GeneralStl,
+            areaHints: {} as AreaHints,
+            defaultPartType: 1,
         };
     },
     computed: {
@@ -170,15 +173,12 @@ export default defineComponent({
                             // const availableArea = this.getAvailableAreaByPart(newPart);
                             // this.ShowAvailableArea(newPart, availableArea);
 
-                            debugger
-                            const hints: AreaHints = this.stl.computeAreaHints(
+                            this.areaHints = this.stl.computeAreaHints(
                                 this.scheme.manifest,
-                                1,
+                                this.defaultPartType,
                                 new Size(newPart.width, newPart.height, newPart.depth),
                             );
-                            console.log("hints", hints);
-
-                            this.ShowAvailableArea(newPart, hints);
+                            this.ShowAvailableArea(newPart, this.areaHints);
                         }
                     }
                 }
@@ -192,6 +192,7 @@ export default defineComponent({
         },
     },
     async mounted() {
+        this.stl = new GeneralStl(new StlConfig(0.1, 0, 0, this.scheme.config.sizeConfig));
         this.bizdata = new BizData(this.scheme);
 
         // set the scene size as 7.5m.
@@ -1096,15 +1097,17 @@ export default defineComponent({
             this.clearSelectionApi();
             this.clearAvailableAreas();
 
-            areaHints.cubeHints.forEach((cubeHint: CubeAreaHint) => {
-                cubeHint.areas.forEach((area: Area) => {
+            for (let i = 0; i < areaHints.cubeHints.length; i++) {
+                const cubeHint = areaHints.cubeHints[i];
+                for (let j = 0; j < cubeHint.areas.length; j++) {
+                    const area = cubeHint.areas[j];
                     const cubeData = this.bizdata.cubeMap.get(area.cubeId);
                     if (cubeData !== undefined) {
                         const width = area.endPoint.x - area.startPoint.x;
                         const height = area.endPoint.y - area.startPoint.y;
                         const depth = area.endPoint.z - area.startPoint.z;
                         const availableArea = BABYLON.MeshBuilder.CreateBox(
-                            `BackgroundArea_${area.cubeId}_${part.id.toString()}`,
+                            `BackgroundArea_${area.cubeId}_${i.toString()}_${j.toString()}`,
                             { width: width, height: height, depth: depth },
                             this.graphics.scene as BABYLON.Scene,
                         );
@@ -1129,8 +1132,8 @@ export default defineComponent({
                         this.graphics.disableLightEffect(availableArea);
                         this.availableAreas.push(availableArea);
                     }
-                });
-            });
+                }
+            }
         },
 
         ShowCubeAddArea(part: Part): void {
@@ -1265,7 +1268,7 @@ export default defineComponent({
                                         manifest !== undefined &&
                                         pointerInfo.pickInfo.pickedPoint !== null
                                     ) {
-                                        const pickedPointY = pointerInfo.pickInfo.pickedPoint.y;
+                                        // const pickedPointY = pointerInfo.pickInfo.pickedPoint.y;
 
                                         request({
                                             url: this.baseOSSUrl + manifest,
@@ -1275,15 +1278,30 @@ export default defineComponent({
                                             .then((res) => {
                                                 const itemMf = res.data;
                                                 const itemId = uuidv4();
-                                                const startPos = new BABYLON.Vector3(
-                                                    0,
-                                                    pickedPointY - itemMf.size.y * 0.5,
-                                                    0,
+                                                // const startPos = new BABYLON.Vector3(
+                                                //     0,
+                                                //     pickedPointY - itemMf.size.y * 0.5,
+                                                //     0,
+                                                // );
+
+                                                const size = new Size(
+                                                    this.newPart.width,
+                                                    this.newPart.height,
+                                                    this.newPart.depth,
                                                 );
+
+                                                const cubeHintIdx = parseInt(info[2]);
+                                                const areaIdx = parseInt(info[3]);
+                                                const anchorMeta: AnchorMeta = this.stl.computeAnchorMeta(
+                                                    this.areaHints.cubeHints[cubeHintIdx].areas[areaIdx],
+                                                    this.defaultPartType,
+                                                    size,
+                                                );
+
                                                 const itemOrigin = new BABYLON.Vector3(
-                                                    cubeData.origin.x + startPos.x,
-                                                    cubeData.origin.y + startPos.y,
-                                                    cubeData.origin.z + startPos.z,
+                                                    cubeData.origin.x + anchorMeta.pivot.x,
+                                                    cubeData.origin.y + anchorMeta.pivot.y,
+                                                    cubeData.origin.z + anchorMeta.pivot.z,
                                                 );
 
                                                 // TODO: create a parent mesh to contain all import meshes.
@@ -1311,15 +1329,11 @@ export default defineComponent({
 
                                                 const partId = this.newPart.id;
                                                 const catId = this.newPart.catId;
-                                                const size = new Size(
-                                                    this.newPart.width,
-                                                    this.newPart.height,
-                                                    this.newPart.depth,
-                                                );
+
                                                 // TODO: only handle the case of locationType==1.
                                                 const location = new Location(
                                                     1,
-                                                    new Position(startPos.x, startPos.y, startPos.z),
+                                                    anchorMeta.pivot,
                                                     null,
                                                 );
                                                 const newItem = new Item(

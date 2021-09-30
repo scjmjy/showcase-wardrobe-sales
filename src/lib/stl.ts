@@ -1,20 +1,24 @@
 import { IStl } from "./stl.api";
-import { Cube, Item, Manifest, PartType, Position, Size } from "./scheme";
+import { Cube, Item, Manifest, PartType, Position, Size, SizeConfig } from "./scheme";
 import { Area, AreaHints, CubeAreaHint } from "./model/hint";
 import { IAreaDivider, IAreaFilter } from "./spi/spi";
 import { CompositeFilter } from "./spi/filters";
 import { CompositeAreaDivider } from "./spi/dividers";
 import { AnchorMeta, Interval, Scope } from "./model/pscope";
+import { ConfigTypeMap } from "dayjs";
 
 export class StlConfig {
     area_bias_x: number;
     area_bias_y: number;
     area_bias_z: number;
+    sizeConfig: SizeConfig;
 
-    constructor(area_bias_x: number = 0, area_bias_y: number = Number.MAX_VALUE, area_bias_z: number = Number.MAX_VALUE) {
+
+    constructor(area_bias_x: number = 0, area_bias_y: number = Number.MAX_VALUE, area_bias_z: number = Number.MAX_VALUE, sizeConfig: SizeConfig = new SizeConfig()) {
         this.area_bias_x = area_bias_x;
         this.area_bias_y = area_bias_y;
         this.area_bias_z = area_bias_z;
+        this.sizeConfig = sizeConfig;
     }
 }
 
@@ -97,8 +101,11 @@ export class GeneralStl implements IStl {
     }
 
     private fetchDividedAreas(cube: Cube, items: Array<Item>): Array<Area> {
-        let cubeArea: Area = new Area(cube.id, new Position(cube.size.x / 2, 0, cube.size.z / 2),
-            new Position(-cube.size.x / 2, cube.size.y, -cube.size.z / 2));
+        let config = this.config.sizeConfig;
+        let cubeArea: Area = new Area(cube.id,
+            new Position(cube.size.x / 2 - config.cube_thick_left, config.cube_thick_bottom, cube.size.z / 2),
+            new Position(-cube.size.x / 2 + config.cube_thick_left, cube.size.y - config.cube_thick_top,
+                -cube.size.z / 2 + config.cube_thick_back));
         return this.divideArea(this.divider, cubeArea, items);
     }
 
@@ -127,11 +134,14 @@ export class GeneralStl implements IStl {
     }
 
     private checkItemIntersected(area: Area, item: Item): boolean {
-        let areaSetPoint = area.startPoint;
+        let areaStartPoint = area.startPoint;
         let areaEndPoint = area.endPoint;
-        let itemLocStartPos = item.location.startPos;
-        let itemSize = item.size;
+        let itemBtmY = item.location.startPos.y;
+        let itemTopY = itemBtmY + item.size.y;
 
-        return areaSetPoint.y < itemLocStartPos.y && areaEndPoint.y > (itemSize.y + itemLocStartPos.y);
+        return (itemBtmY > areaStartPoint.y && itemBtmY < areaEndPoint.y) ||
+            (itemTopY > areaStartPoint.y && itemTopY < areaEndPoint.y) ||
+            (areaStartPoint.y > itemBtmY && areaStartPoint.y < itemTopY) ||
+            (areaEndPoint.y > itemBtmY && areaEndPoint.y < itemTopY);
     }
 }
