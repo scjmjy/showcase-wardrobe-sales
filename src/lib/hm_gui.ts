@@ -105,7 +105,7 @@ export class PopupGUI {
         }
     }
 
-    private displayPanel(graphics: Graphics, bizdata: BizData, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min: Number, max: Number): void {
+    private displayPanel(graphics: Graphics, bizdata: BizData, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min: number, max: number): void {
         //  hide GUI when click empty area
         if (mesh == null) {
             if (this._deletePanel) {
@@ -154,15 +154,14 @@ export class PopupGUI {
             this._sliderPanel.addControl(header);
 
             var slider = new GUI.ImageBasedSlider();
-            if (min == -1)
-                slider.minimum = 0.42;
-            if (max == -1)
-                slider.maximum = 2.38;
+            slider.minimum = min;
+            slider.maximum = max;
             slider.isVertical = true;
             slider.isThumbClamped = true;
             slider.displayThumb = true;
             slider.width = "22px";
-            slider.height = ((slider.maximum - slider.minimum) * 100).toFixed(0) + "px";
+            const sildHeight = ((slider.maximum - slider.minimum) * 100).toFixed(0);
+            slider.height = ( parseInt(sildHeight) < 150 ) ? 150 + "px" : sildHeight + "px";
             slider.backgroundImage = new GUI.Image("back", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/backgroundImage-vertical.png");
             slider.valueBarImage = new GUI.Image("value", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/valueImage-vertical.png");
             slider.thumbImage = new GUI.Image("thumb", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png");
@@ -378,7 +377,7 @@ export class PopupGUI {
         frameRulerDown.material = frameRulerMat;
     }
 
-    public display(graphics: Graphics, bizdata: BizData, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min: Number = -1, max: Number = -1) {
+    public display(graphics: Graphics, bizdata: BizData, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min: number = -1, max: number = -1) {
         this.displayPanel(graphics, bizdata, pickedMesh, min, max);
     }
 

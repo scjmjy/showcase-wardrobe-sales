@@ -66,7 +66,7 @@ export class GeneralStl implements IStl {
         let invertalZ = new Array<Interval>();
         if (PartType.GENERAL == partType) {
             let minY = area.startPoint.y;
-            let maxY = area.endPoint.y;
+            let maxY = area.endPoint.y - partSize.y;
             invertalY.push(new Interval(minY, maxY));
 
             let minX = 0;
