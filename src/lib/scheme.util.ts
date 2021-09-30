@@ -15,6 +15,7 @@ import {
 } from "@/lib/scheme";
 import request from "@/utils/request";
 import apiProvider from "@/api/provider";
+import { base64toBlob } from "@/utils/base64";
 
 // export function requestJsonAsync(url: string): Promise<string> {
 //     return new Promise((resolve, reject) => {
@@ -221,4 +222,30 @@ export function updateSchemeMetalCount(scheme: Scheme, partId: number, value: nu
         return true;
     }
     return false;
+}
+
+export async function uploadSchemeScreenshot(schemeId: string | number, base64: string) {
+    const blob = base64toBlob(base64);
+    if (!blob) {
+        return Promise.reject("Base64 解码失败！");
+    }
+    const res = await apiProvider.requestScreenshotSignedUrl(schemeId);
+    if (res.ok && res.data) {
+        const { accessid, policy, signature, host, dir, filename } = res.data;
+        const formData = new FormData();
+        formData.append("key", dir + filename);
+        formData.append("OSSAccessKeyId", accessid);
+        formData.append("policy", policy);
+        formData.append("Signature", signature);
+        formData.append("file", blob, filename);
+        const _saveRes = await request({
+            method: "POST",
+            url: host,
+            data: formData,
+        });
+        await apiProvider.updateScreenshotState(schemeId, dir + filename);
+        return true;
+    } else {
+        return Promise.reject();
+    }
 }

@@ -123,7 +123,7 @@ export default defineComponent({
     &__items {
         flex: 1;
         overflow-y: auto;
-        text-align: center;
+        // text-align: center;
     }
 }
 </style>

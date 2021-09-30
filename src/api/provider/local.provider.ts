@@ -23,6 +23,12 @@ import ApiProvider, {
 
 const localVisitorRecordList: VisitorRecordItem[] = [];
 export default class LocalProvider implements ApiProvider {
+    updateScreenshotState(schemeId: string | number, url: string): Promise<AjaxResponse<boolean>> {
+        throw new Error("Method not implemented.");
+    }
+    requestScreenshotSignedUrl(schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
+        throw new Error("Method not implemented.");
+    }
     requestPartAttachments(): Promise<AjaxResponse<PartAttachment>> {
         throw new Error("Method not implemented.");
     }

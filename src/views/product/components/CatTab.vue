@@ -289,7 +289,7 @@ export default defineComponent({
     &__parts {
         // flex: 1;
         overflow-y: auto;
-        text-align: center;
+        // text-align: center;
     }
 }
 </style>
