@@ -1,4 +1,4 @@
-import { Scheme, Cube, Item, Door, PartCount, Part, Size, DoorLocation } from "@/lib/scheme";
+import { Scheme, Cube, Item, Location, Door, PartCount, Part, Size, DoorLocation } from "@/lib/scheme";
 import { v4 as uuidv4 } from "uuid";
 
 export const ObjectType = {
@@ -152,6 +152,12 @@ export class BizData {
             this.removePart(oldPartId);
             this.addPart(newPart.id);
         }
+        this.scheme.dirty = true;
+    }
+
+    // TODO: support more location type, not only for up-down moving.
+    moveItem(item: Item, posY: number): void {
+        item.location.startPos.y = posY;
         this.scheme.dirty = true;
     }
 

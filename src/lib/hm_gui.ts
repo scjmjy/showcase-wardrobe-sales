@@ -167,7 +167,16 @@ export class PopupGUI {
             slider.thumbImage = new GUI.Image("thumb", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png");
 
             slider.onValueChangedObservable.add((value: number) => {
-                if (mesh) mesh.position.y = value;
+                if (mesh) {
+                    mesh.position.y = value;
+
+                    const info = mesh.name.split("_");
+                    const itemId = info[1];
+                    const item = bizdata.findItemById(itemId);
+                    if (item !== undefined) {
+                        bizdata.moveItem(item, value);
+                    }
+                }
                 header.text = " " + value.toFixed(2) + " \u7c73";
             });
 
