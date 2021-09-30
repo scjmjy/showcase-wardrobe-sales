@@ -247,7 +247,7 @@ export default class RestProvider extends LocalProvider {
     }
     createNewScheme(
         name: string,
-        svcid: number,
+        svcid: number | undefined,
         eid: string | number,
         cid: string | number,
         pid?: string | number,

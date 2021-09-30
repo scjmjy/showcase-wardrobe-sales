@@ -174,6 +174,7 @@ export default defineComponent({
                     case "new":
                     case "copy":
                         showCustomizeDlg.value = true;
+                        refBabylon.value?.showReferenceRuler(false);
                         break;
                     case "continue":
                         break;
@@ -233,17 +234,8 @@ export default defineComponent({
                 icon: "size-3d",
                 type: "button",
                 onClick() {
+                    refBabylon.value?.showReferenceRuler(false);
                     showCustomizeDlg.value = true;
-                },
-            },
-            {
-                value: "size-3d",
-                icon: "size-3d",
-                type: "button",
-                async onClick() {
-                    const base64 = await refBabylon.value!.screenshotApi();
-                    await util.uploadSchemeScreenshot(product.value.id, base64);
-                    ElMessage.success("截图成功");
                 },
             },
         ]);
@@ -293,64 +285,47 @@ export default defineComponent({
             }
         }
         async function createNewScheme() {
-            const cid = store.state.currentCustomer.customerId.toString();
+            const { customerId, latestSvcId } = store.state.currentCustomer;
+            const cid = customerId.toString();
             const eid = store.state.user.eid;
-            if (svcId === 0) {
-                const service = (await apiProvider.createNewService(eid, cid)).data!;
-                svcId = service.id;
-            }
+            let schemeName = "";
+            let svcid: number | undefined = 0;
+            let pid: number | string | undefined = undefined;
+            let sid: number | string | undefined = undefined;
             if (customizeMode.value === "new") {
-                creatingScheme.value = true;
-                const p = product.value as Product;
-                apiProvider
-                    .createNewScheme(p.name, svcId, eid, cid, p.id)
-                    .then((res) => {
-                        if (res.ok && res.data) {
-                            store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
-
-                            apiProvider.requestSchemeDetail(res.data.id).then((res) => {
-                                if (res.ok && res.data) {
-                                    product.value = res.data;
-                                    product.value.cid = cid;
-                                    gotoEditScheme();
-                                }
-                            });
-                        } else if (res.show) {
-                            ElMessage({
-                                type: res.show,
-                                message: res.msg,
-                            });
-                        }
-                    })
-                    .finally(() => {
-                        creatingScheme.value = false;
-                    });
+                pid = product.value.id;
+                schemeName = product.value.name;
             } else if (customizeMode.value === "copy") {
-                creatingScheme.value = true;
                 const scheme = product.value as Scheme;
-                apiProvider
-                    .createNewScheme(scheme.product, svcId, eid, cid, undefined, scheme.id)
-                    .then((res) => {
-                        if (res.ok && res.data) {
-                            store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
-                            apiProvider.requestSchemeDetail(res.data.id).then((res) => {
-                                if (res.ok && res.data) {
-                                    product.value = res.data;
-                                    product.value.cid = cid;
-                                    gotoEditScheme();
-                                }
-                            });
-                        } else if (res.show) {
-                            ElMessage({
-                                type: res.show,
-                                message: res.msg,
-                            });
-                        }
-                    })
-                    .finally(() => {
-                        creatingScheme.value = false;
-                    });
+                svcid = schemeMode.value === "scheme-other" ? latestSvcId : svcId;
+                schemeName = scheme.product;
+                sid = scheme.id;
             }
+            if (!svcid) {
+                const service = (await apiProvider.createNewService(eid, cid)).data!;
+                svcid = svcId = service.id;
+                store.commit("SET-CUSTOMER-LATEST-SVCID", svcid);
+            }
+            creatingScheme.value = true;
+
+            const res = await apiProvider.createNewScheme(schemeName, svcid, eid, cid, pid, sid);
+            if (res.ok && res.data) {
+                store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
+
+                apiProvider.requestSchemeDetail(res.data.id).then((res) => {
+                    if (res.ok && res.data) {
+                        product.value = res.data;
+                        product.value.cid = cid;
+                        gotoEditScheme();
+                    }
+                });
+            } else if (res.show) {
+                ElMessage({
+                    type: res.show,
+                    message: res.msg,
+                });
+            }
+            creatingScheme.value = false;
         }
 
         const baseUrl = computed(() => store.state.globalCfg?.baseUrl);
@@ -367,6 +342,11 @@ export default defineComponent({
             }
             if (scheme.value !== undefined) scheme.value.dirty = false;
             schemeDetailDirty.value = true;
+        }
+
+        async function captureSchemeScreenshot() {
+            const base64 = await refBabylon.value!.screenshotApi();
+            await util.uploadSchemeScreenshot(product.value.id, base64);
         }
 
         async function requestSchemeDetail() {
@@ -424,6 +404,7 @@ export default defineComponent({
                         // if (scheme.value?.dirty) {
                         showSchemeSaveLoading();
                         await saveScheme();
+                        await captureSchemeScreenshot();
                         hideSchemeSaveLoading();
                         // }
                         router.push({
@@ -565,12 +546,18 @@ export default defineComponent({
                 createNewScheme();
                 // showCustomizeDlg.value = true;
             },
-            onCustomizeConfirm(_size: CustomizeSize) {
+            onCustomizeConfirm(size: CustomizeSize) {
                 showCustomizeDlg.value = false;
-                refBabylon.value?.changeSchemeSize(_size.width, _size.height, _size.depth);
+                const scheme = product.value as Scheme;
+                scheme.width = size.width;
+                scheme.height = size.height;
+                scheme.depth = size.depth;
+                refBabylon.value?.changeSchemeSize(size.width, size.height, size.depth);
+                refBabylon.value?.showReferenceRuler(true);
             },
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;
+                refBabylon.value?.showReferenceRuler(true);
             },
             onPartsMenuAction,
             async gotoBack() {
@@ -597,6 +584,8 @@ export default defineComponent({
                 showMenu.value = false;
                 resetGooeyMenu(gooeyMenuItems.value);
                 mode.value = "view";
+
+                captureSchemeScreenshot();
             },
             onInOutChange(_val: string) {
                 showMenu.value = true;
