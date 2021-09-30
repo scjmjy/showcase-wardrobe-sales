@@ -177,6 +177,7 @@ export default defineComponent({
                         cid: customer.cid,
                         customerName: customer.name,
                         phoneNumber: customer.phone,
+                        latestSvcId: services.value[0]?.id,
                     });
                 }
             },

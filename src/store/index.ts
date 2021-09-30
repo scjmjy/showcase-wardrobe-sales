@@ -34,9 +34,14 @@ export default createStore({
                 state.currentCustomer.customerId = payload.cid;
                 state.currentCustomer.customerName = payload.customerName;
                 state.currentCustomer.phoneNumber = payload.phoneNumber;
+                state.currentCustomer.latestSvcId = payload.latestSvcId;
             } else {
                 state.currentCustomer = new Customer();
             }
+            state.currentCustomer.save();
+        },
+        "SET-CUSTOMER-LATEST-SVCID"(state, id: number) {
+            state.currentCustomer.latestSvcId = id;
             state.currentCustomer.save();
         },
         "SET-USER"(state, payload: LoginResult) {

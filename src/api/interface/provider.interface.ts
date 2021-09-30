@@ -323,7 +323,7 @@ export default interface ApiProvider {
 
     createNewScheme(
         name: string,
-        svcid: number,
+        svcid: number | undefined,
         eid: string | number,
         cid: string | number,
         pid?: string | number,

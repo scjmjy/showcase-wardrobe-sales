@@ -5,7 +5,12 @@ const TokenKeyUser = "TOKEN-KEY-HONGMU-SALES-TOOLS-USER";
 const TokenKeyCustomer = "TOKEN-KEY-HONGMU-SALES-TOOLS-CUSTOMER";
 
 export class Customer {
-    constructor(public customerId = "", public customerName = "", public phoneNumber = "") {}
+    constructor(
+        public customerId = "",
+        public customerName = "",
+        public phoneNumber = "",
+        public latestSvcId?: number,
+    ) {}
 
     save(): string | undefined {
         return jscookie.set(TokenKeyCustomer, JSON.stringify(this));

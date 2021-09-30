@@ -6,17 +6,26 @@
         width="500px"
         @opened="onOpened"
         @closed="onClosed"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
         v-bind="$attrs"
     >
-        <el-form ref="elForm" :model="formData" :rules="formRules" label-width="140px" label-position="left">
+        <el-form
+            ref="elForm"
+            :model="formData"
+            :rules="formRules"
+            label-width="140px"
+            label-position="left"
+            @validate="onValidate"
+        >
             <el-form-item label="单元柜高度" prop="height">
-                <el-input v-model.number="formData.height"></el-input>
+                <el-input v-model.number="formData.height" type="number"></el-input>
             </el-form-item>
             <el-form-item label="单元柜深度" prop="depth">
-                <el-input v-model.number="formData.depth"></el-input>
+                <el-input v-model.number="formData.depth" type="number"></el-input>
             </el-form-item>
             <el-form-item label="单元柜宽度" prop="width">
-                <el-input v-model.number="formData.width"></el-input>
+                <el-input v-model.number="formData.width" type="number"></el-input>
             </el-form-item>
             <div class="customize-dlg__unit">单位：米</div>
         </el-form>
@@ -28,7 +37,8 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, reactive } from "vue";
+import { computed, defineComponent, PropType, reactive, ref } from "vue";
+import { ElForm, ElMessage } from "element-plus";
 import { CustomizeMode, CustomizeSize, CustomizeMinMax } from "../helpers";
 
 function defaultSize(): CustomizeSize {
@@ -74,16 +84,18 @@ export default defineComponent({
         },
     },
     setup(props, ctx) {
+        const elForm = ref<InstanceType<typeof ElForm>>();
         const formData = reactive(defaultSize());
         return {
+            elForm,
             formData,
             formRules: computed(() => ({
                 height: [
                     { required: true, message: "请输入单元柜高度", trigger: ["blur", "change"] },
                     {
                         type: "number",
-                        min: 240,
-                        max: 280,
+                        min: props.minMax.heightMin,
+                        max: props.minMax.heightMax,
                         message: `高度在 ${props.minMax.heightMin}米 到 ${props.minMax.heightMax}米 之间`,
                         trigger: ["blur", "change"],
                     },
@@ -92,8 +104,8 @@ export default defineComponent({
                     { required: true, message: "请输入单元柜深度", trigger: ["blur", "change"] },
                     {
                         type: "number",
-                        min: 30,
-                        max: 60,
+                        min: props.minMax.depthMin,
+                        max: props.minMax.depthMax,
                         message: `深度在 ${props.minMax.depthMin}米 到 ${props.minMax.depthMax}米 之间`,
                         trigger: ["blur", "change"],
                     },
@@ -102,8 +114,8 @@ export default defineComponent({
                     { required: true, message: "请输入单元柜宽度", trigger: ["blur", "change"] },
                     {
                         type: "number",
-                        min: 50,
-                        max: 600,
+                        min: props.minMax.widthMin,
+                        max: props.minMax.widthMax,
                         message: `宽度在 ${props.minMax.widthMin}米 到 ${props.minMax.widthMax}米 之间`,
                         trigger: ["blur", "change"],
                     },
@@ -136,14 +148,21 @@ export default defineComponent({
                 ctx.emit("cancel", false);
             },
             doConfirm() {
-                ctx.emit("confirm", formData);
+                elForm.value?.validate((isValid) => {
+                    if (isValid) {
+                        ctx.emit("confirm", formData);
+                    } else {
+                        ElMessage.warning("表单校验失败！");
+                    }
+                });
             },
             onOpened() {
                 Object.assign(formData, props.size);
             },
             onClosed() {
-                // Object.assign(formData, defaultSize());
+                ctx.emit("cancel", false);
             },
+            onValidate(val: number, pass: boolean) {},
         };
     },
 });
