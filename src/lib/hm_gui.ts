@@ -3,7 +3,6 @@ import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
 import { BizData, ObjectType } from "@/lib/biz.data";
-import { Vector3 } from "babylonjs/Maths/math.vector";
 
 export class PopupGUI {
     public rulerDisplayed = false;
@@ -168,7 +167,7 @@ export class PopupGUI {
             slider.valueBarImage = new GUI.Image("value", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/valueImage-vertical.png");
             slider.thumbImage = new GUI.Image("thumb", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png");
 
-            slider.onValueChangedObservable.add((value) => {
+            slider.onValueChangedObservable.add((value: number) => {
                 if(mesh) mesh.position.y = value;
                 header.text = " " + value.toFixed(2) + " \u7c73";
             });
@@ -235,7 +234,7 @@ export class PopupGUI {
 
     }
 
-    private drawRuler(graphics: Graphics, length: number, center: Vector3, direction: Vector3, title = ""): void {
+    private drawRuler(graphics: Graphics, length: number, center: BABYLON.Vector3, direction: BABYLON.Vector3, title = ""): void {
         const distance = 0.15;
         const heightValue = 1 * 0.054;
         const halfHeightValue = heightValue * 0.15;

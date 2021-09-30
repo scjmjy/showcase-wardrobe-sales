@@ -8,7 +8,7 @@
 import { defineComponent, PropType } from "vue";
 import * as BABYLON from "babylonjs";
 import { Graphics, GraphicsEvent } from "@/lib/graphics";
-import { Scheme, Cube, Item, Door, PartType, Position, Location, Area, Size } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, Part, Position, Location, Size } from "@/lib/scheme";
 import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
 import request from "@/utils/request";
@@ -16,6 +16,9 @@ import { drobeUtil } from "@/lib/drobe.util";
 import * as event from "@/lib/biz.event";
 import { PopupGUI } from "@/lib/hm_gui";
 import { ElMessage } from "element-plus";
+
+import { GeneralStl, StlConfig } from "@/lib/stl";
+import { AreaHints, CubeAreaHint, Area } from "@/lib/model/hint";
 
 export default defineComponent({
     name: "Babylon",
@@ -45,7 +48,7 @@ export default defineComponent({
             default: "",
         },
         selectedPart: {
-            type: Object as PropType<PartType>,
+            type: Object as PropType<Part>,
             default: () => ({
                 id: 0,
                 width: 0,
@@ -66,9 +69,10 @@ export default defineComponent({
             availableAreas: [] as BABYLON.Mesh[],
             floor: {} as BABYLON.Mesh,
             wall: {} as BABYLON.Mesh,
-            newPart: {} as PartType,
+            newPart: {} as Part,
             schemeModelCount: 0,
             loadedModelCount: 0,
+            stl: new GeneralStl(new StlConfig(0.1, 0, 0)),
         };
     },
     computed: {
@@ -84,7 +88,7 @@ export default defineComponent({
     watch: {
         selectedPart: {
             deep: true,
-            handler(newPart: PartType) {
+            handler(newPart: Part) {
                 if (newPart.id !== undefined) {
                     console.log("[Watch selectedPart] ", newPart);
                     this.newPart = newPart;
@@ -162,8 +166,19 @@ export default defineComponent({
                         } else if (newPart.catId === 2 || newPart.catId === 3) {
                             this.changeAllDoors(newPart);
                         } else {
-                            const availableArea = this.getAvailableAreaByPart(newPart);
-                            this.ShowAvailableArea(newPart, availableArea);
+                            // old way:
+                            // const availableArea = this.getAvailableAreaByPart(newPart);
+                            // this.ShowAvailableArea(newPart, availableArea);
+
+                            debugger
+                            const hints: AreaHints = this.stl.computeAreaHints(
+                                this.scheme.manifest,
+                                1,
+                                new Size(newPart.width, newPart.height, newPart.depth),
+                            );
+                            console.log("hints", hints);
+
+                            this.ShowAvailableArea(newPart, hints);
                         }
                     }
                 }
@@ -196,10 +211,10 @@ export default defineComponent({
         /**
          * 修改墙面
          */
-        changeWallApi(partType: PartType): void {
+        changeWallApi(part: Part): void {
             const wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            const url = this.baseOSSUrl + partType.manifest;
+            const url = this.baseOSSUrl + part.manifest;
             const texture = new BABYLON.Texture(url, this.graphics.scene as BABYLON.Scene);
             texture.uScale = 1;
             texture.vScale = 1;
@@ -210,10 +225,10 @@ export default defineComponent({
         /**
          * 修改地板
          */
-        changeFloorApi(partType: PartType): void {
+        changeFloorApi(part: Part): void {
             const floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            const url = this.baseOSSUrl + partType.manifest;
+            const url = this.baseOSSUrl + part.manifest;
             const texture = new BABYLON.Texture(url, this.graphics.scene as BABYLON.Scene);
             texture.uScale = 2;
             texture.vScale = 2;
@@ -226,7 +241,7 @@ export default defineComponent({
          * @param cubeId 需要修改的单元柜id
          * @param newPart 修改后单元柜对应的part
          */
-        changeCubeApi(cubeId: string, newPart: PartType): void {
+        changeCubeApi(cubeId: string, newPart: Part): void {
             const meshName = ObjectType.CUBE + "_" + cubeId;
             const mesh = this.graphics.scene.getMeshByName(meshName);
             if (mesh !== null) {
@@ -309,7 +324,7 @@ export default defineComponent({
             }
         },
 
-        changeAllCubes(newPart: PartType): void {
+        changeAllCubes(newPart: Part): void {
             this.graphics.scene.meshes.forEach((mesh) => {
                 const info = mesh.name.split("_");
                 const objectType = info[0];
@@ -335,9 +350,9 @@ export default defineComponent({
             if (this.scheme.config === null || this.scheme.config.standardCube === null) return;
 
             const standardCube = this.scheme.config.standardCube;
-            if (width * 0.01 > this.bizdata.totalWidth) {
+            if (width > this.bizdata.totalWidth) {
                 const endX = this.bizdata.endX;
-                const cubeNum = Math.round((width * 0.01 - this.bizdata.totalWidth) / standardCube.size.x);
+                const cubeNum = Math.round((width - this.bizdata.totalWidth) / standardCube.size.x);
                 const manifest = standardCube.manifest;
                 for (let i = 0; i < cubeNum; i++) {
                     request({
@@ -395,9 +410,9 @@ export default defineComponent({
                         });
                 }
             } else {
-                const cubeNum = Math.round((this.bizdata.totalWidth - width * 0.01) / standardCube.size.x);
+                const cubeNum = Math.round((this.bizdata.totalWidth - width) / standardCube.size.x);
                 for (let i = 0; i < cubeNum; i++) {
-                    const cube = this.scheme.cubes[this.scheme.cubes.length - 1];
+                    const cube = this.scheme.manifest.cubes[this.scheme.manifest.cubes.length - 1];
                     this.removeCubeApi(cube);
                 }
 
@@ -430,7 +445,7 @@ export default defineComponent({
          * @param itemId 需要修改的item id
          * @param newPartId 修改后配件对应的part
          */
-        changeItemApi(itemId: string, newPart: PartType): void {
+        changeItemApi(itemId: string, newPart: Part): void {
             const meshName = ObjectType.ITEM + "_" + itemId;
             const mesh = this.graphics.scene.getMeshByName(meshName);
             if (mesh !== null) {
@@ -582,7 +597,7 @@ export default defineComponent({
          * @param doorId 需要修改的door uuid
          * @param newPart
          */
-        changeDoorApi(doorId: string, newPart: PartType, index: number): void {
+        changeDoorApi(doorId: string, newPart: Part, index: number): void {
             const meshName = ObjectType.DOOR + "_" + doorId + "_" + index;
             const mesh = this.graphics.scene.getMeshByName(meshName);
             if (mesh !== null) {
@@ -644,7 +659,7 @@ export default defineComponent({
             }
         },
 
-        changeAllDoors(newPart: PartType): void {
+        changeAllDoors(newPart: Part): void {
             this.graphics.scene.meshes.forEach((mesh) => {
                 const info = mesh.name.split("_");
                 const objectType = info[0];
@@ -927,7 +942,7 @@ export default defineComponent({
 
             // TODO: load background.
 
-            this.scheme.cubes.forEach((cube: Cube) => {
+            this.scheme.manifest.cubes.forEach((cube: Cube) => {
                 this.bizdata.totalWidth += cube.size.x;
                 if (cube.size.y > this.bizdata.totalHeight) this.bizdata.totalHeight = cube.size.y;
                 if (cube.size.z > this.bizdata.totalDepth) this.bizdata.totalDepth = cube.size.z;
@@ -938,7 +953,7 @@ export default defineComponent({
             this.bizdata.endX = -startX;
             this.adjustCamera();
 
-            this.scheme.cubes.forEach((cube: Cube) => {
+            this.scheme.manifest.cubes.forEach((cube: Cube) => {
                 const cubeOriginX = startX - cube.size.x * 0.5;
                 startX -= cube.size.x;
 
@@ -1048,7 +1063,7 @@ export default defineComponent({
                     });
             });
 
-            this.scheme.doors.forEach((door: Door) => {
+            this.scheme.manifest.doors.forEach((door: Door) => {
                 this.addDoorApi(door, false, true);
             });
         },
@@ -1077,43 +1092,48 @@ export default defineComponent({
             this.eventEmit(e);
         },
 
-        ShowAvailableArea(part: PartType, areas: Area[]): void {
+        ShowAvailableArea(part: Part, areaHints: AreaHints): void {
             this.clearSelectionApi();
             this.clearAvailableAreas();
 
-            areas.forEach((area: Area) => {
-                const cubeData = this.bizdata.cubeMap.get(area.cubeId);
-                if (cubeData !== undefined) {
-                    const width = area.endPoint.x - area.startPoint.x;
-                    const height = area.endPoint.y - area.startPoint.y;
-                    const depth = area.endPoint.z - area.startPoint.z;
-                    const availableArea = BABYLON.MeshBuilder.CreateBox(
-                        `BackgroundArea_${area.cubeId}_${part.id.toString()}`,
-                        { width: width, height: height, depth: depth },
-                        this.graphics.scene as BABYLON.Scene,
-                    );
-                    const areaMat = new BABYLON.StandardMaterial("AvailableArea", this.graphics.scene as BABYLON.Scene);
+            areaHints.cubeHints.forEach((cubeHint: CubeAreaHint) => {
+                cubeHint.areas.forEach((area: Area) => {
+                    const cubeData = this.bizdata.cubeMap.get(area.cubeId);
+                    if (cubeData !== undefined) {
+                        const width = area.endPoint.x - area.startPoint.x;
+                        const height = area.endPoint.y - area.startPoint.y;
+                        const depth = area.endPoint.z - area.startPoint.z;
+                        const availableArea = BABYLON.MeshBuilder.CreateBox(
+                            `BackgroundArea_${area.cubeId}_${part.id.toString()}`,
+                            { width: width, height: height, depth: depth },
+                            this.graphics.scene as BABYLON.Scene,
+                        );
+                        const areaMat = new BABYLON.StandardMaterial(
+                            "AvailableArea",
+                            this.graphics.scene as BABYLON.Scene,
+                        );
 
-                    areaMat.emissiveColor = new BABYLON.Color3(45 / 255, 186 / 255, 236 / 255);
-                    areaMat.alpha = 0.25;
-                    availableArea.material = areaMat;
+                        areaMat.emissiveColor = new BABYLON.Color3(45 / 255, 186 / 255, 236 / 255);
+                        areaMat.alpha = 0.25;
+                        availableArea.material = areaMat;
 
-                    availableArea.position = new BABYLON.Vector3(
-                        cubeData.origin.x + (area.endPoint.x + area.startPoint.x) * 0.5,
-                        cubeData.origin.y + (area.endPoint.y + area.startPoint.y) * 0.5,
-                        cubeData.origin.z + (area.endPoint.z + area.startPoint.z) * 0.5,
-                    );
+                        availableArea.position = new BABYLON.Vector3(
+                            cubeData.origin.x + (area.endPoint.x + area.startPoint.x) * 0.5,
+                            cubeData.origin.y + (area.endPoint.y + area.startPoint.y) * 0.5,
+                            cubeData.origin.z + (area.endPoint.z + area.startPoint.z) * 0.5,
+                        );
 
-                    availableArea.enableEdgesRendering();
-                    availableArea.edgesWidth = 0.5 * this.bizdata.SceneUnit;
-                    availableArea.edgesColor = new BABYLON.Color4(1, 1, 1, 1);
-                    this.graphics.disableLightEffect(availableArea);
-                    this.availableAreas.push(availableArea);
-                }
+                        availableArea.enableEdgesRendering();
+                        availableArea.edgesWidth = 0.5 * this.bizdata.SceneUnit;
+                        availableArea.edgesColor = new BABYLON.Color4(1, 1, 1, 1);
+                        this.graphics.disableLightEffect(availableArea);
+                        this.availableAreas.push(availableArea);
+                    }
+                });
             });
         },
 
-        ShowCubeAddArea(part: PartType): void {
+        ShowCubeAddArea(part: Part): void {
             this.clearAvailableAreas();
 
             const width = part.width;
@@ -1148,7 +1168,7 @@ export default defineComponent({
             this.availableAreas.push(cubeArea2);
         },
 
-        getAvailableAreaByPart(part: PartType): Area[] {
+        getAvailableAreaByPart(part: Part): Area[] {
             const biz: BizData = this.bizdata as BizData;
             return drobeUtil.getAvailableAreaByPart(biz, part);
         },

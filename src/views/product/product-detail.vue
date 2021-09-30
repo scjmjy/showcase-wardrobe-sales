@@ -97,12 +97,11 @@ import { StateType } from "@/store";
 import { BackgroundType, Part, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
-import { Area, Door, Position, Size } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
 import GooeyMenu from "@/components/GooeyMenu.vue";
 import { MenuItem } from "@/components/GooeyMenu.helper";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
-import { Scheme as Scheme3D, PartType } from "@/lib/scheme";
+import { Scheme as Scheme3D, Part as Part3D } from "@/lib/scheme";
 import type { ImgCardItemType } from "./components/ImgCardItem.vue";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
@@ -201,7 +200,7 @@ export default defineComponent({
         ];
         const refBabylon = ref<InstanceType<typeof Babylon>>();
         const refPartsMenu = ref<InstanceType<typeof PartsMenu>>();
-        const selectedPart = ref<PartType>();
+        const selectedPart = ref<Part3D>();
         const selectedMetalPart = ref<Part>();
         let selectedPartId = ref(0);
         let selectedFloorId = ref(0);
@@ -369,7 +368,7 @@ export default defineComponent({
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
-                    await refPartsMenu.value?.showManifest(scheme.value!.parts);
+                    await refPartsMenu.value?.showManifest(scheme.value!.composition);
                     break;
                 case "offer":
                     if (scheme.value?.dirty) {
