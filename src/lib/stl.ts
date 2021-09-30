@@ -127,11 +127,14 @@ export class GeneralStl implements IStl {
     }
 
     private checkItemIntersected(area: Area, item: Item): boolean {
-        let areaSetPoint = area.startPoint;
+        let areaStartPoint = area.startPoint;
         let areaEndPoint = area.endPoint;
-        let itemLocStartPos = item.location.startPos;
-        let itemSize = item.size;
+        let itemBtmY = item.location.startPos.y;
+        let itemTopY = itemBtmY + item.size.y;
 
-        return areaSetPoint.y < itemLocStartPos.y && areaEndPoint.y > (itemSize.y + itemLocStartPos.y);
+        return (itemBtmY > areaStartPoint.y && itemBtmY < areaEndPoint.y) ||
+            (itemTopY > areaStartPoint.y && itemTopY < areaEndPoint.y) ||
+            (areaStartPoint.y > itemBtmY && areaStartPoint.y < itemTopY) ||
+            (areaEndPoint.y > itemBtmY && areaEndPoint.y < itemTopY);
     }
 }
