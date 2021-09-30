@@ -357,6 +357,8 @@ export default interface ApiProvider {
 
     requestSignedUrl(schemeId: number | string): Promise<AjaxResponse<OssSignature>>;
     updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>>;
+    requestScreenshotSignedUrl(schemeId: number | string): Promise<AjaxResponse<OssSignature>>;
+    updateScreenshotState(schemeId: string | number, url: string): Promise<AjaxResponse<boolean>>;
 
     requestSchemeOffer(schemeId: number | string): Promise<AjaxResponse<SchemeOffer>>;
     requestSchemeManifest(schemeId: number | string): Promise<AjaxResponse<SchemeManifest>>;

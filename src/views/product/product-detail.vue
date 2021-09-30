@@ -235,6 +235,16 @@ export default defineComponent({
                     showCustomizeDlg.value = true;
                 },
             },
+            {
+                value: "size-3d",
+                icon: "size-3d",
+                type: "button",
+                async onClick() {
+                    const base64 = await refBabylon.value!.screenshotApi();
+                    await util.uploadSchemeScreenshot(product.value.id, base64);
+                    ElMessage.success("截图成功");
+                },
+            },
         ]);
         const gooeyMenuOpened = ref(false);
         const scheme = ref<Scheme3D>();
@@ -725,6 +735,16 @@ $menu-width: 25%;
 .collapse {
     right: calc(-#{$menu-width} + 80px);
 }
+
+// .test {
+//     &-screenshot {
+//         width: 800px;
+//         height: 600px;
+//         position: absolute;
+//         left: 0;
+//         top: 80px;
+//     }
+// }
 // @media (min-width: 1150px) {
 //     .product-detail {
 //         &__menu2d {

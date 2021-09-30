@@ -553,7 +553,6 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
-
     updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>> {
         return new Promise((resolve) => {
             request({
@@ -575,7 +574,57 @@ export default class RestProvider extends LocalProvider {
                         ok: false,
                         status: 500,
                         show: "error",
+                        msg: "更新方案保存状态失败",
+                    });
+                });
+        });
+    }
+    requestScreenshotSignedUrl(schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
+        return new Promise((resolve) => {
+            request({
+                method: "GET",
+                url: `/api/v1/biz/scheme/snapshot/${schemeId}/signedurl`,
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
                         msg: "获取OSS签名失败",
+                    });
+                });
+        });
+    }
+    updateScreenshotState(schemeId: string | number, url: string): Promise<AjaxResponse<boolean>> {
+        return new Promise((resolve) => {
+            request({
+                method: "PUT",
+                url: "/api/v1/biz/scheme/snapshot/state",
+                data: {
+                    id: schemeId,
+                    pic: url,
+                },
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: true,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "更新截图状态失败",
                     });
                 });
         });
