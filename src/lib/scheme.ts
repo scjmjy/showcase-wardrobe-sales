@@ -1,18 +1,21 @@
-export class Position {
-    x: number; // 坐标x (毫米)
-    y: number; // 坐标y（毫米）
-    z: number; // 坐标z（毫米）
+import { JsonClassType, JsonInclude, JsonIncludeType, JsonProperty } from "jackson-js";
 
-    constructor(x: number, y: number, z: number) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
+export enum PartType {
+    UNKNOWN = 0,
+    GENERAL = 1,
+    T_FRAME = 2,
 }
 
-export class Size {
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
+export class Position {
+    @JsonProperty({ value: 'x' })
+    @JsonClassType({ type: () => [Number] })
     x: number;
+    @JsonProperty({ value: 'y' })
+    @JsonClassType({ type: () => [Number] })
     y: number;
+    @JsonProperty({ value: 'z' })
+    @JsonClassType({ type: () => [Number] })
     z: number;
 
     constructor(x: number, y: number, z: number) {
@@ -22,9 +25,35 @@ export class Size {
     }
 }
 
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
+export class Size {
+    @JsonProperty({ value: 'x' })
+    @JsonClassType({ type: () => [Number] })
+    x: number;
+    @JsonProperty({ value: 'y' })
+    @JsonClassType({ type: () => [Number] })
+    y: number;
+    @JsonProperty({ value: 'z' })
+    @JsonClassType({ type: () => [Number] })
+    z: number;
+
+    constructor(x: number, y: number, z: number) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+}
+
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class RelativeItem {
+    @JsonProperty({ value: 'relativeItemId' })
+    @JsonClassType({ type: () => [String] })
     relativeItemId: string; // 相对item的uuid
+    @JsonProperty({ value: 'relativeType' })
+    @JsonClassType({ type: () => [Number] })
     relativeType: number; // 1-上面 2-下面 3-里面 4-外面
+    @JsonProperty({ value: 'relativePosition' })
+    @JsonClassType({ type: () => [Position] })
     relativePosition: Position; // 相对于参考基准面的中心点的位置
 
     constructor(relativeItemId: string, relativeType: number, relativePosition: Position) {
@@ -34,31 +63,50 @@ export class RelativeItem {
     }
 }
 
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Location {
+    static DEFAULT_LOCATION = new Location(1, new Position(0, 0, 0), null);
+
     // 1 - 中间位置（抽屉、隔板、挂衣杆等）
     // 2 - 两侧位置（镜子）
     // 3 - 基于其他item的相对位置
     // 4 - 世界坐标系
+    @JsonProperty({ value: 'locationType' })
+    @JsonClassType({ type: () => [Number] })
     locationType: number;
 
     // locationType=1或2，Cube坐标系的位置
     // locationType=4，世界坐标系的位置
-    startPos: Position | null;
+
+    @JsonProperty({ value: 'startPos' })
+    @JsonClassType({ type: () => [Position] })
+    startPos: Position;
 
     // locationType=3, 相对于哪个item
+    @JsonProperty({ value: 'relativeItem' })
+    @JsonClassType({ type: () => [RelativeItem] })
     relativeItem: RelativeItem | null;
 
-    constructor(locationType: number, startPos: Position | null, relativeItem: RelativeItem | null) {
+    constructor(locationType: number, startPos: Position, relativeItem: RelativeItem | null) {
         this.locationType = locationType;
         this.startPos = startPos;
         this.relativeItem = relativeItem;
     }
 }
 
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class SchemeObject {
+    @JsonProperty({ value: 'id' })
+    @JsonClassType({ type: () => [String] })
     id: string; // uuid唯一标识
+    @JsonProperty({ value: 'partId' })
+    @JsonClassType({ type: () => [Number] })
     partId: number; // biz_parts_cm id
+    @JsonProperty({ value: 'manifest' })
+    @JsonClassType({ type: () => [String] })
     manifest: string; // biz_parts_cm manifest url
+    @JsonProperty({ value: 'catId' })
+    @JsonClassType({ type: () => [Number] })
     catId: number | null; // category id
 
     constructor(id: string, partId: number, manifest: string, catId: number | null = null) {
@@ -69,37 +117,69 @@ export class SchemeObject {
     }
 }
 
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Item extends SchemeObject {
+    @JsonProperty({ value: 'size' })
+    @JsonClassType({ type: () => [Size] })
     size: Size;
+    @JsonProperty({ value: 'location' })
+    @JsonClassType({ type: () => [Location] })
     location: Location; // 描述配件如何放置的
+    @JsonProperty({ value: 'partType' })
+    @JsonClassType({ type: () => [Number] })
+    partType: PartType;
 
-    constructor(id: string, partId: number, manifest: string, catId: number, size: Size, location: Location) {
+    constructor(id: string, partId: number, manifest: string, catId: number, size: Size, location: Location = Location.DEFAULT_LOCATION,
+        partType: PartType = PartType.GENERAL) {
         super(id, partId, manifest, catId);
         this.size = size;
         this.location = location;
+        this.partType = partType;
     }
 }
 
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Cube extends SchemeObject {
+    @JsonProperty({ value: 'size' })
+    @JsonClassType({ type: () => [Size] })
     size: Size;
-    items: Item[];
+    @JsonProperty({ value: 'items' })
+    @JsonClassType({ type: () => [Array, [Item]] })
+    items: Array<Item>;
 
-    constructor(id: string, partId: number, manifest: string, catId: number, size: Size, items: Item[]) {
+    constructor(id: string, partId: number, manifest: string, catId: number, size: Size, items: Array<Item> = []) {
         super(id, partId, manifest, catId);
         this.size = size;
         this.items = items;
     }
 }
 
-export type DoorLocation = {
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
+export class DoorLocation {
+    @JsonProperty({ value: 'id' })
+    @JsonClassType({ type: () => [String] })
     id: string;
-    index: number[];
-};
+    @JsonProperty({ value: 'index' })
+    @JsonClassType({ type: () => [Array, [Number]] })
+    index: Array<number>;
 
+    constructor(id: string, index: Array<number> = []) {
+        this.id = id;
+        this.index = index;
+    }
+}
+
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Door extends SchemeObject {
+    @JsonProperty({ value: 'size' })
+    @JsonClassType({ type: () => [Size] })
     size: Size;
+    @JsonProperty({ value: 'doorType' })
+    @JsonClassType({ type: () => [Number] })
     doorType: number; // 1-合页门，2-滑门
-    locations: DoorLocation[];
+    @JsonProperty({ value: 'locations' })
+    @JsonClassType({ type: () => [Array, [DoorLocation]] })
+    locations: Array<DoorLocation>;
 
     // TODO: 需要考虑合页门的开合方向吗？
     // 目前，对于单扇合页门，默认往左开
@@ -111,7 +191,7 @@ export class Door extends SchemeObject {
         catId: number,
         size: Size,
         doorType: number,
-        locations: DoorLocation[],
+        locations: Array<DoorLocation> = [],
     ) {
         super(id, partId, manifest, catId);
         this.size = size;
@@ -120,8 +200,33 @@ export class Door extends SchemeObject {
     }
 }
 
-export class Part {
-    partId: number; // biz_parts id
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
+export class Manifest {
+    @JsonProperty({ value: 'background' })
+    @JsonClassType({ type: () => [Array, [SchemeObject]] })
+    background: Array<SchemeObject>; // wall(只需要正面墙)，floor
+    @JsonProperty({ value: 'cubes' })
+    @JsonClassType({ type: () => [Array, [Cube]] })
+    cubes: Array<Cube>; // 从左到右排列
+    @JsonProperty({ value: 'doors' })
+    @JsonClassType({ type: () => [Array, [Door]] })
+    doors: Array<Door>;
+
+    constructor(background: Array<SchemeObject> = [], cubes: Array<Cube> = [], doors: Array<Door> = []) {
+        this.background = background;
+        this.cubes = cubes;
+        this.doors = doors;
+    }
+}
+
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
+export class PartCount {
+    @JsonProperty({ value: 'partId' })
+    @JsonClassType({ type: () => [Number] })
+    partId: number;
+
+    @JsonProperty({ value: 'count' })
+    @JsonClassType({ type: () => [Number] })
     count: number;
 
     constructor(partId: number, count: number) {
@@ -130,22 +235,107 @@ export class Part {
     }
 }
 
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Scheme {
-    config: Config | null;
-    background: SchemeObject[]; // wall(只需要正面墙)，floor
-    cubes: Cube[]; // 从左到右排列
-    doors: Door[];
-    parts: Part[];
+    @JsonProperty({ value: 'config' })
+    @JsonClassType({ type: () => [Config] })
+    config: Config;
+
+    @JsonProperty({ value: 'manifest' })
+    @JsonClassType({ type: () => [Manifest] })
+    manifest: Manifest;
+
+    @JsonProperty({ value: 'composition' })
+    @JsonClassType({ type: () => [Array, [PartCount]] })
+    composition: Array<PartCount>;
+
     dirty: boolean;
 
-    constructor(config: Config | null, background: SchemeObject[], cubes: Cube[], doors: Door[], parts: Part[]) {
+    constructor(config: Config, manifest: Manifest, composition: Array<PartCount>) {
         this.config = config;
-        this.background = background;
-        this.cubes = cubes;
-        this.doors = doors;
-        this.parts = parts;
+        this.manifest = manifest;
+        this.composition = composition;
         this.dirty = false;
     }
+}
+
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
+export class SizeConfig {
+    @JsonProperty({ value: 'cube_thick_top' })
+    @JsonClassType({ type: () => [Number] })
+    cube_thick_top: number;
+
+    @JsonProperty({ value: 'cube_thick_bottom' })
+    @JsonClassType({ type: () => [Number] })
+    cube_thick_bottom: number;
+
+    @JsonProperty({ value: 'cube_thick_left' })
+    @JsonClassType({ type: () => [Number] })
+    cube_thick_left: number;
+
+    @JsonProperty({ value: 'cube_thick_right' })
+    @JsonClassType({ type: () => [Number] })
+    cube_thick_right: number;
+
+    @JsonProperty({ value: 'cube_thick_back' })
+    @JsonClassType({ type: () => [Number] })
+    cube_thick_back: number;
+
+    constructor(cube_thick_top: number = 0, cube_thick_bottom: number = 0, cube_thick_left: number = 0, cube_thick_right: number = 0, cube_thick_back: number = 0) {
+        this.cube_thick_top = cube_thick_top;
+        this.cube_thick_bottom = cube_thick_bottom;
+        this.cube_thick_left = cube_thick_left;
+        this.cube_thick_right = cube_thick_right;
+        this.cube_thick_back = cube_thick_back;
+    }
+}
+
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
+export class StandardCube {
+    @JsonProperty({ value: 'partId' })
+    @JsonClassType({ type: () => [Number] })
+    partId: number;
+    @JsonProperty({ value: 'manifest' })
+    @JsonClassType({ type: () => [String] })
+    manifest: string;
+    @JsonProperty({ value: 'catId' })
+    @JsonClassType({ type: () => [Number] })
+    catId: number;
+    @JsonProperty({ value: 'size' })
+    @JsonClassType({ type: () => [Size] })
+    size: Size;
+
+    constructor(partId: number, manifest: string, catId: number, size: Size) {
+        this.partId = partId;
+        this.manifest = manifest;
+        this.catId = catId;
+        this.size = size;
+    }
+}
+
+@JsonInclude({ value: JsonIncludeType.NON_NULL })
+export class Config {
+    @JsonProperty({ value: 'sizeConfig' })
+    @JsonClassType({ type: () => [SizeConfig] })
+    sizeConfig: SizeConfig;
+
+    @JsonProperty({ value: 'standardCube' })
+    @JsonClassType({ type: () => [StandardCube] })
+    standardCube: StandardCube;
+
+    constructor(sizeConfig: SizeConfig, standardCube: StandardCube) {
+        this.sizeConfig = sizeConfig;
+        this.standardCube = standardCube;
+    }
+}
+
+export interface Part {
+    id: number;
+    width: number;
+    height: number;
+    depth: number;
+    manifest: string;
+    catId: number;
 }
 
 export class Area {
@@ -167,39 +357,5 @@ export class Hint {
     constructor(id: string, message: string) {
         this.id = id;
         this.message = message;
-    }
-}
-
-export interface PartType {
-    id: number;
-    width: number;
-    height: number;
-    depth: number;
-    manifest: string;
-    catId: number;
-}
-
-export type CubeSize = {
-    top: number;
-    bottom: number;
-    left: number;
-    right: number;
-    back: number;
-};
-
-export type StandardCube = {
-    partId: number;
-    catId: number;
-    manifest: string;
-    size: Size;
-};
-
-export class Config {
-    cubeSize: CubeSize | null;
-    standardCube: StandardCube | null;
-
-    constructor(cubeSize: CubeSize | null, standardCube: StandardCube | null) {
-        this.cubeSize = cubeSize;
-        this.standardCube = standardCube;
     }
 }

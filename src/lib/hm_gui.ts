@@ -3,7 +3,6 @@ import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
 import { BizData, ObjectType } from "@/lib/biz.data";
-import { Vector3 } from "babylonjs/Maths/math.vector";
 
 export class PopupGUI {
     public rulerDisplayed = false;
@@ -158,17 +157,17 @@ export class PopupGUI {
             if (min == -1)
                 slider.minimum = 0.42;
             if (max == -1)
-                slider.maximum = 1.76;
+                slider.maximum = 2.38;
             slider.isVertical = true;
             slider.isThumbClamped = true;
             slider.displayThumb = true;
             slider.width = "22px";
-            slider.height = "200px";
+            slider.height = ((slider.maximum - slider.minimum) * 100).toFixed(0) + "px";
             slider.backgroundImage = new GUI.Image("back", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/backgroundImage-vertical.png");
             slider.valueBarImage = new GUI.Image("value", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/valueImage-vertical.png");
             slider.thumbImage = new GUI.Image("thumb", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png");
 
-            slider.onValueChangedObservable.add((value) => {
+            slider.onValueChangedObservable.add((value: number) => {
                 if(mesh) mesh.position.y = value;
                 header.text = " " + value.toFixed(2) + " \u7c73";
             });
@@ -235,8 +234,8 @@ export class PopupGUI {
 
     }
 
-    private drawRuler(graphics: Graphics, length: number, center: Vector3, direction: Vector3, title = ""): void {
-        const distance = 0.15;
+    private drawRuler(graphics: Graphics, length: number, center: BABYLON.Vector3, direction: BABYLON.Vector3, title = ""): void {
+        const distance = 0.1;
         const heightValue = 1 * 0.054;
         const halfHeightValue = heightValue * 0.15;
         const widthValue = 0.2 * 0.054;
@@ -367,9 +366,9 @@ export class PopupGUI {
             frameRulerTop.position.z += -length / 2 + halfHeightValue;
             frameRulerDown.position.z += length / 2 - halfHeightValue;
 
-            frameRulerTop.position.x -= distance / 2;
-            frameRulerMiddle.position.x -= distance / 2;
-            frameRulerDown.position.x -= distance / 2;
+            frameRulerTop.position.x -= distance;
+            frameRulerMiddle.position.x -= distance;
+            frameRulerDown.position.x -= distance;
         }
         const frameRulerMat = new BABYLON.StandardMaterial("frameRulerMat", graphics.scene);
         frameRulerMat.emissiveColor = new BABYLON.Color3(0.0, 0.0, 0.0);
@@ -404,21 +403,21 @@ export class PopupGUI {
         this.drawRuler(
             graphics,
             bizdata.totalHeight,
-            new BABYLON.Vector3(-bizdata.totalWidth / 2, bizdata.totalHeight / 2, bizdata.totalDepth / 2),
+            new BABYLON.Vector3(bizdata.endX, bizdata.totalHeight / 2, bizdata.totalDepth / 2),
             new BABYLON.Vector3(0, 1, 0),
             "height ",
         );
         this.drawRuler(
             graphics,
             bizdata.totalWidth,
-            new BABYLON.Vector3(0, bizdata.totalHeight, bizdata.totalDepth / 2),
+            new BABYLON.Vector3((bizdata.startX + bizdata.endX) / 2, bizdata.totalHeight, bizdata.totalDepth / 2),
             new BABYLON.Vector3(1, 0, 0),
             "width ",
         );
         this.drawRuler(
             graphics,
             bizdata.totalDepth,
-            new BABYLON.Vector3(-bizdata.totalWidth / 2 - 0.05, 0.01, 0),
+            new BABYLON.Vector3(bizdata.endX, 0.01, 0),
             new BABYLON.Vector3(0, 0, 1),
             "depth ",
         );

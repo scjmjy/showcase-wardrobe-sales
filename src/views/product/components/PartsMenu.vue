@@ -102,7 +102,7 @@ import {
     SchemeManifest,
 } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
-import { Part as Part3D } from "@/lib/scheme";
+import { PartCount } from "@/lib/scheme";
 import CatTab from "./CatTab.vue";
 import PartBgTab from "./PartBgTab.vue";
 import CatsList from "./CatsList.vue";
@@ -339,7 +339,7 @@ export default defineComponent({
                 selectedPartId.value = 0;
                 selectedCatId.value = 0;
             },
-            showManifest(parts: Part3D[]) {
+            showManifest(parts: PartCount[]) {
                 slide("left");
                 const partIds = parts.filter((p) => p.count > 0).map((p) => p.partId);
                 return apiProvider.requestSchemeManifestV2(partIds).then((res) => {
