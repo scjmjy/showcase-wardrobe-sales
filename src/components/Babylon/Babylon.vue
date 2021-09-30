@@ -1426,8 +1426,8 @@ export default defineComponent({
             this.wall.receiveShadows = true;
         },
 
-        showReferenceRuler(showRuler: boolean): void {
-            this.gui.showRuler(this.graphics, this.bizdata as BizData, showRuler);
+        showReferenceRuler(showRuler: boolean, sizeHeight: number = 0, sizeWidth: number = 0, sizeDepth: number = 0): void {
+            this.gui.showRuler(this.graphics, this.bizdata as BizData, showRuler, sizeHeight, sizeWidth, sizeDepth);
         },
 
         async screenshotApi(size = { width: 800, height: 600 }): Promise<string> {

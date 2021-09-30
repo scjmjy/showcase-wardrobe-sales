@@ -168,7 +168,7 @@ export class PopupGUI {
             slider.thumbImage = new GUI.Image("thumb", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png");
 
             slider.onValueChangedObservable.add((value: number) => {
-                if(mesh) mesh.position.y = value;
+                if (mesh) mesh.position.y = value;
                 header.text = " " + value.toFixed(2) + " \u7c73";
             });
 
@@ -382,7 +382,7 @@ export class PopupGUI {
         this.displayPanel(graphics, bizdata, pickedMesh, min, max);
     }
 
-    public showRuler(graphics: Graphics, bizdata: BizData, isDisplay: boolean) {
+    public showRuler(graphics: Graphics, bizdata: BizData, isDisplay: boolean, sizeHeight: number = 0, sizeWidth: number = 0, sizeDepth: number = 0) {
         this.rulerDisplayed = isDisplay;
 
         if (!isDisplay) {
@@ -400,26 +400,53 @@ export class PopupGUI {
             if (this.rulerWidthMiddle) this.rulerWidthMiddle.dispose();
             return;
         }
-        this.drawRuler(
-            graphics,
-            bizdata.totalHeight,
-            new BABYLON.Vector3(bizdata.endX, bizdata.totalHeight / 2, bizdata.totalDepth / 2),
-            new BABYLON.Vector3(0, 1, 0),
-            "height ",
-        );
-        this.drawRuler(
-            graphics,
-            bizdata.totalWidth,
-            new BABYLON.Vector3((bizdata.startX + bizdata.endX) / 2, bizdata.totalHeight, bizdata.totalDepth / 2),
-            new BABYLON.Vector3(1, 0, 0),
-            "width ",
-        );
-        this.drawRuler(
-            graphics,
-            bizdata.totalDepth,
-            new BABYLON.Vector3(bizdata.endX, 0.01, 0),
-            new BABYLON.Vector3(0, 0, 1),
-            "depth ",
-        );
+        if (sizeHeight == 0)
+            this.drawRuler(
+                graphics,
+                bizdata.totalHeight,
+                new BABYLON.Vector3(bizdata.endX, bizdata.totalHeight / 2, bizdata.totalDepth / 2),
+                new BABYLON.Vector3(0, 1, 0),
+                "height ",
+            );
+        else
+            this.drawRuler(
+                graphics,
+                sizeHeight,
+                new BABYLON.Vector3(bizdata.endX, bizdata.totalHeight / 2, bizdata.totalDepth / 2),
+                new BABYLON.Vector3(0, 1, 0),
+                "height ",
+            );
+        if (sizeWidth == 0)
+            this.drawRuler(
+                graphics,
+                bizdata.totalWidth,
+                new BABYLON.Vector3((bizdata.startX + bizdata.endX) / 2, bizdata.totalHeight, bizdata.totalDepth / 2),
+                new BABYLON.Vector3(1, 0, 0),
+                "width ",
+            );
+        else
+            this.drawRuler(
+                graphics,
+                sizeWidth,
+                new BABYLON.Vector3((bizdata.startX + bizdata.endX) / 2, bizdata.totalHeight, bizdata.totalDepth / 2),
+                new BABYLON.Vector3(1, 0, 0),
+                "width ",
+            );
+        if (sizeDepth == 0)
+            this.drawRuler(
+                graphics,
+                bizdata.totalDepth,
+                new BABYLON.Vector3(bizdata.endX, 0.01, 0),
+                new BABYLON.Vector3(0, 0, 1),
+                "depth ",
+            );
+        else
+            this.drawRuler(
+                graphics,
+                sizeDepth,
+                new BABYLON.Vector3(bizdata.endX, 0.01, 0),
+                new BABYLON.Vector3(0, 0, 1),
+                "depth ",
+            );
     }
 }
