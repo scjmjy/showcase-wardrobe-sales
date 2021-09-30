@@ -244,7 +244,7 @@ export interface SchemeOffer {
     details: PartOffer[];
     price: string; // 单价（元/㎡）
     area: string; // 投影面积（㎡）
-    otype: number; // 报价方式（0：按配件；1：按投影面积）
+    otype: number; // 报价方式（1：按配件；2：按投影面积）
 }
 
 export interface ManifestPart {

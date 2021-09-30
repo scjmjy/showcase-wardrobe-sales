@@ -81,7 +81,7 @@ export default defineComponent({
                 } else {
                     const { otype, price, area } = schemeOffer.value;
                     return {
-                        otype: otype === 1 ? "area" : "part",
+                        otype: otype === 1 ? "part" : "area",
                         area: area,
                         areaUnitPrice: price,
                     };

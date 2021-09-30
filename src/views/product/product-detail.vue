@@ -454,9 +454,9 @@ export default defineComponent({
                     return undefined;
                 }
                 return {
-                    width: p.width / 1000,
-                    height: p.height / 1000,
-                    depth: p.depth / 1000,
+                    width: p.width,
+                    height: p.height,
+                    depth: p.depth,
                 };
             }),
             customizeMinMax: computed<CustomizeMinMax | undefined>(() => {
@@ -465,15 +465,15 @@ export default defineComponent({
                     return undefined;
                 }
                 return {
-                    depthMax: p.pdepthmax / 1000,
+                    depthMax: p.pdepthmax,
                     // depthMin: p.pdepthmin,
-                    depthMin: p.depth / 1000,
-                    widthMax: p.pwidthmax / 1000,
+                    depthMin: p.depth,
+                    widthMax: p.pwidthmax,
                     // widthMin: p.pwidthmin,
-                    widthMin: p.width / 1000,
-                    heightMax: p.pheightmax / 1000,
+                    widthMin: p.width,
+                    heightMax: p.pheightmax,
                     // heightMin: p.pheightmin,
-                    heightMin: p.height / 1000,
+                    heightMin: p.height,
                 };
             }),
             selectedPart,
@@ -613,7 +613,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-$menu-width: 20%;
+$menu-width: 25%;
 // $menu-min-width: 250px;
 .product-detail {
     position: relative;

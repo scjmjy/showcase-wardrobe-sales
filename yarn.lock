@@ -921,11 +921,6 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
-"@element-plus/icons@^0.0.11":
-  version "0.0.11"
-  resolved "https://registry.nlark.com/@element-plus/icons/download/@element-plus/icons-0.0.11.tgz#9b187c002774548b911850d17fa5fc2f9a515f57"
-  integrity sha1-mxh8ACd0VIuRGFDRf6X8L5pRX1c=
-
 "@hapi/address@2.x.x":
   version "2.1.4"
   resolved "https://registry.nlark.com/@hapi/address/download/@hapi/address-2.1.4.tgz#5d67ed43f3fd41a69d4b9ff7b56e7c0d1d0a81e5"
@@ -1003,7 +998,7 @@
 
 "@popperjs/core@^2.10.1":
   version "2.10.1"
-  resolved "https://registry.nlark.com/@popperjs/core/download/@popperjs/core-2.10.1.tgz#728ecd95ab207aab8a9a4e421f0422db329232be"
+  resolved "https://registry.nlark.com/@popperjs/core/download/@popperjs/core-2.10.1.tgz?cache=0&sync_timestamp=1630646793367&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40popperjs%2Fcore%2Fdownload%2F%40popperjs%2Fcore-2.10.1.tgz#728ecd95ab207aab8a9a4e421f0422db329232be"
   integrity sha1-co7NlasgequKmk5CHwQi2zKSMr4=
 
 "@soda/friendly-errors-webpack-plugin@^1.7.1":
@@ -2853,7 +2848,7 @@
 
 "@vueuse/core@~6.1.0":
   version "6.1.0"
-  resolved "https://registry.nlark.com/@vueuse/core/download/@vueuse/core-6.1.0.tgz?cache=0&sync_timestamp=1631485707301&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40vueuse%2Fcore%2Fdownload%2F%40vueuse%2Fcore-6.1.0.tgz#8137c291cf49b11c2deda4d5079096e55b36fc28"
+  resolved "https://registry.npmmirror.com/@vueuse/core/download/@vueuse/core-6.1.0.tgz#8137c291cf49b11c2deda4d5079096e55b36fc28"
   integrity sha1-gTfCkc9JsRwt7aTVB5CW5Vs2/Cg=
   dependencies:
     "@vueuse/shared" "6.1.0"
@@ -2861,7 +2856,7 @@
 
 "@vueuse/shared@6.1.0":
   version "6.1.0"
-  resolved "https://registry.nlark.com/@vueuse/shared/download/@vueuse/shared-6.1.0.tgz?cache=0&sync_timestamp=1631485700955&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40vueuse%2Fshared%2Fdownload%2F%40vueuse%2Fshared-6.1.0.tgz#1375fd41acefe52f9a1842f3c6a8a348786535ba"
+  resolved "https://registry.npmmirror.com/@vueuse/shared/download/@vueuse/shared-6.1.0.tgz#1375fd41acefe52f9a1842f3c6a8a348786535ba"
   integrity sha1-E3X9Qazv5S+aGELzxqijSHhlNbo=
   dependencies:
     vue-demi "*"
@@ -3277,10 +3272,10 @@ async-limiter@~1.0.0:
   resolved "https://registry.npm.taobao.org/async-limiter/download/async-limiter-1.0.1.tgz#dd379e94f0db8310b08291f9d64c3209766617fd"
   integrity sha1-3TeelPDbgxCwgpH51kwyCXZmF/0=
 
-async-validator@^3.4.0:
-  version "3.5.2"
-  resolved "https://registry.nlark.com/async-validator/download/async-validator-3.5.2.tgz?cache=0&sync_timestamp=1630393210134&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fasync-validator%2Fdownload%2Fasync-validator-3.5.2.tgz#68e866a96824e8b2694ff7a831c1a25c44d5e500"
-  integrity sha1-aOhmqWgk6LJpT/eoMcGiXETV5QA=
+async-validator@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.nlark.com/async-validator/download/async-validator-4.0.3.tgz#c8ecd6b28fc8e18b14be4ec7c704641f999d377d"
+  integrity sha1-yOzWso/I4YsUvk7HxwRkH5mdN30=
 
 async@^2.6.2:
   version "2.6.3"
@@ -4607,15 +4602,15 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
-dayjs@1.x:
-  version "1.10.7"
-  resolved "https://registry.nlark.com/dayjs/download/dayjs-1.10.7.tgz#2cf5f91add28116748440866a0a1d26f3a6ce468"
-  integrity sha1-LPX5Gt0oEWdIRAhmoKHSbzps5Gg=
-
 dayjs@^1.10.6:
   version "1.10.6"
   resolved "https://registry.nlark.com/dayjs/download/dayjs-1.10.6.tgz#288b2aa82f2d8418a6c9d4df5898c0737ad02a63"
   integrity sha1-KIsqqC8thBimydTfWJjAc3rQKmM=
+
+dayjs@^1.10.7:
+  version "1.10.7"
+  resolved "https://registry.nlark.com/dayjs/download/dayjs-1.10.7.tgz#2cf5f91add28116748440866a0a1d26f3a6ce468"
+  integrity sha1-LPX5Gt0oEWdIRAhmoKHSbzps5Gg=
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
@@ -4972,19 +4967,18 @@ electron-to-chromium@^1.3.723:
   resolved "https://registry.nlark.com/electron-to-chromium/download/electron-to-chromium-1.3.789.tgz?cache=0&sync_timestamp=1627423497867&other_urls=https%3A%2F%2Fregistry.nlark.com%2Felectron-to-chromium%2Fdownload%2Felectron-to-chromium-1.3.789.tgz#c3ea060ba1e36e41c87943a47ed2daadc545be2b"
   integrity sha1-w+oGC6HjbkHIeUOkftLarcVFvis=
 
-element-plus@^1.1.0-beta.8:
-  version "1.1.0-beta.12"
-  resolved "https://registry.nlark.com/element-plus/download/element-plus-1.1.0-beta.12.tgz#2fd646f3c2f787dfb282d091ec6aa6945d1bec6a"
-  integrity sha1-L9ZG88L3h9+ygtCR7GqmlF0b7Go=
+element-plus@^1.1.0-beta.18:
+  version "1.1.0-beta.18"
+  resolved "https://registry.npmmirror.com/element-plus/download/element-plus-1.1.0-beta.18.tgz?cache=0&sync_timestamp=1632848449883&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Felement-plus%2Fdownload%2Felement-plus-1.1.0-beta.18.tgz#eb16d091004a618002c75ed87299208f6dbf662e"
+  integrity sha1-6xbQkQBKYYACx17Ycpkgj22/Zi4=
   dependencies:
-    "@element-plus/icons" "^0.0.11"
     "@popperjs/core" "^2.10.1"
     "@vueuse/core" "~6.1.0"
-    async-validator "^3.4.0"
-    dayjs "1.x"
+    async-validator "^4.0.3"
+    dayjs "^1.10.7"
     lodash "^4.17.21"
-    mitt "^2.1.0"
-    normalize-wheel "^1.0.1"
+    memoize-one "^5.2.1"
+    normalize-wheel-es "^1.1.0"
     resize-observer-polyfill "^1.5.1"
 
 elliptic@^6.5.3:
@@ -7309,6 +7303,11 @@ memfs@^3.1.2:
   dependencies:
     fs-monkey "1.0.3"
 
+memoize-one@^5.2.1:
+  version "5.2.1"
+  resolved "https://registry.nlark.com/memoize-one/download/memoize-one-5.2.1.tgz#8337aa3c4335581839ec01c3d594090cebe8f00e"
+  integrity sha1-gzeqPEM1WBg57AHD1ZQJDOvo8A4=
+
 memory-fs@^0.4.1:
   version "0.4.1"
   resolved "https://registry.nlark.com/memory-fs/download/memory-fs-0.4.1.tgz#3a9a20b8462523e447cfbc7e8bb80ed667bfc552"
@@ -7509,11 +7508,6 @@ mitt@1.1.2:
   version "1.1.2"
   resolved "https://registry.nlark.com/mitt/download/mitt-1.1.2.tgz?cache=0&sync_timestamp=1624483449786&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fmitt%2Fdownload%2Fmitt-1.1.2.tgz#380e61480d6a615b660f07abb60d51e0a4e4bed6"
   integrity sha1-OA5hSA1qYVtmDwertg1R4KTkvtY=
-
-mitt@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.nlark.com/mitt/download/mitt-2.1.0.tgz?cache=0&sync_timestamp=1624483449786&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fmitt%2Fdownload%2Fmitt-2.1.0.tgz#f740577c23176c6205b121b2973514eade1b2230"
-  integrity sha1-90BXfCMXbGIFsSGylzUU6t4bIjA=
 
 mitt@^3.0.0:
   version "3.0.0"
@@ -7750,10 +7744,10 @@ normalize-url@^3.0.0:
   resolved "https://registry.nlark.com/normalize-url/download/normalize-url-3.3.0.tgz#b2e1c4dc4f7c6d57743df733a4f5978d18650559"
   integrity sha1-suHE3E98bVd0PfczpPWXjRhlBVk=
 
-normalize-wheel@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.nlark.com/normalize-wheel/download/normalize-wheel-1.0.1.tgz#aec886affdb045070d856447df62ecf86146ec45"
-  integrity sha1-rsiGr/2wRQcNhWRH32Ls+GFG7EU=
+normalize-wheel-es@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.npmmirror.com/normalize-wheel-es/download/normalize-wheel-es-1.1.0.tgz#db017af1dd5d4c6222c07ae38bc224049d25861e"
+  integrity sha1-2wF68d1dTGIiwHrji8IkBJ0lhh4=
 
 npm-run-path@^2.0.0:
   version "2.0.2"
@@ -9140,7 +9134,7 @@ requires-port@^1.0.0:
 
 resize-observer-polyfill@^1.5.1:
   version "1.5.1"
-  resolved "https://registry.nlark.com/resize-observer-polyfill/download/resize-observer-polyfill-1.5.1.tgz#0e9020dd3d21024458d4ebd27e23e40269810464"
+  resolved "https://registry.nlark.com/resize-observer-polyfill/download/resize-observer-polyfill-1.5.1.tgz?cache=0&sync_timestamp=1618847256390&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fresize-observer-polyfill%2Fdownload%2Fresize-observer-polyfill-1.5.1.tgz#0e9020dd3d21024458d4ebd27e23e40269810464"
   integrity sha1-DpAg3T0hAkRY1OvSfiPkAmmBBGQ=
 
 resolve-cwd@^2.0.0:
@@ -11093,7 +11087,7 @@ vm-browserify@^1.0.1:
 
 vue-demi@*:
   version "0.11.4"
-  resolved "https://registry.nlark.com/vue-demi/download/vue-demi-0.11.4.tgz?cache=0&sync_timestamp=1630868339719&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fvue-demi%2Fdownload%2Fvue-demi-0.11.4.tgz#6101992fe4724cf5634018a16e953f3052e94e2a"
+  resolved "https://registry.nlark.com/vue-demi/download/vue-demi-0.11.4.tgz#6101992fe4724cf5634018a16e953f3052e94e2a"
   integrity sha1-YQGZL+RyTPVjQBihbpU/MFLpTio=
 
 vue-eslint-parser@^7.0.0, vue-eslint-parser@^7.9.0:
