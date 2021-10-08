@@ -6,9 +6,9 @@
             <div class="customer-list__info">
                 <strong class="customer-list__info-label">{{ customerName }}</strong>
                 <el-button v-if="showServeBtn" size="small" type="warning" round @click="serve">为此客户服务</el-button>
-                <el-button v-else-if="serveBtnPosition === 'inner'" size="small" type="primary" round @click="newServe"
+                <!-- <el-button v-else-if="serveBtnPosition === 'inner'" size="small" type="primary" round @click="newServe"
                     >开始新服务</el-button
-                >
+                > -->
             </div>
             <div v-if="services.length === 0" class="customer-list__empty">
                 <el-empty></el-empty>
@@ -48,6 +48,14 @@
                 <load-more :state="loadState" />
             </div>
         </div>
+        <el-button
+            v-if="!showServeBtn"
+            class="customer-list__add"
+            type="primary"
+            circle
+            icon="iconfont icon-scheme-new"
+            @click="newServe"
+        ></el-button>
     </div>
 </template>
 
@@ -61,7 +69,6 @@ import { Service, Scheme } from "@/api/interface/provider.interface";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 import LoadMore from "@/components/LoadMore.vue";
-import Emitter from "@/event";
 import CustomerMenu from "./components/CustomerMenu.vue";
 import SchemeList from "./components/SchemeList.vue";
 
@@ -71,10 +78,6 @@ export default defineComponent({
         menu: {
             type: Boolean,
             default: true,
-        },
-        serveBtnPosition: {
-            type: String,
-            default: "inner",
         },
     },
     components: {
@@ -169,13 +172,6 @@ export default defineComponent({
                 immediate: true,
             },
         );
-
-        Emitter.on("scheme-new", () => {
-            router.push({
-                path: "/select-product",
-            });
-        });
-
         return {
             openedServices,
             handleOpenedChange(_services: string[]) {},
@@ -207,11 +203,11 @@ export default defineComponent({
                     });
                 }
             },
-            // newServe() {
-            //     router.push({
-            //         path: "/select-product",
-            //     });
-            // },
+            newServe() {
+                router.push({
+                    path: "/select-product",
+                });
+            },
             newScheme(svc?: Service) {
                 router.push({
                     path: "/select-product",
@@ -311,6 +307,16 @@ $paddingX: 20px;
         :deep(.el-collapse-item__arrow) {
             font-weight: bold;
             font-size: 22px;
+        }
+    }
+    &__add {
+        position: absolute;
+        right: 50px;
+        bottom: 30px;
+        padding: 25px;
+        font-size: 60px;
+        :deep(i) {
+            color: white !important;
         }
     }
 }
