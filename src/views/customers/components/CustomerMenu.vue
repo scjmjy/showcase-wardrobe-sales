@@ -1,12 +1,19 @@
 <template>
     <el-menu ref="elMenu" class="customer-menu" :default-active="defaultActive" :uniqueOpened="true" @scroll="onScroll">
-        <el-menu-item v-for="(customer, index) of customers" :key="index" :index="customer.cid.toString()">
-            <span class="customer-menu__avatar">{{ getFirstWord(customer.name) }}</span>
-            <div class="customer-menu__name">
+        <template v-for="(customer, index) of customers" :key="index">
+            <el-menu-item
+                :index="customer.cid.toString()"
+                :class="{ 'iconfont icon-username-2 absolute-icon': isServingCustomer(customer.cid) }"
+                style="position: relative"
+            >
+                <!-- <span class="customer-menu__avatar">{{ getFirstWord(customer.name) }}</span> -->
+                <span class="customer-menu__name u-line-1">{{ getCustomeName(customer.name) }}</span>
+                <!-- <div class="customer-menu__name">
                 <span class="u-line-1">{{ getCustomeName(customer.name) }}</span>
                 <span style="font-size: 18px">{{ customer.phone || "" }}</span>
-            </div>
-        </el-menu-item>
+            </div> -->
+            </el-menu-item>
+        </template>
         <load-more :state="loadState" />
     </el-menu>
 </template>
@@ -87,6 +94,9 @@ export default defineComponent({
                 if (name.length > 10) return name ? name.substring(2, 14) : "";
                 else return name ? name : "";
             },
+            isServingCustomer(id: number | string) {
+                return id == store.state.currentCustomer.customerId;
+            },
             onScroll,
             resetLoadstate() {
                 const el = elMenu.value?.$el as HTMLElement;
@@ -101,16 +111,19 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+$MenuItemHeight: 46px;
 .customer-menu {
     background-color: white;
+    padding: 0 5px;
     :deep(.el-menu) {
         background-color: white;
     }
     :deep(.el-menu-item) {
-        background-color: white;
         padding-left: 30px !important;
-        height: 86px !important;
-        line-height: 86px !important;
+        height: $MenuItemHeight !important;
+        line-height: $MenuItemHeight !important;
+        border-radius: 6px;
+        background-color: white;
         color: var(--el-color-primary);
         font-weight: bold;
     }
@@ -140,8 +153,13 @@ export default defineComponent({
         line-height: normal;
         flex-wrap: wrap;
         font-size: 24px;
-        font-family: "Micorsoft YaHei";
-        width: calc(100% - 48px);
+        vertical-align: baseline;
+    }
+    .absolute-icon::before {
+        position: absolute;
+        left: 2px;
+        display: flex;
+        align-items: center;
     }
 }
 </style>

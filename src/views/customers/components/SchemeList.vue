@@ -1,8 +1,5 @@
 <template>
     <el-row ref="elRow" class="scheme-list" :gutter="20">
-        <el-col v-if="offer" :span="colSpan" style="text-align: center; padding-top: 10px; padding-bottom: 10px">
-            <new-scheme-card @new="newScheme" />
-        </el-col>
         <el-col
             v-for="(s, index) in schemeList"
             :key="index"
@@ -11,7 +8,9 @@
         >
             <scheme-card :offer="offer" :scheme="s" @detail="gotoDetail(s)" />
         </el-col>
-        <!-- <load-more :state="loadState" /> -->
+        <el-col v-if="offer" :span="colSpan" style="text-align: center; padding-top: 10px; padding-bottom: 10px">
+            <new-scheme-card @new="newScheme" />
+        </el-col>
     </el-row>
 </template>
 

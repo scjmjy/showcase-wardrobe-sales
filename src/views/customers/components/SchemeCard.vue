@@ -8,9 +8,7 @@
         <!-- <div class="scheme-card__name">{{ name }}</div> -->
         <div class="scheme-card__actions">
             <div v-if="offer" class="scheme-card__offer" :class="{ 'no-offer': noOffer }">{{ offerText }}</div>
-            <el-button class="scheme-card__btn" type="primary" size="small" round @click="onBtnClick"
-                >查看详情</el-button
-            >
+            <el-button class="scheme-card__btn" type="primary" size="small" round @click="onBtnClick"> 详情 </el-button>
         </div>
     </div>
 </template>

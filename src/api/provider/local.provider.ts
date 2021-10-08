@@ -18,6 +18,7 @@ import ApiProvider, {
     SchemeManifest,
     SchemeOffer,
     Service,
+    Store,
     VisitorRecordItem,
 } from "../interface/provider.interface";
 
@@ -490,6 +491,16 @@ export default class LocalProvider implements ApiProvider {
             ok: true,
             status: 200,
             data: true,
+        });
+    }
+    requestStoreList(): Promise<AjaxResponse<Store[]>> {
+        return Promise.resolve({
+            ok: true,
+            status: 200,
+            data: new Array(10).fill(0).map((val, index) => ({
+                id: index,
+                name: "门店-" + index,
+            })),
         });
     }
 }

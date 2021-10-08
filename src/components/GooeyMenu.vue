@@ -105,9 +105,14 @@ export default defineComponent({
 
 <style scoped lang="scss">
 @use "sass:math";
+// @use "~@/assets/scss/variables.scss";
 
 //vars
-$fg: var(--el-color-primary);
+// $colorBgActive: $color-bg-dark;
+$colorBgActive: #3c3c3c;
+$colorBgButton: var(--el-color-primary);
+$colorBg: #{mix(white, $colorBgActive, 40)};
+$colorText: white;
 $pi: 3.14;
 
 //config
@@ -125,14 +130,14 @@ a {
 }
 $ballSize: 56px;
 %ball {
-    background: $fg;
+    background: $colorBg;
     border-radius: 100%;
     width: $ballSize;
     height: $ballSize;
     // margin-left: -40px;
     position: absolute;
     // top: 20px;
-    color: white;
+    color: $colorText;
     text-align: center;
     line-height: $ballSize;
     transform: translate3d(0, 0, 0);
@@ -195,10 +200,11 @@ $hamburger-spacing: 8px;
 .menu-item {
     cursor: pointer;
     font-size: 28px;
-    background-color: var(--el-color-primary-light-5);
+    // background-color: var(--el-color-primary-light-5);
+    background-color: $colorBg;
     &:hover {
-        background-color: white;
-        color: $fg;
+        background-color: $colorText;
+        color: $colorBg;
     }
     @for $i from 1 through $menu-items {
         &:nth-child(#{$i + 2}) {
@@ -206,23 +212,24 @@ $hamburger-spacing: 8px;
         }
     }
     &.is-active {
-        background-color: var(--el-color-primary);
+        background-color: $colorBgActive;
         &:hover {
-            background-color: white;
-            color: $fg;
+            background-color: $colorText;
+            color: $colorBg;
         }
     }
     &.is-button {
-        background-color: var(--el-color-primary);
+        background-color: $colorBgButton;
         &:hover {
-            background-color: white;
-            color: $fg;
+            background-color: $colorText;
+            color: $colorBg;
         }
     }
 }
 
 .menu-open-button {
     @extend %ball;
+    background-color: $colorBgActive;
     z-index: 2;
     transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
     transition-duration: 400ms;

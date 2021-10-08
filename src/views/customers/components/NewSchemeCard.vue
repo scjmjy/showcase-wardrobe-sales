@@ -1,12 +1,9 @@
 <template>
     <div class="new-scheme-card">
-        <el-button
-            class="new-scheme-card__add"
-            type="text"
-            icon="el-icon-circle-plus-outline"
-            @click="doNew"
-        ></el-button>
-        <el-button class="new-scheme-card__text" type="text" @click="doNew">创建定制方案</el-button>
+        <el-button class="new-scheme-card__add" type="text" icon="el-icon-plus" @click="doNew"></el-button>
+        <el-button class="new-scheme-card__text" type="primary" size="small" round @click="doNew">
+            创建定制方案
+        </el-button>
     </div>
 </template>
 
@@ -58,6 +55,9 @@ $heightBig: 334px;
 
     &__add {
         font-size: 134px !important;
+        border-radius: 6px;
+        border: 6px solid var(--el-color-primary);
+        padding: 0px;
     }
 
     &__text {

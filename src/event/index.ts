@@ -6,6 +6,7 @@ export type Events = {
     "start-serving": number;
     "stop-serving": number;
     "customer-created": string;
+    "scheme-new": void;
 };
 
 export default mitt<Events>();

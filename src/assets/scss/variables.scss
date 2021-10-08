@@ -5,7 +5,8 @@ $colors: (
     "black": #172021,
     "primary": (
         "origin": #5eb6b3,
-        "base": #3c3c3c,
+        "base-old": #3c3c3c,
+        "base": #c1b399,
         "dark": #4f9493,
         "new": #4472c4,
     ),
@@ -26,6 +27,7 @@ $colors: (
     ),
     "bg": (
         "base": #f8f8f8,
+        "dark": #3c3c3c,
     ),
 );
 
@@ -56,6 +58,7 @@ $tag: (
 );
 
 $color-bg: map.get($colors, "bg", "base");
+$color-bg-dark: map.get($colors, "bg", "dark");
 $color-primary-dark: map.get($colors, "primary", "dark");
 $color-primary-new: map.get($colors, "primary", "new");
 
@@ -63,6 +66,7 @@ $color-primary: map.get($colors, "primary", "base");
 
 :root {
     --el-color-bg: #{$color-bg};
+    --el-color-bg-dark: #{$color-bg-dark};
     --el-color-primary-dark: #{$color-primary-dark};
     --el-color-primary-new: #{$color-primary-new};
 
@@ -82,4 +86,5 @@ $color-primary: map.get($colors, "primary", "base");
 
 :export {
     colorPrimary: $color-primary;
+    colorBgDark: $color-bg-dark;
 }

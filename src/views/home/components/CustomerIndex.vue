@@ -8,7 +8,7 @@
         <br />
         <scheme-list></scheme-list>
     </div> -->
-    <customer-list :menu="false" />
+    <customer-list :menu="false" serveBtnPosition="bottom" />
 </template>
 
 <script lang="ts">

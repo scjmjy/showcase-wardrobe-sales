@@ -1339,11 +1339,7 @@ export default defineComponent({
                                                 const catId = this.newPart.catId;
 
                                                 // TODO: only handle the case of locationType==1.
-                                                const location = new Location(
-                                                    1,
-                                                    anchorMeta.pivot,
-                                                    null,
-                                                );
+                                                const location = new Location(1, anchorMeta.pivot, null);
                                                 const newItem = new Item(
                                                     itemId,
                                                     partId,
@@ -1434,7 +1430,7 @@ export default defineComponent({
             this.wall.receiveShadows = true;
         },
 
-        showReferenceRuler(showRuler: boolean, sizeHeight: number = 0, sizeWidth: number = 0, sizeDepth: number = 0): void {
+        showReferenceRuler(showRuler: boolean, sizeHeight = 0, sizeWidth = 0, sizeDepth = 0): void {
             this.gui.showRuler(this.graphics, this.bizdata as BizData, showRuler, sizeHeight, sizeWidth, sizeDepth);
         },
 

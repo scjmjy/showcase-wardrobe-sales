@@ -41,12 +41,7 @@
                 >返回</el-button
             >
             <div class="product-detail__action-left state-icon-group-h">
-                <state-icon
-                    v-model="stateInOut"
-                    icon="parts-indoor"
-                    :states="inOutStates"
-                    @change="onInOutChange"
-                ></state-icon>
+                <state-icon v-model="stateInOut" :states="inOutStates" @change="onInOutChange"></state-icon>
             </div>
             <gooey-menu v-model="gooeyMenuOpened" class="product-detail__gooeyMenu" :items="gooeyMenuItems" />
 
@@ -192,11 +187,13 @@ export default defineComponent({
                 label: "内配",
                 iconBg: "black",
                 iconColor: "#D8D8D8",
+                icon: "parts-indoor-2",
             },
 
             {
                 state: "out",
                 label: "外观",
+                icon: "parts-outdoor-2",
             },
         ];
         const refBabylon = ref<InstanceType<typeof Babylon>>();

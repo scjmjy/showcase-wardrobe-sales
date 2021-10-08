@@ -9,11 +9,11 @@
                 <el-input
                     v-model="formData.customerName"
                     class="customer-login-form__input"
-                    prefix-icon="iconfont icon-my"
+                    prefix-icon="iconfont icon-username-2"
                     placeholder="请输入客户名称"
                 >
                     <template #suffix>
-                        <i class="el-input__icon iconfont icon-btn icon-random" @click="onRandomClick"></i>
+                        <i class="el-input__icon iconfont icon-btn icon-random-2" @click="onRandomClick"></i>
 
                         <!-- <el-button icon="iconfont icon-random" circle></el-button> -->
                     </template>
@@ -21,9 +21,11 @@
                 <el-input
                     v-model="formData.phoneNumber"
                     class="customer-login-form__input"
+                    :class="{ 'input-invalid': invalidPhone }"
                     auto-complete="off"
-                    prefix-icon="iconfont icon-phone-2"
+                    prefix-icon="iconfont icon-phone-3"
                     placeholder="请输入客户手机号码（选填）"
+                    @input="onPhoneNumberInput"
                     @keyup.enter="startService"
                 />
                 <el-radio-group class="customer-login-form__gender" v-model="formData.gender">
@@ -52,6 +54,7 @@ import { formatPlain } from "@/utils/date";
 import apiProvider from "@/api/provider";
 import LoginBg from "@/views/login/LoginBg.vue";
 import AppHeaderSimple from "./AppHeaderSimple.vue";
+import { isPhoneNumber } from "@/utils/validate";
 
 export default defineComponent({
     name: "CustomerLogin",
@@ -63,16 +66,23 @@ export default defineComponent({
         const formData = reactive({
             customerName: "",
             phoneNumber: "",
-            gender: "",
+            gender: "female",
             cid: "",
         });
         const loginLoading = ref(false);
+        const invalidPhone = ref(false);
         const isLoginDisabled = computed(() => !formData.customerName);
 
         const store = useStore();
         const router = useRouter();
 
         const startService = () => {
+            const { phoneNumber } = formData;
+            if (phoneNumber && !isPhoneNumber(phoneNumber)) {
+                ElMessage.warning("请输入正确的手机号码");
+                invalidPhone.value = true;
+                return;
+            }
             loginLoading.value = true;
             apiProvider
                 .createCustomer(formData.customerName, formData.phoneNumber)
@@ -100,8 +110,12 @@ export default defineComponent({
             formData,
             isLoginDisabled,
             loginLoading,
+            invalidPhone,
             startService,
             onRandomClick,
+            onPhoneNumberInput() {
+                invalidPhone.value = false;
+            },
         };
     },
 });
@@ -170,6 +184,7 @@ export default defineComponent({
             margin-top: 50px;
             display: block;
             width: 100%;
+            font-size: 26px;
         }
     }
 }

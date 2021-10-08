@@ -269,6 +269,11 @@ export interface PartAttachment {
     count: number;
 }
 
+export interface Store {
+    id: number;
+    name: string;
+}
+
 export default interface ApiProvider {
     /**
      * 登录接口
@@ -372,4 +377,6 @@ export default interface ApiProvider {
     recordVisitor(eid: number | string): Promise<AjaxResponse<string>>;
     updateVisitorItem(item: VisitorRecordItem): Promise<AjaxResponse<boolean>>;
     deleteVisitorItem(no: string): Promise<AjaxResponse<boolean>>;
+
+    requestStoreList(): Promise<AjaxResponse<Store[]>>;
 }
