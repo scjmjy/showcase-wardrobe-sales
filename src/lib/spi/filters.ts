@@ -50,7 +50,7 @@ export class GeneralAreaFilter implements IAreaFilter {
         let diff_y = y_area - partSize.y;
         let diff_z = z_area - partSize.z;
 
-        return Math.abs(diff_x) <= this.bias_x && diff_y >= 0 && Math.abs(diff_z) <= this.bias_z;
+        return Math.abs(diff_x) <= this.bias_x && diff_y >= 0 && Math.abs(diff_z) <= z_area;
     }
 }
 
