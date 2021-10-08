@@ -1438,6 +1438,13 @@ export default defineComponent({
             const rulerDisplayed = this.gui.rulerDisplayed;
             if (rulerDisplayed) this.showReferenceRuler(false);
 
+            // Display all objects, including door.
+            this.graphics.scene.meshes.forEach((mesh) => {
+                mesh.isVisible = true;
+            });
+
+            this.adjustCamera();
+
             // Method 1:
             // const ret = await this.graphics.createScreenshotAsync(size);
 
