@@ -1,7 +1,9 @@
 <template>
     <div class="scheme-card">
         <div class="scheme-card__imgList">
-            <el-image class="scheme-card__imgList-top" :src="scheme.cover[0]" fit="cover"></el-image>
+            <vue-fixed-ratio :width="1" :height="1" style="width: 100%">
+                <el-image class="scheme-card__imgList-top" :src="scheme.cover[0]" fit="cover"></el-image>
+            </vue-fixed-ratio>
             <!-- <el-image class="scheme-card__imgList-bottom" :src="cover[1]" fit="cover"></el-image> -->
             <!-- <el-image class="scheme-card__imgList-bottom" :src="cover[2]" fit="cover"></el-image> -->
         </div>
@@ -15,10 +17,14 @@
 
 <script lang="ts">
 import { Scheme } from "@/api/interface/provider.interface";
+import VueFixedRatio from "@/components/vue-fixed-ratio.vue";
 import { computed, defineComponent, PropType } from "vue";
 
 export default defineComponent({
     name: "SchemeCard",
+    components: {
+        VueFixedRatio,
+    },
     props: {
         offer: {
             type: Boolean,
@@ -52,8 +58,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-$imgSizeSmall: 160px;
-$imgSizeBig: 220px;
 .scheme-card {
     position: relative;
     display: inline-flex;
@@ -63,17 +67,18 @@ $imgSizeBig: 220px;
     background: #f8f8f8;
     box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.08);
     border-radius: 10px;
+    min-width: 150px;
+    min-height: 150px;
 
     &__imgList {
-        padding: 22px 40px;
-        // width: 300px;
+        width: 100%;
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
         background: white;
         &-top {
-            width: $imgSizeBig;
-            height: $imgSizeBig;
+            width: 100%;
+            height: 100%;
         }
         &-bottom {
             margin-top: 8px;
@@ -90,15 +95,14 @@ $imgSizeBig: 220px;
         color: white;
     }
     &__actions {
-        padding: 20px 0px;
+        padding: 20px 10px;
         width: 100%;
         display: flex;
         justify-content: space-around;
         align-items: center;
     }
     &__offer {
-        width: 109px;
-        // padding: 4px 0px;
+        width: 40%;
         border: 1px solid var(--el-color-danger);
         border-radius: 40px;
         color: var(--el-color-danger);
@@ -113,19 +117,19 @@ $imgSizeBig: 220px;
         }
     }
     &__btn {
-        width: 109px;
+        width: 40%;
         padding: 5px 0px !important;
     }
 }
 
-@media (max-width: 1200px) {
-    .scheme-card {
-        &__imgList {
-            &-top {
-                width: $imgSizeSmall;
-                height: $imgSizeSmall;
-            }
-        }
-    }
-}
+// @media (max-width: 1200px) {
+//     .scheme-card {
+//         &__imgList {
+//             &-top {
+//                 width: $imgSizeSmall;
+//                 height: $imgSizeSmall;
+//             }
+//         }
+//     }
+// }
 </style>

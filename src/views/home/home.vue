@@ -95,7 +95,7 @@ export default defineComponent({
     &__add {
         position: absolute;
         left: 50%;
-        bottom: 50px;
+        bottom: 65px;
         transform: translateX(-50%);
         padding: 25px;
         font-size: 60px;
