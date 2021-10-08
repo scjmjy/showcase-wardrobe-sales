@@ -729,17 +729,17 @@ export default defineComponent({
                     {
                         this.graphics.lockCamera(false);
 
-                        this.graphics.scene.meshes.forEach((mesh) => {
-                            const isItem = mesh.name.startsWith(ObjectType.ITEM);
+                        this.graphics.scene.rootNodes.forEach((rootNode) => {
+                            const rootMesh = rootNode as BABYLON.AbstractMesh;
+                            if (rootMesh !== undefined) {
+                                const isItem = rootMesh.name.startsWith(ObjectType.ITEM);
 
-                            mesh.isVisible = true;
-                            mesh.getChildMeshes().forEach((childMesh) => {
-                                childMesh.isPickable = !isItem;
-                            });
+                                rootMesh.isVisible = true;
+                                rootMesh.getChildMeshes().forEach((childMesh) => {
+                                    childMesh.isVisible = true;
+                                    childMesh.isPickable = !isItem;
 
-                            if (isItem) {
-                                mesh.getChildMeshes().forEach((childMesh) => {
-                                    if (childMesh.getClassName() === "Mesh") {
+                                    if (isItem && childMesh.getClassName() === "Mesh") {
                                         this.graphics.highlightLayer.addExcludedMesh(childMesh as BABYLON.Mesh);
                                         childMesh.renderingGroupId = 1;
                                         this.graphics.scene.setRenderingAutoClearDepthStencil(1, false, false, false);
@@ -753,19 +753,19 @@ export default defineComponent({
                     {
                         this.graphics.lockCamera(true);
 
-                        this.graphics.scene.meshes.forEach((mesh) => {
-                            const isCube = mesh.name.startsWith(ObjectType.CUBE);
-                            const isDoor = mesh.name.startsWith(ObjectType.DOOR);
-                            const isItem = mesh.name.startsWith(ObjectType.ITEM);
+                        this.graphics.scene.rootNodes.forEach((rootNode) => {
+                            const rootMesh = rootNode as BABYLON.AbstractMesh;
+                            if (rootMesh !== undefined) {
+                                const isCube = rootMesh.name.startsWith(ObjectType.CUBE);
+                                const isDoor = rootMesh.name.startsWith(ObjectType.DOOR);
+                                const isItem = rootMesh.name.startsWith(ObjectType.ITEM);
 
-                            mesh.isVisible = !isDoor;
-                            mesh.getChildMeshes().forEach((childMesh) => {
-                                childMesh.isPickable = !isCube;
-                            });
+                                rootMesh.isVisible = !isDoor;
+                                rootMesh.getChildMeshes().forEach((childMesh) => {
+                                    childMesh.isVisible = !isDoor;
+                                    childMesh.isPickable = !isCube;
 
-                            if (isItem) {
-                                mesh.getChildMeshes().forEach((childMesh) => {
-                                    if (childMesh.getClassName() === "Mesh") {
+                                    if (isItem && childMesh.getClassName() === "Mesh") {
                                         this.graphics.highlightLayer.removeExcludedMesh(childMesh as BABYLON.Mesh);
                                         childMesh.renderingGroupId = 0;
                                     }
@@ -778,11 +778,15 @@ export default defineComponent({
                     {
                         this.graphics.lockCamera(false);
 
-                        this.graphics.scene.meshes.forEach((mesh) => {
-                            mesh.isVisible = true;
-                            mesh.getChildMeshes().forEach((childMesh) => {
-                                childMesh.isPickable = false;
-                            });
+                        this.graphics.scene.rootNodes.forEach((rootNode) => {
+                            const rootMesh = rootNode as BABYLON.AbstractMesh;
+                            if (rootMesh !== undefined) {
+                                rootMesh.isVisible = true;
+                                rootMesh.getChildMeshes().forEach((childMesh) => {
+                                    childMesh.isVisible = true;
+                                    childMesh.isPickable = false;
+                                });
+                            }
                         });
                     }
                     break;
