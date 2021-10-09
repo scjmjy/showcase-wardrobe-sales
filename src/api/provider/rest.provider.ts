@@ -145,6 +145,7 @@ export default class RestProvider extends LocalProvider {
     //     });
     // }
     createCustomer(name: string, mobile?: string): Promise<AjaxResponse<string>> {
+        const { storeId, eid } = store.state.user;
         return new Promise((resolve) => {
             request({
                 method: "POST",
@@ -152,6 +153,8 @@ export default class RestProvider extends LocalProvider {
                 data: {
                     name,
                     mobile,
+                    eid,
+                    orgid: storeId,
                 },
             })
                 .then((res) => {
@@ -174,12 +177,14 @@ export default class RestProvider extends LocalProvider {
         });
     }
     requestCustomerList(eid: string | number, page = 1, pageSize = 20): Promise<AjaxResponse<Customer[]>> {
+        const { storeId } = store.state.user;
         return new Promise((resolve) => {
             request({
                 method: "POST",
                 url: "/api/v1/biz/customers",
                 data: {
                     eid,
+                    orgid: storeId,
                     page,
                     pageSize,
                 },
@@ -293,6 +298,7 @@ export default class RestProvider extends LocalProvider {
         });
     }
     createNewService(eid: string | number, cid: string | number): Promise<AjaxResponse<Service>> {
+        const { storeId } = store.state.user;
         return new Promise((resolve) => {
             request({
                 method: "POST",
@@ -300,6 +306,7 @@ export default class RestProvider extends LocalProvider {
                 data: {
                     cid,
                     eid,
+                    orgid: storeId,
                 },
             })
                 .then((res) => {
@@ -320,12 +327,14 @@ export default class RestProvider extends LocalProvider {
         });
     }
     requestServices(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Service[]>> {
+        const { storeId } = store.state.user;
         return new Promise((resolve) => {
             request({
                 method: "POST",
                 url: "/api/v1/biz/customer/services",
                 data: {
                     cid,
+                    orgid: storeId,
                     page,
                     pageSize,
                 },

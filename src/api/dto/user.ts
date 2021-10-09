@@ -38,6 +38,7 @@ export class User {
         public accountName = "",
         public organization = "",
         public rank = "",
+        public storeId = 0,
     ) {}
 
     save(): string | undefined {

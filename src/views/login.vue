@@ -19,6 +19,7 @@
                     prefix-icon="iconfont icon-passwd-2"
                     placeholder="请输入密码"
                     type="password"
+                    show-password
                     @keyup.enter="login"
                 />
                 <!-- <div class="u-clearfix">

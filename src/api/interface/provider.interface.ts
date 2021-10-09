@@ -17,6 +17,7 @@ export interface LoginResult {
     organization: string;
     rank: string;
     accountName?: string;
+    storeId?: number;
 }
 // export interface CaptchaResult {
 //     uuid: number;

@@ -61,6 +61,7 @@ export default createStore({
                 state.user.accountName = payload.accountName || "";
                 state.user.organization = payload.organization;
                 state.user.rank = payload.rank;
+                state.user.storeId = payload.storeId || 0;
             } else {
                 state.user = new User();
             }
@@ -99,6 +100,7 @@ export default createStore({
                     if (loginRes.ok) {
                         commit("SET-USER", {
                             accountName: username,
+                            storeId,
                             ...loginRes.data,
                         });
                         resolve(loginRes);

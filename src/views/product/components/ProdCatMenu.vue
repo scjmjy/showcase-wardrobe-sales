@@ -158,7 +158,7 @@ export default defineComponent({
     }
     .el-sub-menu__title {
         border-radius: 6px;
-        padding-left: 10px !important;
+        padding-left: 20px !important;
         i {
             // color: var(--el-color-primary);
             font-weight: bold;
