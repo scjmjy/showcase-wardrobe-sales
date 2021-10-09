@@ -138,6 +138,7 @@ export default defineComponent({
 
 <style lang="scss">
 .prod-cat-menu {
+    // padding-right: 20px;
     .el-menu--inline {
         margin-left: 30px;
         &::before {
@@ -151,14 +152,14 @@ export default defineComponent({
     }
     .el-menu-item {
         border-radius: 6px;
-        padding-left: 20px !important;
+        padding: 0 20px !important;
         &:hover {
             background-color: var(--el-menu-item-hover-fill);
         }
     }
     .el-sub-menu__title {
         border-radius: 6px;
-        padding-left: 20px !important;
+        padding: 0 20px !important;
         i {
             // color: var(--el-color-primary);
             font-weight: bold;
@@ -166,7 +167,8 @@ export default defineComponent({
         }
     }
     .el-sub-menu__icon-arrow {
-        background-color: var(--el-color-info);
+        // background-color: var(--el-color-info);
+        background-color: #afafaf;
         border-radius: 50%;
         padding: 2px;
         font-size: 12px !important;

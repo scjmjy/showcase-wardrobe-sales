@@ -121,7 +121,10 @@ export interface Scheme {
     pheightmax: number;
     pheightmin: number;
 }
-
+export function isProduct(p: any): p is Product {
+    // 没有 product id，说明商品
+    return p.pid === undefined;
+}
 export interface CreateSchemeResult {
     id: number | string;
 }

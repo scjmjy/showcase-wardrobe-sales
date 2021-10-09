@@ -114,7 +114,7 @@ export default defineComponent({
 $MenuItemHeight: 46px;
 .customer-menu {
     background-color: white;
-    padding: 0 5px;
+    padding: 10px 5px;
     :deep(.el-menu) {
         background-color: white;
     }
@@ -126,6 +126,7 @@ $MenuItemHeight: 46px;
         background-color: white;
         color: var(--el-color-primary);
         font-weight: bold;
+        margin: 5px 0;
     }
     :deep(.el-menu-item.is-active) {
         background-color: var(--el-color-primary);

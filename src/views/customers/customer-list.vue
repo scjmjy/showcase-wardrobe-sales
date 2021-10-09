@@ -22,12 +22,14 @@
                                 <span class="service__no u-line-1">
                                     服务单号：<span>{{ svc.no }}</span>
                                 </span>
+                                <span v-if="isInService(svc)" class="service__serving">正在服务中</span>
                                 <el-button
-                                    v-if="!showServeBtn"
+                                    v-else-if="!showServeBtn"
                                     class="service__serveBtn"
                                     :type="getContinueServeBtnType(svc.no)"
                                     size="mini"
                                     round
+                                    @click.stop="continueThisService(svc)"
                                 >
                                     继续此服务
                                 </el-button>
@@ -96,6 +98,10 @@ export default defineComponent({
         const showServeBtn = computed(
             () => store.state.currentCustomer.customerId.toString() !== customerId.value.toString(),
         );
+        function isInService(svc: Service) {
+            const { currentSvcId } = store.state.currentCustomer;
+            return svc.id == currentSvcId;
+        }
         const refMenu = ref<InstanceType<typeof CustomerMenu>>();
         const refSchemeList = ref<HTMLDivElement>();
 
@@ -188,6 +194,7 @@ export default defineComponent({
                 return customer ? customer.name : "";
             }),
             showServeBtn,
+            isInService,
             onBackClick() {
                 router.back();
             },
@@ -199,7 +206,7 @@ export default defineComponent({
                         cid: customer.cid,
                         customerName: customer.name,
                         phoneNumber: customer.phone,
-                        latestSvcId: services.value[0]?.id,
+                        currentSvcId: services.value[0]?.id,
                     });
                 }
             },
@@ -233,6 +240,9 @@ export default defineComponent({
             pageScroll,
             getContinueServeBtnType(name: string) {
                 return openedServices.value?.includes(name) ? "info" : "primary";
+            },
+            continueThisService(svc: Service) {
+                store.commit("SET-CUSTOMER-CURRENT-SVCID", svc.id);
             },
         };
     },
@@ -321,27 +331,46 @@ $paddingX: 20px;
     }
 }
 .service {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    // display: flex;
+    // justify-content: space-between;
+    // align-items: center;
     flex: 1;
     margin-right: 30px;
     &__no,
     &__time {
+        vertical-align: middle;
         font-weight: bold;
-        font-size: 22px;
+        font-size: 17px;
         span {
             font-weight: 400;
         }
     }
-    &__time {
-        margin-right: 40px;
-    }
     &__serveBtn {
-        margin-right: 60px;
+        margin-left: 40px;
         padding: 0 20px;
         min-height: unset;
         height: 30px;
+    }
+    &__serving {
+        display: inline-block;
+        margin-left: 40px;
+        padding: 5px 20px;
+        border-radius: 20px;
+        line-height: normal;
+        color: var(--el-color-primary);
+        font-size: 14px;
+        background-color: white;
+    }
+    &__time {
+        float: right;
+    }
+}
+@media (min-width: 1200px) {
+    .service {
+        &__no,
+        &__time {
+            font-size: 22px;
+        }
     }
 }
 </style>

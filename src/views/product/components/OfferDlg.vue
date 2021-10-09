@@ -1,10 +1,10 @@
 <template>
     <el-dialog
-        class="offer-dlg"
+        custom-class="offer-dlg"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
-        :title="dlgTitle"
-        width="650px"
+        title="报价详情"
+        width="50%"
         v-bind="$attrs"
         @opened="doOffer"
     >
@@ -60,7 +60,7 @@ export default defineComponent({
     setup(props) {
         const schemeOffer = ref<SchemeOffer>();
         return {
-            dlgTitle: computed(() => `${props.customerName}，您的${props.schemeName}报价`),
+            // dlgTitle: computed(() => `${props.customerName}，您的${props.schemeName}报价`),
             schemeOffer,
             itemList: computed(() => (schemeOffer.value ? schemeOffer.value.details : [])),
             offerPrice: computed(() => {
@@ -99,8 +99,9 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .offer-dlg {
+    min-width: 650px;
     &__list {
         height: 450px;
         overflow-y: auto;
@@ -115,7 +116,9 @@ export default defineComponent({
         }
     }
     &__price {
-        padding: 30px 30px 0px;
+        margin: 30px 30px 0px 0px;
+        padding-top: 10px;
+        border-top: 1px solid var(--el-color-info);
         text-align: right;
         font-weight: bold;
         &-label {

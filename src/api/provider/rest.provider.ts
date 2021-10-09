@@ -327,13 +327,14 @@ export default class RestProvider extends LocalProvider {
         });
     }
     requestServices(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Service[]>> {
-        const { storeId } = store.state.user;
+        const { eid, storeId } = store.state.user;
         return new Promise((resolve) => {
             request({
                 method: "POST",
                 url: "/api/v1/biz/customer/services",
                 data: {
                     cid,
+                    eid,
                     orgid: storeId,
                     page,
                     pageSize,

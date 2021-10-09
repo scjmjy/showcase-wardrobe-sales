@@ -47,7 +47,7 @@ export default defineComponent({
     color: var(--el-color-primary) !important;
 
     &.disabled {
-        color: #d8d8d8 !important;
+        color: white !important;
         &:hover {
             // color: var(--el-color-primary-new-light-5) !important;
             color: var(--el-color-primary-light-5) !important;

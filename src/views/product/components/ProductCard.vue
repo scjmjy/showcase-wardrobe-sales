@@ -85,7 +85,7 @@ export default defineComponent({
         right: 0px;
         bottom: 0px;
         padding: 10px 0px;
-        background-color: rgba(128, 128, 128, 0.6);
+        background-color: #172021bf;
     }
     &__name {
         font-size: 24px;
