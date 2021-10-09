@@ -42,8 +42,7 @@ export default defineComponent({
     align-items: center;
     vertical-align: top;
     margin: 10px;
-    // width: 70px;
-    width: 40%;
+    width: 37%;
     &__img {
         // width: 70px;
         // height: 70px;

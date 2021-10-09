@@ -68,7 +68,7 @@ export default defineComponent({
     },
     computed: {
         isBtnDisabled(): boolean {
-            return this.username === "" || this.passwd === "" || this.selectedStore === undefined;
+            return this.username === "" || this.passwd === "" || !this.selectedStore;
         },
     },
     created() {
@@ -96,6 +96,10 @@ export default defineComponent({
                 this.$message.warning("请输入密码！");
                 return;
             }
+            if (!this.selectedStore) {
+                this.$message.warning("请选择门店！");
+                return;
+            }
             // if (!this.code) {
             //     this.$message.warning("请输入验证码！");
             //     return;
@@ -103,6 +107,7 @@ export default defineComponent({
             const auth = {
                 username: this.username,
                 passwd: md5(this.passwd),
+                storeId: this.selectedStore,
                 // code: this.code,
                 // uuid: this.uuid,
             };

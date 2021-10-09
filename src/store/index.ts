@@ -1,18 +1,26 @@
 import { createStore } from "vuex";
 import apiProvider from "@/api/provider";
-import { GlobalCfg, LoginResult, PartAttachment, Product, Scheme } from "@/api/interface/provider.interface";
-import { Customer, User } from "@/api/dto/user";
+import {
+    GlobalCfg,
+    LoginResult,
+    Model3DFile,
+    PartAttachmentList,
+    Product,
+    Scheme,
+} from "@/api/interface/provider.interface";
+import { Customer, User, Model3D } from "@/api/dto/user";
 import emitter from "@/event";
 
 const state = {
     user: User.load(),
     currentCustomer: Customer.load(),
+    models3DFiles: Model3D.load(),
     // currentSvcId: 0,
     pageChannel: {
         productDetailData: undefined as undefined | Product | Scheme,
     },
     globalCfg: undefined as GlobalCfg | undefined,
-    attachments: [] as PartAttachment[],
+    attachments: [] as PartAttachmentList,
     dirty: {
         customerList: false,
         schemeList: new Set<string>(),
@@ -65,7 +73,7 @@ export default createStore({
         "SET-GLOBAL-CONFIG"(state, cfg?: GlobalCfg) {
             state.globalCfg = cfg;
         },
-        "SET-PART-ATTACHMENTS"(state, attachments: PartAttachment[]) {
+        "SET-PART-ATTACHMENTS"(state, attachments: PartAttachmentList) {
             state.attachments = attachments;
         },
         "SET-DIRTY-CUSTOMER"(state, dirty: boolean) {
@@ -78,11 +86,16 @@ export default createStore({
                 state.dirty.schemeList.delete(cid);
             }
         },
+        "SET-3DMODELS"(state, models: Model3DFile[]) {
+            // TODO models 是从后台获取的最新的3D模型文件列表；state.models3DFiles 是上一次获取的文件列表
+            state.models3DFiles = models;
+            Model3D.save(state.models3DFiles); // 保存到localStorage
+        },
     },
     actions: {
-        login({ state, commit, dispatch }, { username, passwd, code, uuid }) {
+        login({ state, commit, dispatch }, { username, passwd, storeId, code, uuid }) {
             return new Promise((resolve, reject) => {
-                apiProvider.login(username, passwd, code, uuid).then((loginRes) => {
+                apiProvider.login(username, passwd, storeId, code, uuid).then((loginRes) => {
                     if (loginRes.ok) {
                         commit("SET-USER", {
                             accountName: username,
@@ -116,6 +129,10 @@ export default createStore({
                 emitter.emit("logged-out", "");
                 return "ok";
             });
+        },
+        async cache3DModels({ commit }) {
+            const res = await apiProvider.request3DModels();
+            commit("SET-3DMODELS", res.data || []);
         },
     },
     modules: {},

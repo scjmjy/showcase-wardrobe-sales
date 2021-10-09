@@ -23,7 +23,7 @@ $colors: (
         "base": #bb4050,
     ),
     "info": (
-        "base": #aeb1b6,
+        "base": #e6e6e6,
     ),
     "bg": (
         "base": #f8f8f8,
@@ -45,6 +45,9 @@ $button-font-size: (
     "small": 18px,
     "mini": 14px,
 );
+$button-font-color: (
+    "info": #644c1f,
+);
 $tag: (
     "font-size": 16px,
     "border-radius": 20px,
@@ -53,6 +56,7 @@ $tag: (
     $colors: $colors,
     $font-size: $font-size,
     $button-font-size: $button-font-size,
+    $button-font-color: $button-font-color,
     $tag: $tag,
     $font-path: '~element-plus/theme-chalk/fonts',
 );

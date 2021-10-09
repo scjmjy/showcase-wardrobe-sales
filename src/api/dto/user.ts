@@ -1,8 +1,10 @@
 // import { getToken, setToken } from "@/utils/token";
 import jscookie from "js-cookie";
+import { Model3DFile } from "@/api/interface/provider.interface";
 
-const TokenKeyUser = "TOKEN-KEY-HONGMU-SALES-TOOLS-USER";
-const TokenKeyCustomer = "TOKEN-KEY-HONGMU-SALES-TOOLS-CUSTOMER";
+const KeyUser = "KEY-HONGMU-SALES-TOOLS-USER";
+const KeyCustomer = "KEY-HONGMU-SALES-TOOLS-CUSTOMER";
+const Key3DModel = "KEY-HONGMU-SALES-TOOLS-3DMODEL";
 
 export class Customer {
     constructor(
@@ -13,11 +15,11 @@ export class Customer {
     ) {}
 
     save(): string | undefined {
-        return jscookie.set(TokenKeyCustomer, JSON.stringify(this));
+        return jscookie.set(KeyCustomer, JSON.stringify(this));
     }
 
     static load(): Customer {
-        const customerStr = jscookie.get(TokenKeyCustomer) || "{}";
+        const customerStr = jscookie.get(KeyCustomer) || "{}";
         let customer;
         try {
             customer = JSON.parse(customerStr);
@@ -39,11 +41,11 @@ export class User {
     ) {}
 
     save(): string | undefined {
-        return jscookie.set(TokenKeyUser, JSON.stringify(this));
+        return jscookie.set(KeyUser, JSON.stringify(this));
     }
 
     static load(): User {
-        const userStr = jscookie.get(TokenKeyUser) || "{}";
+        const userStr = jscookie.get(KeyUser) || "{}";
         let user;
         try {
             user = JSON.parse(userStr);
@@ -51,5 +53,22 @@ export class User {
             console.log(err);
         }
         return Object.assign(new User(), user);
+    }
+}
+
+export class Model3D {
+    static save(models: Model3DFile[]) {
+        return localStorage.setItem(Key3DModel, JSON.stringify(models));
+    }
+    static load(): Model3DFile[] {
+        const str = localStorage.getItem(Key3DModel) || "[]";
+
+        let models: Model3DFile[] = [];
+        try {
+            models = JSON.parse(str);
+        } catch (_err) {
+            //
+        }
+        return models;
     }
 }

@@ -33,7 +33,7 @@ export default defineComponent({
         background-color: var(--el-color-primary);
     }
     &__text {
-        padding: 0 24px;
+        padding: 0 12px;
         color: var(--el-color-primary);
     }
 }

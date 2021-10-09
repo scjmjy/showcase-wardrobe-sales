@@ -54,7 +54,6 @@
                 :type="stateInOut"
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
-                @bg="onBgSelect"
             ></parts-menu>
         </template>
         <customize-dlg
@@ -71,7 +70,6 @@
             :schemeId="product.id"
             :schemeName="product.product"
             :customerName="customerName"
-            @closed="onOfferDlgClosed"
         />
         <metals-dlg
             v-model="showMetalsDlg"
@@ -89,7 +87,7 @@ import { useStore } from "vuex";
 import { ElMessage, ElMessageBox } from "element-plus";
 import Babylon from "@/components/Babylon/Babylon.vue";
 import { StateType } from "@/store";
-import { BackgroundType, Part, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
+import { Part, PartAttachment, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import * as util from "@/lib/scheme.util";
@@ -97,7 +95,6 @@ import GooeyMenu from "@/components/GooeyMenu.vue";
 import { MenuItem } from "@/components/GooeyMenu.helper";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
 import { Scheme as Scheme3D, Part as Part3D } from "@/lib/scheme";
-import type { ImgCardItemType } from "./components/ImgCardItem.vue";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
@@ -593,6 +590,12 @@ export default defineComponent({
                     return;
                 }
                 const marnifestUrl = part.manifest.replace(baseUrl.value || "", "");
+                let attachments: PartAttachment[] = [];
+                const attachmentItem = store.state.attachments.find((item) => item.partCmId == part.id);
+                if (attachmentItem) {
+                    attachments.push(...attachmentItem.attachmentsList);
+                }
+
                 selectedPart.value = {
                     id: +part.id,
                     width: part.width,
@@ -600,6 +603,7 @@ export default defineComponent({
                     depth: part.depth,
                     manifest: marnifestUrl,
                     catId: +cat.id,
+                    attachments,
                 };
             },
         };

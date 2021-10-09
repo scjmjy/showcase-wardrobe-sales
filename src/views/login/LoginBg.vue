@@ -1,6 +1,9 @@
 <template>
     <div class="login-bg">
-        <div class="login-bg__welcome">—————————————————— Welcome</div>
+        <div class="login-bg__welcome">
+            <div class="login-bg__welcome-line"></div>
+            <span class="login-bg__welcome-text">Welcome</span>
+        </div>
         <div class="login-bg__left"></div>
         <div class="login-bg__right"></div>
     </div>
@@ -27,13 +30,22 @@ export default defineComponent({
     display: flex;
     &__welcome {
         position: absolute;
-        left: 10px;
-        bottom: 0px;
-        writing-mode: vertical-rl;
-        // text-orientation: mixed;
-        transform: rotateZ(180deg);
-        color: white;
-        font-size: 22px;
+        left: 20px;
+        bottom: -13px;
+        display: flex;
+        align-items: center;
+        transform: rotateZ(-90deg);
+        transform-origin: left;
+        &-line {
+            height: 1px;
+            width: 400px;
+            background-color: white;
+        }
+        &-text {
+            margin-left: 15px;
+            color: white;
+            font-size: 22px;
+        }
     }
     &__left {
         width: 40%;

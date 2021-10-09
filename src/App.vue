@@ -34,6 +34,7 @@ export default defineComponent({
         emitter.on("customer-created", (cid) => {
             store.commit("SET-DIRTY-CUSTOMER", true);
         });
+        store.dispatch("cache3DModels");
         return {
             locale: zhCn,
             // cachedViews: ["SelectProduct"],

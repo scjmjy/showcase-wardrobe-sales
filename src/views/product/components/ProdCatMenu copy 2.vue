@@ -1,5 +1,6 @@
 <template>
     <el-menu ref="elMenu" v-bind="$attrs" class="prod-cat-menu" :default-active="defaultActive">
+        <!-- :default-openeds="defaultOpeneds" -->
         <template v-for="cat of productCats" :key="cat.id">
             <el-sub-menu v-if="cat.children && cat.children.length" :index="cat.id + ''" :class="'el-submenu-' + level">
                 <template #title>{{ cat.name }}</template>
@@ -10,7 +11,62 @@
             </el-menu-item>
         </template>
     </el-menu>
-    <!-- <sidebar-menu :menu="menu" theme="white-theme"></sidebar-menu> -->
+    <!-- <el-collapse-transition-h>
+        <div v-if="opened" class="prod-cat-menu">
+            <div class="prod-cat-menu__item" v-for="(cat, index) in productCats" :key="index">
+                <div
+                    class="prod-cat-menu__filter-style__item"
+                    v-for="(item, index) in currentProdCat.filters"
+                    :key="index"
+                >
+                    <div class="prod-cat-menu__filter-style__item-title">
+                        {{ item.title }}
+                        <el-button
+                            class="trigger-btn u-trigger"
+                            :class="{ 'u-trigger-ani': !item.closed }"
+                            circle
+                            type="dark"
+                            icon="el-icon-arrow-right"
+                            @click="item.closed = !item.closed"
+                        ></el-button>
+                    </div>
+                    <el-collapse-transition>
+                        <div v-if="!item.closed" class="prod-cat-menu__filter-style__item-styles">
+                            <el-button
+                                class="style-btn"
+                                v-for="(style, index2) of item.styles"
+                                :key="index2"
+                                round
+                                :type="style.selected ? 'primary' : 'info'"
+                                @click="onStyleClick(item, style)"
+                                >{{ style.label }}</el-button
+                            >
+                        </div>
+                    </el-collapse-transition>
+                </div>
+            </div>
+        </div>
+    </el-collapse-transition-h> -->
+    <!-- <div class="prod-cat-menu">
+        <div class="prod-cat-menu__menu">
+            <el-menu :default-active="defaultActive" :uniqueOpened="true" @select="onProdCatSelect">
+                <el-menu-item v-for="(cat, index) of productCats" :key="index" :index="cat.id">
+                    <i class="prod-cat-menu__menu-icon iconfont" :class="'icon-' + cat.icon"></i>
+                    <div class="prod-cat-menu__menu-name">{{ cat.name }}</div>
+                </el-menu-item>
+            </el-menu>
+            <i
+                class="prod-cat-menu__trigger"
+                :class="{
+                    'el-icon-arrow-left': opened,
+                    'el-icon-arrow-right': !opened,
+                }"
+                type="text"
+                @click="opened = !opened"
+            ></i>
+        </div>
+        
+    </div> -->
 </template>
 
 <script lang="ts">
@@ -88,39 +144,7 @@ export default defineComponent({
                 style.selected = !style.selected;
                 // context.emit("filter", computeFilters());
             },
-            menu: [
-                {
-                    header: "Main Navigation",
-                    hiddenOnCollapse: true,
-                },
-                {
-                    title: "Dashboard",
-                },
-                {
-                    title: "Charts",
-                    child: [
-                        {
-                            title: "Sub Link",
-                            child: [
-                                {
-                                    title: "Sub Link",
-                                },
-                                {
-                                    title: "Sub Link 2",
-                                    child: [
-                                        {
-                                            title: "Sub Link",
-                                        },
-                                        {
-                                            title: "Sub Link 2",
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
+            // onProdCatSelect,
         };
     },
 });

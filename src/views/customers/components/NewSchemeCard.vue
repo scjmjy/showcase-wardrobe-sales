@@ -1,9 +1,9 @@
 <template>
     <div class="new-scheme-card">
-        <vue-fixed-ratio :width="1" :height="1" style="width: 100%">
+        <vue-fixed-ratio :width="193" :height="169" style="width: 100%">
             <el-button class="new-scheme-card__add" type="text" icon="el-icon-plus" @click="doNew"></el-button>
         </vue-fixed-ratio>
-        <el-button class="new-scheme-card__text" type="primary" size="small" round @click="doNew">
+        <el-button class="new-scheme-card__btn" type="primary" size="small" round @click="doNew">
             创建定制方案
         </el-button>
     </div>
@@ -51,19 +51,19 @@ export default defineComponent({
     min-width: 150px;
     min-height: 150px;
 
-    background: #ffffff;
-    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.08);
-    border-radius: 10px;
+    background: var(--el-color-bg);
+    // box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
 
     &__add {
-        font-size: 5rem !important;
+        font-size: 7vw !important;
         border-radius: 6px;
-        border: 6px solid var(--el-color-primary);
+        border: 6px solid var(--el-color-primary) !important;
         padding: 0px;
-        margin-top: 30%;
+        margin-top: 25%;
     }
 
-    &__text {
+    &__btn {
         margin: 20px 0px;
         padding: 5px 10px !important;
     }

@@ -19,7 +19,7 @@
                     <el-collapse-item :name="svc.no" v-for="svc of services" :key="svc.id">
                         <template #title>
                             <div class="service">
-                                <span class="service__no">
+                                <span class="service__no u-line-1">
                                     服务单号：<span>{{ svc.no }}</span>
                                 </span>
                                 <el-button
@@ -31,7 +31,7 @@
                                 >
                                     继续此服务
                                 </el-button>
-                                <span class="service__time">
+                                <span class="service__time u-line-1">
                                     创建时间：<span>{{ svc.ctime }}</span>
                                 </span>
                             </div>
@@ -313,8 +313,8 @@ $paddingX: 20px;
         position: absolute;
         right: 50px;
         bottom: 30px;
-        padding: 25px;
-        font-size: 60px;
+        padding: 20px !important;
+        font-size: 50px;
         :deep(i) {
             color: white !important;
         }

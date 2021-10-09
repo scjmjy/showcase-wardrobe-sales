@@ -2,14 +2,14 @@ import ApiProvider, {
     AjaxResponse,
     Background,
     BackgroundType,
-    CategoryFilter,
     CreateSchemeResult,
     Customer,
     GlobalCfg,
     LoginResult,
+    Model3DFile,
     OssSignature,
     Part,
-    PartAttachment,
+    PartAttachmentList,
     PartCategory,
     PartCategoryMeta,
     Product,
@@ -24,16 +24,25 @@ import ApiProvider, {
 
 const localVisitorRecordList: VisitorRecordItem[] = [];
 export default class LocalProvider implements ApiProvider {
+    request3DModels(): Promise<AjaxResponse<Model3DFile[]>> {
+        throw new Error("Method not implemented.");
+    }
     updateScreenshotState(schemeId: string | number, url: string): Promise<AjaxResponse<boolean>> {
         throw new Error("Method not implemented.");
     }
     requestScreenshotSignedUrl(schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
         throw new Error("Method not implemented.");
     }
-    requestPartAttachments(): Promise<AjaxResponse<PartAttachment>> {
+    requestPartAttachments(): Promise<AjaxResponse<PartAttachmentList>> {
         throw new Error("Method not implemented.");
     }
-    login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>> {
+    login(
+        username: string,
+        passwd: string,
+        storeId: string | number,
+        code?: string,
+        uuid?: string,
+    ): Promise<AjaxResponse<LoginResult>> {
         return Promise.resolve({
             status: 200,
             ok: true,

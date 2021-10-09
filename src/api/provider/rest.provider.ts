@@ -8,9 +8,10 @@ import {
     Customer,
     GlobalCfg,
     LoginResult,
+    Model3DFile,
     OssSignature,
     Part,
-    PartAttachment,
+    PartAttachmentList,
     PartCategory,
     PartCategoryMeta,
     Product,
@@ -19,13 +20,20 @@ import {
     SchemeManifest,
     SchemeOffer,
     Service,
+    Store,
     VisitorRecordItem,
 } from "../interface/provider.interface";
 import LocalProvider from "./local.provider";
 import emitter from "@/event";
 
 export default class RestProvider extends LocalProvider {
-    login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>> {
+    login(
+        username: string,
+        passwd: string,
+        storeId: string | number,
+        code?: string,
+        uuid?: string,
+    ): Promise<AjaxResponse<LoginResult>> {
         return new Promise((resolve) => {
             request({
                 method: "POST",
@@ -35,6 +43,7 @@ export default class RestProvider extends LocalProvider {
                     passwd,
                     code,
                     uuid,
+                    orgidservice: storeId,
                 },
             })
                 .then((res) => {
@@ -103,7 +112,7 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
-    requestPartAttachments(): Promise<AjaxResponse<PartAttachment>> {
+    requestPartAttachments(): Promise<AjaxResponse<PartAttachmentList>> {
         return new Promise((resolve) => {
             request({
                 method: "GET",
@@ -812,6 +821,52 @@ export default class RestProvider extends LocalProvider {
                         status: 500,
                         show: "error",
                         msg: "删除游客记录失败",
+                    });
+                });
+        });
+    }
+    requestStoreList(): Promise<AjaxResponse<Store[]>> {
+        return new Promise((resolve) => {
+            request({
+                method: "GET",
+                url: "/api/v1/biz/shops",
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取门店列表失败",
+                    });
+                });
+        });
+    }
+    request3DModels(): Promise<AjaxResponse<Model3DFile[]>> {
+        return new Promise((resolve) => {
+            request({
+                method: "GET",
+                url: "/api/v1/misc/models",
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取3D模型文件列表失败",
                     });
                 });
         });

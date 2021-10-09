@@ -64,11 +64,8 @@ export default defineComponent({
     align-items: center;
     vertical-align: top;
     margin: 10px;
-    // width: 70px;
-    width: 40%;
+    width: 37%;
     &__img {
-        // width: 70px;
-        // height: 70px;
         width: 100%;
         height: 100%;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
@@ -87,23 +84,4 @@ export default defineComponent({
         border: 3px solid var(--el-color-primary);
     }
 }
-// @media (min-width: 1150px) {
-//     .part-card {
-//         width: 100px;
-//         &__img {
-//             width: 100px;
-//             height: 100px;
-//         }
-//     }
-// }
-
-// @media (min-width: 1366px) {
-//     .part-card {
-//         width: 140px;
-//         &__img {
-//             width: 140px;
-//             height: 140px;
-//         }
-//     }
-// }
 </style>

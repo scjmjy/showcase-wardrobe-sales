@@ -1,3 +1,4 @@
+import { PartAttachment } from "@/api/interface/provider.interface";
 import { JsonClassType, JsonInclude, JsonIncludeType, JsonProperty } from "jackson-js";
 
 export enum PartType {
@@ -336,6 +337,7 @@ export interface Part {
     depth: number;
     manifest: string;
     catId: number;
+    attachments: PartAttachment[];
 }
 
 export class Area {

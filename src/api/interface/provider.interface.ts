@@ -265,13 +265,25 @@ export interface VisitorRecordItem {
 }
 
 export interface PartAttachment {
-    apcmid: number;
-    count: number;
+    apcmid: number; // part id
+    count: number; // part count
 }
+export interface PartAttachmentItem {
+    partCmId: number;
+    attachmentsList: PartAttachment[];
+}
+
+export type PartAttachmentList = PartAttachmentItem[];
 
 export interface Store {
     id: number;
     name: string;
+}
+
+export interface Model3DFile {
+    name: string; // 文件名
+    url: string; // 文件链接
+    utime: string; // 文件修改时间
 }
 
 export default interface ApiProvider {
@@ -282,11 +294,17 @@ export default interface ApiProvider {
      * @param code 验证码
      * @param uuid 图片验证服务返回给前端的uuid，再次传给服务器
      */
-    login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>>;
+    login(
+        username: string,
+        passwd: string,
+        storeId: string | number,
+        code?: string,
+        uuid?: string,
+    ): Promise<AjaxResponse<LoginResult>>;
     logout(): Promise<AjaxResponse<string>>;
 
     requestGlobalCfg(): Promise<AjaxResponse<GlobalCfg>>;
-    requestPartAttachments(): Promise<AjaxResponse<PartAttachment>>;
+    requestPartAttachments(): Promise<AjaxResponse<PartAttachmentList>>;
 
     // getCaptchaImage(): Promise<AjaxResponse<CaptchaResult>>;
 
@@ -379,4 +397,5 @@ export default interface ApiProvider {
     deleteVisitorItem(no: string): Promise<AjaxResponse<boolean>>;
 
     requestStoreList(): Promise<AjaxResponse<Store[]>>;
+    request3DModels(): Promise<AjaxResponse<Model3DFile[]>>;
 }

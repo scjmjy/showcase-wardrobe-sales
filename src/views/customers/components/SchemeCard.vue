@@ -1,7 +1,7 @@
 <template>
     <div class="scheme-card">
         <div class="scheme-card__imgList">
-            <vue-fixed-ratio :width="1" :height="1" style="width: 100%">
+            <vue-fixed-ratio :width="193" :height="169" style="width: 100%">
                 <el-image class="scheme-card__imgList-top" :src="scheme.cover[0]" fit="cover"></el-image>
             </vue-fixed-ratio>
             <!-- <el-image class="scheme-card__imgList-bottom" :src="cover[1]" fit="cover"></el-image> -->
@@ -64,9 +64,9 @@ export default defineComponent({
     flex-direction: column;
     align-items: center;
     overflow: hidden;
-    background: #f8f8f8;
-    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.08);
-    border-radius: 10px;
+    background: var(--el-color-bg);
+    // box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
     min-width: 150px;
     min-height: 150px;
 
@@ -102,12 +102,13 @@ export default defineComponent({
         align-items: center;
     }
     &__offer {
-        width: 40%;
+        min-width: 40%;
         border: 1px solid var(--el-color-danger);
         border-radius: 40px;
         color: var(--el-color-danger);
         font-size: 18px;
         font-weight: bold;
+        padding: 0 5px;
 
         &.no-offer {
             border: none;
