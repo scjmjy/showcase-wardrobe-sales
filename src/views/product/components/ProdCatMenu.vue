@@ -138,28 +138,73 @@ export default defineComponent({
 
 <style lang="scss">
 .prod-cat-menu {
+    .el-menu--inline {
+        margin-left: 30px;
+        &::before {
+            background-color: var(--el-color-primary);
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            left: -5px;
+            content: " ";
+        }
+    }
+    .el-menu-item {
+        border-radius: 6px;
+        padding-left: 20px !important;
+        &:hover {
+            background-color: var(--el-menu-item-hover-fill);
+        }
+    }
     .el-sub-menu__title {
+        border-radius: 6px;
+        padding-left: 10px !important;
         i {
-            color: var(--el-color-primary);
+            // color: var(--el-color-primary);
             font-weight: bold;
             font-size: 16px;
         }
     }
+    .el-sub-menu__icon-arrow {
+        background-color: var(--el-color-info);
+        border-radius: 50%;
+        padding: 2px;
+        font-size: 12px !important;
+        color: white;
+    }
     .el-submenu-1 {
         .el-sub-menu__title {
-            color: black;
+            color: var(--el-color-primary);
             font-weight: bold;
+        }
+
+        .el-menu--inline {
+            &::before {
+                width: 2px;
+            }
         }
     }
     .el-submenu-2 {
         .el-sub-menu__title {
-            color: var(--el-color-primary);
+            color: var(--el-color-black);
             font-weight: bold;
-            font-size: 24px;
+            font-size: 22px;
+        }
+
+        .el-menu--inline {
+            &::before {
+                width: 1px;
+            }
         }
     }
     .el-submenu-3 {
         background-color: white;
+
+        .el-menu--inline {
+            &::before {
+                width: 1px;
+            }
+        }
     }
     .el-menu-item-1 {
         background-color: white;
@@ -168,7 +213,7 @@ export default defineComponent({
     }
     .el-menu-item-2 {
         background-color: white;
-        color: var(--el-color-primary);
+        // color: var(--el-color-primary);
         font-weight: bold;
         font-size: 22px;
     }
@@ -177,25 +222,25 @@ export default defineComponent({
         background-color: white;
         font-size: 22px;
     }
-    .el-submenu-2.is-opened {
-        .el-menu {
-            background-color: #e8e8e8;
+    // .el-submenu-2.is-opened {
+    //     .el-menu {
+    //         background-color: #e8e8e8;
 
-            .el-menu-item {
-                background-color: #e8e8e8;
-            }
-        }
-    }
+    //         .el-menu-item {
+    //             background-color: #e8e8e8;
+    //         }
+    //     }
+    // }
     .el-menu-item.is-active {
-        color: var(--el-color-primary);
+        color: white;
         background-color: var(--el-color-primary-light-5) !important;
         position: relative;
-        &::before {
-            font-family: "element-icons" !important;
-            position: absolute;
-            content: "\e720";
-            left: 15px;
-        }
+        // &::before {
+        //     font-family: "element-icons" !important;
+        //     position: absolute;
+        //     content: "\e720";
+        //     left: 15px;
+        // }
     }
 }
 </style>

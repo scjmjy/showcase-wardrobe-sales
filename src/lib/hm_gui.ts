@@ -275,7 +275,7 @@ export class PopupGUI {
         lengthText.height = "28px";
         lengthText.color = "#000000FF";
         lengthText.fontSize = 18;
-        lengthText.text = length + " \u7c73";
+        lengthText.text = length.toFixed(2) + " \u7c73";
         lengthText.shadowBlur = 1;
         lengthText.shadowOffsetX = 1;
         lengthText.shadowOffsetY = 1;
