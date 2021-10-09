@@ -162,7 +162,26 @@ export default defineComponent({
 
 <style lang="scss">
 .prod-cat-menu {
+    .el-menu--inline {
+        margin-left: 30px;
+        &::before {
+            background-color: var(--el-color-primary);
+            position: absolute;
+            // width: 3px;
+            height: 100%;
+            left: -5px;
+        }
+    }
+    .el-menu-item {
+        border-radius: 6px;
+        padding-left: 10px !important;
+        &:hover {
+            background-color: var(--el-menu-item-hover-fill);
+        }
+    }
     .el-sub-menu__title {
+        border-radius: 6px;
+        padding-left: 10px !important;
         i {
             color: var(--el-color-primary);
             font-weight: bold;
@@ -174,6 +193,12 @@ export default defineComponent({
             color: black;
             font-weight: bold;
         }
+
+        .el-menu--inline {
+            &::before {
+                width: 3px;
+            }
+        }
     }
     .el-submenu-2 {
         .el-sub-menu__title {
@@ -181,9 +206,21 @@ export default defineComponent({
             font-weight: bold;
             font-size: 22px;
         }
+
+        .el-menu--inline {
+            &::before {
+                width: 2px;
+            }
+        }
     }
     .el-submenu-3 {
         background-color: white;
+
+        .el-menu--inline {
+            &::before {
+                width: 1px;
+            }
+        }
     }
     .el-menu-item-1 {
         background-color: white;
@@ -201,25 +238,25 @@ export default defineComponent({
         background-color: white;
         font-size: 22px;
     }
-    .el-submenu-2.is-opened {
-        .el-menu {
-            background-color: #e8e8e8;
+    // .el-submenu-2.is-opened {
+    //     .el-menu {
+    //         background-color: #e8e8e8;
 
-            .el-menu-item {
-                background-color: #e8e8e8;
-            }
-        }
-    }
+    //         .el-menu-item {
+    //             background-color: #e8e8e8;
+    //         }
+    //     }
+    // }
     .el-menu-item.is-active {
         color: var(--el-color-primary);
         background-color: var(--el-color-primary-light-5) !important;
         position: relative;
-        &::before {
-            font-family: "element-icons" !important;
-            position: absolute;
-            content: "\e720";
-            left: 15px;
-        }
+        // &::before {
+        //     font-family: "element-icons" !important;
+        //     position: absolute;
+        //     content: "\e720";
+        //     left: 15px;
+        // }
     }
 }
 </style>
