@@ -167,14 +167,15 @@ export default defineComponent({
         &::before {
             background-color: var(--el-color-primary);
             position: absolute;
-            // width: 3px;
+            width: 2px;
             height: 100%;
             left: -5px;
+            content: " ";
         }
     }
     .el-menu-item {
         border-radius: 6px;
-        padding-left: 10px !important;
+        padding-left: 20px !important;
         &:hover {
             background-color: var(--el-menu-item-hover-fill);
         }
@@ -183,33 +184,40 @@ export default defineComponent({
         border-radius: 6px;
         padding-left: 10px !important;
         i {
-            color: var(--el-color-primary);
+            // color: var(--el-color-primary);
             font-weight: bold;
             font-size: 16px;
         }
     }
-    .el-submenu-1 {
-        .el-sub-menu__title {
-            color: black;
-            font-weight: bold;
-        }
-
-        .el-menu--inline {
-            &::before {
-                width: 3px;
-            }
-        }
+    .el-sub-menu__icon-arrow {
+        background-color: var(--el-color-info);
+        border-radius: 50%;
+        padding: 2px;
+        font-size: 12px !important;
+        color: white;
     }
-    .el-submenu-2 {
+    .el-submenu-1 {
         .el-sub-menu__title {
             color: var(--el-color-primary);
             font-weight: bold;
-            font-size: 24px;
         }
 
         .el-menu--inline {
             &::before {
                 width: 2px;
+            }
+        }
+    }
+    .el-submenu-2 {
+        .el-sub-menu__title {
+            color: var(--el-color-black);
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        .el-menu--inline {
+            &::before {
+                width: 1px;
             }
         }
     }
@@ -229,7 +237,7 @@ export default defineComponent({
     }
     .el-menu-item-2 {
         background-color: white;
-        color: var(--el-color-primary);
+        // color: var(--el-color-primary);
         font-weight: bold;
         font-size: 22px;
     }
@@ -248,7 +256,7 @@ export default defineComponent({
     //     }
     // }
     .el-menu-item.is-active {
-        color: var(--el-color-primary);
+        color: white;
         background-color: var(--el-color-primary-light-5) !important;
         position: relative;
         // &::before {
