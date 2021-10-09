@@ -6,9 +6,6 @@ import "babylonjs-serializers"; // 会在全局的 BABYLON 里注册 serializers
 import ElementPlus from "element-plus";
 import "skeleton-elements/skeleton-elements.css";
 
-import VueSidebarMenu from "vue-sidebar-menu";
-import "vue-sidebar-menu/dist/vue-sidebar-menu.css";
-
 import { createApp } from "vue";
 import App from "./App.vue";
 import store from "./store";
@@ -25,6 +22,6 @@ const app = createApp(App);
 app.component(ElCollapseTransitionH.name, ElCollapseTransitionH);
 app.component(StateIcon.name, StateIcon);
 
-app.use(router).use(store).use(ElementPlus).use(SvgIcon).use(VueSidebarMenu).mount("#app");
+app.use(router).use(store).use(ElementPlus).use(SvgIcon).mount("#app");
 
 export default app;
