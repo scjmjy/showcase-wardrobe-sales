@@ -9,6 +9,7 @@ import ApiProvider, {
     LoginResult,
     OssSignature,
     Part,
+    PartAttachment,
     PartCategory,
     PartCategoryMeta,
     Product,
@@ -17,11 +18,21 @@ import ApiProvider, {
     SchemeManifest,
     SchemeOffer,
     Service,
+    Store,
     VisitorRecordItem,
 } from "../interface/provider.interface";
 
 const localVisitorRecordList: VisitorRecordItem[] = [];
 export default class LocalProvider implements ApiProvider {
+    updateScreenshotState(schemeId: string | number, url: string): Promise<AjaxResponse<boolean>> {
+        throw new Error("Method not implemented.");
+    }
+    requestScreenshotSignedUrl(schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
+        throw new Error("Method not implemented.");
+    }
+    requestPartAttachments(): Promise<AjaxResponse<PartAttachment>> {
+        throw new Error("Method not implemented.");
+    }
     login(username: string, passwd: string, code?: string, uuid?: string): Promise<AjaxResponse<LoginResult>> {
         return Promise.resolve({
             status: 200,
@@ -385,7 +396,7 @@ export default class LocalProvider implements ApiProvider {
     }
     createNewScheme(
         name: string,
-        svcid: number,
+        svcid: number | undefined,
         eid: string | number,
         cid: string | number,
         pid?: string | number,
@@ -480,6 +491,16 @@ export default class LocalProvider implements ApiProvider {
             ok: true,
             status: 200,
             data: true,
+        });
+    }
+    requestStoreList(): Promise<AjaxResponse<Store[]>> {
+        return Promise.resolve({
+            ok: true,
+            status: 200,
+            data: new Array(10).fill(0).map((val, index) => ({
+                id: index,
+                name: "门店-" + index,
+            })),
         });
     }
 }

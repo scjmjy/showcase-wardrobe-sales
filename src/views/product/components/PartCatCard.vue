@@ -42,10 +42,13 @@ export default defineComponent({
     align-items: center;
     vertical-align: top;
     margin: 10px;
-    width: 70px;
+    // width: 70px;
+    width: 40%;
     &__img {
-        width: 70px;
-        height: 70px;
+        // width: 70px;
+        // height: 70px;
+        width: 100%;
+        height: 100%;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         border-radius: 10px;
         overflow: hidden;
@@ -64,26 +67,26 @@ export default defineComponent({
     }
 }
 
-@media (min-width: 1150px) {
-    .part-cat-card {
-        width: 110px;
-        &__img {
-            width: 110px;
-            height: 110px;
-        }
-    }
-}
+// @media (min-width: 1150px) {
+//     .part-cat-card {
+//         width: 110px;
+//         &__img {
+//             width: 110px;
+//             height: 110px;
+//         }
+//     }
+// }
 
-@media (min-width: 1366px) {
-    .part-cat-card {
-        width: 140px;
-        &__img {
-            width: 140px;
-            height: 140px;
-        }
-        // &__label {
-        //     font-size: 18px;
-        // }
-    }
-}
+// @media (min-width: 1366px) {
+//     .part-cat-card {
+//         width: 140px;
+//         &__img {
+//             width: 140px;
+//             height: 140px;
+//         }
+//         // &__label {
+//         //     font-size: 18px;
+//         // }
+//     }
+// }
 </style>

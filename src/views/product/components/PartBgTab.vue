@@ -12,7 +12,7 @@
             </img-radio-item>
         </div>
         <div class="part-bg-tab__title">{{ title }}</div>
-        <div ref="refScroll" @scroll="onScroll">
+        <div ref="refScroll" class="part-bg-tab__items" @scroll="onScroll">
             <img-card-item v-for="bg in bgItems" :key="bg.value" :option="bg" @click="onCardClick"> </img-card-item>
             <load-more :state="loadState" />
         </div>
@@ -104,6 +104,9 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .part-bg-tab {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     &__type {
         margin-bottom: 10px;
         font-size: 22px;
@@ -116,6 +119,11 @@ export default defineComponent({
         font-size: 22px;
         font-weight: bold;
         color: var(--el-color-black);
+    }
+    &__items {
+        flex: 1;
+        overflow-y: auto;
+        // text-align: center;
     }
 }
 </style>

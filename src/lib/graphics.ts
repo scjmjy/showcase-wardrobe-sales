@@ -1,6 +1,5 @@
 import * as BABYLON from "babylonjs";
 import * as GUI from "babylonjs-gui";
-// import * as Materials from "babylonjs-materials"
 import { EventEmitter2 } from "eventemitter2";
 import { ObjectType } from "@/lib/biz.data";
 
@@ -151,7 +150,7 @@ export class Graphics {
     }
 
     clearScene(): void {
-        while (this.scene.meshes.length > 2) {
+        while (this.scene.meshes.length > 1) {
             this.scene.meshes.forEach((mesh: BABYLON.AbstractMesh) => {
                 // Note: if creating skybox, need to keep it here.
                 if (!mesh.name.startsWith("Background")) {

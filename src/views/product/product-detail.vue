@@ -2,7 +2,7 @@
     <div
         v-if="product"
         class="product-detail"
-        :class="{ 'slide-left-3d': showMenu || (mode === 'view' && !collapseInfoMenu), 'menu-opened': showMenu }"
+        :class="{ 'slide-left-3d': showMenu || (mode === 'view' && !collapseInfoMenu) }"
     >
         <transition name="el-zoom-in-top">
             <app-header v-if="mode === 'view'" type="dark" :stop="false" icon="" />
@@ -19,35 +19,29 @@
             :mode="mode3D"
             :baseOSSUrl="baseUrl"
         />
-        <el-collapse-transition-h @after-leave="mode = 'edit'">
-            <product-info-menu
-                v-if="mode === 'view'"
-                v-model:collapse="collapseInfoMenu"
-                class="product-detail__info"
-                :price="product.offer"
-                :titles="titles"
-                :creatingScheme="creatingScheme"
-                :prepareContinue="prepareContinue"
-                :isNew="isNew"
-                :isSelf="isSelf"
-                :isOther="isOther"
-                @newScheme="newScheme"
-                @continueScheme="continueEditScheme"
-                @copyScheme="copyScheme"
-                @offer="onPartsMenuAction('offer')"
-            />
-        </el-collapse-transition-h>
+        <product-info-menu
+            v-if="mode === 'view'"
+            v-model:collapse="collapseInfoMenu"
+            class="product-detail__info"
+            :class="{ collapse: collapseInfoMenu }"
+            :offer="product.offer"
+            :titles="titles"
+            :creatingScheme="creatingScheme"
+            :prepareContinue="prepareContinue"
+            :isNew="isNew"
+            :isSelf="isSelf"
+            :isOther="isOther"
+            @newScheme="newScheme"
+            @continueScheme="continueEditScheme"
+            @copyScheme="copyScheme"
+            @offer="onPartsMenuAction('offer')"
+        />
         <template v-if="mode === 'edit'">
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
                 >返回</el-button
             >
             <div class="product-detail__action-left state-icon-group-h">
-                <state-icon
-                    v-model="stateInOut"
-                    icon="parts-indoor"
-                    :states="inOutStates"
-                    @change="onInOutChange"
-                ></state-icon>
+                <state-icon v-model="stateInOut" :states="inOutStates" @change="onInOutChange"></state-icon>
             </div>
             <gooey-menu v-model="gooeyMenuOpened" class="product-detail__gooeyMenu" :items="gooeyMenuItems" />
 
@@ -56,6 +50,7 @@
                 v-show="mode === 'edit'"
                 v-model:opened="showMenu"
                 class="product-detail__menu2d"
+                :class="{ collapse: !showMenu }"
                 :type="stateInOut"
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
@@ -66,10 +61,12 @@
             v-model="showCustomizeDlg"
             :mode="customizeMode"
             :size="customizeSize"
+            :minMax="customizeMinMax"
             @confirm="onCustomizeConfirm"
             @cancel="onCustomizeCancel"
         />
         <offer-dlg
+            ref="refOfferDlg"
             v-model="showOfferDlg"
             :schemeId="product.id"
             :schemeName="product.product"
@@ -86,7 +83,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch, Ref, nextTick, onMounted, provide } from "vue";
+import { computed, defineComponent, ref, watch, Ref, nextTick, onMounted, provide, h } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -95,12 +92,11 @@ import { StateType } from "@/store";
 import { BackgroundType, Part, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
-import { Area, Door, Position, Size } from "@/lib/scheme";
 import * as util from "@/lib/scheme.util";
 import GooeyMenu from "@/components/GooeyMenu.vue";
 import { MenuItem } from "@/components/GooeyMenu.helper";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
-import { Scheme as Scheme3D, PartType } from "@/lib/scheme";
+import { Scheme as Scheme3D, Part as Part3D } from "@/lib/scheme";
 import type { ImgCardItemType } from "./components/ImgCardItem.vue";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
@@ -112,6 +108,7 @@ import {
     hideSchemeSaveLoading,
     CustomizeMode,
     CustomizeSize,
+    CustomizeMinMax,
     SchemeMode,
     resetGooeyMenu,
 } from "./helpers";
@@ -164,13 +161,14 @@ export default defineComponent({
 
         async function gotoEditScheme() {
             // showCustomizeDlg.value = false;
-            mode.value = ""; // after-leave="mode=edit"
-            // mode.value = "edit";
+            // mode.value = ""; // after-leave="mode=edit"
+            mode.value = "edit";
             setTimeout(() => {
                 switch (customizeMode.value) {
                     case "new":
                     case "copy":
                         showCustomizeDlg.value = true;
+                        refBabylon.value?.showReferenceRuler(false);
                         break;
                     case "continue":
                         break;
@@ -189,16 +187,18 @@ export default defineComponent({
                 label: "内配",
                 iconBg: "black",
                 iconColor: "#D8D8D8",
+                icon: "parts-indoor-2",
             },
 
             {
                 state: "out",
                 label: "外观",
+                icon: "parts-outdoor-2",
             },
         ];
         const refBabylon = ref<InstanceType<typeof Babylon>>();
         const refPartsMenu = ref<InstanceType<typeof PartsMenu>>();
-        const selectedPart = ref<PartType>();
+        const selectedPart = ref<Part3D>();
         const selectedMetalPart = ref<Part>();
         let selectedPartId = ref(0);
         let selectedFloorId = ref(0);
@@ -219,10 +219,10 @@ export default defineComponent({
                 value: "ruler",
                 icon: "ruler",
                 onActive() {
-                    refBabylon.value?.CreateReferenceRuler(true);
+                    refBabylon.value?.showReferenceRuler(true);
                 },
                 onUnactive() {
-                    refBabylon.value?.CreateReferenceRuler(false);
+                    refBabylon.value?.showReferenceRuler(false);
                 },
             },
             {
@@ -230,6 +230,7 @@ export default defineComponent({
                 icon: "size-3d",
                 type: "button",
                 onClick() {
+                    refBabylon.value?.showReferenceRuler(false);
                     showCustomizeDlg.value = true;
                 },
             },
@@ -241,10 +242,9 @@ export default defineComponent({
             await util.importSchemeJson(product.value.manifest).then((s) => {
                 if (scheme.value) {
                     scheme.value = s;
-                    // TODO reload scheme
+
                     nextTick(() => {
                         refBabylon.value?.reloadScheme();
-                        ElMessage.warning("TODO：重新加载之前的方案");
                     });
                 } else {
                     scheme.value = s;
@@ -281,74 +281,68 @@ export default defineComponent({
             }
         }
         async function createNewScheme() {
-            const cid = store.state.currentCustomer.customerId.toString();
+            const { customerId, latestSvcId } = store.state.currentCustomer;
+            const cid = customerId.toString();
             const eid = store.state.user.eid;
-            if (svcId === 0) {
-                const service = (await apiProvider.createNewService(eid, cid)).data!;
-                svcId = service.id;
-            }
+            let schemeName = "";
+            let svcid: number | undefined = 0;
+            let pid: number | string | undefined = undefined;
+            let sid: number | string | undefined = undefined;
             if (customizeMode.value === "new") {
-                creatingScheme.value = true;
-                const p = product.value as Product;
-                apiProvider
-                    .createNewScheme(p.name, svcId, eid, cid, p.id)
-                    .then((res) => {
-                        if (res.ok && res.data) {
-                            store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
-
-                            apiProvider.requestSchemeDetail(res.data.id).then((res) => {
-                                if (res.ok && res.data) {
-                                    product.value = res.data;
-                                    product.value.cid = cid;
-                                    gotoEditScheme();
-                                }
-                            });
-                        } else if (res.show) {
-                            ElMessage({
-                                type: res.show,
-                                message: res.msg,
-                            });
-                        }
-                    })
-                    .finally(() => {
-                        creatingScheme.value = false;
-                    });
+                pid = product.value.id;
+                schemeName = product.value.name;
             } else if (customizeMode.value === "copy") {
-                creatingScheme.value = true;
                 const scheme = product.value as Scheme;
-                apiProvider
-                    .createNewScheme(scheme.product, svcId, eid, cid, undefined, scheme.id)
-                    .then((res) => {
-                        if (res.ok && res.data) {
-                            store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
-                            apiProvider.requestSchemeDetail(res.data.id).then((res) => {
-                                if (res.ok && res.data) {
-                                    product.value = res.data;
-                                    product.value.cid = cid;
-                                    gotoEditScheme();
-                                }
-                            });
-                        } else if (res.show) {
-                            ElMessage({
-                                type: res.show,
-                                message: res.msg,
-                            });
-                        }
-                    })
-                    .finally(() => {
-                        creatingScheme.value = false;
-                    });
+                svcid = schemeMode.value === "scheme-other" ? latestSvcId : svcId;
+                schemeName = scheme.product;
+                sid = scheme.id;
             }
+            if (!svcid) {
+                const service = (await apiProvider.createNewService(eid, cid)).data!;
+                svcid = svcId = service.id;
+                store.commit("SET-CUSTOMER-LATEST-SVCID", svcid);
+            }
+            creatingScheme.value = true;
+
+            const res = await apiProvider.createNewScheme(schemeName, svcid, eid, cid, pid, sid);
+            if (res.ok && res.data) {
+                store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
+
+                apiProvider.requestSchemeDetail(res.data.id).then((res) => {
+                    if (res.ok && res.data) {
+                        product.value = res.data;
+                        product.value.cid = cid;
+                        gotoEditScheme();
+                    }
+                });
+            } else if (res.show) {
+                ElMessage({
+                    type: res.show,
+                    message: res.msg,
+                });
+            }
+            creatingScheme.value = false;
         }
 
         const baseUrl = computed(() => store.state.globalCfg?.baseUrl);
 
         const { customerName } = store.state.currentCustomer;
 
+        const refOfferDlg = ref<InstanceType<typeof OfferDlg>>();
+
         async function saveScheme() {
             await util.saveSchemeAsync(product.value.id, scheme.value!);
+            const scheme2d = product.value as Scheme;
+            if (scheme2d.offer && refOfferDlg.value) {
+                await refOfferDlg.value.doOffer();
+            }
             if (scheme.value !== undefined) scheme.value.dirty = false;
             schemeDetailDirty.value = true;
+        }
+
+        async function captureSchemeScreenshot() {
+            const base64 = await refBabylon.value!.screenshotApi();
+            await util.uploadSchemeScreenshot(product.value.id, base64);
         }
 
         async function requestSchemeDetail() {
@@ -361,7 +355,7 @@ export default defineComponent({
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
-                    await refPartsMenu.value?.showManifest(scheme.value!.parts);
+                    await refPartsMenu.value?.showManifest(scheme.value!.composition);
                     break;
                 case "offer":
                     if (scheme.value?.dirty) {
@@ -389,6 +383,33 @@ export default defineComponent({
                         hideSchemeSaveLoading();
                     }
                     break;
+                case "complete":
+                    try {
+                        await ElMessageBox.confirm(
+                            h("div", undefined, [
+                                h("p", undefined, "您确定保存方案，"),
+                                h("p", undefined, "并回到“客户服务页面”吗？"),
+                            ]),
+                            "温馨提示",
+                            {
+                                confirmButtonText: "确认",
+                                cancelButtonText: "取消",
+                                type: "warning",
+                            },
+                        );
+                        // if (scheme.value?.dirty) {
+                        showSchemeSaveLoading();
+                        await saveScheme();
+                        await captureSchemeScreenshot();
+                        hideSchemeSaveLoading();
+                        // }
+                        router.push({
+                            path: "/",
+                        });
+                    } catch (_err) {
+                        //
+                    }
+                    break;
 
                 default:
                     break;
@@ -409,6 +430,7 @@ export default defineComponent({
             gooeyMenuOpened,
             refBabylon,
             refPartsMenu,
+            refOfferDlg,
             scheme,
             setSchemeDirty,
             schemeDetailDirty,
@@ -422,6 +444,23 @@ export default defineComponent({
                     width: p.width,
                     height: p.height,
                     depth: p.depth,
+                };
+            }),
+            customizeMinMax: computed<CustomizeMinMax | undefined>(() => {
+                const p = product.value;
+                if (isProduct(p)) {
+                    return undefined;
+                }
+                return {
+                    depthMax: p.pdepthmax,
+                    // depthMin: p.pdepthmin,
+                    depthMin: p.depth,
+                    widthMax: p.pwidthmax,
+                    // widthMin: p.pwidthmin,
+                    widthMin: p.width,
+                    heightMax: p.pheightmax,
+                    // heightMin: p.pheightmin,
+                    heightMin: p.height,
                 };
             }),
             selectedPart,
@@ -503,12 +542,18 @@ export default defineComponent({
                 createNewScheme();
                 // showCustomizeDlg.value = true;
             },
-            onCustomizeConfirm(_size: CustomizeSize) {
+            onCustomizeConfirm(size: CustomizeSize) {
                 showCustomizeDlg.value = false;
-                refBabylon.value?.changeSchemeSize(_size.width, _size.height, _size.depth);
+                const scheme = product.value as Scheme;
+                scheme.width = size.width;
+                scheme.height = size.height;
+                scheme.depth = size.depth;
+                refBabylon.value?.changeSchemeSize(size.width, size.height, size.depth);
+                refBabylon.value?.showReferenceRuler(true);
             },
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;
+                refBabylon.value?.showReferenceRuler(true);
             },
             onPartsMenuAction,
             async gotoBack() {
@@ -532,11 +577,13 @@ export default defineComponent({
 
                 // reset states
                 stateInOut.value = "out";
+                showMenu.value = false;
                 resetGooeyMenu(gooeyMenuItems.value);
                 mode.value = "view";
+
+                captureSchemeScreenshot();
             },
             onInOutChange(_val: string) {
-                _val;
                 showMenu.value = true;
             },
             onPartSelect(part: Part, cat: PartCategory) {
@@ -561,6 +608,8 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+$menu-width: 25%;
+// $menu-min-width: 250px;
 .product-detail {
     position: relative;
     display: flex;
@@ -609,9 +658,10 @@ export default defineComponent({
         position: absolute;
         top: 0px;
         bottom: 0px;
-        right: -190px;
+        right: 0;
         white-space: nowrap;
         transition: right 0.3s ease;
+        width: $menu-width;
     }
     &__info {
         position: absolute;
@@ -622,10 +672,13 @@ export default defineComponent({
         top: 0px;
         bottom: 0px;
         right: 0px;
-        padding: 0 20px;
+        padding: 0 1%;
         white-space: nowrap;
         text-align: center;
         background-color: white;
+
+        width: $menu-width;
+        // min-width: $menu-min-width;
     }
     &__action-left {
         position: absolute;
@@ -657,25 +710,39 @@ export default defineComponent({
     //     right: 348px;
     // }
     &.slide-left-3d &__3d {
-        left: -170px;
+        // left: -170px;
+        left: calc(-#{$menu-width} / 2);
     }
     &.menu-opened &__menu2d {
         right: 0px;
     }
 }
 
-@media (min-width: 1150px) {
-    .product-detail {
-        &__menu2d {
-            right: -270px;
-        }
-    }
+.collapse {
+    right: calc(-#{$menu-width} + 80px);
 }
-@media (min-width: 1366px) {
-    .product-detail {
-        &__menu2d {
-            right: -345px;
-        }
-    }
-}
+
+// .test {
+//     &-screenshot {
+//         width: 800px;
+//         height: 600px;
+//         position: absolute;
+//         left: 0;
+//         top: 80px;
+//     }
+// }
+// @media (min-width: 1150px) {
+//     .product-detail {
+//         &__menu2d {
+//             right: -270px;
+//         }
+//     }
+// }
+// @media (min-width: 1366px) {
+//     .product-detail {
+//         &__menu2d {
+//             right: -345px;
+//         }
+//     }
+// }
 </style>

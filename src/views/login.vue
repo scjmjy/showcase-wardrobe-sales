@@ -8,7 +8,7 @@
                 <el-input
                     v-model="username"
                     class="login-form__input"
-                    prefix-icon="iconfont icon-username"
+                    prefix-icon="iconfont icon-username-2"
                     placeholder="请输入手机号码/工号"
                 >
                 </el-input>
@@ -16,23 +16,24 @@
                     v-model="passwd"
                     class="login-form__input"
                     auto-complete="off"
-                    prefix-icon="iconfont icon-passwd"
+                    prefix-icon="iconfont icon-passwd-2"
                     placeholder="请输入密码"
                     type="password"
                     @keyup.enter="login"
                 />
-                <div class="u-clearfix">
+                <!-- <div class="u-clearfix">
                     <el-link class="login-form__forgot" type="primary" @click.prevent="onForgotClick">忘记密码</el-link>
-                </div>
+                </div> -->
+                <store-select class="login-form__store" v-model="selectedStore" />
                 <button
-                    class="login-form__btn btn-primary"
+                    class="btn-primary login-form__btn"
                     v-loading="loginLoading"
                     :disabled="isBtnDisabled"
                     @click="login"
                 >
                     登录
                 </button>
-                <el-link class="login-form__code" type="primary" @click.prevent="onCodeClick">验证码登录</el-link>
+                <!-- <el-link class="login-form__code" type="primary" @click.prevent="onCodeClick">验证码登录</el-link> -->
             </div>
         </div>
     </div>
@@ -45,12 +46,14 @@ import store from "@/store";
 import router from "@/router";
 import { AjaxResponse, LoginResult } from "@/api/interface/provider.interface";
 import LoginBg from "./login/LoginBg.vue";
+import StoreSelect from "./login/components/StoreSelect.vue";
 
 export default defineComponent({
     name: "Login",
     props: {},
     components: {
         LoginBg,
+        StoreSelect,
     },
     data() {
         return {
@@ -60,11 +63,12 @@ export default defineComponent({
             // codeUrl: "",
             // uuid: "",
             loginLoading: false,
+            selectedStore: "",
         };
     },
     computed: {
         isBtnDisabled(): boolean {
-            return this.username === "" || this.passwd === "";
+            return this.username === "" || this.passwd === "" || this.selectedStore === undefined;
         },
     },
     created() {
@@ -171,6 +175,10 @@ export default defineComponent({
                 margin-top: 78px;
             }
         }
+        &__store {
+            margin-top: 60px;
+            width: 100%;
+        }
         &__forgot {
             margin-top: 16px;
             float: right;
@@ -189,6 +197,7 @@ export default defineComponent({
             margin-top: 52px;
             display: block;
             width: 100%;
+            font-size: 26px;
         }
     }
 }

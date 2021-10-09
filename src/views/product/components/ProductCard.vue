@@ -52,7 +52,7 @@ export default defineComponent({
             onImgLoad() {
                 showBottom.value = true;
             },
-            sizeText: computed(() => `高:${props.height} × 深:${props.depth} × 宽:${props.width}`),
+            sizeText: computed(() => `${props.height} × ${props.depth} × ${props.width} (m)`),
             // onBtnClick() {
             //     context.emit("detail", props.productName);
             // },
@@ -88,12 +88,12 @@ export default defineComponent({
         background-color: rgba(128, 128, 128, 0.6);
     }
     &__name {
-        font-size: 22px;
+        font-size: 24px;
         color: white;
         text-shadow: 0 0 10px var(--el-color-primary);
     }
     &__size {
-        font-size: 16px;
+        font-size: 14px;
         color: white;
     }
     &__btn {

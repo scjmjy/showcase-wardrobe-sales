@@ -13,10 +13,10 @@
             <template v-if="customer && currentCustomer.customerId">
                 <i class="app-header__icon iconfont icon-customer" />
                 <span class="app-header__serving"
-                    >正在为 <strong>{{ currentCustomer.customerName }}</strong> 服务</span
-                >
+                    >正在接待 <strong>{{ currentCustomer.customerName }}</strong>
+                </span>
                 <el-button v-if="stop" class="app-header__stop" type="danger" size="small" round @click="stopServe"
-                    >结束服务</el-button
+                    >结束接待</el-button
                 >
             </template>
             <template v-else>
@@ -77,8 +77,8 @@ export default defineComponent({
         const store = useStore();
         const router = useRouter();
         const headerStyle = computed(() => ({
-            color: props.type === "light" ? variables.colorPrimary : "white",
-            "background-color": props.type === "light" ? "#ffffffbd" : variables.colorPrimary,
+            color: props.type === "light" ? variables.colorBgDark : "white",
+            "background-color": props.type === "light" ? "#ffffffbd" : variables.colorBgDark,
         }));
         return {
             user: computed(() => store.state.user),
@@ -165,7 +165,7 @@ export default defineComponent({
     }
     &__username {
         margin-left: 7px;
-        font-size: 22px;
+        font-size: 26px;
         color: white;
     }
     &__job {
@@ -177,7 +177,9 @@ export default defineComponent({
     &__logout {
         // margin-left: 14px;
         // color: inherit !important;
-        color: white !important;
+        // color: white !important;
+        font-size: 26px;
+        line-height: unset;
     }
 }
 </style>

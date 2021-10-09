@@ -1,8 +1,17 @@
 <template>
-    <el-row ref="elRow" class="scheme-list" :gutter="20">
-        <el-col v-if="offer" :span="colSpan" style="text-align: center; padding-top: 10px; padding-bottom: 10px">
-            <new-scheme-card @new="newScheme" />
-        </el-col>
+    <div class="scheme-list">
+        <scheme-card
+            class="scheme-list__item"
+            :style="colStyle"
+            v-for="(s, index) in schemeList"
+            :key="index"
+            :offer="offer"
+            :scheme="s"
+            @detail="gotoDetail(s)"
+        />
+        <new-scheme-card v-if="offer" class="scheme-list__item" :style="colStyle" @new="newScheme" />
+    </div>
+    <!-- <el-row ref="elRow" class="scheme-list" :gutter="20">
         <el-col
             v-for="(s, index) in schemeList"
             :key="index"
@@ -11,8 +20,10 @@
         >
             <scheme-card :offer="offer" :scheme="s" @detail="gotoDetail(s)" />
         </el-col>
-        <!-- <load-more :state="loadState" /> -->
-    </el-row>
+        <el-col v-if="offer" :span="colSpan" style="text-align: center; padding-top: 10px; padding-bottom: 10px">
+            <new-scheme-card @new="newScheme" />
+        </el-col>
+    </el-row> -->
 </template>
 
 <script lang="ts">
@@ -54,7 +65,13 @@ export default defineComponent({
         });
         return {
             schemeList,
-            colSpan: computed(() => (props.menu ? 8 : 6)),
+            colStyle: computed(() => {
+                const colNum = props.menu ? 4 : 5;
+                return {
+                    margin: "1%",
+                    width: (100 - colNum * 2) / colNum + "%",
+                };
+            }),
             newScheme() {
                 ctx.emit("new-scheme");
             },
@@ -66,4 +83,11 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style lang="scss">
+.scheme-list {
+    &__item {
+        text-align: center;
+        vertical-align: top;
+    }
+}
+</style>

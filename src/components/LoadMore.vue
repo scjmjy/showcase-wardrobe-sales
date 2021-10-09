@@ -1,18 +1,24 @@
 <template>
     <div class="load-more" :class="type" v-loading="state === 'loading'" @click="onClick">
         <el-empty v-if="state === 'empty'"></el-empty>
+        <divider-h v-else class="load-more__state"> {{ stateText }} </divider-h>
+        <!-- <el-divider v-else-if="state === 'nomore'"> {{ stateText }} </el-divider>
         <span v-else>
             {{ stateText }}
-        </span>
+        </span> -->
     </div>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, PropType } from "vue";
 import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
+import DividerH from "./DividerH.vue";
 
 export default defineComponent({
     name: "LoadMore",
+    components: {
+        DividerH,
+    },
     props: {
         state: {
             type: String as PropType<LOAD_STATE>,
@@ -34,7 +40,7 @@ export default defineComponent({
                 case "loading":
                     return "加载中...";
                 case "nomore":
-                    return "-- 没有更多了 --";
+                    return "我是有底线的";
                 case "more":
                     return "↑点击加载更多↑";
 
@@ -62,6 +68,13 @@ export default defineComponent({
     justify-content: center;
     align-items: center;
     min-height: 40px;
+
+    &__state {
+        white-space: nowrap;
+        :deep(.el-divider__text) {
+            background-color: var(--el-color-bg);
+        }
+    }
 
     &.primary {
         color: var(--el-color-primary);

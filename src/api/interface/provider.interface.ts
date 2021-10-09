@@ -242,6 +242,9 @@ export interface SchemeOffer {
     offer: string;
     ptime: string;
     details: PartOffer[];
+    price: string; // 单价（元/㎡）
+    area: string; // 投影面积（㎡）
+    otype: number; // 报价方式（1：按配件；2：按投影面积）
 }
 
 export interface ManifestPart {
@@ -261,6 +264,16 @@ export interface VisitorRecordItem {
     ltime?: string;
 }
 
+export interface PartAttachment {
+    apcmid: number;
+    count: number;
+}
+
+export interface Store {
+    id: number;
+    name: string;
+}
+
 export default interface ApiProvider {
     /**
      * 登录接口
@@ -273,6 +286,7 @@ export default interface ApiProvider {
     logout(): Promise<AjaxResponse<string>>;
 
     requestGlobalCfg(): Promise<AjaxResponse<GlobalCfg>>;
+    requestPartAttachments(): Promise<AjaxResponse<PartAttachment>>;
 
     // getCaptchaImage(): Promise<AjaxResponse<CaptchaResult>>;
 
@@ -314,7 +328,7 @@ export default interface ApiProvider {
 
     createNewScheme(
         name: string,
-        svcid: number,
+        svcid: number | undefined,
         eid: string | number,
         cid: string | number,
         pid?: string | number,
@@ -348,6 +362,8 @@ export default interface ApiProvider {
 
     requestSignedUrl(schemeId: number | string): Promise<AjaxResponse<OssSignature>>;
     updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>>;
+    requestScreenshotSignedUrl(schemeId: number | string): Promise<AjaxResponse<OssSignature>>;
+    updateScreenshotState(schemeId: string | number, url: string): Promise<AjaxResponse<boolean>>;
 
     requestSchemeOffer(schemeId: number | string): Promise<AjaxResponse<SchemeOffer>>;
     requestSchemeManifest(schemeId: number | string): Promise<AjaxResponse<SchemeManifest>>;
@@ -361,4 +377,6 @@ export default interface ApiProvider {
     recordVisitor(eid: number | string): Promise<AjaxResponse<string>>;
     updateVisitorItem(item: VisitorRecordItem): Promise<AjaxResponse<boolean>>;
     deleteVisitorItem(no: string): Promise<AjaxResponse<boolean>>;
+
+    requestStoreList(): Promise<AjaxResponse<Store[]>>;
 }

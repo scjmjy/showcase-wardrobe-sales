@@ -204,7 +204,7 @@ export default defineComponent({
         .el-sub-menu__title {
             color: var(--el-color-primary);
             font-weight: bold;
-            font-size: 22px;
+            font-size: 24px;
         }
 
         .el-menu--inline {

@@ -1,6 +1,6 @@
 <template>
     <div class="app-wrapper">
-        <div id="nav">
+        <!-- <div id="nav">
             <router-link to="/">Home</router-link> | <router-link to="/demo-model">Models</router-link> |
             <router-link to="/demo-cube">Cube</router-link> | <router-link to="/demo-storage">Storage</router-link> |
             <router-link to="/demo-accesory">Accesory</router-link> |
@@ -9,7 +9,7 @@
             <router-link to="/demo/build3d">Build 3d</router-link> |
             <router-link to="/demo/display3d">Model & Mesh </router-link> |
             <router-link to="/demo-demo3">Demo3</router-link> |
-        </div>
+        </div> -->
         <el-config-provider :locale="locale">
             <router-view v-slot="{ Component }">
                 <transition mode="out-in" name="el-zoom-in-center">

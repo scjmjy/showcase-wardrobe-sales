@@ -5,8 +5,10 @@
         <div ref="refSchemeList" class="customer-list__schemes" v-loading="loadingSchemeList">
             <div class="customer-list__info">
                 <strong class="customer-list__info-label">{{ customerName }}</strong>
-                <el-button v-if="showServeBtn" size="small" type="dark" round @click="serve">为此客户服务</el-button>
-                <el-button v-else size="small" type="primary" round @click="newServe">开始新服务</el-button>
+                <el-button v-if="showServeBtn" size="small" type="warning" round @click="serve">为此客户服务</el-button>
+                <!-- <el-button v-else-if="serveBtnPosition === 'inner'" size="small" type="primary" round @click="newServe"
+                    >开始新服务</el-button
+                > -->
             </div>
             <div v-if="services.length === 0" class="customer-list__empty">
                 <el-empty></el-empty>
@@ -17,8 +19,21 @@
                     <el-collapse-item :name="svc.no" v-for="svc of services" :key="svc.id">
                         <template #title>
                             <div class="service">
-                                <span class="service__no">服务单号：{{ svc.no }}</span>
-                                <span class="service__time">创建时间：{{ svc.ctime }}</span>
+                                <span class="service__no">
+                                    服务单号：<span>{{ svc.no }}</span>
+                                </span>
+                                <el-button
+                                    v-if="!showServeBtn"
+                                    class="service__serveBtn"
+                                    :type="getContinueServeBtnType(svc.no)"
+                                    size="mini"
+                                    round
+                                >
+                                    继续此服务
+                                </el-button>
+                                <span class="service__time">
+                                    创建时间：<span>{{ svc.ctime }}</span>
+                                </span>
                             </div>
                         </template>
                         <scheme-list
@@ -33,6 +48,14 @@
                 <load-more :state="loadState" />
             </div>
         </div>
+        <el-button
+            v-if="!showServeBtn"
+            class="customer-list__add"
+            type="primary"
+            circle
+            icon="iconfont icon-scheme-new"
+            @click="newServe"
+        ></el-button>
     </div>
 </template>
 
@@ -149,7 +172,6 @@ export default defineComponent({
                 immediate: true,
             },
         );
-
         return {
             openedServices,
             handleOpenedChange(_services: string[]) {},
@@ -177,6 +199,7 @@ export default defineComponent({
                         cid: customer.cid,
                         customerName: customer.name,
                         phoneNumber: customer.phone,
+                        latestSvcId: services.value[0]?.id,
                     });
                 }
             },
@@ -208,6 +231,9 @@ export default defineComponent({
             },
             onScroll,
             pageScroll,
+            getContinueServeBtnType(name: string) {
+                return openedServices.value?.includes(name) ? "info" : "primary";
+            },
         };
     },
 });
@@ -235,7 +261,7 @@ $paddingX: 20px;
     }
     &__info {
         display: flex;
-        justify-content: space-between;
+        // justify-content: space-between;
         align-items: center;
         margin-bottom: 25px;
         &-label {
@@ -257,26 +283,65 @@ $paddingX: 20px;
     &__list {
         // flex: 1;
         overflow-y: auto;
-        margin: 0 -#{$paddingX};
+        // margin: 0 -#{$paddingX};
+        :deep(.el-collapse-item:not(:last-of-type)) {
+            margin-bottom: 10px;
+        }
         :deep(.el-collapse-item__header) {
             padding: 0 $paddingX;
-            // background-color: unset;
+            border-radius: 6px;
+            background-color: #dbdbdb;
+            height: 63px;
+        }
+        :deep(.el-collapse-item__header.is-active) {
+            border-bottom-left-radius: 0px;
+            border-bottom-right-radius: 0px;
+            background-color: #c1b399;
         }
         :deep(.el-collapse-item__wrap) {
             padding: 0 $paddingX;
-            background-color: unset;
+            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+        }
+        :deep(.el-collapse-item__arrow) {
+            font-weight: bold;
+            font-size: 22px;
+        }
+    }
+    &__add {
+        position: absolute;
+        right: 50px;
+        bottom: 30px;
+        padding: 25px;
+        font-size: 60px;
+        :deep(i) {
+            color: white !important;
         }
     }
 }
 .service {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     flex: 1;
     margin-right: 30px;
     &__no,
     &__time {
         font-weight: bold;
         font-size: 22px;
+        span {
+            font-weight: 400;
+        }
+    }
+    &__time {
+        margin-right: 40px;
+    }
+    &__serveBtn {
+        margin-right: 60px;
+        padding: 0 20px;
+        min-height: unset;
+        height: 30px;
     }
 }
 </style>

@@ -67,8 +67,12 @@ export default defineComponent({
         }
     }
     :deep(.el-tabs__item) {
-        height: 100px;
+        height: 90px;
         font-size: 40px;
+    }
+    :deep(.el-tabs__nav) {
+        background-color: var(--el-color-bg-dark);
+        padding-top: 10px;
     }
 }
 </style>

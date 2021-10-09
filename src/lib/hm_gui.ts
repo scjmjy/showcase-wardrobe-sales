@@ -3,13 +3,22 @@ import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
 import { BizData, ObjectType } from "@/lib/biz.data";
-import { Vector3 } from "babylonjs/Maths/math.vector";
 
 export class PopupGUI {
+    public rulerDisplayed = false;
     private _popupUI!: GUI.AdvancedDynamicTexture;
     private _popupPanel!: GUI.Container;
     private _deletePanel: BABYLON.Nullable<GUI.Rectangle> = null;
     private _deleteButton!: GUI.Button;
+
+    private _sliderPanel: BABYLON.Nullable<GUI.StackPanel> = null;
+    private _grid: BABYLON.Nullable<GUI.Grid> = null;
+
+    private _loadingPanel: BABYLON.Nullable<GUI.Rectangle> = null;
+    private _loadingInfo: BABYLON.Nullable<GUI.TextBlock> = null;
+    private _loadingSlider: BABYLON.Nullable<GUI.Slider> = null;
+    private _loadingHintInfo: BABYLON.Nullable<GUI.TextBlock> = null;
+
     private rulerHeightTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
     private rulerWidthTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
     private rulerDepthTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
@@ -23,12 +32,89 @@ export class PopupGUI {
     private _rulerTextDepth!: GUI.TextBlock;
     private _rulerTextWidth!: GUI.TextBlock;
 
-    private displayPanel(graphics: Graphics, bizdata: BizData, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>): void {
+    public loading(graphics: Graphics) {
+        // GUI
+        if (this._popupUI == null) {
+            this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, graphics.scene);
+        }
+        // console.log('=================> setup ui')
+
+        // Level one panel : undo redo all clear
+        if (this._loadingPanel == null) {
+            this._loadingPanel = new GUI.Rectangle()
+            this._loadingPanel.width = '528px'
+            this._loadingPanel.height = '181px'
+            this._loadingPanel.color = '#EAE7EAFF'
+            this._loadingPanel.background = 'white'
+            this._loadingPanel.cornerRadius = 4
+            this._loadingPanel.thickness = 1
+            //  this._loadingPanel.isVertical = false
+            this._popupUI.addControl(this._loadingPanel)
+
+            this._loadingInfo = new GUI.TextBlock()
+            this._loadingInfo.text = '衣柜加载中…'
+            this._loadingInfo.width = '144px'
+            this._loadingInfo.height = '32px'
+            this._loadingInfo.fontStyle = 'bold'
+            this._loadingInfo.fontSize = 24
+            this._loadingInfo.color = 'black'
+            //  this._loadingInfo.isVertical = false
+            this._loadingInfo.top = 34
+            this._loadingInfo.left = 44
+            this._loadingInfo.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP
+            this._loadingInfo.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
+            this._loadingPanel.addControl(this._loadingInfo)
+
+            this._loadingSlider = new GUI.Slider()
+            this._loadingSlider.left = 44
+            this._loadingSlider.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
+            this._loadingSlider.minimum = 0
+            this._loadingSlider.maximum = 1
+            this._loadingSlider.value = 0.55
+            this._loadingSlider.isThumbClamped = true
+            this._loadingSlider.isVertical = false
+            this._loadingSlider.displayThumb = false
+            this._loadingSlider.height = '24px'
+            this._loadingSlider.width = '455px'
+            this._loadingSlider.background = '#E5EEF5FF'
+            this._loadingSlider.color = '#0058A3FF'
+            this._loadingPanel.addControl(this._loadingSlider)
+
+            this._loadingHintInfo = new GUI.TextBlock()
+            this._loadingHintInfo.text = '小贴士：进行测量时，确保距离天花板还有9厘米的高度'
+            this._loadingHintInfo.width = '402px'
+            this._loadingHintInfo.height = '24px'
+            this._loadingHintInfo.fontSize = 16
+            this._loadingHintInfo.color = 'gray'
+            //  this._loadingHintInfo.isVertical = false
+            this._loadingHintInfo.top = -24
+            this._loadingHintInfo.left = 44
+            this._loadingHintInfo.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM
+            this._loadingHintInfo.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
+            this._loadingPanel.addControl(this._loadingHintInfo)
+        }
+        if (this._loadingSlider) {
+            // this._loadingSlider.value = this.loadedTemplateMeshCount / this.needToLoadCount
+            // if (this._loadingSlider.value === 1) {
+            setTimeout(() => {
+                if (this._loadingPanel)
+                    this._loadingPanel.dispose()
+                this._loadingPanel = null
+            }, 3500)
+            // }
+        }
+    }
+
+    private displayPanel(graphics: Graphics, bizdata: BizData, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min: number, max: number): void {
         //  hide GUI when click empty area
         if (mesh == null) {
             if (this._deletePanel) {
                 this._deletePanel.dispose();
                 this._deletePanel = null;
+            }
+            if (this._sliderPanel) {
+                this._sliderPanel.dispose();
+                this._sliderPanel = null;
             }
             return;
         }
@@ -37,13 +123,75 @@ export class PopupGUI {
             this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, graphics.scene);
         }
 
-        // clear previous delet panel to avoid delete previous mesh
+        // clear previous silder panel to avoid adjust previous mesh
+        if (this._sliderPanel != null) {
+            this._sliderPanel.dispose();
+            this._sliderPanel = null;
+        }
+        const info = mesh.name.split("_");
+        const objectType = info[0];
+
+        if (this._sliderPanel == null && ObjectType.ITEM == objectType) {
+
+            this._grid = new GUI.Grid();
+            this._popupUI.addControl(this._grid);
+
+            // TO DO : silder position code 
+            this._grid.addColumnDefinition(0.5);
+            this._grid.addColumnDefinition(0.5);
+            this._grid.addRowDefinition(0.25);
+            this._grid.addRowDefinition(0.5);
+            this._grid.addRowDefinition(0.25);
+
+            this._sliderPanel = new GUI.StackPanel();
+            this._sliderPanel.width = "320px";
+            this._grid.addControl(this._sliderPanel, 1, 0);
+
+            var header = new GUI.TextBlock();
+            header.text = "调整物体位置";
+            header.height = "30px";
+            header.color = "black";
+            this._sliderPanel.addControl(header);
+
+            var slider = new GUI.ImageBasedSlider();
+            slider.minimum = min;
+            slider.maximum = max;
+            slider.isVertical = true;
+            slider.isThumbClamped = true;
+            slider.displayThumb = true;
+            slider.width = "22px";
+            const sildHeight = ((slider.maximum - slider.minimum) * 100).toFixed(0);
+            slider.height = ( parseInt(sildHeight) < 150 ) ? 150 + "px" : sildHeight + "px";
+            slider.backgroundImage = new GUI.Image("back", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/backgroundImage-vertical.png");
+            slider.valueBarImage = new GUI.Image("value", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/valueImage-vertical.png");
+            slider.thumbImage = new GUI.Image("thumb", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png");
+
+            slider.onValueChangedObservable.add((value: number) => {
+                if (mesh) {
+                    mesh.position.y = value;
+
+                    const info = mesh.name.split("_");
+                    const itemId = info[1];
+                    const item = bizdata.findItemById(itemId);
+                    if (item !== undefined) {
+                        bizdata.moveItem(item, value);
+                    }
+                }
+                header.text = " " + value.toFixed(2) + " \u7c73";
+            });
+
+            slider.value = mesh.position.y;
+            this._sliderPanel.addControl(slider);
+        }
+
+
+        // clear previous delete panel to avoid delete previous mesh
         if (this._deletePanel != null) {
             this._deletePanel.dispose();
             this._deletePanel = null;
         }
 
-        if (this._deletePanel == null) {
+        if (this._deletePanel == null && ObjectType.CUBE != objectType) {
             this._deletePanel = new GUI.Rectangle();
             this._deletePanel.width = "48px";
             this._deletePanel.height = "48px";
@@ -65,7 +213,7 @@ export class PopupGUI {
             this._deleteButton.onPointerUpObservable.add(() => {
                 if (mesh != null) {
                     // hide the popup ui.
-                    this.displayPanel(graphics, bizdata, null);
+                    this.displayPanel(graphics, bizdata, null, -1, -1);
                     this._deleteButton.isVisible = false;
 
                     const info = mesh.name.split("_");
@@ -89,12 +237,13 @@ export class PopupGUI {
                     mesh = null;
                 }
             });
+            this._deletePanel.linkWithMesh(mesh);
         }
-        this._deletePanel.linkWithMesh(mesh);
+
     }
 
-    private drawRuler(graphics: Graphics, length: number, center: Vector3, direction: Vector3, title = ""): void {
-        const distance = 0.15;
+    private drawRuler(graphics: Graphics, length: number, center: BABYLON.Vector3, direction: BABYLON.Vector3, title = ""): void {
+        const distance = 0.1;
         const heightValue = 1 * 0.054;
         const halfHeightValue = heightValue * 0.15;
         const widthValue = 0.2 * 0.054;
@@ -126,7 +275,7 @@ export class PopupGUI {
         lengthText.height = "28px";
         lengthText.color = "#000000FF";
         lengthText.fontSize = 18;
-        lengthText.text = length + " \u7c73";
+        lengthText.text = length.toFixed(2) + " \u7c73";
         lengthText.shadowBlur = 1;
         lengthText.shadowOffsetX = 1;
         lengthText.shadowOffsetY = 1;
@@ -225,9 +374,9 @@ export class PopupGUI {
             frameRulerTop.position.z += -length / 2 + halfHeightValue;
             frameRulerDown.position.z += length / 2 - halfHeightValue;
 
-            frameRulerTop.position.x -= distance / 2;
-            frameRulerMiddle.position.x -= distance / 2;
-            frameRulerDown.position.x -= distance / 2;
+            frameRulerTop.position.x -= distance;
+            frameRulerMiddle.position.x -= distance;
+            frameRulerDown.position.x -= distance;
         }
         const frameRulerMat = new BABYLON.StandardMaterial("frameRulerMat", graphics.scene);
         frameRulerMat.emissiveColor = new BABYLON.Color3(0.0, 0.0, 0.0);
@@ -237,11 +386,13 @@ export class PopupGUI {
         frameRulerDown.material = frameRulerMat;
     }
 
-    public display(graphics: Graphics, bizdata: BizData, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
-        this.displayPanel(graphics, bizdata, pickedMesh);
+    public display(graphics: Graphics, bizdata: BizData, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min: number = -1, max: number = -1) {
+        this.displayPanel(graphics, bizdata, pickedMesh, min, max);
     }
 
-    public showRuler(graphics: Graphics, bizdata: BizData, isDisplay: boolean) {
+    public showRuler(graphics: Graphics, bizdata: BizData, isDisplay: boolean, sizeHeight: number = 0, sizeWidth: number = 0, sizeDepth: number = 0) {
+        this.rulerDisplayed = isDisplay;
+
         if (!isDisplay) {
             if (this._rulerTextDepth) this._rulerTextDepth.dispose();
             if (this._rulerTextHeight) this._rulerTextHeight.dispose();
@@ -257,26 +408,53 @@ export class PopupGUI {
             if (this.rulerWidthMiddle) this.rulerWidthMiddle.dispose();
             return;
         }
-        this.drawRuler(
-            graphics,
-            bizdata.totalHeight,
-            new BABYLON.Vector3(-bizdata.totalWidth / 2, bizdata.totalHeight / 2, bizdata.totalDepth / 2),
-            new BABYLON.Vector3(0, 1, 0),
-            "height ",
-        );
-        this.drawRuler(
-            graphics,
-            bizdata.totalWidth,
-            new BABYLON.Vector3(0, bizdata.totalHeight, bizdata.totalDepth / 2),
-            new BABYLON.Vector3(1, 0, 0),
-            "width ",
-        );
-        this.drawRuler(
-            graphics,
-            bizdata.totalDepth,
-            new BABYLON.Vector3(-bizdata.totalWidth / 2 - 0.05, 0.01, 0),
-            new BABYLON.Vector3(0, 0, 1),
-            "depth ",
-        );
+        if (sizeHeight == 0)
+            this.drawRuler(
+                graphics,
+                bizdata.totalHeight,
+                new BABYLON.Vector3(bizdata.endX, bizdata.totalHeight / 2, bizdata.totalDepth / 2),
+                new BABYLON.Vector3(0, 1, 0),
+                "height ",
+            );
+        else
+            this.drawRuler(
+                graphics,
+                sizeHeight,
+                new BABYLON.Vector3(bizdata.endX, bizdata.totalHeight / 2, bizdata.totalDepth / 2),
+                new BABYLON.Vector3(0, 1, 0),
+                "height ",
+            );
+        if (sizeWidth == 0)
+            this.drawRuler(
+                graphics,
+                bizdata.totalWidth,
+                new BABYLON.Vector3((bizdata.startX + bizdata.endX) / 2, bizdata.totalHeight, bizdata.totalDepth / 2),
+                new BABYLON.Vector3(1, 0, 0),
+                "width ",
+            );
+        else
+            this.drawRuler(
+                graphics,
+                sizeWidth,
+                new BABYLON.Vector3((bizdata.startX + bizdata.endX) / 2, bizdata.totalHeight, bizdata.totalDepth / 2),
+                new BABYLON.Vector3(1, 0, 0),
+                "width ",
+            );
+        if (sizeDepth == 0)
+            this.drawRuler(
+                graphics,
+                bizdata.totalDepth,
+                new BABYLON.Vector3(bizdata.endX, 0.01, 0),
+                new BABYLON.Vector3(0, 0, 1),
+                "depth ",
+            );
+        else
+            this.drawRuler(
+                graphics,
+                sizeDepth,
+                new BABYLON.Vector3(bizdata.endX, 0.01, 0),
+                new BABYLON.Vector3(0, 0, 1),
+                "depth ",
+            );
     }
 }

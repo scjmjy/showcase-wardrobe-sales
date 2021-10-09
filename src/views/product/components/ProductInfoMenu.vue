@@ -1,5 +1,5 @@
 <template>
-    <div class="product-info-menu" :class="{ collapse: collapse }">
+    <div class="product-info-menu">
         <template v-if="!collapse">
             <div class="product-info-menu__name">{{ titles.title + titles.subTitle }}</div>
             <div v-if="!isNew && offer" class="product-info-menu__offer">
@@ -100,16 +100,17 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-$infoWidthSmall: 258px;
-$infoWidthMedium: 308px;
-$infoWidthLarge: 358px;
+// $infoWidthSmall: 258px;
+// $infoWidthMedium: 308px;
+// $infoWidthLarge: 358px;
+// $info-menu-width: 20%;
+// $info-menu-min-width: 250px;
 .product-info-menu {
-    width: $infoWidthSmall;
+    // width: $info-menu-width;
+    // min-width: $info-menu-min-width;
 
     transition: right 0.3s ease;
-    &.collapse {
-        right: -180px;
-    }
+
     &__name,
     &__offer {
         font-size: 32px;
@@ -136,31 +137,35 @@ $infoWidthLarge: 358px;
 
     &__action {
         margin-top: 42px;
-        text-align: center;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         :deep(.el-button) {
             display: block;
-            width: 220px;
+            // width: 220px;
+            width: 90%;
             margin-left: 0 !important;
             margin-bottom: 40px;
         }
     }
 }
 
-@media (min-width: 1150px) {
-    .product-info-menu {
-        width: $infoWidthMedium;
-        &.collapse {
-            right: -230px;
-        }
-    }
-}
+// @media (min-width: 1150px) {
+//     .product-info-menu {
+//         width: $infoWidthMedium;
+//         &.collapse {
+//             right: -230px;
+//         }
+//     }
+// }
 
-@media (min-width: 1366px) {
-    .product-info-menu {
-        width: $infoWidthLarge;
-        &.collapse {
-            right: -280px;
-        }
-    }
-}
+// @media (min-width: 1366px) {
+//     .product-info-menu {
+//         width: $infoWidthLarge;
+//         &.collapse {
+//             right: -280px;
+//         }
+//     }
+// }
 </style>

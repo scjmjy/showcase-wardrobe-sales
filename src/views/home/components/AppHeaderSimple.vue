@@ -60,7 +60,7 @@ export default defineComponent({
     }
     &__username {
         margin-left: 7px;
-        font-size: 22px;
+        font-size: 26px;
         color: #222222;
     }
     &__job {
@@ -71,7 +71,10 @@ export default defineComponent({
     }
     &__logout {
         // margin-left: 14px;
-        color: inherit !important;
+        // color: inherit !important;
+        // color: #a7a7a7 !important;
+        font-size: 26px;
+        line-height: unset;
     }
 }
 </style>
