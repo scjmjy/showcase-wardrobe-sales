@@ -42,14 +42,14 @@ export default createStore({
                 state.currentCustomer.customerId = payload.cid;
                 state.currentCustomer.customerName = payload.customerName;
                 state.currentCustomer.phoneNumber = payload.phoneNumber;
-                state.currentCustomer.latestSvcId = payload.latestSvcId;
+                state.currentCustomer.currentSvcId = payload.currentSvcId;
             } else {
                 state.currentCustomer = new Customer();
             }
             state.currentCustomer.save();
         },
-        "SET-CUSTOMER-LATEST-SVCID"(state, id: number) {
-            state.currentCustomer.latestSvcId = id;
+        "SET-CUSTOMER-CURRENT-SVCID"(state, id: number) {
+            state.currentCustomer.currentSvcId = id;
             state.currentCustomer.save();
         },
         "SET-USER"(state, payload: LoginResult) {

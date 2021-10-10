@@ -24,8 +24,7 @@
             v-model:collapse="collapseInfoMenu"
             class="product-detail__info"
             :class="{ collapse: collapseInfoMenu }"
-            :offer="product.offer"
-            :titles="titles"
+            :product="product"
             :creatingScheme="creatingScheme"
             :prepareContinue="prepareContinue"
             :isNew="isNew"
@@ -70,13 +69,9 @@
             :schemeId="product.id"
             :schemeName="product.product"
             :customerName="customerName"
+            @closed="onOfferDlgClosed"
         />
-        <metals-dlg
-            v-model="showMetalsDlg"
-            :scheme3d="scheme"
-            :part="selectedMetalPart"
-            @schemeDirty="setSchemeDirty"
-        />
+        <metals-dlg v-model="showMetalsDlg" :scheme3d="scheme" :part="selectedMetalPart" @change-part="onChangePart" />
     </div>
 </template>
 
@@ -87,7 +82,7 @@ import { useStore } from "vuex";
 import { ElMessage, ElMessageBox } from "element-plus";
 import Babylon from "@/components/Babylon/Babylon.vue";
 import { StateType } from "@/store";
-import { Part, PartAttachment, PartCategory, Product, Scheme } from "@/api/interface/provider.interface";
+import { Part, PartAttachment, PartCategory, Product, Scheme, isProduct } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import * as util from "@/lib/scheme.util";
@@ -135,11 +130,6 @@ export default defineComponent({
 
         const product = ref(productDetailData as Product | Scheme);
 
-        function isProduct(p: any): p is Product {
-            // 没有 product id，说明商品
-            return p.pid === undefined;
-        }
-
         const schemeMode = computed<SchemeMode>(() => {
             const p = product.value;
             if (isProduct(p)) {
@@ -157,8 +147,6 @@ export default defineComponent({
         const prepareContinue = ref(false);
 
         async function gotoEditScheme() {
-            // showCustomizeDlg.value = false;
-            // mode.value = ""; // after-leave="mode=edit"
             mode.value = "edit";
             setTimeout(() => {
                 switch (customizeMode.value) {
@@ -214,7 +202,7 @@ export default defineComponent({
             },
             {
                 value: "ruler",
-                icon: "ruler",
+                icon: "ruler-2",
                 onActive() {
                     refBabylon.value?.showReferenceRuler(true);
                 },
@@ -253,7 +241,11 @@ export default defineComponent({
         }
         requestScheme3D();
 
-        onMounted(() => {});
+        onMounted(() => {
+            if (schemeMode.value !== "scheme-new") {
+                requestSchemeDetail();
+            }
+        });
         function eventHandle(event: Event) {
             switch (event.type) {
                 case EventType.OBJECT_SELECTED:
@@ -278,7 +270,7 @@ export default defineComponent({
             }
         }
         async function createNewScheme() {
-            const { customerId, latestSvcId } = store.state.currentCustomer;
+            const { customerId, currentSvcId } = store.state.currentCustomer;
             const cid = customerId.toString();
             const eid = store.state.user.eid;
             let schemeName = "";
@@ -288,16 +280,17 @@ export default defineComponent({
             if (customizeMode.value === "new") {
                 pid = product.value.id;
                 schemeName = product.value.name;
+                svcid = svcId;
             } else if (customizeMode.value === "copy") {
                 const scheme = product.value as Scheme;
-                svcid = schemeMode.value === "scheme-other" ? latestSvcId : svcId;
+                svcid = schemeMode.value === "scheme-other" ? currentSvcId : svcId;
                 schemeName = scheme.product;
                 sid = scheme.id;
             }
             if (!svcid) {
                 const service = (await apiProvider.createNewService(eid, cid)).data!;
                 svcid = svcId = service.id;
-                store.commit("SET-CUSTOMER-LATEST-SVCID", svcid);
+                store.commit("SET-CUSTOMER-CURRENT-SVCID", svcid);
             }
             creatingScheme.value = true;
 
@@ -490,24 +483,6 @@ export default defineComponent({
             creatingScheme,
             prepareContinue,
             customerName,
-            titles: computed(() => {
-                let productName = "";
-                const p = product.value;
-                if (isProduct(p)) {
-                    productName = p.name;
-                    const de = customerName ? "的" : "-";
-                    return {
-                        title: customerName || "商品详情",
-                        subTitle: `${de}${productName}`,
-                    };
-                } else {
-                    productName = p.product;
-                    return {
-                        title: p.customer,
-                        subTitle: `的${productName}`,
-                    };
-                }
-            }),
             newScheme() {
                 if (!store.state.currentCustomer.customerId) {
                     ElMessage({
@@ -522,9 +497,6 @@ export default defineComponent({
             },
             async continueEditScheme() {
                 customizeMode.value = "continue";
-                prepareContinue.value = true;
-                await requestSchemeDetail();
-                prepareContinue.value = false;
                 gotoEditScheme();
             },
             copyScheme() {
@@ -551,6 +523,10 @@ export default defineComponent({
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;
                 refBabylon.value?.showReferenceRuler(true);
+            },
+            onChangePart() {
+                showMetalsDlg.value = false;
+                setSchemeDirty();
             },
             onPartsMenuAction,
             async gotoBack() {
@@ -582,6 +558,9 @@ export default defineComponent({
             },
             onInOutChange(_val: string) {
                 showMenu.value = true;
+            },
+            onOfferDlgClosed() {
+                requestSchemeDetail();
             },
             onPartSelect(part: Part, cat: PartCategory) {
                 if (!part.manifest) {
@@ -676,13 +655,11 @@ $menu-width: 25%;
         top: 0px;
         bottom: 0px;
         right: 0px;
-        padding: 0 1%;
+        padding: 0 1.5%;
         white-space: nowrap;
-        text-align: center;
         background-color: white;
 
         width: $menu-width;
-        // min-width: $menu-min-width;
     }
     &__action-left {
         position: absolute;

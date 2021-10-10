@@ -1,0 +1,38 @@
+// @use './variables.scss';
+
+/*自定义滚动条样式代码google*/
+*::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+    background-color: transparent;
+}
+*::-webkit-scrollbar-track {
+    background-color: var(--el-color-info);
+}
+*::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background-color: var(--el-color-primary-light-3);
+    overflow: hidden;
+
+    &:hover {
+        background-color: var(--el-color-primary-light-1);
+    }
+    &:active {
+        background-color: var(--el-color-primary);
+    }
+}
+
+// .scrollbar-hamburger-vertical::-webkit-scrollbar-thumb {
+//     background-image: url(~@/assets/img/scrollbar-hamburger-vertical.png);
+//     background-position: center;
+//     background-size: 100%;
+//     background-repeat: no-repeat;
+// }
+// .scrollbar-hamburger-vertical {
+//     *::-webkit-scrollbar-thumb {
+//         background-image: url(~@/assets/img/scrollbar-hamburger-vertical.png);
+//         background-position: center;
+//         background-size: 100%;
+//         background-repeat: no-repeat;
+//     }
+// }

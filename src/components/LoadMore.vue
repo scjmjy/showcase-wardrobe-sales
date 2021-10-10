@@ -32,6 +32,10 @@ export default defineComponent({
             type: Object as PropType<PageScroll<any> | undefined>,
             default: () => undefined,
         },
+        textNoMore: {
+            type: String,
+            default: "我是有底线的",
+        },
     },
     emits: ["loadmore"],
     setup(props, ctx) {
@@ -40,7 +44,7 @@ export default defineComponent({
                 case "loading":
                     return "加载中...";
                 case "nomore":
-                    return "我是有底线的";
+                    return props.textNoMore;
                 case "more":
                     return "↑点击加载更多↑";
 

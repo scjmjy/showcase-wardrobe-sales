@@ -11,7 +11,7 @@ export class Customer {
         public customerId = "",
         public customerName = "",
         public phoneNumber = "",
-        public latestSvcId?: number,
+        public currentSvcId?: number,
     ) {}
 
     save(): string | undefined {

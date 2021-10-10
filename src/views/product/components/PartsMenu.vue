@@ -1,28 +1,18 @@
 <template>
     <div ref="refDiv" class="parts-menu">
-        <div v-show="opened" class="parts-menu__left">
+        <div v-show="opened" class="parts-menu__left" :class="{ 'is-level-up': !!tabStack.length }">
             <div class="parts-menu__left-header">
-                <div>
-                    <!-- <el-button v-if="tabStack.length" type="text" @click="onUpLevelClick">上一层</el-button> -->
-                </div>
                 <div>
                     <el-button type="primary" plain @click="$emit('action', 'manifest')">清单</el-button>
                     <el-button type="primary" plain @click="$emit('action', 'offer')">报价</el-button>
                     <el-button type="primary" plain @click="$emit('action', 'complete')">完成</el-button>
                 </div>
-                <div></div>
             </div>
-            <!-- <el-row class="parts-menu__left-items" :gutter="20">
-                <el-col v-for="cat in cats" :key="cat.id" :span="12" style="padding: 10px">
-                    <part-cat-card :cat="cat" :active="selectedCatId == cat.id" @select="onCatSelect"></part-cat-card>
-                </el-col>
-            </el-row> -->
-
-            <!-- <el-tabs v-model="selectedCatId" class="parts-menu__left-cats" tab-position="left" @tab-click="onCatChange">
-                <el-tab-pane v-for="cat in activeCats" :key="cat.id" :label="cat.name" :name="cat.id.toString()">
-                    <cat-tab :active="selectedCatId === cat.id.toString()" :cat="cat" />
-                </el-tab-pane>
-            </el-tabs> -->
+            <i
+                v-if="!!tabStack.length"
+                class="parts-menu__left-levelup iconfont icon-level-up"
+                @click="onUpLevelClick"
+            ></i>
             <el-tabs
                 v-show="!slideLeft"
                 v-model="selectedTabName"
@@ -58,16 +48,7 @@
                 <!-- <el-button type="text" size="mini" icon="el-icon-printer">打印清单</el-button> -->
             </div>
             <div v-if="schemeManifest" class="parts-menu__right-manifest">
-                <manifest-item
-                    v-for="(item, index) of schemeManifest"
-                    :key="index"
-                    :url="item.pic"
-                    :name="item.pname"
-                    :price="item.price"
-                    v-model:count="item.count"
-                    :type="item.type"
-                    :partId="item.partid"
-                ></manifest-item>
+                <manifest-list :list="schemeManifest" />
             </div>
             <!-- <div v-if="schemeManifest" class="parts-menu__right-price">
                 <span class="price__label">合计：</span>
@@ -107,7 +88,7 @@ import CatTab from "./CatTab.vue";
 import PartBgTab from "./PartBgTab.vue";
 import CatsList from "./CatsList.vue";
 import type { ImgCardItemType } from "./ImgCardItem.vue";
-import ManifestItem from "./ManifestItem.vue";
+import ManifestList from "./ManifestList.vue";
 
 interface TabType {
     component: string;
@@ -140,7 +121,7 @@ export default defineComponent({
         CatTab,
         PartBgTab,
         CatsList,
-        ManifestItem,
+        ManifestList,
     },
     emits: ["update:opened", "part", "action", "bg"],
     setup(props, ctx) {
@@ -385,14 +366,8 @@ $header-height: 56px;
     // width: $menu-width;
     overflow: hidden;
     white-space: nowrap;
-
-    :deep(.el-tabs__content) {
-        height: 100%;
-    }
-    :deep(.el-tab-pane) {
-        height: 100%;
-    }
     &__left {
+        position: relative;
         display: inline-flex;
         flex-direction: column;
         overflow: hidden;
@@ -409,6 +384,24 @@ $header-height: 56px;
             font-weight: bold;
             box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
         }
+
+        &-levelup {
+            cursor: pointer;
+            position: absolute;
+            left: 20px;
+            top: $header-height + 10px;
+            color: var(--el-color-black);
+            font-size: 30px;
+            z-index: 100;
+            &:hover {
+                color: var(--el-color-primary);
+            }
+        }
+        &.is-level-up {
+            :deep(.el-tabs__header) {
+                padding-top: 40px;
+            }
+        }
         &-cats {
             flex: 1;
             white-space: pre-wrap;
@@ -416,29 +409,48 @@ $header-height: 56px;
             margin-right: 0px !important;
             padding: 10px 0px 0px !important;
             overflow-y: auto;
+            :deep(.el-tabs__item) {
+                // color: var(--el-color-black);
+                font-size: 15px;
+                // line-height: 30px;
+                // height: 30px;
+                &.is-active {
+                    font-weight: bold;
+                }
+            }
+            :deep(.el-tabs__content) {
+                height: 100%;
+                .el-tab-pane {
+                    height: 100%;
+                }
+            }
             :deep(.el-tabs__active-bar.is-left) {
                 left: 0;
                 right: auto;
                 width: 5px;
                 min-height: 40px;
+                // height: 30px !important;
+                // min-height: 30px;
+                background-color: var(--el-text-color-primary);
             }
 
             :deep(.el-tabs__nav-scroll) {
                 width: 82px;
             }
             :deep(.el-tabs__nav-wrap::after) {
-                width: 5px;
-                left: 0px;
-                background-color: var(--el-color-primary-light-8);
+                width: 5px !important;
+                left: 0px !important;
+                background-color: var(--el-color-info);
             }
-            // :deep(.el-tabs__item:first-child) {
-            //     border-bottom: 1px solid gray;
-            // }
         }
     }
     &__tab-bgLabel {
-        border-bottom: 2px solid gray;
-        line-height: 30px;
+        // border-bottom: 2px solid gray;
+        // line-height: 30px;
+        margin: 0 -20px;
+        padding-right: 20px;
+        background-color: #dbdbdbff;
+        // background-color: var(--el-color-primary-light-5);
     }
     &__right {
         display: inline-flex;
@@ -476,36 +488,9 @@ $header-height: 56px;
         &-manifest {
             flex: 1;
             overflow-y: auto;
-            padding: 20px 30px;
+            padding: 0px 30px;
             margin-bottom: 70px;
         }
-        // &-price {
-        //     padding: 30px;
-        //     text-align: right;
-        //     font-weight: bold;
-        //     .price__label {
-        //         font-size: 26px;
-        //     }
-        //     .price__symbol {
-        //         color: #bb4050;
-        //         font-size: 19px;
-        //     }
-        //     .price__offer {
-        //         color: #bb4050;
-        //         font-size: 41px;
-        //     }
-        // }
     }
 }
-
-// @media (min-width: 1150px) {
-//     .parts-menu {
-//         --menu-width: 358px;
-//     }
-// }
-// @media (min-width: 1366px) {
-//     .parts-menu {
-//         --menu-width: 428px;
-//     }
-// }
 </style>

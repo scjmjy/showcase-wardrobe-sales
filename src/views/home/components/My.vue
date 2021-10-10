@@ -6,13 +6,13 @@
             <!-- <span class="my__info-my">我的</span> -->
 
             <div class="my__info-profile">
-                <el-image
+                <!-- <el-image
                     class="my__info-profile__avatar u-circle"
                     src="https://picsum.photos/200"
                     circle
                     fit="contain"
                     style="visibility: hidden"
-                />
+                /> -->
                 <span class="my__info-profile__username"> {{ user.userName }} </span>
                 <i class="my__info-profile__location iconfont icon-shop"> &nbsp;{{ user.organization }} </i>
                 <!-- <el-tag class="app-header__job" type="primary" color="#5EB6B366">店长助理</el-tag> -->
@@ -40,7 +40,7 @@
                 </el-col>
                 <div style="width: 100%; height: 30px"></div>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="工具" icon="tool" color="#e6a23c" @click="gotoTool" />
+                    <function-card functionName="客户信息" icon="tool" color="#e6a23c" @click="gotoTool" />
                 </el-col>
             </el-row>
         </div>
@@ -86,7 +86,7 @@ export default defineComponent({
     height: 100%;
     &__info {
         display: flex;
-        padding: 30px 51px 80px;
+        padding: 80px 50px 40px;
         justify-content: space-around;
         align-items: flex-start;
         background-image: url(~@/assets/img/bg-my.png);

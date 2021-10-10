@@ -1,8 +1,7 @@
 <template>
     <el-dialog
-        class="customize-dlg"
+        custom-class="customize-dlg"
         :title="title"
-        center
         width="500px"
         @opened="onOpened"
         @closed="onClosed"
@@ -16,8 +15,10 @@
             :rules="formRules"
             label-width="140px"
             label-position="left"
+            hide-required-asterisk
             @validate="onValidate"
         >
+            <div class="customize-dlg__unit">单位：m</div>
             <el-form-item label="单元柜高度" prop="height">
                 <el-input v-model.number="formData.height" type="number"></el-input>
             </el-form-item>
@@ -27,11 +28,13 @@
             <el-form-item label="单元柜宽度" prop="width">
                 <el-input v-model.number="formData.width" type="number"></el-input>
             </el-form-item>
-            <div class="customize-dlg__unit">单位：米</div>
+            <div class="customize-dlg__price">总价：<strong>？？？</strong> 元</div>
         </el-form>
         <template #footer>
-            <el-button @click="doCancel">不修改</el-button>
-            <el-button type="primary" :loading="loading" @click="doConfirm">{{ okText }}</el-button>
+            <div class="customize-dlg__footer">
+                <el-button type="primary" :loading="loading" @click="doConfirm">{{ okText }}</el-button>
+                <el-button @click="doCancel">取消</el-button>
+            </div>
         </template>
     </el-dialog>
 </template>
@@ -132,7 +135,7 @@ export default defineComponent({
                 // }
             }),
             okText: computed(() => {
-                return "确认修改";
+                return "确认";
                 // switch (props.mode) {
                 //     case "new":
                 //         return "确认创建";
@@ -168,17 +171,28 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .customize-dlg {
-    &__unit {
-        color: var(--el-color-info);
+    &__unit,
+    &__price {
+        color: var(--el-color-black);
         font-size: 18px;
         text-align: right;
     }
 
-    :deep(.el-dialog__body) {
+    &__footer {
+        display: flex;
+        justify-content: space-around;
+
+        .el-button {
+            width: 35%;
+        }
+    }
+
+    .el-dialog__body {
         padding-left: 40px;
         padding-right: 40px;
+        padding-bottom: 20px;
     }
 }
 </style>

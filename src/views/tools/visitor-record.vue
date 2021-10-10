@@ -38,7 +38,7 @@
             </el-table-column>
             <template #empty>
                 <el-empty v-if="loadState === 'empty'"></el-empty>
-                <load-more v-else :state="loadState"></load-more>
+                <load-more v-else :state="loadState" textNoMore="没有更多了"></load-more>
             </template>
         </el-table>
         <div class="visitor-record-pagination">

@@ -40,11 +40,14 @@ export default defineComponent({
 <style scoped lang="scss">
 .function-card {
     display: inline-flex;
-    padding: 15px;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    // border-radius: 4px;
-    // box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    padding: 15px;
+    width: 180px;
+    height: 180px;
+    background-color: white;
     &__icon {
         font-size: 65px;
     }

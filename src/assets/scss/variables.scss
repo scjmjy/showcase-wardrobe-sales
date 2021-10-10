@@ -52,12 +52,23 @@ $tag: (
     "font-size": 16px,
     "border-radius": 20px,
 );
+$text-color: (
+    "primary": #644c1fff,
+    "regular": map.get($colors, "black"),
+    "secondary": #196bffff,
+);
+$scrollbar: (
+    "background-color": var(--el-color-primary),
+    "hover-background-color": var(--el-color-primary),
+);
 @forward "~element-plus/theme-chalk/src/common/var.scss" with(
     $colors: $colors,
     $font-size: $font-size,
     $button-font-size: $button-font-size,
     $button-font-color: $button-font-color,
     $tag: $tag,
+    $text-color: $text-color,
+    $scrollbar: $scrollbar,
     $font-path: '~element-plus/theme-chalk/fonts',
 );
 
