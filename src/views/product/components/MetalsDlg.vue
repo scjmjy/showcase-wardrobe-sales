@@ -79,7 +79,7 @@ export default defineComponent({
                 changed.value = true;
             },
             doConfirm() {
-                const parts = props.scheme3d!.composition;
+                const parts = props.scheme3d!.getPartCounts();
                 if (isNew) {
                     parts.push(schemePart.value!);
                 } else {
