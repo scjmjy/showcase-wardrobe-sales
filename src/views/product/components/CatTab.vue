@@ -1,13 +1,13 @@
 <template>
     <div class="cat-tab">
-        <el-button v-if="up" type="text" size="small" @click="onUpClick">上一层</el-button>
-        <div v-if="showFilterHeader" class="cat-tab__filterHeader">
+        <!-- <el-button v-if="up" type="text" size="small" @click="onUpClick">上一层</el-button> -->
+        <div v-if="showFilterHeader" class="cat-tab__filterHeader" @click="onFilterToggleClick">
             <span>筛选</span>
             <el-button
                 type="text"
-                circle
                 :icon="showFilter ? 'el-icon-caret-bottom' : 'el-icon-caret-right'"
-                @click="onFilterToggleClick"
+                style="padding: 0"
+                @click.stop="onFilterToggleClick"
             ></el-button>
         </div>
         <el-collapse-transition>
@@ -262,34 +262,39 @@ export default defineComponent({
 <style scoped lang="scss">
 .cat-tab {
     height: 100%;
+    padding-right: 3px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    color: var(--el-text-color-primary);
     &__filterHeader {
+        cursor: pointer;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 22px;
+        font-size: 18px;
         font-weight: bold;
+        // margin-right: 5px;
+        &:hover {
+            background-color: var(--el-color-primary-light-4);
+            border-radius: 10px;
+        }
     }
     &__meta-title {
         margin-top: 10px;
         font-size: 16px;
         font-weight: bold;
-        color: var(--el-color-black);
     }
     &__parts-title {
-        margin-top: 20px;
+        border-top: 1px solid var(--el-color-info);
+        padding-top: 10px;
+        margin-top: 10px;
         margin-bottom: 10px;
-        font-size: 22px;
+        font-size: 18px;
         font-weight: bold;
-        color: var(--el-color-black);
-        // text-align: center;
     }
     &__parts {
-        // flex: 1;
         overflow-y: auto;
-        // text-align: center;
     }
 }
 </style>

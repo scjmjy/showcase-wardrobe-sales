@@ -45,10 +45,10 @@
     &__title {
         font-size: 26px;
         font-weight: bold;
-        color: var(--el-color-dark);
+        color: var(--el-color-black);
     }
     &__headerbtn &__close {
-        color: var(--el-color-dark);
+        color: var(--el-color-black);
         font-size: 30px;
         font-weight: bold;
     }
@@ -57,24 +57,52 @@
         color: white;
     }
 }
-
-$darkColor: #172021;
-
-.el-button--dark.is-active {
-    background: white !important;
-    border-color: $darkColor !important;
-    color: $darkColor !important;
+.el-message-box {
+    border-color: var(--el-color-black);
+    &__header {
+        background-color: var(--el-color-black);
+    }
+    &__title {
+        color: white;
+    }
 }
 
-.el-button--dark:focus,
-.el-button--dark:hover {
-    background: white !important;
-    border-color: $darkColor !important;
-    color: $darkColor !important;
+.el-input-number {
+    &__decrease,
+    &__increase {
+        border-radius: 50%;
+        border-left: unset;
+        border-right: unset;
+        font-weight: bolder;
+        font-size: 22px;
+    }
+    &__decrease:not(.is-disabled, :hover),
+    &__increase:not(.is-disabled, :hover) {
+        color: white !important;
+        background-color: var(--el-color-primary);
+    }
+    .el-input__inner {
+        border-bottom-color: transparent !important;
+    }
 }
 
-.el-button--dark {
-    color: #fff !important;
-    background-color: $darkColor !important;
-    border-color: $darkColor !important;
-}
+// $darkColor: #172021;
+
+// .el-button--black.is-active {
+//     background: white !important;
+//     border-color: $darkColor !important;
+//     color: $darkColor !important;
+// }
+
+// .el-button--black:focus,
+// .el-button--black:hover {
+//     background: white !important;
+//     border-color: $darkColor !important;
+//     color: $darkColor !important;
+// }
+
+// .el-button--black {
+//     color: #fff !important;
+//     background-color: $darkColor !important;
+//     border-color: $darkColor !important;
+// }

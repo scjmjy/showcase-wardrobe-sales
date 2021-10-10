@@ -119,14 +119,17 @@ $MenuItemHeight: 46px;
         background-color: white;
     }
     :deep(.el-menu-item) {
-        padding-left: 30px !important;
+        margin: 5px 0;
+        padding-left: 35px !important;
         height: $MenuItemHeight !important;
         line-height: $MenuItemHeight !important;
         border-radius: 6px;
         background-color: white;
         color: var(--el-color-primary);
         font-weight: bold;
-        margin: 5px 0;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
     :deep(.el-menu-item.is-active) {
         background-color: var(--el-color-primary);
@@ -158,7 +161,7 @@ $MenuItemHeight: 46px;
     }
     .absolute-icon::before {
         position: absolute;
-        left: 2px;
+        left: 5px;
         display: flex;
         align-items: center;
     }

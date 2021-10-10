@@ -179,12 +179,6 @@ export default defineComponent({
             color: var(--el-color-primary);
             font-weight: bold;
         }
-
-        .el-menu--inline {
-            &::before {
-                width: 2px;
-            }
-        }
     }
     .el-submenu-2 {
         .el-sub-menu__title {
@@ -201,12 +195,6 @@ export default defineComponent({
     }
     .el-submenu-3 {
         background-color: white;
-
-        .el-menu--inline {
-            &::before {
-                width: 1px;
-            }
-        }
     }
     .el-menu-item-1 {
         background-color: white;

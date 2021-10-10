@@ -4,11 +4,12 @@
         <div class="manifest-item__info">
             <div class="manifest-item__name">{{ name }}</div>
             <div v-if="type === '3d'" class="manifest-item__count">
-                数量：<span>{{ count }}</span
+                <span>数量：</span>
+                <span class="manifest-item__count-num">{{ count }}</span
                 >个
             </div>
             <div v-else class="manifest-item__count">
-                数量：
+                <span>数量：</span>
                 <el-input-number
                     size="mini"
                     :min="0"
@@ -83,9 +84,10 @@ export default defineComponent({
 .manifest-item {
     display: flex;
     align-items: center;
+    white-space: pre-wrap;
     &__img {
-        width: 100px;
-        height: 100px;
+        width: 44px;
+        height: 44px;
         padding: 3px;
         border: 1px solid #d8d8d8;
         border-radius: 5px;
@@ -93,31 +95,33 @@ export default defineComponent({
     &__info {
         margin-left: 18px;
         flex: 1;
-        height: 100px;
+        // height: 100px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
     &__name {
-        font-size: 22px;
+        font-size: 18px;
         font-weight: bold;
     }
     &__count {
-        span,
+        font-size: 16px;
+        color: var(--el-text-color-primary);
+        &-num,
         :deep(.el-input__inner) {
             font-size: 22px;
             font-weight: bold;
         }
     }
-    &__price {
-        span {
-            font-size: 22px;
-            font-weight: bold;
-        }
-    }
+    // &__price {
+    //     span {
+    //         font-size: 22px;
+    //         font-weight: bold;
+    //     }
+    // }
 
     &:not(:first-of-type) {
-        margin-top: 60px;
+        margin-top: 10px;
     }
 }
 </style>

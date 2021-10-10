@@ -1,10 +1,10 @@
 <template>
     <el-dialog
-        class="metals-dlg"
+        custom-class="metals-dlg"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
-        title="五金"
-        width="650px"
+        title="添加配件"
+        width="50%"
         v-bind="$attrs"
         @opened="onOpened"
     >
@@ -15,9 +15,18 @@
             :url="part.pic"
             @change="handleChange"
         />
-        <!-- <template #footer>
-            <el-button type="primary" @click="doConfirm">确 定</el-button>
-        </template> -->
+        <template #footer>
+            <div class="metals-dlg__footer">
+                <el-button
+                    type="primary"
+                    :loading="loading"
+                    :disabled="!changed"
+                    @click="doConfirm"
+                    style="width: 156px"
+                    >确认</el-button
+                >
+            </div>
+        </template>
     </el-dialog>
 </template>
 
@@ -42,31 +51,52 @@ export default defineComponent({
             default: undefined,
         },
     },
-    emits: ["schemeDirty"],
+    emits: ["change-part"],
     setup(props, ctx) {
         const schemePart = ref<PartCount>();
+        const changed = ref(false);
+        let isNew = false;
         return {
             schemePart,
+            changed,
             onOpened() {
+                schemePart.value = undefined;
                 if (props.scheme3d && props.part) {
                     const parts = props.scheme3d.composition;
                     const { id } = props.part;
                     const found = parts.find((p) => p.partId === id);
                     if (found) {
-                        schemePart.value = found;
+                        isNew = false;
+                        schemePart.value = new PartCount(found.partId, found.count);
                     } else {
+                        isNew = true;
                         const part = new PartCount(+id, 0);
-                        parts.push(part);
                         schemePart.value = part;
                     }
                 }
             },
-            handleChange(val: number) {
-                ctx.emit("schemeDirty");
+            handleChange() {
+                changed.value = true;
+            },
+            doConfirm() {
+                const parts = props.scheme3d!.composition;
+                if (isNew) {
+                    parts.push(schemePart.value!);
+                } else {
+                    const { id } = props.part!;
+                    const found = parts.find((p) => p.partId === id);
+                    found!.partId = schemePart.value!.partId;
+                    found!.count = schemePart.value!.count;
+                }
+                ctx.emit("change-part");
             },
         };
     },
 });
 </script>
 
-<style scoped></style>
+<style lang="scss">
+.metals-dlg {
+    min-width: 650px;
+}
+</style>

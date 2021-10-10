@@ -1,8 +1,8 @@
 <template>
     <div style="text-align: center">
-        <div v-if="up">
+        <!-- <div v-if="up">
             <el-button type="text" size="small" @click="onUpClick">上一层</el-button>
-        </div>
+        </div> -->
         <part-cat-card v-for="cat in cats" :key="cat.id" :cat="cat" @click="onCatClick">
             {{ cat.name }}
         </part-cat-card>

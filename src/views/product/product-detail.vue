@@ -71,12 +71,7 @@
             :customerName="customerName"
             @closed="onOfferDlgClosed"
         />
-        <metals-dlg
-            v-model="showMetalsDlg"
-            :scheme3d="scheme"
-            :part="selectedMetalPart"
-            @schemeDirty="setSchemeDirty"
-        />
+        <metals-dlg v-model="showMetalsDlg" :scheme3d="scheme" :part="selectedMetalPart" @change-part="onChangePart" />
     </div>
 </template>
 
@@ -528,6 +523,10 @@ export default defineComponent({
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;
                 refBabylon.value?.showReferenceRuler(true);
+            },
+            onChangePart() {
+                showMetalsDlg.value = false;
+                setSchemeDirty();
             },
             onPartsMenuAction,
             async gotoBack() {

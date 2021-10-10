@@ -1,7 +1,7 @@
 <template>
     <div ref="refEl" class="part-card" :class="{ active: active }">
         <el-image class="part-card__img u-clickable" :src="part.pic" fit="contain" @click="onImgClick"></el-image>
-        <div class="part-card__label">{{ part.name }}</div>
+        <div class="part-card__label u-line-1">{{ part.name }}</div>
     </div>
 </template>
 
@@ -78,6 +78,7 @@ export default defineComponent({
         text-align: center;
         font-size: 14px;
         color: var(--el-color-black);
+        width: 100%;
     }
 
     &.active &__img {
