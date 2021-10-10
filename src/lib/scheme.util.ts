@@ -46,7 +46,7 @@ export function importSchemeJson(url: string): Promise<Scheme> {
 }
 
 function scheme2manifest(scheme: Scheme) {
-    const schemeJson = { config: scheme.config, manifest: scheme.manifest, composition: scheme.composition };
+    const schemeJson = { config: scheme.config, manifest: scheme.manifest };
     return JSON.stringify(schemeJson, undefined, 4);
 }
 
@@ -76,7 +76,7 @@ export async function saveSchemeAsync(schemeId: string | number, scheme: Scheme)
 }
 
 export function updateSchemeMetalCount(scheme: Scheme, partId: number, value: number) {
-    const parts = scheme.composition;
+    const parts = scheme.getPartCounts();
     const found = parts.find((p) => p.partId === partId);
     if (found) {
         found.count = value;

@@ -292,7 +292,7 @@ class DrobeUtil extends StObject {
             throw Error(`unknow door type: ${door}`);
         }
 
-        bizdata.addDoor(door);
+        // bizdata.addDoor(door);
         const door_name = `${ObjectType.DOOR}_${door.id}`;
         const door_mf = HmPartManifest.buildFromUrl(door.manifest, baseUrl);
         if (door_mf instanceof Promise) {

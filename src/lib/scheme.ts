@@ -9,13 +9,13 @@ export enum PartType {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Position {
-    @JsonProperty({ value: 'x' })
+    @JsonProperty({ value: "x" })
     @JsonClassType({ type: () => [Number] })
     x: number;
-    @JsonProperty({ value: 'y' })
+    @JsonProperty({ value: "y" })
     @JsonClassType({ type: () => [Number] })
     y: number;
-    @JsonProperty({ value: 'z' })
+    @JsonProperty({ value: "z" })
     @JsonClassType({ type: () => [Number] })
     z: number;
 
@@ -28,13 +28,13 @@ export class Position {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Size {
-    @JsonProperty({ value: 'x' })
+    @JsonProperty({ value: "x" })
     @JsonClassType({ type: () => [Number] })
     x: number;
-    @JsonProperty({ value: 'y' })
+    @JsonProperty({ value: "y" })
     @JsonClassType({ type: () => [Number] })
     y: number;
-    @JsonProperty({ value: 'z' })
+    @JsonProperty({ value: "z" })
     @JsonClassType({ type: () => [Number] })
     z: number;
 
@@ -47,13 +47,13 @@ export class Size {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class RelativeItem {
-    @JsonProperty({ value: 'relativeItemId' })
+    @JsonProperty({ value: "relativeItemId" })
     @JsonClassType({ type: () => [String] })
     relativeItemId: string; // 相对item的uuid
-    @JsonProperty({ value: 'relativeType' })
+    @JsonProperty({ value: "relativeType" })
     @JsonClassType({ type: () => [Number] })
     relativeType: number; // 1-上面 2-下面 3-里面 4-外面
-    @JsonProperty({ value: 'relativePosition' })
+    @JsonProperty({ value: "relativePosition" })
     @JsonClassType({ type: () => [Position] })
     relativePosition: Position; // 相对于参考基准面的中心点的位置
 
@@ -72,19 +72,19 @@ export class Location {
     // 2 - 两侧位置（镜子）
     // 3 - 基于其他item的相对位置
     // 4 - 世界坐标系
-    @JsonProperty({ value: 'locationType' })
+    @JsonProperty({ value: "locationType" })
     @JsonClassType({ type: () => [Number] })
     locationType: number;
 
     // locationType=1或2，Cube坐标系的位置
     // locationType=4，世界坐标系的位置
 
-    @JsonProperty({ value: 'startPos' })
+    @JsonProperty({ value: "startPos" })
     @JsonClassType({ type: () => [Position] })
     startPos: Position;
 
     // locationType=3, 相对于哪个item
-    @JsonProperty({ value: 'relativeItem' })
+    @JsonProperty({ value: "relativeItem" })
     @JsonClassType({ type: () => [RelativeItem] })
     relativeItem: RelativeItem | null;
 
@@ -97,16 +97,16 @@ export class Location {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class SchemeObject {
-    @JsonProperty({ value: 'id' })
+    @JsonProperty({ value: "id" })
     @JsonClassType({ type: () => [String] })
     id: string; // uuid唯一标识
-    @JsonProperty({ value: 'partId' })
+    @JsonProperty({ value: "partId" })
     @JsonClassType({ type: () => [Number] })
     partId: number; // biz_parts_cm id
-    @JsonProperty({ value: 'manifest' })
+    @JsonProperty({ value: "manifest" })
     @JsonClassType({ type: () => [String] })
     manifest: string; // biz_parts_cm manifest url
-    @JsonProperty({ value: 'catId' })
+    @JsonProperty({ value: "catId" })
     @JsonClassType({ type: () => [Number] })
     catId: number | null; // category id
 
@@ -120,20 +120,32 @@ export class SchemeObject {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Item extends SchemeObject {
-    @JsonProperty({ value: 'size' })
+    @JsonProperty({ value: "size" })
     @JsonClassType({ type: () => [Size] })
     size: Size;
-    @JsonProperty({ value: 'location' })
+    @JsonProperty({ value: "attachment" })
+    @JsonClassType({ type: () => [Array, [PartCount]] })
+    attachment: Array<PartCount>;
+    @JsonProperty({ value: "location" })
     @JsonClassType({ type: () => [Location] })
     location: Location; // 描述配件如何放置的
-    @JsonProperty({ value: 'partType' })
+    @JsonProperty({ value: "partType" })
     @JsonClassType({ type: () => [Number] })
     partType: PartType;
 
-    constructor(id: string, partId: number, manifest: string, catId: number, size: Size, location: Location = Location.DEFAULT_LOCATION,
-        partType: PartType = PartType.GENERAL) {
+    constructor(
+        id: string,
+        partId: number,
+        manifest: string,
+        catId: number,
+        size: Size,
+        attachment: Array<PartCount>,
+        location: Location = Location.DEFAULT_LOCATION,
+        partType: PartType = PartType.GENERAL,
+    ) {
         super(id, partId, manifest, catId);
         this.size = size;
+        this.attachment = attachment;
         this.location = location;
         this.partType = partType;
     }
@@ -141,10 +153,10 @@ export class Item extends SchemeObject {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Cube extends SchemeObject {
-    @JsonProperty({ value: 'size' })
+    @JsonProperty({ value: "size" })
     @JsonClassType({ type: () => [Size] })
     size: Size;
-    @JsonProperty({ value: 'items' })
+    @JsonProperty({ value: "items" })
     @JsonClassType({ type: () => [Array, [Item]] })
     items: Array<Item>;
 
@@ -157,10 +169,10 @@ export class Cube extends SchemeObject {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class DoorLocation {
-    @JsonProperty({ value: 'id' })
+    @JsonProperty({ value: "id" })
     @JsonClassType({ type: () => [String] })
     id: string;
-    @JsonProperty({ value: 'index' })
+    @JsonProperty({ value: "index" })
     @JsonClassType({ type: () => [Array, [Number]] })
     index: Array<number>;
 
@@ -172,13 +184,16 @@ export class DoorLocation {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Door extends SchemeObject {
-    @JsonProperty({ value: 'size' })
+    @JsonProperty({ value: "size" })
     @JsonClassType({ type: () => [Size] })
     size: Size;
-    @JsonProperty({ value: 'doorType' })
+    @JsonProperty({ value: "attachment" })
+    @JsonClassType({ type: () => [Array, [PartCount]] })
+    attachment: Array<PartCount>;
+    @JsonProperty({ value: "doorType" })
     @JsonClassType({ type: () => [Number] })
     doorType: number; // 1-合页门，2-滑门
-    @JsonProperty({ value: 'locations' })
+    @JsonProperty({ value: "locations" })
     @JsonClassType({ type: () => [Array, [DoorLocation]] })
     locations: Array<DoorLocation>;
 
@@ -191,11 +206,13 @@ export class Door extends SchemeObject {
         manifest: string,
         catId: number,
         size: Size,
+        attachment: Array<PartCount>,
         doorType: number,
         locations: Array<DoorLocation> = [],
     ) {
         super(id, partId, manifest, catId);
         this.size = size;
+        this.attachment = attachment;
         this.doorType = doorType;
         this.locations = locations;
     }
@@ -203,13 +220,13 @@ export class Door extends SchemeObject {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Manifest {
-    @JsonProperty({ value: 'background' })
+    @JsonProperty({ value: "background" })
     @JsonClassType({ type: () => [Array, [SchemeObject]] })
     background: Array<SchemeObject>; // wall(只需要正面墙)，floor
-    @JsonProperty({ value: 'cubes' })
+    @JsonProperty({ value: "cubes" })
     @JsonClassType({ type: () => [Array, [Cube]] })
     cubes: Array<Cube>; // 从左到右排列
-    @JsonProperty({ value: 'doors' })
+    @JsonProperty({ value: "doors" })
     @JsonClassType({ type: () => [Array, [Door]] })
     doors: Array<Door>;
 
@@ -222,11 +239,11 @@ export class Manifest {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class PartCount {
-    @JsonProperty({ value: 'partId' })
+    @JsonProperty({ value: "partId" })
     @JsonClassType({ type: () => [Number] })
     partId: number;
 
-    @JsonProperty({ value: 'count' })
+    @JsonProperty({ value: "count" })
     @JsonClassType({ type: () => [Number] })
     count: number;
 
@@ -238,51 +255,100 @@ export class PartCount {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Scheme {
-    @JsonProperty({ value: 'config' })
+    @JsonProperty({ value: "config" })
     @JsonClassType({ type: () => [Config] })
     config: Config;
 
-    @JsonProperty({ value: 'manifest' })
+    @JsonProperty({ value: "manifest" })
     @JsonClassType({ type: () => [Manifest] })
     manifest: Manifest;
 
-    @JsonProperty({ value: 'composition' })
-    @JsonClassType({ type: () => [Array, [PartCount]] })
-    composition: Array<PartCount>;
-
     dirty: boolean;
 
-    constructor(config: Config, manifest: Manifest, composition: Array<PartCount>) {
+    constructor(config: Config, manifest: Manifest) {
         this.config = config;
         this.manifest = manifest;
-        this.composition = composition;
         this.dirty = false;
+    }
+
+    private addPart(parts: Array<PartCount>, partId: number, count: number): void {
+        const part = parts.find((part: { partId: number }) => part.partId === partId);
+        if (part !== undefined) {
+            part.count += count;
+        } else {
+            const newPart = new PartCount(partId, count);
+            parts.push(newPart);
+        }
+    }
+
+    getPartCounts(): Array<PartCount> {
+        const parts: Array<PartCount> = [];
+
+        // Add cube, item partCount.
+        this.manifest.cubes.forEach((cube) => {
+            this.addPart(parts, cube.partId, 1);
+            cube.items.forEach((item) => {
+                this.addPart(parts, item.partId, 1);
+            });
+        });
+
+        // add door partCount.
+        this.manifest.doors.forEach((door) => {
+            let doorNum = 0;
+            for (let i = 0; i < door.locations.length; i++) {
+                doorNum += door.locations[i].index.length;
+            }
+            this.addPart(parts, door.partId, doorNum);
+        });
+
+        // add attachment partCount.
+        this.manifest.cubes.forEach((cube) => {
+            cube.items.forEach((item) => {
+                item.attachment.forEach((attachment) => {
+                    this.addPart(parts, attachment.partId, attachment.count);
+                });
+            });
+        });
+
+        this.manifest.doors.forEach((door) => {
+            door.attachment.forEach((attachment) => {
+                this.addPart(parts, attachment.partId, attachment.count);
+            });
+        });
+
+        return parts;
     }
 }
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class SizeConfig {
-    @JsonProperty({ value: 'cube_thick_top' })
+    @JsonProperty({ value: "cube_thick_top" })
     @JsonClassType({ type: () => [Number] })
     cube_thick_top: number;
 
-    @JsonProperty({ value: 'cube_thick_bottom' })
+    @JsonProperty({ value: "cube_thick_bottom" })
     @JsonClassType({ type: () => [Number] })
     cube_thick_bottom: number;
 
-    @JsonProperty({ value: 'cube_thick_left' })
+    @JsonProperty({ value: "cube_thick_left" })
     @JsonClassType({ type: () => [Number] })
     cube_thick_left: number;
 
-    @JsonProperty({ value: 'cube_thick_right' })
+    @JsonProperty({ value: "cube_thick_right" })
     @JsonClassType({ type: () => [Number] })
     cube_thick_right: number;
 
-    @JsonProperty({ value: 'cube_thick_back' })
+    @JsonProperty({ value: "cube_thick_back" })
     @JsonClassType({ type: () => [Number] })
     cube_thick_back: number;
 
-    constructor(cube_thick_top: number = 0, cube_thick_bottom: number = 0, cube_thick_left: number = 0, cube_thick_right: number = 0, cube_thick_back: number = 0) {
+    constructor(
+        cube_thick_top = 0,
+        cube_thick_bottom = 0,
+        cube_thick_left = 0,
+        cube_thick_right = 0,
+        cube_thick_back = 0,
+    ) {
         this.cube_thick_top = cube_thick_top;
         this.cube_thick_bottom = cube_thick_bottom;
         this.cube_thick_left = cube_thick_left;
@@ -293,16 +359,16 @@ export class SizeConfig {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class StandardCube {
-    @JsonProperty({ value: 'partId' })
+    @JsonProperty({ value: "partId" })
     @JsonClassType({ type: () => [Number] })
     partId: number;
-    @JsonProperty({ value: 'manifest' })
+    @JsonProperty({ value: "manifest" })
     @JsonClassType({ type: () => [String] })
     manifest: string;
-    @JsonProperty({ value: 'catId' })
+    @JsonProperty({ value: "catId" })
     @JsonClassType({ type: () => [Number] })
     catId: number;
-    @JsonProperty({ value: 'size' })
+    @JsonProperty({ value: "size" })
     @JsonClassType({ type: () => [Size] })
     size: Size;
 
@@ -316,11 +382,11 @@ export class StandardCube {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Config {
-    @JsonProperty({ value: 'sizeConfig' })
+    @JsonProperty({ value: "sizeConfig" })
     @JsonClassType({ type: () => [SizeConfig] })
     sizeConfig: SizeConfig;
 
-    @JsonProperty({ value: 'standardCube' })
+    @JsonProperty({ value: "standardCube" })
     @JsonClassType({ type: () => [StandardCube] })
     standardCube: StandardCube;
 

@@ -1,4 +1,4 @@
-import { Scheme, Cube, Item, Location, Door, PartCount, Part, Size, DoorLocation } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, PartCount, Part, Size, DoorLocation } from "@/lib/scheme";
 import { v4 as uuidv4 } from "uuid";
 
 export const ObjectType = {
@@ -37,27 +37,6 @@ export class BizData {
         this.cubeMap = new Map<string, CubeData>();
     }
 
-    addPart(partId: number): void {
-        const partCount = this.findPartCountById(partId);
-        if (partCount !== undefined) {
-            partCount.count += 1;
-        } else {
-            const newPartCount = new PartCount(partId, 1);
-            this.scheme.composition.push(newPartCount);
-        }
-
-        this.scheme.dirty = true;
-    }
-
-    removePart(partId: number): void {
-        const partCount = this.findPartCountById(partId);
-        if (partCount !== undefined) {
-            partCount.count -= 1;
-        }
-
-        this.scheme.dirty = true;
-    }
-
     addCube(newCube: Cube, addToLeft = false): void {
         if (addToLeft) {
             this.startX += newCube.size.x;
@@ -70,15 +49,12 @@ export class BizData {
         if (newCube.size.y > this.totalHeight) this.totalHeight = newCube.size.y;
         if (newCube.size.z > this.totalDepth) this.totalDepth = newCube.size.z;
 
-        this.addPart(newCube.partId);
-
         this.scheme.dirty = true;
     }
 
     removeCube(cubeId: string): void {
         const idx = this.scheme.manifest.cubes.findIndex((cube: { id: string }) => cube.id === cubeId);
         const cube = this.scheme.manifest.cubes[idx];
-        const partId = cube.partId;
 
         if (idx === 0) {
             // Remove the first cube.
@@ -91,8 +67,6 @@ export class BizData {
         // TODO: handle the case of the different cube height and depth.
 
         this.scheme.manifest.cubes.splice(idx, 1);
-        this.removePart(partId);
-
         this.cubeMap.delete(cubeId);
 
         this.scheme.dirty = true;
@@ -101,16 +75,12 @@ export class BizData {
     changeCube(cubeId: string, newPart: Part): void {
         const cube = this.findCubeById(cubeId);
         if (cube !== undefined) {
-            const oldPartId = cube.partId;
             cube.partId = newPart.id;
             cube.catId = newPart.catId;
             cube.manifest = newPart.manifest;
             cube.size.x = newPart.width;
             cube.size.y = newPart.height;
             cube.size.z = newPart.depth;
-
-            this.removePart(oldPartId);
-            this.addPart(newPart.id);
         }
         this.scheme.dirty = true;
     }
@@ -121,8 +91,6 @@ export class BizData {
             cube.items.push(newItem);
         }
 
-        this.addPart(newItem.partId);
-
         this.scheme.dirty = true;
     }
 
@@ -131,8 +99,6 @@ export class BizData {
         if (cubeItem.cube !== undefined && cubeItem.item !== undefined) {
             const idx = cubeItem.cube.items.findIndex((item: { id: string }) => item.id === itemId);
             cubeItem.cube.items.splice(idx, 1);
-
-            this.removePart(cubeItem.item.partId);
         }
 
         this.scheme.dirty = true;
@@ -141,16 +107,20 @@ export class BizData {
     changeItem(itemId: string, newPart: Part): void {
         const cubeItem = this.findCubeItemByItemId(itemId);
         if (cubeItem.cube !== undefined && cubeItem.item !== undefined) {
-            const oldPartId = cubeItem.item.partId;
-            cubeItem.item.partId = newPart.id;
-            cubeItem.item.catId = newPart.catId;
-            cubeItem.item.manifest = newPart.manifest;
-            cubeItem.item.size.x = newPart.width;
-            cubeItem.item.size.y = newPart.height;
-            cubeItem.item.size.z = newPart.depth;
+            const item = cubeItem.item;
+            item.partId = newPart.id;
+            item.catId = newPart.catId;
+            item.manifest = newPart.manifest;
+            item.size.x = newPart.width;
+            item.size.y = newPart.height;
+            item.size.z = newPart.depth;
 
-            this.removePart(oldPartId);
-            this.addPart(newPart.id);
+            // Clear old attachments and add new attachments.
+            item.attachment.length = 0;
+            newPart.attachments.forEach((attachment) => {
+                const partCount = new PartCount(attachment.apcmid, attachment.count);
+                item.attachment.push(partCount);
+            });
         }
         this.scheme.dirty = true;
     }
@@ -163,12 +133,6 @@ export class BizData {
 
     addDoor(newDoor: Door): void {
         this.scheme.manifest.doors.push(newDoor);
-
-        let doorNum = 0;
-        newDoor.locations.forEach((location) => {
-            doorNum += location.index.length;
-        });
-        for (let i = 0; i < doorNum; i++) this.addPart(newDoor.partId);
         this.scheme.dirty = true;
     }
 
@@ -178,13 +142,21 @@ export class BizData {
         });
         if (doorIndex !== -1) {
             const door = this.scheme.manifest.doors[doorIndex];
+            let doorNum = 0;
+            for (let i = 0; i < door.locations.length; i++) {
+                doorNum += door.locations[i].index.length;
+            }
+
             for (let i = 0; i < door.locations.length; i++) {
                 const location = door.locations[i];
                 const idx = location.index.findIndex((idx) => {
                     return idx === index;
                 });
                 if (idx !== -1) {
-                    this.removePart(door.partId);
+                    // decrease the attachment count.
+                    door.attachment.forEach((item) => {
+                        item.count -= item.count / doorNum;
+                    });
 
                     location.index.splice(idx, 1);
                     if (location.index.length === 0) door.locations.splice(i, 1);
@@ -198,20 +170,28 @@ export class BizData {
     }
 
     changeDoor(doorId: string, newPart: Part, index: number): Door | undefined {
-        let resDoor = undefined;
+        let resDoor: Door | undefined = undefined;
         const doorIndex = this.scheme.manifest.doors.findIndex((door) => {
             return door.id === doorId;
         });
         if (doorIndex !== -1) {
             let cubeId = "";
             const door = this.scheme.manifest.doors[doorIndex];
+            let doorNum = 0;
+            for (let i = 0; i < door.locations.length; i++) {
+                doorNum += door.locations[i].index.length;
+            }
+
             for (let i = 0; i < door.locations.length; i++) {
                 const location = door.locations[i];
                 const idx = location.index.findIndex((idx) => {
                     return idx === index;
                 });
                 if (idx !== -1) {
-                    this.removePart(door.partId);
+                    // decrease the attachment count.
+                    door.attachment.forEach((item) => {
+                        item.count -= item.count / doorNum;
+                    });
 
                     cubeId = location.id;
                     location.index.splice(idx, 1);
@@ -243,10 +223,36 @@ export class BizData {
                     id: cubeId,
                     index: [index],
                 };
-                resDoor = new Door(newDoorId, newPart.id, newPart.manifest, newPart.catId, size, door.doorType, [loc]);
+                const attachment: Array<PartCount> = [];
+                newPart.attachments.forEach((item) => {
+                    const partCount = new PartCount(item.apcmid, item.count);
+                    attachment.push(partCount);
+                });
+                resDoor = new Door(
+                    newDoorId,
+                    newPart.id,
+                    newPart.manifest,
+                    newPart.catId,
+                    size,
+                    attachment,
+                    door.doorType,
+                    [loc],
+                );
                 this.addDoor(resDoor);
             } else {
-                this.addPart(resDoor.partId);
+                const thatDoor = resDoor;
+                newPart.attachments.forEach((item) => {
+                    const partCount = thatDoor.attachment.find(
+                        (partCount: { partId: number }) => partCount.partId === item.apcmid,
+                    );
+
+                    if (partCount !== undefined) {
+                        partCount.count += item.count;
+                    } else {
+                        const partCount = new PartCount(item.apcmid, item.count);
+                        thatDoor.attachment.push(partCount);
+                    }
+                });
             }
         }
 
@@ -296,10 +302,6 @@ export class BizData {
 
     findDoorById(id: string): Door | undefined {
         return this.scheme.manifest.doors.find((door: { id: string }) => door.id === id);
-    }
-
-    findPartCountById(id: number): PartCount | undefined {
-        return this.scheme.composition.find((part: { partId: number }) => part.partId === id);
     }
 
     findCubeDataById(id: string): CubeData | undefined {

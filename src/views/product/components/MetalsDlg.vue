@@ -49,7 +49,7 @@ export default defineComponent({
             schemePart,
             onOpened() {
                 if (props.scheme3d && props.part) {
-                    const parts = props.scheme3d.composition;
+                    const parts = props.scheme3d.getPartCounts();
                     const { id } = props.part;
                     const found = parts.find((p) => p.partId === id);
                     if (found) {

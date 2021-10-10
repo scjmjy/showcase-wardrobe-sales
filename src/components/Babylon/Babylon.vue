@@ -8,7 +8,7 @@
 import { defineComponent, PropType } from "vue";
 import * as BABYLON from "babylonjs";
 import { Graphics, GraphicsEvent } from "@/lib/graphics";
-import { Scheme, Cube, Item, Door, Part, Position, Location, Size } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, Part, PartCount, Location, Size } from "@/lib/scheme";
 import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
 import request from "@/utils/request";
@@ -135,12 +135,20 @@ export default defineComponent({
                                                 id: objectId,
                                                 index: indexArr,
                                             };
+
+                                            const attachment: Array<PartCount> = [];
+                                            newPart.attachments.forEach((item) => {
+                                                const partCount = new PartCount(item.apcmid, item.count * doorNum);
+                                                attachment.push(partCount);
+                                            });
+
                                             const newDoor = new Door(
                                                 doorId,
                                                 newPart.id,
                                                 newPart.manifest,
                                                 newPart.catId,
                                                 size,
+                                                attachment,
                                                 doorType,
                                                 [loc],
                                             );
@@ -1341,6 +1349,11 @@ export default defineComponent({
 
                                                 const partId = this.newPart.id;
                                                 const catId = this.newPart.catId;
+                                                const attachment: Array<PartCount> = [];
+                                                this.newPart.attachments.forEach((item) => {
+                                                    const partCount = new PartCount(item.apcmid, item.count);
+                                                    attachment.push(partCount);
+                                                });
 
                                                 // TODO: only handle the case of locationType==1.
                                                 const location = new Location(1, anchorMeta.pivot, null);
@@ -1350,6 +1363,7 @@ export default defineComponent({
                                                     manifest,
                                                     catId,
                                                     size,
+                                                    attachment,
                                                     location,
                                                 );
                                                 this.bizdata.addItem(newItem, cubeId);

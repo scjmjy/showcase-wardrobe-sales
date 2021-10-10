@@ -352,7 +352,7 @@ export default defineComponent({
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
-                    await refPartsMenu.value?.showManifest(scheme.value!.composition);
+                    await refPartsMenu.value?.showManifest(scheme.value!.getPartCounts());
                     break;
                 case "offer":
                     if (scheme.value?.dirty) {
