@@ -647,8 +647,9 @@ export class Graphics {
         rotation: BABYLON.Vector3 = BABYLON.Vector3.Zero(),
         scaling: BABYLON.Vector3 = BABYLON.Vector3.One(),
         isPickable = true,
+        rootUrl = "",
     ) {
-        const loadedList = await BABYLON.SceneLoader.ImportMeshAsync("", url, "", this.scene);
+        const loadedList = await BABYLON.SceneLoader.ImportMeshAsync("", rootUrl, url, this.scene);
         if (loadedList.meshes) {
             const rootMesh = loadedList.meshes[0];
             rootMesh.name = name;

@@ -1,6 +1,8 @@
 // import { getToken, setToken } from "@/utils/token";
 import jscookie from "js-cookie";
 import { Model3DFile } from "@/api/interface/provider.interface";
+import { IndexDb } from "@/lib/indexdb"
+import { Resource } from "@/lib/model/resource";
 
 const KeyUser = "KEY-HONGMU-SALES-TOOLS-USER";
 const KeyCustomer = "KEY-HONGMU-SALES-TOOLS-CUSTOMER";
@@ -59,7 +61,15 @@ export class User {
 
 export class Model3D {
     static save(models: Model3DFile[]) {
-        return localStorage.setItem(Key3DModel, JSON.stringify(models));
+        const resources: Array<Resource> = [];
+        for (const model of models) {
+            const resource = new Resource(model.name, model.url, model.utime);
+            resources.push(resource);
+        }
+
+        const indexDB = new IndexDb();
+        indexDB.cache(resources);
+        // return localStorage.setItem(Key3DModel, JSON.stringify(models));
     }
     static load(): Model3DFile[] {
         const str = localStorage.getItem(Key3DModel) || "[]";
