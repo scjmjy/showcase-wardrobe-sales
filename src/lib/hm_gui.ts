@@ -242,7 +242,7 @@ export class PopupGUI {
 
     }
 
-    private drawRuler(graphics: Graphics, length: number, center: BABYLON.Vector3, direction: BABYLON.Vector3, title = ""): void {
+    private drawRuler(graphics: Graphics, length: number, center: BABYLON.Vector3, direction: BABYLON.Vector3, title = "", size:number=0): void {
         const distance = 0.1;
         const heightValue = 1 * 0.054;
         const halfHeightValue = heightValue * 0.15;
@@ -275,7 +275,10 @@ export class PopupGUI {
         lengthText.height = "28px";
         lengthText.color = "#000000FF";
         lengthText.fontSize = 18;
-        lengthText.text = length.toFixed(2) + " \u7c73";
+        if(size == 0)
+            lengthText.text = length.toFixed(2) + " \u7c73";
+        else
+            lengthText.text = size.toFixed(2) + " \u7c73";
         lengthText.shadowBlur = 1;
         lengthText.shadowOffsetX = 1;
         lengthText.shadowOffsetY = 1;
@@ -419,10 +422,11 @@ export class PopupGUI {
         else
             this.drawRuler(
                 graphics,
-                sizeHeight,
+                bizdata.totalHeight,
                 new BABYLON.Vector3(bizdata.endX, bizdata.totalHeight / 2, bizdata.totalDepth / 2),
                 new BABYLON.Vector3(0, 1, 0),
                 "height ",
+                sizeHeight
             );
         if (sizeWidth == 0)
             this.drawRuler(
@@ -435,10 +439,11 @@ export class PopupGUI {
         else
             this.drawRuler(
                 graphics,
-                sizeWidth,
+                bizdata.totalWidth,
                 new BABYLON.Vector3((bizdata.startX + bizdata.endX) / 2, bizdata.totalHeight, bizdata.totalDepth / 2),
                 new BABYLON.Vector3(1, 0, 0),
                 "width ",
+                sizeWidth
             );
         if (sizeDepth == 0)
             this.drawRuler(
@@ -451,10 +456,11 @@ export class PopupGUI {
         else
             this.drawRuler(
                 graphics,
-                sizeDepth,
+                bizdata.totalDepth,
                 new BABYLON.Vector3(bizdata.endX, 0.01, 0),
                 new BABYLON.Vector3(0, 0, 1),
                 "depth ",
+                sizeDepth
             );
     }
 }

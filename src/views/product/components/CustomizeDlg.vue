@@ -20,15 +20,15 @@
         >
             <div class="customize-dlg__unit">单位：m</div>
             <el-form-item label="单元柜高度" prop="height">
-                <el-input v-model.number="formData.height" type="number"></el-input>
+                <el-input v-model.number="formData.height"></el-input>
             </el-form-item>
             <el-form-item label="单元柜深度" prop="depth">
-                <el-input v-model.number="formData.depth" type="number"></el-input>
+                <el-input v-model.number="formData.depth"></el-input>
             </el-form-item>
             <el-form-item label="单元柜宽度" prop="width">
-                <el-input v-model.number="formData.width" type="number"></el-input>
+                <el-input v-model.number="formData.width"></el-input>
             </el-form-item>
-            <div class="customize-dlg__price">总价：<strong>？？？</strong> 元</div>
+            <div v-if="price" class="customize-dlg__price">总价：<strong>-</strong> 元</div>
         </el-form>
         <template #footer>
             <div class="customize-dlg__footer">
@@ -84,6 +84,10 @@ export default defineComponent({
         minMax: {
             type: Object as PropType<CustomizeMinMax>,
             default: defaultMinMax(),
+        },
+        price: {
+            type: Number,
+            default: 0,
         },
     },
     setup(props, ctx) {
@@ -162,10 +166,7 @@ export default defineComponent({
             onOpened() {
                 Object.assign(formData, props.size);
             },
-            onClosed() {
-                ctx.emit("cancel", false);
-            },
-            onValidate(val: number, pass: boolean) {},
+            onValidate(_val: number, _pass: boolean) {},
         };
     },
 });

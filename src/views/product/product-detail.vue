@@ -443,14 +443,14 @@ export default defineComponent({
                 }
                 return {
                     depthMax: p.pdepthmax,
-                    // depthMin: p.pdepthmin,
-                    depthMin: p.depth,
+                    depthMin: p.pdepthmin,
+                    // depthMin: p.depth,
                     widthMax: p.pwidthmax,
-                    // widthMin: p.pwidthmin,
-                    widthMin: p.width,
+                    widthMin: p.pwidthmin,
+                    // widthMin: p.width,
                     heightMax: p.pheightmax,
-                    // heightMin: p.pheightmin,
-                    heightMin: p.height,
+                    heightMin: p.pheightmin,
+                    // heightMin: p.height,
                 };
             }),
             selectedPart,
@@ -517,8 +517,9 @@ export default defineComponent({
                 scheme.width = size.width;
                 scheme.height = size.height;
                 scheme.depth = size.depth;
+                schemeDetailDirty.value = true;
                 refBabylon.value?.changeSchemeSize(size.width, size.height, size.depth);
-                refBabylon.value?.showReferenceRuler(true);
+                refBabylon.value?.showReferenceRuler(true, size.height, size.width, size.depth);
             },
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;

@@ -31,7 +31,7 @@
                     round
                     size="small"
                     @click="$emit('newScheme')"
-                    >下单</el-button
+                    >开始定制</el-button
                 >
                 <el-button
                     v-if="isSelf"
@@ -152,14 +152,14 @@ export default defineComponent({
                 if (!p) {
                     return "暂无描述";
                 }
-                return "TODO";
+                return "-";
             }),
             unitPrice: computed(() => {
                 const p = props.product;
                 if (!p) {
                     return "暂无单价";
                 }
-                return "TODO";
+                return "-";
             }),
         };
     },
