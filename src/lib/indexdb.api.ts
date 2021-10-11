@@ -17,5 +17,5 @@ export interface IIndexDb {
      * @return The cached resource data. In the case which no data for the key, when lazyLoad is true, async cache the
      * resource and then return the data; when the lazyLoad is false returns null.
      */
-    get(key: string): Promise<Nullable<Blob>>;
+    get<T>(key: string): Promise<Nullable<T>>;
 }

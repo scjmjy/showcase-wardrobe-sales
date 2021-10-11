@@ -21,6 +21,8 @@ import { GeneralStl, StlConfig } from "@/lib/stl";
 import { AreaHints, Area } from "@/lib/model/hint";
 import { AnchorMeta } from "@/lib/model/pscope";
 
+import { IndexDb, DBValue } from "@/lib/indexdb";
+
 export default defineComponent({
     name: "Babylon",
     props: {
@@ -76,6 +78,7 @@ export default defineComponent({
             stl: {} as GeneralStl,
             areaHints: {} as AreaHints,
             defaultPartType: 1,
+            indexDb: {} as IndexDb,
         };
     },
     computed: {
@@ -202,6 +205,7 @@ export default defineComponent({
     async mounted() {
         this.stl = new GeneralStl(new StlConfig(0.1, 0, 0.1, this.scheme.config.sizeConfig));
         this.bizdata = new BizData(this.scheme);
+        this.indexDb = new IndexDb();
 
         // set the scene size as 7.5m.
         this.graphics.init(7.5 * this.bizdata.SceneUnit);
@@ -269,7 +273,7 @@ export default defineComponent({
                     })
                         .then((res) => {
                             const itemMf = res.data;
-                            itemMf.models.forEach((model: any) => {
+                            itemMf.models.forEach(async (model: any) => {
                                 const modelPos = new BABYLON.Vector3(
                                     pos.x + model.position.x,
                                     pos.y + model.position.y,
@@ -280,7 +284,14 @@ export default defineComponent({
                                     model.scaling.y,
                                     model.scaling.z,
                                 );
-                                const modelUrl = this.baseOSSUrl + model.url;
+
+                                let rootUrl = "file:///";
+                                let modelUrl = model.url;
+                                const modelFile = await this.loadModelFromDB(modelUrl);
+                                if (modelFile === null) {
+                                    rootUrl = "";
+                                    modelUrl = this.baseOSSUrl + model.url;
+                                }
                                 this.graphics.importMesh(
                                     modelUrl,
                                     meshName,
@@ -288,6 +299,7 @@ export default defineComponent({
                                     BABYLON.Vector3.Zero(),
                                     modelScaling,
                                     true,
+                                    rootUrl,
                                 );
                             });
 
@@ -376,7 +388,7 @@ export default defineComponent({
                             const itemOrigin = new BABYLON.Vector3(originX, 0, 0);
 
                             // TODO: create a parent mesh to contain all import meshes.
-                            cubeMf.models.forEach((model: any) => {
+                            cubeMf.models.forEach(async (model: any) => {
                                 const modelPos = new BABYLON.Vector3(
                                     itemOrigin.x + model.position.x,
                                     itemOrigin.y + model.position.y,
@@ -388,13 +400,22 @@ export default defineComponent({
                                     model.scaling.z,
                                 );
                                 const itemName = ObjectType.CUBE + "_" + cubeUUID;
-                                const modelUrl = this.baseOSSUrl + model.url;
+
+                                let rootUrl = "file:///";
+                                let modelUrl = model.url;
+                                const modelFile = await this.loadModelFromDB(modelUrl);
+                                if (modelFile === null) {
+                                    rootUrl = "";
+                                    modelUrl = this.baseOSSUrl + model.url;
+                                }
                                 this.graphics.importMesh(
                                     modelUrl,
                                     itemName,
                                     modelPos,
                                     BABYLON.Vector3.Zero(),
                                     modelScaling,
+                                    true,
+                                    rootUrl,
                                 );
                             });
 
@@ -474,7 +495,7 @@ export default defineComponent({
                     })
                         .then((res) => {
                             const itemMf = res.data;
-                            itemMf.models.forEach((model: any) => {
+                            itemMf.models.forEach(async (model: any) => {
                                 const modelPos = new BABYLON.Vector3(
                                     pos.x + model.position.x,
                                     pos.y + model.position.y,
@@ -485,7 +506,14 @@ export default defineComponent({
                                     model.scaling.y,
                                     model.scaling.z,
                                 );
-                                const modelUrl = this.baseOSSUrl + model.url;
+
+                                let rootUrl = "file:///";
+                                let modelUrl = model.url;
+                                const modelFile = await this.loadModelFromDB(modelUrl);
+                                if (modelFile === null) {
+                                    rootUrl = "";
+                                    modelUrl = this.baseOSSUrl + model.url;
+                                }
                                 this.graphics.importMesh(
                                     modelUrl,
                                     meshName,
@@ -493,6 +521,7 @@ export default defineComponent({
                                     BABYLON.Vector3.Zero(),
                                     modelScaling,
                                     true,
+                                    rootUrl,
                                 );
                             });
 
@@ -536,7 +565,7 @@ export default defineComponent({
                         } else {
                             this.schemeModelCount += location.index.length;
 
-                            location.index.forEach((index) => {
+                            location.index.forEach(async (index) => {
                                 const doorPosX = cubeData.origin.x + cubeData.width * 0.5 - doorWidth * (index + 0.5);
                                 const doorPosY = 0.03;
                                 const modelIndex = index % itemMf.models.length;
@@ -552,7 +581,14 @@ export default defineComponent({
                                     model.scaling.z,
                                 );
                                 const doorName = ObjectType.DOOR + "_" + newDoor.id + "_" + index;
-                                const modelUrl = this.baseOSSUrl + model.url;
+
+                                let rootUrl = "file:///";
+                                let modelUrl = model.url;
+                                const modelFile = await this.loadModelFromDB(modelUrl);
+                                if (modelFile === null) {
+                                    rootUrl = "";
+                                    modelUrl = this.baseOSSUrl + model.url;
+                                }
                                 this.graphics
                                     .importMesh(
                                         modelUrl,
@@ -561,6 +597,7 @@ export default defineComponent({
                                         BABYLON.Vector3.Zero(),
                                         modelScaling,
                                         isPickable,
+                                        rootUrl,
                                     )
                                     .then((/*mesh*/) => {
                                         if (loadingSheme && ++this.loadedModelCount >= this.schemeModelCount)
@@ -623,7 +660,7 @@ export default defineComponent({
                         method: "GET",
                         responseType: "json",
                     })
-                        .then((res) => {
+                        .then(async (res) => {
                             const newDoor = this.bizdata.changeDoor(doorId, newPart, index);
                             if (newDoor !== undefined) {
                                 const itemMf = res.data;
@@ -639,7 +676,15 @@ export default defineComponent({
                                     model.scaling.y,
                                     model.scaling.z,
                                 );
-                                const modelUrl = this.baseOSSUrl + model.url;
+
+                                let rootUrl = "file:///";
+                                let modelUrl = model.url;
+                                const modelFile = await this.loadModelFromDB(modelUrl);
+                                if (modelFile === null) {
+                                    rootUrl = "";
+                                    modelUrl = this.baseOSSUrl + model.url;
+                                }
+
                                 const newMeshName = ObjectType.DOOR + "_" + newDoor.id + "_" + index;
                                 this.graphics.importMesh(
                                     modelUrl,
@@ -648,6 +693,7 @@ export default defineComponent({
                                     BABYLON.Vector3.Zero(),
                                     modelScaling,
                                     true,
+                                    rootUrl,
                                 );
 
                                 // clear select item
@@ -987,7 +1033,7 @@ export default defineComponent({
                         const cubeMf = res.data;
                         this.schemeModelCount += cubeMf.models.length;
 
-                        cubeMf.models.forEach((model: any) => {
+                        cubeMf.models.forEach(async (model: any) => {
                             const modelPos = new BABYLON.Vector3(
                                 cubeOrigin.x + model.position.x,
                                 cubeOrigin.y + model.position.y,
@@ -995,9 +1041,25 @@ export default defineComponent({
                             );
                             const modelScaling = new BABYLON.Vector3(model.scaling.x, model.scaling.y, model.scaling.z);
                             const cubeName = ObjectType.CUBE + "_" + cube.id;
-                            const modelUrl = this.baseOSSUrl + model.url;
+
+                            let rootUrl = "file:///";
+                            let modelUrl = model.url;
+                            const modelFile = await this.loadModelFromDB(modelUrl);
+                            if (modelFile === null) {
+                                rootUrl = "";
+                                modelUrl = this.baseOSSUrl + model.url;
+                            }
+
                             this.graphics
-                                .importMesh(modelUrl, cubeName, modelPos, BABYLON.Vector3.Zero(), modelScaling, false)
+                                .importMesh(
+                                    modelUrl,
+                                    cubeName,
+                                    modelPos,
+                                    BABYLON.Vector3.Zero(),
+                                    modelScaling,
+                                    false,
+                                    rootUrl,
+                                )
                                 .then((/*mesh*/) => {
                                     if (++this.loadedModelCount >= this.schemeModelCount) this.loadSchemeCompleted();
                                 });
@@ -1025,7 +1087,7 @@ export default defineComponent({
                                                         const itemMf = res.data;
                                                         this.schemeModelCount += itemMf.models.length;
 
-                                                        itemMf.models.forEach((model: any) => {
+                                                        itemMf.models.forEach(async (model: any) => {
                                                             const modelPos = new BABYLON.Vector3(
                                                                 itemOrigin.x + model.position.x,
                                                                 itemOrigin.y + model.position.y,
@@ -1037,7 +1099,14 @@ export default defineComponent({
                                                                 model.scaling.z,
                                                             );
                                                             const itemName = ObjectType.ITEM + "_" + item.id;
-                                                            const modelUrl = this.baseOSSUrl + model.url;
+
+                                                            let rootUrl = "file:///";
+                                                            let modelUrl = model.url;
+                                                            const modelFile = await this.loadModelFromDB(modelUrl);
+                                                            if (modelFile === null) {
+                                                                rootUrl = "";
+                                                                modelUrl = this.baseOSSUrl + model.url;
+                                                            }
                                                             this.graphics
                                                                 .importMesh(
                                                                     modelUrl,
@@ -1046,6 +1115,7 @@ export default defineComponent({
                                                                     BABYLON.Vector3.Zero(),
                                                                     modelScaling,
                                                                     false,
+                                                                    rootUrl,
                                                                 )
                                                                 .then((/*mesh*/) => {
                                                                     if (
@@ -1244,7 +1314,7 @@ export default defineComponent({
                                             const itemOrigin = new BABYLON.Vector3(originX, 0, 0);
 
                                             // TODO: create a parent mesh to contain all import meshes.
-                                            cubeMf.models.forEach((model: any) => {
+                                            cubeMf.models.forEach(async (model: any) => {
                                                 const modelPos = new BABYLON.Vector3(
                                                     itemOrigin.x + model.position.x,
                                                     itemOrigin.y + model.position.y,
@@ -1256,13 +1326,22 @@ export default defineComponent({
                                                     model.scaling.z,
                                                 );
                                                 const itemName = ObjectType.CUBE + "_" + cubeUUID;
-                                                const modelUrl = this.baseOSSUrl + model.url;
+
+                                                let rootUrl = "file:///";
+                                                let modelUrl = model.url;
+                                                const modelFile = await this.loadModelFromDB(modelUrl);
+                                                if (modelFile === null) {
+                                                    rootUrl = "";
+                                                    modelUrl = this.baseOSSUrl + model.url;
+                                                }
                                                 this.graphics.importMesh(
                                                     modelUrl,
                                                     itemName,
                                                     modelPos,
                                                     BABYLON.Vector3.Zero(),
                                                     modelScaling,
+                                                    true,
+                                                    rootUrl,
                                                 );
                                             });
 
@@ -1325,7 +1404,7 @@ export default defineComponent({
                                                 );
 
                                                 // TODO: create a parent mesh to contain all import meshes.
-                                                itemMf.models.forEach((model: any) => {
+                                                itemMf.models.forEach(async (model: any) => {
                                                     const modelPos = new BABYLON.Vector3(
                                                         itemOrigin.x + model.position.x,
                                                         itemOrigin.y + model.position.y,
@@ -1337,13 +1416,22 @@ export default defineComponent({
                                                         model.scaling.z,
                                                     );
                                                     const itemName = ObjectType.ITEM + "_" + itemId;
-                                                    const modelUrl = this.baseOSSUrl + model.url;
+
+                                                    let rootUrl = "file:///";
+                                                    let modelUrl = model.url;
+                                                    const modelFile = await this.loadModelFromDB(modelUrl);
+                                                    if (modelFile === null) {
+                                                        rootUrl = "";
+                                                        modelUrl = this.baseOSSUrl + model.url;
+                                                    }
                                                     this.graphics.importMesh(
                                                         modelUrl,
                                                         itemName,
                                                         modelPos,
                                                         BABYLON.Vector3.Zero(),
                                                         modelScaling,
+                                                        true,
+                                                        rootUrl,
                                                     );
                                                 });
 
@@ -1471,6 +1559,16 @@ export default defineComponent({
 
             if (rulerDisplayed) this.showReferenceRuler(true);
             return ret;
+        },
+
+        async loadModelFromDB(key: string): Promise<File | null> {
+            const value = await this.indexDb.get<DBValue>(key);
+            if (value != null && value.file != null) {
+                BABYLON.FilesInputStore.FilesToLoad[key] = value.file as File;
+                return value.file;
+            } else {
+                return null;
+            }
         },
     },
 });
