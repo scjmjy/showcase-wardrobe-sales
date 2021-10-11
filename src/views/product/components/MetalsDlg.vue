@@ -17,14 +17,7 @@
         />
         <template #footer>
             <div class="metals-dlg__footer">
-                <el-button
-                    type="primary"
-                    :loading="loading"
-                    :disabled="!changed"
-                    @click="doConfirm"
-                    style="width: 156px"
-                    >确认</el-button
-                >
+                <el-button type="primary" :disabled="!changed" @click="doConfirm" style="width: 156px">确认</el-button>
             </div>
         </template>
     </el-dialog>

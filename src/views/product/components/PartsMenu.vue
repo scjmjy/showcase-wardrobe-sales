@@ -2,11 +2,9 @@
     <div ref="refDiv" class="parts-menu">
         <div v-show="opened" class="parts-menu__left" :class="{ 'is-level-up': !!tabStack.length }">
             <div class="parts-menu__left-header">
-                <div>
-                    <el-button type="primary" plain @click="$emit('action', 'manifest')">清单</el-button>
-                    <el-button type="primary" plain @click="$emit('action', 'offer')">报价</el-button>
-                    <el-button type="primary" plain @click="$emit('action', 'complete')">完成</el-button>
-                </div>
+                <el-button type="primary" plain @click="$emit('action', 'manifest')">清单</el-button>
+                <el-button type="primary" plain @click="$emit('action', 'complete')">完成</el-button>
+                <!-- <el-button type="primary" plain @click="$emit('action', 'offer')">报价</el-button> -->
             </div>
             <i
                 v-if="!!tabStack.length"
@@ -44,11 +42,25 @@
                     >返回</el-button
                 >
                 <span class="parts-menu__right-header-title"> 明细清单 </span>
-                <i style="flex: 1"></i>
-                <!-- <el-button type="text" size="mini" icon="el-icon-printer">打印清单</el-button> -->
+                <el-button
+                    class="parts-menu__right-header-offer"
+                    type="primary"
+                    plain
+                    size="small"
+                    @click="$emit('action', 'offer')"
+                    >报价</el-button
+                >
             </div>
-            <div v-if="schemeManifest" class="parts-menu__right-manifest">
-                <manifest-list :list="schemeManifest" />
+            <div
+                v-if="schemeManifest"
+                class="parts-menu__right-manifest"
+                :class="{ 'is-blur': selectedAttachmentItem }"
+            >
+                <manifest-list
+                    :list="schemeManifest"
+                    :selectedItem="selectedAttachmentItem"
+                    @select="onAttachmentItemSelect"
+                />
             </div>
             <!-- <div v-if="schemeManifest" class="parts-menu__right-price">
                 <span class="price__label">合计：</span>
@@ -66,6 +78,15 @@
             type="text"
             @click="$emit('update:opened', !opened)"
         ></i>
+
+        <transition name="el-zoom-in-bottom">
+            <attachment-popup
+                v-if="selectedAttachmentItem"
+                class="parts-menu__attachmenPopup"
+                :item="selectedAttachmentItem"
+                @hide="onAttachmentPopupHide"
+            ></attachment-popup>
+        </transition>
     </div>
 </template>
 
@@ -76,6 +97,7 @@ import { StateType } from "@/store";
 import {
     BackgroundType,
     findSiblingCats,
+    ManifestPart,
     Part,
     PartCategory,
     PartCategoryMeta,
@@ -89,6 +111,7 @@ import PartBgTab from "./PartBgTab.vue";
 import CatsList from "./CatsList.vue";
 import type { ImgCardItemType } from "./ImgCardItem.vue";
 import ManifestList from "./ManifestList.vue";
+import AttachmentPopup from "./AttachmentPopup.vue";
 
 interface TabType {
     component: string;
@@ -122,6 +145,7 @@ export default defineComponent({
         PartBgTab,
         CatsList,
         ManifestList,
+        AttachmentPopup,
     },
     emits: ["update:opened", "part", "action", "bg"],
     setup(props, ctx) {
@@ -130,6 +154,7 @@ export default defineComponent({
         const cats = ref<PartCategory[]>([]);
         const catMeta = ref<PartCategoryMeta>();
         const selectedTabName = ref<string>();
+        const selectedAttachmentItem = ref<ManifestPart>();
         const schemeManifest = ref<SchemeManifest>();
         const slideLeft = ref(false);
         apiProvider.requestPartCategories().then((res) => {
@@ -279,6 +304,7 @@ export default defineComponent({
             catMeta,
             refDiv,
             selectedTabName,
+            selectedAttachmentItem,
             schemeManifest,
             slideLeft,
             slide,
@@ -290,6 +316,12 @@ export default defineComponent({
                 // requestPartCatMeta();
             },
             onUpLevelClick,
+            onAttachmentItemSelect(item: ManifestPart) {
+                selectedAttachmentItem.value = item;
+            },
+            onAttachmentPopupHide() {
+                selectedAttachmentItem.value = undefined;
+            },
             selectPart(catId: string | number, partId: string | number) {
                 slide("right");
                 selectedPartId.value = +partId;
@@ -357,13 +389,11 @@ export default defineComponent({
 
 <style scoped lang="scss">
 $header-height: 56px;
-// $menu-width: 20%;
 
 .parts-menu {
     position: relative;
     box-shadow: 0px 10px 18px rgba(0, 0, 0, 0.07);
-    background-color: var(--el-color-bg);
-    // width: $menu-width;
+    background-color: white;
     overflow: hidden;
     white-space: nowrap;
     &__left {
@@ -383,6 +413,20 @@ $header-height: 56px;
             font-size: 26px;
             font-weight: bold;
             box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
+
+            :deep(.el-button) {
+                width: 50%;
+                height: 100%;
+                background: linear-gradient(180deg, #c1b399 0%, #ffeac4 0%, #c1b399 100%);
+                font-weight: bold;
+                & + .el-button {
+                    margin-left: 1px;
+                }
+
+                &:not(:hover) {
+                    color: var(--el-color-black);
+                }
+            }
         }
 
         &-levelup {
@@ -407,7 +451,6 @@ $header-height: 56px;
             white-space: pre-wrap;
             margin-left: 0px !important;
             margin-right: 0px !important;
-            padding: 10px 0px 0px !important;
             overflow-y: auto;
             :deep(.el-tabs__item) {
                 // color: var(--el-color-black);
@@ -418,7 +461,13 @@ $header-height: 56px;
                     font-weight: bold;
                 }
             }
+            :deep(.el-tabs__header) {
+                margin-right: 0px;
+                padding-top: 10px;
+                background-color: var(--el-color-bg);
+            }
             :deep(.el-tabs__content) {
+                padding-left: 10px;
                 height: 100%;
                 .el-tab-pane {
                     height: 100%;
@@ -435,12 +484,12 @@ $header-height: 56px;
             }
 
             :deep(.el-tabs__nav-scroll) {
-                width: 82px;
+                width: 90px;
             }
             :deep(.el-tabs__nav-wrap::after) {
                 width: 5px !important;
                 left: 0px !important;
-                background-color: var(--el-color-info);
+                background-color: #d8d8d8ff;
             }
         }
     }
@@ -468,7 +517,7 @@ $header-height: 56px;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 0px 10px;
+            padding: 0px 0px 0px 10px;
             height: $header-height;
             box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
             &-title {
@@ -477,6 +526,16 @@ $header-height: 56px;
                 font-weight: bold;
                 flex: 2;
                 text-align: center;
+            }
+            &-offer {
+                // width: 50%;
+                height: 100%;
+                background: linear-gradient(180deg, #c1b399 0%, #ffeac4 0%, #c1b399 100%);
+                font-weight: bold;
+
+                &:not(:hover) {
+                    color: var(--el-color-black);
+                }
             }
             &-back {
                 padding: 0px;
@@ -490,7 +549,14 @@ $header-height: 56px;
             overflow-y: auto;
             padding: 0px 30px;
             margin-bottom: 70px;
+
+            &.is-blur {
+                filter: blur(2px);
+            }
         }
+    }
+    &__attachmenPopup {
+        top: $header-height;
     }
 }
 </style>

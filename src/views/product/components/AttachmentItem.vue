@@ -1,17 +1,18 @@
 <template>
-    <div class="attachment-item">
-        <el-image class="attachment-item__img" :src="url" fit="contain"></el-image>
+    <div class="attachment-item" :class="{ column: column }">
+        <el-image class="attachment-item__img" :src="item.pic" fit="contain"></el-image>
         <div class="attachment-item__info">
-            <div class="attachment-item__name">{{ name }}</div>
+            <div class="attachment-item__name">{{ item.pname }}</div>
             <div class="attachment-item__count">
                 <span>
                     <span>数量：</span>
-                    <span class="attachment-item__count-num">{{ count }}</span>
+                    <span class="attachment-item__count-num">{{ item.count }}</span>
                     <span>个</span>
                 </span>
                 <i
-                    class="attachment-item__count-trigger u-trigger el-icon-arrow-right"
-                    :class="{ 'u-trigger-ani': triggered }"
+                    v-if="!column"
+                    class="attachment-item__count-trigger u-trigger el-icon-arrow-down"
+                    :class="{ 'u-trigger--180': triggered }"
                     @click="toggleTrigger"
                 ></i>
             </div>
@@ -20,50 +21,32 @@
 </template>
 
 <script lang="ts">
-import { computed, PropType, ref } from "vue";
+import { computed, defineComponent, PropType, ref } from "vue";
 import { ElMessage } from "element-plus";
-import { defineComponent } from "vue";
+import { ManifestPart } from "@/api/interface/provider.interface";
 
 export default defineComponent({
     name: "AttachmentItem",
     props: {
-        name: {
-            type: String,
-            default: "",
+        item: {
+            type: Object as PropType<ManifestPart>,
+            required: true,
         },
-        url: {
-            type: String,
-            default: "",
+        selectedItem: {
+            type: Object as PropType<ManifestPart | undefined>,
+            default: undefined,
         },
-        count: {
-            type: [String, Number],
-            default: 0,
-        },
-        price: {
-            type: [String, Number],
-            default: 0,
-        },
-        partId: {
-            type: Number,
-            default: 0,
-        },
-        type: {
-            type: String as PropType<"2d" | "3d">,
-            default: "3d",
+        column: {
+            type: Boolean,
+            default: false,
         },
     },
-    emits: ["update:count", "metalCount"],
+    emits: ["select"],
     setup(props, ctx) {
-        const triggered = ref(false);
         return {
-            triggered,
-            unitPrice: computed(() => {
-                const unitPrice = +props.price / +props.count;
-                return unitPrice;
-            }),
+            triggered: computed(() => props.selectedItem === props.item),
             toggleTrigger() {
-                triggered.value = !triggered.value;
-                ElMessage.warning("TODO 修改附件");
+                ctx.emit("select", props.item);
             },
         };
     },
@@ -116,6 +99,19 @@ export default defineComponent({
 
     &:not(:first-of-type) {
         margin-top: 10px;
+    }
+    &.column {
+        flex-direction: column;
+        width: 100%;
+        .attachment-item__img {
+            width: 100%;
+            height: auto;
+        }
+        .attachment-item__info {
+            margin-top: 10px;
+            width: 100%;
+            margin-left: unset;
+        }
     }
 }
 </style>

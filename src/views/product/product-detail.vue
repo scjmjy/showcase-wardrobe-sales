@@ -519,7 +519,9 @@ export default defineComponent({
                 scheme.depth = size.depth;
                 schemeDetailDirty.value = true;
                 refBabylon.value?.changeSchemeSize(size.width, size.height, size.depth);
-                refBabylon.value?.showReferenceRuler(true, size.height, size.width, size.depth);
+                setTimeout(() => {
+                    refBabylon.value?.showReferenceRuler(true, size.height, size.width, size.depth);
+                }, 200);
             },
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;

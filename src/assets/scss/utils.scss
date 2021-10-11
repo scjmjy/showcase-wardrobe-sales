@@ -80,6 +80,12 @@
 .u-trigger {
     transition: transform 0.3s ease;
 }
-.u-trigger-ani {
+.u-trigger-90 {
     transform: rotateZ(90deg);
+}
+.u-trigger--90 {
+    transform: rotateZ(-90deg);
+}
+.u-trigger--180 {
+    transform: rotateZ(-180deg);
 }
