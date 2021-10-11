@@ -36,7 +36,6 @@
     "turf": "^3.0.14",
     "turf-linestring": "^1.0.2",
     "uuid": "^8.3.2",
-    "v-aspect-ratio": "^2.0.1",
     "vue": "3.2.5",
     "vue-router": "^4.0.10",
     "vuex": "^4.0.2"
