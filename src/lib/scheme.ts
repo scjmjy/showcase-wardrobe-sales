@@ -257,7 +257,7 @@ export class PartCount {
 export class Scheme {
     @JsonProperty({ value: "config" })
     @JsonClassType({ type: () => [Config] })
-    config: Config;
+    config: Config | null;
 
     @JsonProperty({ value: "manifest" })
     @JsonClassType({ type: () => [Manifest] })
