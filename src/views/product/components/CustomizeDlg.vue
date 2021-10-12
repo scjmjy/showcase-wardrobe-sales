@@ -4,7 +4,6 @@
         :title="title"
         width="500px"
         @opened="onOpened"
-        @closed="onClosed"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         v-bind="$attrs"

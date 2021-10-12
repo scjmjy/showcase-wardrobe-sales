@@ -1,33 +1,20 @@
 <template>
-    <div>
+    <div class="manifest-list">
         <el-divider>配件清单</el-divider>
-        <manifest-item
-            v-for="(item, index) of partList"
-            :key="index"
-            :url="item.pic"
-            :name="item.pname"
-            :price="item.price"
-            v-model:count="item.count"
-            :type="item.type"
-            :partId="item.partid"
-        ></manifest-item>
+        <manifest-item v-for="(item, index) of partList" :key="index" :item="item"></manifest-item>
         <el-divider style="margin-top: 30px">附件清单</el-divider>
         <attachment-item
             v-for="(item, index) of attachmentList"
             :key="index"
-            :url="item.pic"
-            :name="item.pname"
-            :price="item.price"
-            v-model:count="item.count"
-            :type="item.type"
-            :partId="item.partid"
+            :item="item"
+            v-bind="$attrs"
         ></attachment-item>
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType } from "vue";
-import { SchemeManifest } from "@/api/interface/provider.interface";
+import { computed, defineComponent, PropType, ref } from "vue";
+import { ManifestPart, SchemeManifest } from "@/api/interface/provider.interface";
 import ManifestItem from "./ManifestItem.vue";
 import AttachmentItem from "./AttachmentItem.vue";
 
@@ -58,4 +45,8 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+.manifest-list {
+    position: relative;
+}
+</style>
