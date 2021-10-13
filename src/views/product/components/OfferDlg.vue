@@ -19,9 +19,24 @@
             ></offer-item>
         </div>
         <div v-else class="offer-dlg__area">
-            <div>单价：{{ offerInfo.areaUnitPrice }} 元/㎡</div>
-            <div>投影面积：{{ offerInfo.area }} ㎡</div>
-            <div>税率：{{ offerInfo.taxrate }}</div>
+            <div class="offer-dlg__area-item">
+                <span>单价：</span>
+                <span>
+                    <strong>{{ offerInfo.areaUnitPrice }} </strong>元/㎡
+                </span>
+            </div>
+            <div class="offer-dlg__area-item">
+                <span>投影面积：</span>
+                <span>
+                    <strong>{{ offerInfo.area }} </strong>㎡
+                </span>
+            </div>
+            <div class="offer-dlg__area-item">
+                <span>税率：</span>
+                <span>
+                    <strong>{{ offerInfo.taxrate }} </strong>
+                </span>
+            </div>
         </div>
         <div class="offer-dlg__price">
             <span class="offer-dlg__price-label">合计：</span>
@@ -85,12 +100,12 @@ export default defineComponent({
                         otype: "part",
                     };
                 } else {
-                    const { otype, price, area, taxreate } = schemeOffer.value;
+                    const { otype, price, area, taxrate } = schemeOffer.value;
                     return {
                         otype: otype === 1 ? "part" : "area",
                         area: area,
                         areaUnitPrice: price,
-                        taxreate: taxreate,
+                        taxrate: taxrate,
                     };
                 }
             }),
@@ -115,17 +130,25 @@ export default defineComponent({
         overflow-y: auto;
     }
     &__area {
-        div {
-            font-weight: bold;
-            font-size: x-large;
-            &:first-of-type {
+        &-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 26px;
+            padding-bottom: 7px;
+            strong {
+                font-size: 1.2em;
+                margin-right: 5px;
+            }
+            &:not(:last-of-type) {
+                border-bottom: 1px solid var(--el-color-info);
                 margin-bottom: 20px;
             }
         }
     }
     &__price {
-        margin: 30px 30px 0px 0px;
+        margin-top: 30px;
         padding-top: 10px;
+        padding-right: 30px;
         border-top: 1px solid var(--el-color-info);
         text-align: right;
         font-weight: bold;

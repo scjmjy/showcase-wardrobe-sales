@@ -89,9 +89,9 @@ export default defineComponent({
         padding: 80px 50px 40px;
         justify-content: space-around;
         align-items: flex-start;
-        background-image: url(~@/assets/img/bg-my.png);
+        background-image: linear-gradient(90deg, #0000007d, #0000007d), url(~@/assets/img/bg-my.png);
         background-size: cover;
-        background-position: center;
+        background-position-y: 70%;
 
         &-my {
             font-size: 40px;

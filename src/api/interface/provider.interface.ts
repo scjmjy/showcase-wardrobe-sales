@@ -249,7 +249,7 @@ export interface SchemeOffer {
     details: PartOffer[];
     price: string; // 单价（元/㎡）
     area: string; // 投影面积（㎡）
-    taxreate: string; // 税率
+    taxrate: string; // 税率
     otype: number; // 报价方式（1：按配件；2：按投影面积）
 }
 
