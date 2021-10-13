@@ -1527,14 +1527,16 @@ export default defineComponent({
                                 console.log("Log Scene: ", this.graphics.scene);
                                 break;
                             case "6":
-                                this.adjustCamera();
+                                // this.adjustCamera();
+                                this.showDoors(true);
                                 break;
                             case "7":
                                 // Add test codes:
                                 // this.screenshotApi().then((data) => {
                                 //     console.log(data);
                                 // });
-                                this.switchCube(1);
+                                // this.switchCube(1);
+                                this.showDoors(false);
                                 break;
                         }
                         break;
@@ -1613,6 +1615,21 @@ export default defineComponent({
             } else {
                 return null;
             }
+        },
+
+        showDoors(isVisible: boolean): void {
+            this.graphics.scene.rootNodes.forEach((rootNode) => {
+                const rootMesh = rootNode as BABYLON.AbstractMesh;
+                if (rootMesh !== undefined) {
+                    const isDoor = rootMesh.name.startsWith(ObjectType.DOOR);
+                    if (isDoor) {
+                        rootMesh.isVisible = isVisible;
+                        rootMesh.getChildMeshes().forEach((childMesh) => {
+                            childMesh.isVisible = isVisible;
+                        });
+                    }
+                }
+            });
         },
 
         switchCube(index: number): void {

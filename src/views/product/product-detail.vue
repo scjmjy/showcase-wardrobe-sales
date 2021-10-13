@@ -17,7 +17,7 @@
             :selectedFloorId="selectedFloorId"
             :eventEmit="eventHandle"
             :mode="mode3D"
-            :schemeType="schemeType"
+            :schemeType="scheme3DType"
             :baseOSSUrl="baseUrl"
         />
         <product-info-menu
@@ -222,6 +222,7 @@ export default defineComponent({
         ]);
         const gooeyMenuOpened = ref(false);
         const scheme = ref<Scheme3D>();
+        let schemeType = ref(0);
         const schemeDetailDirty = ref(false);
         async function requestScheme3D() {
             await util.importSchemeJson(product.value.manifest).then((s) => {
@@ -466,11 +467,12 @@ export default defineComponent({
                     return stateInOut.value === "in" ? 2 : 1;
                 }
             }),
-            schemeType: computed(() => {
+            scheme3DType: computed(() => {
                 // TODO: set the scheme type.
                 // 0 - 定制商品
                 // 1 - 非定制商品
-                return 0;
+                schemeType.value = 0;
+                return schemeType.value;
             }),
             eventHandle,
             stateInOut,
@@ -579,7 +581,11 @@ export default defineComponent({
                 showMenu.value = true;
             },
             onOpenCloseChange(state: string) {
-                ElMessage.warning("开门关门：" + state);
+                if (schemeType.value === 0) {
+                    refBabylon.value?.showDoors(state !== "open");
+                } else if (schemeType.value === 1) {
+                    refBabylon.value?.switchCube(state === "open" ? 1 : 0)
+                }
             },
             onOfferDlgClosed() {
                 requestSchemeDetail();
