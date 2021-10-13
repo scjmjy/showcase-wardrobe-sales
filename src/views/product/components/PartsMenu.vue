@@ -7,7 +7,7 @@
                 <!-- <el-button type="primary" plain @click="$emit('action', 'offer')">报价</el-button> -->
             </div>
             <i
-                v-if="!!tabStack.length"
+                v-if="!!tabStack.length && !slideLeft"
                 class="parts-menu__left-levelup iconfont icon-level-up"
                 @click="onUpLevelClick"
             ></i>
@@ -38,7 +38,7 @@
                     class="parts-menu__right-header-back"
                     icon="el-icon-arrow-left"
                     type="text"
-                    @click="slide('right')"
+                    @click="onClickBack"
                     >返回</el-button
                 >
                 <span class="parts-menu__right-header-title"> 明细清单 </span>
@@ -308,6 +308,10 @@ export default defineComponent({
             schemeManifest,
             slideLeft,
             slide,
+            onClickBack() {
+                slide("right");
+                selectedAttachmentItem.value = undefined;
+            },
             onCatChange(tab: any) {
                 console.log("tab", tab.instance);
 
@@ -433,7 +437,8 @@ $header-height: 56px;
             cursor: pointer;
             position: absolute;
             left: 20px;
-            top: $header-height + 10px;
+            top: $header-height;
+            padding: 10px;
             color: var(--el-color-black);
             font-size: 30px;
             z-index: 100;
@@ -443,7 +448,7 @@ $header-height: 56px;
         }
         &.is-level-up {
             :deep(.el-tabs__header) {
-                padding-top: 40px;
+                padding-top: 45px;
             }
         }
         &-cats {

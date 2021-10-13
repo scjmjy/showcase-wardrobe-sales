@@ -18,7 +18,7 @@
                 <el-collapse v-model="openedServices" @change="handleOpenedChange">
                     <el-collapse-item :name="svc.no" v-for="svc of services" :key="svc.id">
                         <template #title>
-                            <div class="service">
+                            <div class="service" :class="{ 'is-in-service': isInService(svc) }">
                                 <span class="service__no u-line-1">
                                     服务单号：<span>{{ svc.no }}</span>
                                 </span>
@@ -50,14 +50,16 @@
                 <load-more :state="loadState" />
             </div>
         </div>
-        <el-button
-            v-if="!showServeBtn"
-            class="customer-list__add"
-            type="primary"
-            circle
-            icon="iconfont icon-scheme-new"
-            @click="newServe"
-        ></el-button>
+
+        <el-tooltip v-if="!showServeBtn" class="item" effect="dark" content="开始新服务" placement="left">
+            <el-button
+                class="customer-list__add"
+                type="primary"
+                circle
+                icon="iconfont icon-scheme-new"
+                @click="newServe"
+            ></el-button>
+        </el-tooltip>
     </div>
 </template>
 
@@ -216,14 +218,14 @@ export default defineComponent({
                 });
             },
             newScheme(svc?: Service) {
+                const query = svc ? { svc: svc.id } : {};
                 router.push({
                     path: "/select-product",
-                    query: {
-                        svc: svc ? svc.id : 0,
-                    },
+                    query,
                 });
             },
             gotoDetail(svc: Service, scheme: Scheme) {
+                const { currentSvcId } = store.state.currentCustomer;
                 scheme.cid = customerId.value;
                 store.commit("SET-PAGE-CHANNEL", {
                     key: "productDetailData",
@@ -232,7 +234,7 @@ export default defineComponent({
                 router.push({
                     path: "/product-detail",
                     query: {
-                        svc: svc ? svc.id : 0,
+                        svc: currentSvcId,
                     },
                 });
             },
@@ -334,6 +336,7 @@ $paddingX: 20px;
     // display: flex;
     // justify-content: space-between;
     // align-items: center;
+    padding-left: 10px;
     flex: 1;
     margin-right: 30px;
     &__no,
@@ -345,6 +348,21 @@ $paddingX: 20px;
             font-weight: 400;
         }
     }
+    &.is-in-service {
+        .service__no {
+            position: relative;
+            color: var(--el-color-danger);
+            &::before {
+                font-family: "element-icons" !important;
+                content: "\e797";
+                position: absolute;
+                left: -23px;
+            }
+        }
+    }
+    &__time {
+        color: #7c7c7cff;
+    }
     &__serveBtn {
         margin-left: 40px;
         padding: 0 20px;
@@ -355,6 +373,7 @@ $paddingX: 20px;
         display: inline-block;
         margin-left: 40px;
         padding: 5px 20px;
+        vertical-align: middle;
         border-radius: 20px;
         line-height: normal;
         color: var(--el-color-primary);

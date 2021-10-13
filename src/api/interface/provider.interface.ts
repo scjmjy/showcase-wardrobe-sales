@@ -1,3 +1,4 @@
+import { PartCount } from "@/lib/scheme";
 import { LabelValue } from "./common.interfact";
 
 // import { LabelValue } from "./common.interface";
@@ -388,7 +389,7 @@ export default interface ApiProvider {
     requestScreenshotSignedUrl(schemeId: number | string): Promise<AjaxResponse<OssSignature>>;
     updateScreenshotState(schemeId: string | number, url: string): Promise<AjaxResponse<boolean>>;
 
-    requestSchemeOffer(schemeId: number | string): Promise<AjaxResponse<SchemeOffer>>;
+    requestSchemeOffer(schemeId: number | string, compositions: Array<PartCount>): Promise<AjaxResponse<SchemeOffer>>;
     requestSchemeManifest(schemeId: number | string): Promise<AjaxResponse<SchemeManifest>>;
     requestSchemeManifestV2(partIds: number[]): Promise<AjaxResponse<SchemeManifest>>;
 

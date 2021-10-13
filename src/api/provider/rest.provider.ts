@@ -25,6 +25,7 @@ import {
 } from "../interface/provider.interface";
 import LocalProvider from "./local.provider";
 import emitter from "@/event";
+import { PartCount } from "@/lib/scheme";
 
 export default class RestProvider extends LocalProvider {
     login(
@@ -648,11 +649,19 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
-    requestSchemeOffer(schemeId: string | number): Promise<AjaxResponse<SchemeOffer>> {
+    requestSchemeOffer(schemeId: string | number, compositions: Array<PartCount>): Promise<AjaxResponse<SchemeOffer>> {
+        const c = compositions.map((part) => ({
+            pid: part.partId,
+            count: part.count,
+        }));
         return new Promise((resolve) => {
             request({
-                method: "GET",
-                url: `/api/v1/biz/scheme/${schemeId}/offer`,
+                method: "POST",
+                url: `/api/v1/biz/scheme/offer`,
+                data: {
+                    sid: schemeId,
+                    compositions: c,
+                },
             })
                 .then((res) => {
                     resolve({

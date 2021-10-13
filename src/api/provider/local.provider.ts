@@ -1,3 +1,4 @@
+import { PartCount } from "@/lib/scheme";
 import ApiProvider, {
     AjaxResponse,
     Background,
@@ -438,7 +439,7 @@ export default class LocalProvider implements ApiProvider {
     updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>> {
         throw new Error("Method not implemented.");
     }
-    requestSchemeOffer(schemeId: string | number): Promise<AjaxResponse<SchemeOffer>> {
+    requestSchemeOffer(schemeId: string | number, compositions: Array<PartCount>): Promise<AjaxResponse<SchemeOffer>> {
         throw new Error("Method not implemented.");
     }
     requestSchemeManifest(schemeId: string | number): Promise<AjaxResponse<SchemeManifest>> {

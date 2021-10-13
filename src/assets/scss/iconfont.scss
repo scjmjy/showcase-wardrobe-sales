@@ -32,6 +32,22 @@
     }
 }
 
+.icon-door-close:before {
+  content: "\e7b1";
+}
+
+.icon-door-open:before {
+  content: "\e7b2";
+}
+
+.icon-store:before {
+  content: "\e7b3";
+}
+
+.icon-customer-info:before {
+  content: "\e7b4";
+}
+
 .icon-scheme-new:before {
     content: "\e7a7";
 }

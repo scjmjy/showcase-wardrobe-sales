@@ -14,7 +14,7 @@
                     style="visibility: hidden"
                 /> -->
                 <span class="my__info-profile__username"> {{ user.userName }} </span>
-                <i class="my__info-profile__location iconfont icon-shop"> &nbsp;{{ user.organization }} </i>
+                <i class="my__info-profile__location iconfont icon-store"> &nbsp;{{ user.organization }} </i>
                 <!-- <el-tag class="app-header__job" type="primary" color="#5EB6B366">店长助理</el-tag> -->
             </div>
             <!-- <i class="my__info-settings icon-btn icon-settings" /> -->
@@ -40,7 +40,7 @@
                 </el-col>
                 <div style="width: 100%; height: 30px"></div>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="客户信息" icon="tool" color="#e6a23c" @click="gotoTool" />
+                    <function-card functionName="客户信息" icon="customer-info" color="#e6a23c" @click="gotoTool" />
                 </el-col>
             </el-row>
         </div>
@@ -91,6 +91,7 @@ export default defineComponent({
         align-items: flex-start;
         background-image: url(~@/assets/img/bg-my.png);
         background-size: cover;
+        background-position: center;
 
         &-my {
             font-size: 40px;

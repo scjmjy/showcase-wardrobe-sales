@@ -34,9 +34,10 @@
 
 <script lang="ts">
 import { SchemeOffer } from "@/api/interface/provider.interface";
-import { computed, defineComponent, reactive, ref } from "vue";
+import { computed, defineComponent, PropType, reactive, ref } from "vue";
 import { splitPrice } from "@/utils/currency";
 import apiProvider from "@/api/provider";
+import { Scheme } from "@/lib/scheme";
 import OfferItem from "./OfferItem.vue";
 
 export default defineComponent({
@@ -56,6 +57,10 @@ export default defineComponent({
         schemeId: {
             type: [Number, String],
             default: "",
+        },
+        scheme: {
+            type: Object as PropType<Scheme>,
+            required: true,
         },
     },
     setup(props) {
@@ -90,7 +95,8 @@ export default defineComponent({
                 }
             }),
             doOffer() {
-                return apiProvider.requestSchemeOffer(props.schemeId).then((res) => {
+                const compositions = props.scheme.getPartCounts();
+                return apiProvider.requestSchemeOffer(props.schemeId, compositions).then((res) => {
                     if (res.ok && res.data) {
                         schemeOffer.value = res.data;
                     }

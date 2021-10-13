@@ -4,7 +4,7 @@
         <div class="attachment-popup__content">
             <attachment-item :item="item" column />
             <cat-tab class="attachment-popup__content-cat" :cat="cat" active></cat-tab>
-            <el-button type="primary">保存修改</el-button>
+            <!-- <el-button type="primary">保存修改</el-button> -->
             <i class="attachment-popup__content-trigger el-icon-arrow-down" @click="toggleTrigger"></i>
         </div>
     </div>
@@ -30,7 +30,8 @@ export default defineComponent({
     },
     setup(props, ctx) {
         const cat = computed<PartCategory>(() => ({
-            id: props.item.partid,
+            // id: props.item.partid,
+            id: 15,
             name: props.item.pname,
             pic: props.item.pic,
         }));
@@ -52,7 +53,7 @@ export default defineComponent({
     top: 0px;
     width: 100%;
     height: 100%;
-    padding-top: 40%;
+    padding-top: 25%;
     &__overlay {
         z-index: -1;
         position: absolute;

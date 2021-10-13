@@ -140,8 +140,9 @@ export default defineComponent({
     &-left {
         width: 500px;
         height: 600px;
-        background-image: url(~@/assets/img/bg-login-left.png);
-        background-size: 100% 100%;
+        background-image: url(~@/assets/img/bg-login-left-2.jpg);
+        // background-size: 100% 100%;
+        background-size: cover;
     }
     &-form {
         width: 618px;

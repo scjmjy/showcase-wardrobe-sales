@@ -55,6 +55,11 @@
                 @part="onPartSelect"
             ></parts-menu>
         </template>
+        <template v-if="mode === 'view'">
+            <div class="product-detail__action-left state-icon-group-h">
+                <state-icon v-model="stateOpenClose" :states="openCloseStates" @change="onOpenCloseChange"></state-icon>
+            </div>
+        </template>
         <customize-dlg
             v-model="showCustomizeDlg"
             :mode="customizeMode"
@@ -69,6 +74,7 @@
             :schemeId="product.id"
             :schemeName="product.product"
             :customerName="customerName"
+            :scheme="scheme"
             @closed="onOfferDlgClosed"
         />
         <metals-dlg v-model="showMetalsDlg" :scheme3d="scheme" :part="selectedMetalPart" @change-part="onChangePart" />
@@ -103,6 +109,9 @@ import {
     CustomizeMinMax,
     SchemeMode,
     resetGooeyMenu,
+    useStateIcons,
+    InOutState,
+    OpenCloseState,
 } from "./helpers";
 
 export default defineComponent({
@@ -153,7 +162,7 @@ export default defineComponent({
                     case "new":
                     case "copy":
                         showCustomizeDlg.value = true;
-                        refBabylon.value?.showReferenceRuler(false);
+                        showReferenceRuler(false);
                         break;
                     case "continue":
                         break;
@@ -164,23 +173,8 @@ export default defineComponent({
         }
         const showMenu = ref(false);
         const collapseInfoMenu = ref(true);
+        const { stateInOut, stateOpenClose, inOutStates, openCloseStates } = useStateIcons();
 
-        const stateInOut = ref<"in" | "out">("out");
-        const inOutStates = [
-            {
-                state: "in",
-                label: "内配",
-                iconBg: "black",
-                iconColor: "#D8D8D8",
-                icon: "parts-indoor-2",
-            },
-
-            {
-                state: "out",
-                label: "外观",
-                icon: "parts-outdoor-2",
-            },
-        ];
         const refBabylon = ref<InstanceType<typeof Babylon>>();
         const refPartsMenu = ref<InstanceType<typeof PartsMenu>>();
         const selectedPart = ref<Part3D>();
@@ -188,6 +182,11 @@ export default defineComponent({
         let selectedPartId = ref(0);
         let selectedFloorId = ref(0);
         let selectedWallId = ref(0);
+
+        function showReferenceRuler(show: boolean) {
+            const { width, height, depth } = product.value;
+            refBabylon.value?.showReferenceRuler(show, height, width, depth);
+        }
 
         const gooeyMenuItems = ref<MenuItem[]>([
             {
@@ -204,10 +203,10 @@ export default defineComponent({
                 value: "ruler",
                 icon: "ruler-2",
                 onActive() {
-                    refBabylon.value?.showReferenceRuler(true);
+                    showReferenceRuler(true);
                 },
                 onUnactive() {
-                    refBabylon.value?.showReferenceRuler(false);
+                    showReferenceRuler(false);
                 },
             },
             {
@@ -215,7 +214,7 @@ export default defineComponent({
                 icon: "size-3d",
                 type: "button",
                 onClick() {
-                    refBabylon.value?.showReferenceRuler(false);
+                    showReferenceRuler(false);
                     showCustomizeDlg.value = true;
                 },
             },
@@ -469,6 +468,8 @@ export default defineComponent({
             eventHandle,
             stateInOut,
             inOutStates,
+            stateOpenClose,
+            openCloseStates,
             showMenu,
             collapseInfoMenu,
             mode,
@@ -520,12 +521,12 @@ export default defineComponent({
                 schemeDetailDirty.value = true;
                 refBabylon.value?.changeSchemeSize(size.width, size.height, size.depth);
                 setTimeout(() => {
-                    refBabylon.value?.showReferenceRuler(true, size.height, size.width, size.depth);
+                    showReferenceRuler(true);
                 }, 200);
             },
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;
-                refBabylon.value?.showReferenceRuler(true);
+                showReferenceRuler(true);
             },
             onChangePart() {
                 showMetalsDlg.value = false;
@@ -539,12 +540,19 @@ export default defineComponent({
                             confirmButtonText: "保存方案",
                             cancelButtonText: "不保存",
                             type: "warning",
+                            distinguishCancelAndClose: true,
                         });
                         showSchemeSaveLoading();
                         await saveScheme();
                         hideSchemeSaveLoading();
-                    } catch (_) {
-                        requestScheme3D();
+                    } catch (action) {
+                        if (action === "cancel") {
+                            // 点击了 “不保存” 按钮
+                            requestScheme3D();
+                        } else {
+                            // 点击 x 按钮
+                            return;
+                        }
                     }
                 }
                 if (schemeDetailDirty.value) {
@@ -552,15 +560,19 @@ export default defineComponent({
                 }
 
                 // reset states
-                stateInOut.value = "out";
+                stateInOut.value = InOutState.out;
+                stateOpenClose.value = OpenCloseState.close;
                 showMenu.value = false;
                 resetGooeyMenu(gooeyMenuItems.value);
                 mode.value = "view";
 
                 captureSchemeScreenshot();
             },
-            onInOutChange(_val: string) {
+            onInOutChange(_state: string) {
                 showMenu.value = true;
+            },
+            onOpenCloseChange(state: string) {
+                ElMessage.warning("开门关门：" + state);
             },
             onOfferDlgClosed() {
                 requestSchemeDetail();

@@ -19,19 +19,21 @@
         >
             <div class="customize-dlg__unit">单位：m</div>
             <el-form-item label="单元柜高度" prop="height">
-                <el-input v-model.number="formData.height"></el-input>
+                <el-input v-model.number="formData.height" type="number"></el-input>
             </el-form-item>
             <el-form-item label="单元柜深度" prop="depth">
-                <el-input v-model.number="formData.depth"></el-input>
+                <el-input v-model.number="formData.depth" type="number"></el-input>
             </el-form-item>
             <el-form-item label="单元柜宽度" prop="width">
-                <el-input v-model.number="formData.width"></el-input>
+                <el-input v-model.number="formData.width" type="number"></el-input>
             </el-form-item>
             <div v-if="price" class="customize-dlg__price">总价：<strong>-</strong> 元</div>
         </el-form>
         <template #footer>
             <div class="customize-dlg__footer">
-                <el-button type="primary" :loading="loading" @click="doConfirm">{{ okText }}</el-button>
+                <el-button type="primary" :loading="loading" :disabled="invalid" @click="doConfirm">{{
+                    okText
+                }}</el-button>
                 <el-button @click="doCancel">取消</el-button>
             </div>
         </template>
@@ -92,41 +94,47 @@ export default defineComponent({
     setup(props, ctx) {
         const elForm = ref<InstanceType<typeof ElForm>>();
         const formData = reactive(defaultSize());
+        const formRules = computed(() => ({
+            height: [
+                { required: true, message: "请输入单元柜高度", trigger: ["blur", "change"] },
+                {
+                    type: "number",
+                    min: props.minMax.heightMin,
+                    max: props.minMax.heightMax,
+                    message: `高度在 ${props.minMax.heightMin}米 到 ${props.minMax.heightMax}米 之间`,
+                    trigger: ["blur", "change"],
+                },
+            ],
+            depth: [
+                { required: true, message: "请输入单元柜深度", trigger: ["blur", "change"] },
+                {
+                    type: "number",
+                    min: props.minMax.depthMin,
+                    max: props.minMax.depthMax,
+                    message: `深度在 ${props.minMax.depthMin}米 到 ${props.minMax.depthMax}米 之间`,
+                    trigger: ["blur", "change"],
+                },
+            ],
+            width: [
+                { required: true, message: "请输入单元柜宽度", trigger: ["blur", "change"] },
+                {
+                    type: "number",
+                    min: props.minMax.widthMin,
+                    max: props.minMax.widthMax,
+                    message: `宽度在 ${props.minMax.widthMin}米 到 ${props.minMax.widthMax}米 之间`,
+                    trigger: ["blur", "change"],
+                },
+            ],
+        }));
+        const invalidProps = ref<Record<string, boolean>>({});
+        const invalid = computed(() => {
+            return Object.values(invalidProps.value).includes(true);
+        });
         return {
             elForm,
             formData,
-            formRules: computed(() => ({
-                height: [
-                    { required: true, message: "请输入单元柜高度", trigger: ["blur", "change"] },
-                    {
-                        type: "number",
-                        min: props.minMax.heightMin,
-                        max: props.minMax.heightMax,
-                        message: `高度在 ${props.minMax.heightMin}米 到 ${props.minMax.heightMax}米 之间`,
-                        trigger: ["blur", "change"],
-                    },
-                ],
-                depth: [
-                    { required: true, message: "请输入单元柜深度", trigger: ["blur", "change"] },
-                    {
-                        type: "number",
-                        min: props.minMax.depthMin,
-                        max: props.minMax.depthMax,
-                        message: `深度在 ${props.minMax.depthMin}米 到 ${props.minMax.depthMax}米 之间`,
-                        trigger: ["blur", "change"],
-                    },
-                ],
-                width: [
-                    { required: true, message: "请输入单元柜宽度", trigger: ["blur", "change"] },
-                    {
-                        type: "number",
-                        min: props.minMax.widthMin,
-                        max: props.minMax.widthMax,
-                        message: `宽度在 ${props.minMax.widthMin}米 到 ${props.minMax.widthMax}米 之间`,
-                        trigger: ["blur", "change"],
-                    },
-                ],
-            })),
+            formRules,
+            invalid,
             title: computed(() => {
                 return "修改柜体尺寸";
                 // switch (props.mode) {
@@ -165,7 +173,9 @@ export default defineComponent({
             onOpened() {
                 Object.assign(formData, props.size);
             },
-            onValidate(_val: number, _pass: boolean) {},
+            onValidate(propName: string, pass: boolean) {
+                invalidProps.value[propName] = !pass;
+            },
         };
     },
 });

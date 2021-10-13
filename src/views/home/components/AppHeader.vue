@@ -141,7 +141,7 @@ export default defineComponent({
         margin-left: 12px;
         font-size: 26px;
         strong {
-            font-size: 30px;
+            // font-size: 30px;
             font-weight: bold;
         }
     }
