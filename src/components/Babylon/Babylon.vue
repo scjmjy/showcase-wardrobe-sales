@@ -8,7 +8,7 @@
 import { defineComponent, PropType } from "vue";
 import * as BABYLON from "babylonjs";
 import { Graphics, GraphicsEvent } from "@/lib/graphics";
-import { Scheme, Cube, Item, Door, Part, PartCount, Location, Size } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, Part, PartCount, Location, Size, SizeConfig } from "@/lib/scheme";
 import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
 import request from "@/utils/request";
@@ -41,6 +41,13 @@ export default defineComponent({
         mode: {
             type: Number,
             default: 3,
+        },
+        // scheme type:
+        // 0 - 定制商品
+        // 1 - 非定制商品
+        schemeType: {
+            type: Number,
+            default: 0,
         },
         scheme: {
             type: Scheme,
@@ -203,7 +210,8 @@ export default defineComponent({
         },
     },
     async mounted() {
-        this.stl = new GeneralStl(new StlConfig(0.1, 0, 0.1, this.scheme.config.sizeConfig));
+        const sizeConfig = this.scheme.config !== null ? this.scheme.config.sizeConfig : new SizeConfig();
+        this.stl = new GeneralStl(new StlConfig(0.1, 0, 0.1, sizeConfig));
         this.bizdata = new BizData(this.scheme);
         this.indexDb = new IndexDb();
 
@@ -218,7 +226,7 @@ export default defineComponent({
         this.handleGraphicsEvent(this.graphics);
 
         // this.setupWallandFloor();
-        this.loadScheme();
+        this.loadScheme(this.schemeType);
     },
     methods: {
         /**
@@ -994,18 +1002,32 @@ export default defineComponent({
             });
         },
 
-        loadScheme() {
+        loadScheme(schemeType = 0) {
             this.loadedModelCount = 0;
             this.schemeModelCount = 0;
             this.bizdata.totalWidth = 0;
 
             // TODO: load background.
 
-            this.scheme.manifest.cubes.forEach((cube: Cube) => {
-                this.bizdata.totalWidth += cube.size.x;
-                if (cube.size.y > this.bizdata.totalHeight) this.bizdata.totalHeight = cube.size.y;
-                if (cube.size.z > this.bizdata.totalDepth) this.bizdata.totalDepth = cube.size.z;
-            });
+            let firstCubeId = "";
+            switch (schemeType) {
+                case 0:
+                    {
+                        this.scheme.manifest.cubes.forEach((cube: Cube) => {
+                            this.bizdata.totalWidth += cube.size.x;
+                            if (cube.size.y > this.bizdata.totalHeight) this.bizdata.totalHeight = cube.size.y;
+                            if (cube.size.z > this.bizdata.totalDepth) this.bizdata.totalDepth = cube.size.z;
+                        });
+                    }
+                    break;
+                case 1: {
+                    const cube = this.scheme.manifest.cubes[0];
+                    this.bizdata.totalWidth = cube.size.x;
+                    this.bizdata.totalHeight = cube.size.y;
+                    this.bizdata.totalDepth = cube.size.z;
+                    firstCubeId = cube.id;
+                }
+            }
 
             let startX = this.bizdata.totalWidth * 0.5;
             this.bizdata.startX = startX;
@@ -1013,8 +1035,11 @@ export default defineComponent({
             this.adjustCamera();
 
             this.scheme.manifest.cubes.forEach((cube: Cube) => {
-                const cubeOriginX = startX - cube.size.x * 0.5;
-                startX -= cube.size.x;
+                let cubeOriginX = 0;
+                if (this.schemeType === 0) {
+                    cubeOriginX = startX - cube.size.x * 0.5;
+                    startX -= cube.size.x;
+                }
 
                 const cubeOrigin = new BABYLON.Vector3(cubeOriginX, 0, 0);
                 this.bizdata.cubeMap.set(cube.id, {
@@ -1060,7 +1085,15 @@ export default defineComponent({
                                     false,
                                     rootUrl,
                                 )
-                                .then((/*mesh*/) => {
+                                .then((mesh) => {
+                                    if (schemeType === 1) {
+                                        const firstCubeName = ObjectType.CUBE + "_" + firstCubeId;
+                                        if (mesh !== null && mesh.name !== firstCubeName) {
+                                            mesh.getChildMeshes().forEach((childMesh) => {
+                                                childMesh.isVisible = false;
+                                            });
+                                        }
+                                    }
                                     if (++this.loadedModelCount >= this.schemeModelCount) this.loadSchemeCompleted();
                                 });
                         });
@@ -1117,7 +1150,17 @@ export default defineComponent({
                                                                     false,
                                                                     rootUrl,
                                                                 )
-                                                                .then((/*mesh*/) => {
+                                                                .then((mesh) => {
+                                                                    if (schemeType === 1) {
+                                                                        if (mesh !== null && cube.id !== firstCubeId) {
+                                                                            mesh.getChildMeshes().forEach(
+                                                                                (childMesh) => {
+                                                                                    childMesh.isVisible = false;
+                                                                                },
+                                                                            );
+                                                                        }
+                                                                    }
+
                                                                     if (
                                                                         ++this.loadedModelCount >= this.schemeModelCount
                                                                     )
@@ -1488,9 +1531,10 @@ export default defineComponent({
                                 break;
                             case "7":
                                 // Add test codes:
-                                this.screenshotApi().then((data) => {
-                                    console.log(data);
-                                });
+                                // this.screenshotApi().then((data) => {
+                                //     console.log(data);
+                                // });
+                                this.switchCube(1);
                                 break;
                         }
                         break;
@@ -1569,6 +1613,36 @@ export default defineComponent({
             } else {
                 return null;
             }
+        },
+
+        switchCube(index: number): void {
+            if (this.schemeType !== 1) return;
+
+            let i = 0;
+            this.scheme.manifest.cubes.forEach((cube) => {
+                const isVisible = i === index;
+                const cubeMeshName = ObjectType.CUBE + "_" + cube.id;
+                const cubeMesh = this.graphics.getMeshByName(cubeMeshName);
+                if (cubeMesh !== null) {
+                    cubeMesh.isVisible = isVisible;
+                    cubeMesh.getChildMeshes().forEach((childMesh) => {
+                        childMesh.isVisible = isVisible;
+                    });
+                }
+
+                cube.items.forEach((item) => {
+                    const itemMeshName = ObjectType.ITEM + "_" + item.id;
+                    const itemMesh = this.graphics.getMeshByName(itemMeshName);
+                    if (itemMesh !== null) {
+                        itemMesh.isVisible = isVisible;
+                        itemMesh.getChildMeshes().forEach((childMesh) => {
+                            childMesh.isVisible = isVisible;
+                        });
+                    }
+                });
+
+                i++;
+            });
         },
     },
 });

@@ -17,6 +17,7 @@
             :selectedFloorId="selectedFloorId"
             :eventEmit="eventHandle"
             :mode="mode3D"
+            :schemeType="schemeType"
             :baseOSSUrl="baseUrl"
         />
         <product-info-menu
@@ -464,6 +465,12 @@ export default defineComponent({
                 } else {
                     return stateInOut.value === "in" ? 2 : 1;
                 }
+            }),
+            schemeType: computed(() => {
+                // TODO: set the scheme type.
+                // 0 - 定制商品
+                // 1 - 非定制商品
+                return 0;
             }),
             eventHandle,
             stateInOut,

@@ -41,71 +41,76 @@ export class PopupGUI {
 
         // Level one panel : undo redo all clear
         if (this._loadingPanel == null) {
-            this._loadingPanel = new GUI.Rectangle()
-            this._loadingPanel.width = '528px'
-            this._loadingPanel.height = '181px'
-            this._loadingPanel.color = '#EAE7EAFF'
-            this._loadingPanel.background = 'white'
-            this._loadingPanel.cornerRadius = 4
-            this._loadingPanel.thickness = 1
-            //  this._loadingPanel.isVertical = false
-            this._popupUI.addControl(this._loadingPanel)
+            this._loadingPanel = new GUI.Rectangle();
+            this._loadingPanel.width = "528px";
+            this._loadingPanel.height = "181px";
+            this._loadingPanel.color = "#EAE7EAFF";
+            this._loadingPanel.background = "white";
+            this._loadingPanel.cornerRadius = 4;
+            this._loadingPanel.thickness = 1;
+            //  this._loadingPanel.isVertical = false;
+            this._popupUI.addControl(this._loadingPanel);
 
-            this._loadingInfo = new GUI.TextBlock()
-            this._loadingInfo.text = '衣柜加载中…'
-            this._loadingInfo.width = '144px'
-            this._loadingInfo.height = '32px'
-            this._loadingInfo.fontStyle = 'bold'
-            this._loadingInfo.fontSize = 24
-            this._loadingInfo.color = 'black'
-            //  this._loadingInfo.isVertical = false
-            this._loadingInfo.top = 34
-            this._loadingInfo.left = 44
-            this._loadingInfo.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP
-            this._loadingInfo.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
-            this._loadingPanel.addControl(this._loadingInfo)
+            this._loadingInfo = new GUI.TextBlock();
+            this._loadingInfo.text = "衣柜加载中…";
+            this._loadingInfo.width = "144px";
+            this._loadingInfo.height = "32px";
+            this._loadingInfo.fontStyle = "bold";
+            this._loadingInfo.fontSize = 24;
+            this._loadingInfo.color = "black";
+            //  this._loadingInfo.isVertical = false;
+            this._loadingInfo.top = 34;
+            this._loadingInfo.left = 44;
+            this._loadingInfo.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            this._loadingInfo.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            this._loadingPanel.addControl(this._loadingInfo);
 
-            this._loadingSlider = new GUI.Slider()
-            this._loadingSlider.left = 44
-            this._loadingSlider.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
-            this._loadingSlider.minimum = 0
-            this._loadingSlider.maximum = 1
-            this._loadingSlider.value = 0.55
-            this._loadingSlider.isThumbClamped = true
-            this._loadingSlider.isVertical = false
-            this._loadingSlider.displayThumb = false
-            this._loadingSlider.height = '24px'
-            this._loadingSlider.width = '455px'
-            this._loadingSlider.background = '#E5EEF5FF'
-            this._loadingSlider.color = '#0058A3FF'
-            this._loadingPanel.addControl(this._loadingSlider)
+            this._loadingSlider = new GUI.Slider();
+            this._loadingSlider.left = 44;
+            this._loadingSlider.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            this._loadingSlider.minimum = 0;
+            this._loadingSlider.maximum = 1;
+            this._loadingSlider.value = 0.55;
+            this._loadingSlider.isThumbClamped = true;
+            this._loadingSlider.isVertical = false;
+            this._loadingSlider.displayThumb = false;
+            this._loadingSlider.height = "24px";
+            this._loadingSlider.width = "455px";
+            this._loadingSlider.background = "#E5EEF5FF";
+            this._loadingSlider.color = "#0058A3FF";
+            this._loadingPanel.addControl(this._loadingSlider);
 
-            this._loadingHintInfo = new GUI.TextBlock()
-            this._loadingHintInfo.text = '小贴士：进行测量时，确保距离天花板还有9厘米的高度'
-            this._loadingHintInfo.width = '402px'
-            this._loadingHintInfo.height = '24px'
-            this._loadingHintInfo.fontSize = 16
-            this._loadingHintInfo.color = 'gray'
-            //  this._loadingHintInfo.isVertical = false
-            this._loadingHintInfo.top = -24
-            this._loadingHintInfo.left = 44
-            this._loadingHintInfo.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM
-            this._loadingHintInfo.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
-            this._loadingPanel.addControl(this._loadingHintInfo)
+            this._loadingHintInfo = new GUI.TextBlock();
+            this._loadingHintInfo.text = "小贴士：进行测量时，确保距离天花板还有9厘米的高度";
+            this._loadingHintInfo.width = "402px";
+            this._loadingHintInfo.height = "24px";
+            this._loadingHintInfo.fontSize = 16;
+            this._loadingHintInfo.color = "gray";
+            //  this._loadingHintInfo.isVertical = false;
+            this._loadingHintInfo.top = -24;
+            this._loadingHintInfo.left = 44;
+            this._loadingHintInfo.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+            this._loadingHintInfo.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            this._loadingPanel.addControl(this._loadingHintInfo);
         }
         if (this._loadingSlider) {
             // this._loadingSlider.value = this.loadedTemplateMeshCount / this.needToLoadCount
             // if (this._loadingSlider.value === 1) {
             setTimeout(() => {
-                if (this._loadingPanel)
-                    this._loadingPanel.dispose()
-                this._loadingPanel = null
-            }, 3500)
+                if (this._loadingPanel) this._loadingPanel.dispose();
+                this._loadingPanel = null;
+            }, 3500);
             // }
         }
     }
 
-    private displayPanel(graphics: Graphics, bizdata: BizData, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min: number, max: number): void {
+    private displayPanel(
+        graphics: Graphics,
+        bizdata: BizData,
+        mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
+        min: number,
+        max: number,
+    ): void {
         //  hide GUI when click empty area
         if (mesh == null) {
             if (this._deletePanel) {
@@ -131,45 +136,46 @@ export class PopupGUI {
         const info = mesh.name.split("_");
         const objectType = info[0];
 
-        if (this._sliderPanel == null && ObjectType.ITEM == objectType) {
-
+        if (this._sliderPanel == null && ObjectType.ITEM == objectType && min != 0 && max != 0) {
             this._grid = new GUI.Grid();
             this._popupUI.addControl(this._grid);
 
-            // TO DO : silder position code 
-            this._grid.addColumnDefinition(0.5);
-            this._grid.addColumnDefinition(0.5);
-            this._grid.addRowDefinition(0.25);
-            this._grid.addRowDefinition(0.5);
-            this._grid.addRowDefinition(0.25);
+            // TO DO : silder position code
+            this._grid.addColumnDefinition(0.95);
+            this._grid.addColumnDefinition(0.05);
+            this._grid.addRowDefinition(0.8);
+            this._grid.addRowDefinition(0.2);
 
             this._sliderPanel = new GUI.StackPanel();
             this._sliderPanel.width = "320px";
             this._grid.addControl(this._sliderPanel, 1, 0);
 
-            var header = new GUI.TextBlock();
+            const header = new GUI.TextBlock();
             header.text = "调整物体位置";
             header.height = "30px";
-            header.color = "black";
+            header.color = "#C1B399FF";
             this._sliderPanel.addControl(header);
 
-            var slider = new GUI.ImageBasedSlider();
+            const slider = new GUI.ImageBasedSlider();
             slider.minimum = min;
             slider.maximum = max;
             slider.isVertical = true;
             slider.isThumbClamped = true;
             slider.displayThumb = true;
             slider.width = "22px";
-            const sildHeight = ((slider.maximum - slider.minimum) * 100).toFixed(0);
-            slider.height = ( parseInt(sildHeight) < 150 ) ? 150 + "px" : sildHeight + "px";
-            slider.backgroundImage = new GUI.Image("back", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/backgroundImage-vertical.png");
-            slider.valueBarImage = new GUI.Image("value", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/valueImage-vertical.png");
-            slider.thumbImage = new GUI.Image("thumb", "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png");
+            slider.height = "150px";
+            slider.backgroundImage = new GUI.Image(
+                "back",
+                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/backgroundImage-vertical.png",
+            );
+            slider.thumbImage = new GUI.Image(
+                "thumb",
+                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png",
+            );
 
             slider.onValueChangedObservable.add((value: number) => {
                 if (mesh) {
                     mesh.position.y = value;
-
                     const info = mesh.name.split("_");
                     const itemId = info[1];
                     const item = bizdata.findItemById(itemId);
@@ -183,7 +189,6 @@ export class PopupGUI {
             slider.value = mesh.position.y;
             this._sliderPanel.addControl(slider);
         }
-
 
         // clear previous delete panel to avoid delete previous mesh
         if (this._deletePanel != null) {
@@ -239,10 +244,16 @@ export class PopupGUI {
             });
             this._deletePanel.linkWithMesh(mesh);
         }
-
     }
 
-    private drawRuler(graphics: Graphics, length: number, center: BABYLON.Vector3, direction: BABYLON.Vector3, title = "", size:number=0): void {
+    private drawRuler(
+        graphics: Graphics,
+        length: number,
+        center: BABYLON.Vector3,
+        direction: BABYLON.Vector3,
+        title = "",
+        size: number = 0,
+    ): void {
         const distance = 0.1;
         const heightValue = 1 * 0.054;
         const halfHeightValue = heightValue * 0.15;
@@ -265,7 +276,6 @@ export class PopupGUI {
             graphics.scene,
         );
         frameRulerMiddle.isPickable = false;
-
         frameRulerTop.position = center.clone();
         frameRulerMiddle.position = center.clone();
         frameRulerDown.position = center.clone();
@@ -275,10 +285,8 @@ export class PopupGUI {
         lengthText.height = "28px";
         lengthText.color = "#000000FF";
         lengthText.fontSize = 18;
-        if(size == 0)
-            lengthText.text = length.toFixed(2) + " \u7c73";
-        else
-            lengthText.text = size.toFixed(2) + " \u7c73";
+        if (size == 0) lengthText.text = length.toFixed(2) + " \u7c73";
+        else lengthText.text = size.toFixed(2) + " \u7c73";
         lengthText.shadowBlur = 1;
         lengthText.shadowOffsetX = 1;
         lengthText.shadowOffsetY = 1;
@@ -389,11 +397,24 @@ export class PopupGUI {
         frameRulerDown.material = frameRulerMat;
     }
 
-    public display(graphics: Graphics, bizdata: BizData, pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min: number = -1, max: number = -1) {
+    public display(
+        graphics: Graphics,
+        bizdata: BizData,
+        pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
+        min: number = -1,
+        max: number = -1,
+    ) {
         this.displayPanel(graphics, bizdata, pickedMesh, min, max);
     }
 
-    public showRuler(graphics: Graphics, bizdata: BizData, isDisplay: boolean, sizeHeight: number = 0, sizeWidth: number = 0, sizeDepth: number = 0) {
+    public showRuler(
+        graphics: Graphics,
+        bizdata: BizData,
+        isDisplay: boolean,
+        sizeHeight: number = 0,
+        sizeWidth: number = 0,
+        sizeDepth: number = 0,
+    ) {
         this.rulerDisplayed = isDisplay;
 
         if (!isDisplay) {
@@ -426,7 +447,7 @@ export class PopupGUI {
                 new BABYLON.Vector3(bizdata.endX, bizdata.totalHeight / 2, bizdata.totalDepth / 2),
                 new BABYLON.Vector3(0, 1, 0),
                 "height ",
-                sizeHeight
+                sizeHeight,
             );
         if (sizeWidth == 0)
             this.drawRuler(
@@ -443,7 +464,7 @@ export class PopupGUI {
                 new BABYLON.Vector3((bizdata.startX + bizdata.endX) / 2, bizdata.totalHeight, bizdata.totalDepth / 2),
                 new BABYLON.Vector3(1, 0, 0),
                 "width ",
-                sizeWidth
+                sizeWidth,
             );
         if (sizeDepth == 0)
             this.drawRuler(
@@ -460,7 +481,7 @@ export class PopupGUI {
                 new BABYLON.Vector3(bizdata.endX, 0.01, 0),
                 new BABYLON.Vector3(0, 0, 1),
                 "depth ",
-                sizeDepth
+                sizeDepth,
             );
     }
 }
