@@ -26,7 +26,7 @@
                                 <el-button
                                     v-else-if="!showServeBtn"
                                     class="service__serveBtn"
-                                    :type="getContinueServeBtnType(svc.no)"
+                                    type="primary"
                                     size="mini"
                                     round
                                     @click.stop="continueThisService(svc)"
@@ -240,9 +240,6 @@ export default defineComponent({
             },
             onScroll,
             pageScroll,
-            getContinueServeBtnType(name: string) {
-                return openedServices.value?.includes(name) ? "info" : "primary";
-            },
             continueThisService(svc: Service) {
                 store.commit("SET-CUSTOMER-CURRENT-SVCID", svc.id);
             },
@@ -308,7 +305,7 @@ $paddingX: 20px;
         :deep(.el-collapse-item__header.is-active) {
             border-bottom-left-radius: 0px;
             border-bottom-right-radius: 0px;
-            background-color: #c1b399;
+            background-color: #e0dacfff;
         }
         :deep(.el-collapse-item__wrap) {
             padding: 0 $paddingX;
@@ -372,13 +369,13 @@ $paddingX: 20px;
     &__serving {
         display: inline-block;
         margin-left: 40px;
-        padding: 5px 20px;
+        padding: 5px 16px;
         vertical-align: middle;
         border-radius: 20px;
         line-height: normal;
-        color: var(--el-color-primary);
+        color: white;
         font-size: 14px;
-        background-color: white;
+        background-color: var(--el-color-danger);
     }
     &__time {
         float: right;

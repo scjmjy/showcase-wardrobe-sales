@@ -10,19 +10,23 @@
                     <span class="text-label">尺寸：</span>
                     <span class="text-value">{{ sizeText }}</span>
                 </div>
-                <div class="product-info-menu__text-item">
+                <div v-if="nonCustom" class="product-info-menu__text-item">
                     <span class="text-label">单价：</span>
                     <span class="text-value">{{ unitPrice }}</span>
+                </div>
+                <div
+                    v-else-if="!isNew && offerPrice && offerPrice.integer"
+                    class="product-info-menu__text-item product-info-menu__offer"
+                >
+                    <span class="text-label">报价：</span>
+                    <span class="product-info-menu__offer-symbol"> ￥ </span>
+                    <span class="product-info-menu__offer-offer">{{ offerPrice.integer }}</span>
+                    <span class="product-info-menu__offer-symbol">.{{ offerPrice.decimal }} </span>
                 </div>
                 <span class="product-info-menu__text-description">
                     {{ description }}
                 </span>
             </div>
-            <!-- <div v-if="!isNew && offerPrice" class="product-info-menu__offer">
-                <span class="product-info-menu__offer-symbol"> ￥ </span>
-                <span class="product-info-menu__offer-offer">{{ offerPrice.integer }}</span>
-                <span class="product-info-menu__offer-symbol">.{{ offerPrice.decimal }} </span>
-            </div> -->
             <div class="product-info-menu__action">
                 <el-button
                     v-if="isNew"
@@ -51,7 +55,12 @@
                     @click="$emit('copyScheme')"
                     >由此方案定制</el-button
                 >
-                <el-button v-if="isSelf && !offerPrice" type="success" round size="small" @click="$emit('offer')"
+                <el-button
+                    v-if="isSelf && offerPrice && !offerPrice.integer"
+                    type="dark"
+                    round
+                    size="small"
+                    @click="$emit('offer')"
                     >报价</el-button
                 >
             </div>
@@ -103,6 +112,10 @@ export default defineComponent({
         isOther: {
             type: Boolean,
             default: true,
+        },
+        nonCustom: {
+            type: Boolean,
+            default: false,
         },
     },
     setup(props) {
@@ -205,20 +218,14 @@ export default defineComponent({
     }
 
     &__offer {
-        margin-top: 15px;
-        font-size: 32px;
         font-weight: bold;
-        color: black;
-        &-label {
-            font-size: 26px;
-        }
         &-symbol {
             color: #bb4050;
-            font-size: 19px;
+            font-size: 15px;
         }
         &-offer {
             color: #bb4050;
-            font-size: 41px;
+            font-size: 24px;
         }
     }
 

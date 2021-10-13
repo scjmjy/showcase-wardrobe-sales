@@ -83,7 +83,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch, Ref, nextTick, onMounted, provide, h } from "vue";
+import { computed, defineComponent, ref, nextTick, onMounted, provide, h } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -471,7 +471,6 @@ export default defineComponent({
                 // TODO: set the scheme type.
                 // 0 - 定制商品
                 // 1 - 非定制商品
-                schemeType.value = 0;
                 return schemeType.value;
             }),
             eventHandle,
@@ -577,14 +576,14 @@ export default defineComponent({
 
                 captureSchemeScreenshot();
             },
-            onInOutChange(_state: string) {
+            onInOutChange(_state: InOutState) {
                 showMenu.value = true;
             },
-            onOpenCloseChange(state: string) {
+            onOpenCloseChange(state: OpenCloseState) {
                 if (schemeType.value === 0) {
-                    refBabylon.value?.showDoors(state !== "open");
+                    refBabylon.value?.showDoors(state !== OpenCloseState.open);
                 } else if (schemeType.value === 1) {
-                    refBabylon.value?.switchCube(state === "open" ? 1 : 0)
+                    refBabylon.value?.switchCube(state === OpenCloseState.open ? 1 : 0);
                 }
             },
             onOfferDlgClosed() {

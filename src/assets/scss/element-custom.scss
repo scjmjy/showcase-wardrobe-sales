@@ -65,6 +65,10 @@
     &__title {
         color: white;
     }
+    &__close {
+        font-size: 26px;
+        font-weight: bold;
+    }
 }
 
 .el-input-number {
@@ -85,7 +89,29 @@
         border-bottom-color: transparent !important;
     }
 }
+.el-button--dark {
+    --el-button-font-color: #ffffff;
+    --el-button-background-color: #644c1f;
+    // --el-button-border-color: #644c1f;
+    --el-button-hover-color: #83642a;
+    --el-button-active-font-color: white;
+    --el-button-active-background-color: #58431c;
+    // --el-button-active-border-color: #cdcdcd;
 
+    &:hover,
+    &:focus {
+        background: var(--el-button-hover-color);
+        border-color: var(--el-button-hover-color);
+        color: var(--el-button-font-color);
+    }
+
+    &:active {
+        background: var(--el-button-active-background-color);
+        border-color: var(--el-button-active-border-color);
+        color: var(--el-button-active-font-color);
+        outline: none;
+    }
+}
 // $darkColor: #172021;
 
 // .el-button--black.is-active {

@@ -27,9 +27,9 @@
         </div>
         <div class="app-header__right">
             <!-- <el-image class="app-header__avatar u-circle" src="https://picsum.photos/200" circle fit="contain" /> -->
-            <span class="app-header__username"> {{ user.userName }} </span>
+            <span class="app-header__username" @click="onUsernameClick"> {{ user.userName }} </span>
             <!-- <el-tag class="app-header__job" type="primary" color="#D6CCBA">{{ user.rank }}</el-tag> -->
-            <el-divider direction="vertical"></el-divider>
+            <el-divider direction="vertical" style="margin-left: 2px"></el-divider>
             <el-button class="app-header__logout" type="text" @click="logout"> 退出 </el-button>
         </div>
     </div>
@@ -88,6 +88,14 @@ export default defineComponent({
             stopServe() {
                 store.commit("SWITCH-CUSTOMER", undefined);
                 router.push("/");
+            },
+            onUsernameClick() {
+                router.push({
+                    path: "/",
+                    query: {
+                        tab: "my",
+                    },
+                });
             },
             logout() {
                 store.dispatch("logout").then(() => {
@@ -164,9 +172,14 @@ export default defineComponent({
         height: 40px;
     }
     &__username {
-        margin-left: 7px;
+        cursor: pointer;
+        padding: 0 7px;
         font-size: 26px;
         color: white;
+        border-radius: 6px;
+        &:hover {
+            background-color: var(--el-color-primary-light-2);
+        }
     }
     &__job {
         margin-left: 11px;

@@ -46,7 +46,10 @@ $button-font-size: (
     "mini": 14px,
 );
 $button-font-color: (
-    "info": #644c1f,
+    // "info": #644c1f,
+);
+$button-background-color: (
+    // "info": #644c1f,
 );
 $tag: (
     "font-size": 16px,
@@ -66,6 +69,7 @@ $scrollbar: (
     $font-size: $font-size,
     $button-font-size: $button-font-size,
     $button-font-color: $button-font-color,
+    $button-background-color: $button-background-color,
     $tag: $tag,
     $text-color: $text-color,
     $scrollbar: $scrollbar,
