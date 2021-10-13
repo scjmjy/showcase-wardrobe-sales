@@ -240,6 +240,7 @@ export class PopupGUI {
                             break;
                     }
                     mesh = null;
+                    graphics.currentMesh = null;
                 }
             });
             this._deletePanel.linkWithMesh(mesh);

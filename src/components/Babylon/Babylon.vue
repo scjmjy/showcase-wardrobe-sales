@@ -1504,9 +1504,9 @@ export default defineComponent({
                                             });
                                     }
                                 }
-
-                                this.clearAvailableAreas();
                             }
+
+                            this.clearAvailableAreas();
                         } else {
                             this.gui.display(this.graphics, this.bizdata as BizData, null);
                             this.clearAvailableAreas();

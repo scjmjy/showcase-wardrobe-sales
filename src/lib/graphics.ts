@@ -762,6 +762,10 @@ export class Graphics {
         return this._currentMesh;
     }
 
+    public set currentMesh(mesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
+        this._currentMesh = mesh;
+    }
+
     public get hoverColor(): BABYLON.Color3 {
         return this._hoverColor;
     }
