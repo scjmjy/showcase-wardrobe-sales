@@ -247,7 +247,7 @@ export default class RestProvider extends LocalProvider {
                     resolve({
                         ok: true,
                         status: res.status,
-                        data: res.data,
+                        data: res.data || [],
                     });
                 })
                 .catch(() => {

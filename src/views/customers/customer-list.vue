@@ -5,7 +5,7 @@
         <div ref="refSchemeList" class="customer-list__schemes" v-loading="loadingSchemeList">
             <div class="customer-list__info">
                 <strong class="customer-list__info-label">{{ customerName }}</strong>
-                <el-button v-if="showServeBtn" size="small" type="warning" round @click="serve">为此客户服务</el-button>
+                <el-button v-if="showServeBtn" size="small" type="danger" round @click="serve">为此客户服务</el-button>
                 <!-- <el-button v-else-if="serveBtnPosition === 'inner'" size="small" type="primary" round @click="newServe"
                     >开始新服务</el-button
                 > -->
@@ -369,7 +369,7 @@ $paddingX: 20px;
     &__serving {
         display: inline-block;
         margin-left: 40px;
-        padding: 5px 16px;
+        padding: 5px 20px;
         vertical-align: middle;
         border-radius: 20px;
         line-height: normal;

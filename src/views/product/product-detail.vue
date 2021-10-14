@@ -31,10 +31,12 @@
             :isNew="isNew"
             :isSelf="isSelf"
             :isOther="isOther"
+            :nonCustom="!product.customized"
             @newScheme="newScheme"
             @continueScheme="continueEditScheme"
             @copyScheme="copyScheme"
             @offer="onPartsMenuAction('offer')"
+            @order="orderNonCustomProduct"
         />
         <template v-if="mode === 'edit'">
             <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
@@ -140,6 +142,11 @@ export default defineComponent({
 
         const product = ref(productDetailData as Product | Scheme);
 
+        const scheme3DType = computed(() => {
+            // 0 - 定制商品
+            // 1 - 非定制商品
+            return product.value.customized === 1 ? 0 : 1;
+        });
         const schemeMode = computed<SchemeMode>(() => {
             const p = product.value;
             if (isProduct(p)) {
@@ -222,7 +229,6 @@ export default defineComponent({
         ]);
         const gooeyMenuOpened = ref(false);
         const scheme = ref<Scheme3D>();
-        let schemeType = ref(0);
         const schemeDetailDirty = ref(false);
         async function requestScheme3D() {
             await util.importSchemeJson(product.value.manifest).then((s) => {
@@ -467,12 +473,7 @@ export default defineComponent({
                     return stateInOut.value === "in" ? 2 : 1;
                 }
             }),
-            scheme3DType: computed(() => {
-                // TODO: set the scheme type.
-                // 0 - 定制商品
-                // 1 - 非定制商品
-                return schemeType.value;
-            }),
+            scheme3DType,
             eventHandle,
             stateInOut,
             inOutStates,
@@ -492,6 +493,12 @@ export default defineComponent({
             creatingScheme,
             prepareContinue,
             customerName,
+            orderNonCustomProduct() {
+                ElMessage({
+                    type: "warning",
+                    message: "TODO： 下单非定制商品！",
+                });
+            },
             newScheme() {
                 if (!store.state.currentCustomer.customerId) {
                     ElMessage({
@@ -580,9 +587,9 @@ export default defineComponent({
                 showMenu.value = true;
             },
             onOpenCloseChange(state: OpenCloseState) {
-                if (schemeType.value === 0) {
+                if (scheme3DType.value === 0) {
                     refBabylon.value?.showDoors(state !== OpenCloseState.open);
-                } else if (schemeType.value === 1) {
+                } else if (scheme3DType.value === 1) {
                     refBabylon.value?.switchCube(state === OpenCloseState.open ? 1 : 0);
                 }
             },
@@ -619,7 +626,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 $menu-width: 25%;
-// $menu-min-width: 250px;
 .product-detail {
     position: relative;
     display: flex;
@@ -627,15 +633,8 @@ $menu-width: 25%;
     align-items: center;
     width: 100%;
     height: 100%;
-    // background-color: var(--el-color-bg);
-    // background: linear-gradient(#f2f4f5, #f1f3f4);
     overflow: hidden;
     &__3d {
-        // flex: 1;
-        // overflow: auto;
-        // width: 800px;
-        // height: 600px;
-        // width: 100%;
         flex: 1;
         height: 100%;
         overflow: hidden;
@@ -643,20 +642,6 @@ $menu-width: 25%;
         left: 0px;
         transition: left 0.3s ease-in-out;
     }
-
-    // &__action-customize {
-    //     position: absolute;
-    //     top: 0px;
-    //     right: 0px;
-    //     bottom: 0px;
-    //     width: 280px;
-    //     white-space: nowrap;
-    //     display: flex;
-    //     flex-direction: column;
-    //     justify-content: center;
-    //     align-items: center;
-    //     background-color: white;
-    // }
     &__back {
         position: absolute;
         left: 30px;
@@ -674,15 +659,11 @@ $menu-width: 25%;
         width: $menu-width;
     }
     &__info {
+        transition: right 0.3s ease;
         position: absolute;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        top: 0px;
+        top: 70px;
         bottom: 0px;
         right: 0px;
-        padding: 0 1.5%;
         white-space: nowrap;
         background-color: white;
 
@@ -714,11 +695,7 @@ $menu-width: 25%;
         right: 60px;
         transition: right 0.3s ease-in-out;
     }
-    // &.slide-left-3d &__action-top {
-    //     right: 348px;
-    // }
     &.slide-left-3d &__3d {
-        // left: -170px;
         left: calc(-#{$menu-width} / 2);
     }
     &.menu-opened &__menu2d {
@@ -729,28 +706,4 @@ $menu-width: 25%;
 .collapse {
     right: calc(-#{$menu-width} + 80px);
 }
-
-// .test {
-//     &-screenshot {
-//         width: 800px;
-//         height: 600px;
-//         position: absolute;
-//         left: 0;
-//         top: 80px;
-//     }
-// }
-// @media (min-width: 1150px) {
-//     .product-detail {
-//         &__menu2d {
-//             right: -270px;
-//         }
-//     }
-// }
-// @media (min-width: 1366px) {
-//     .product-detail {
-//         &__menu2d {
-//             right: -345px;
-//         }
-//     }
-// }
 </style>

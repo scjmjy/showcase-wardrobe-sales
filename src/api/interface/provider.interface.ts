@@ -29,16 +29,20 @@ export interface Service {
     no: string;
     ctime: string;
 }
-export interface Product {
-    id: string;
-    name: string;
+
+export interface BaseProduct {
+    id: number; // Product id / Scheme id
+    name: string; // Product name / Scheme name
     manifest: string;
-    compostion: string;
-    description: string;
+    composition: string;
     pic: string;
     depth: number;
     width: number;
     height: number;
+    customized: number; // 0:非定制商品， 1:定制商品
+}
+export interface Product extends BaseProduct {
+    description: string;
     depthmax: number;
     depthmin: number;
     widthmax: number;
@@ -99,22 +103,14 @@ export interface Customer {
     phone?: string;
 }
 
-export interface Scheme {
-    id: number | string;
-    name: string;
+export interface Scheme extends BaseProduct {
     cid: string;
     customer: string;
     product: string;
     pid: number;
-    manifest: string;
-    composition: string;
     offer: string;
     ptime: string;
-    pic?: string;
     cover: string[];
-    depth: number;
-    width: number;
-    height: number;
     pdepthmax: number;
     pdepthmin: number;
     pwidthmax: number;
@@ -268,6 +264,7 @@ export interface VisitorRecordItem {
     customerName: string;
     etime?: string;
     ltime?: string;
+    _date: string;
 }
 
 export interface PartAttachment {

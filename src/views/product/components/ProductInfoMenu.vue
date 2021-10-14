@@ -6,13 +6,10 @@
                     <div v-if="!isNew">{{ titles.ownerName }}</div>
                     <div>{{ titles.productName }}</div>
                 </div>
-                <div class="product-info-menu__text-item">
-                    <span class="text-label">尺寸：</span>
-                    <span class="text-value">{{ sizeText }}</span>
-                </div>
-                <div v-if="nonCustom" class="product-info-menu__text-item">
-                    <span class="text-label">单价：</span>
-                    <span class="text-value">{{ unitPrice }}</span>
+                <div v-if="nonCustom" class="product-info-menu__text-unitPrice">
+                    <span class="unit-price__symbol">￥</span>
+                    <span class="unit-price__value">{{ unitPrice }}</span>
+                    <span class="unit-price__unit">元/平米</span>
                 </div>
                 <div
                     v-else-if="!isNew && offerPrice && offerPrice.integer"
@@ -23,46 +20,78 @@
                     <span class="product-info-menu__offer-offer">{{ offerPrice.integer }}</span>
                     <span class="product-info-menu__offer-symbol">.{{ offerPrice.decimal }} </span>
                 </div>
-                <span class="product-info-menu__text-description">
-                    {{ description }}
-                </span>
+                <div v-if="nonCustom" class="product-info-menu__text-state">
+                    <span class="sale-state__1">在售</span>
+                    <span class="sale-state__2">（现货）</span>
+                </div>
+                <div class="product-info-menu__text-size">
+                    <div class="size-item" v-for="(item, index) of sizeList" :key="index">
+                        <span class="size-item__label">{{ item.label }}</span>
+                        <span class="size-item__value">{{ item.value }}</span>
+                    </div>
+                </div>
+                <div class="product-info-menu__text-description">
+                    <div class="description__label">商品描述</div>
+                    <div class="description__value">{{ description }}</div>
+                </div>
+                <el-rate
+                    class="product-info-menu__text-rate"
+                    v-model="rate"
+                    :colors="['#FD7F23FF', '#FD7F23FF', '#FD7F23FF']"
+                    :texts="rateTexts"
+                    show-text
+                    disabled
+                ></el-rate>
             </div>
             <div class="product-info-menu__action">
-                <el-button
-                    v-if="isNew"
-                    type="primary"
-                    :loading="creatingScheme"
-                    round
-                    size="small"
-                    @click="$emit('newScheme')"
-                    >开始定制</el-button
-                >
-                <el-button
-                    v-if="isSelf"
-                    type="primary"
-                    :loading="prepareContinue"
-                    round
-                    size="small"
-                    @click="$emit('continueScheme')"
-                    >继续定制</el-button
-                >
-                <el-button
-                    v-if="isSelf || isOther"
-                    type="primary"
-                    :loading="creatingScheme"
-                    round
-                    size="small"
-                    @click="$emit('copyScheme')"
-                    >由此方案定制</el-button
-                >
-                <el-button
-                    v-if="isSelf && offerPrice && !offerPrice.integer"
-                    type="dark"
-                    round
-                    size="small"
-                    @click="$emit('offer')"
-                    >报价</el-button
-                >
+                <template v-if="nonCustom">
+                    <el-button
+                        v-if="isNew"
+                        type="black"
+                        :loading="creatingScheme"
+                        round
+                        size="small"
+                        @click="$emit('order')"
+                        >下单</el-button
+                    >
+                </template>
+                <template v-else>
+                    <el-button
+                        v-if="isNew"
+                        type="black"
+                        :loading="creatingScheme"
+                        round
+                        size="small"
+                        @click="$emit('newScheme')"
+                        >开始定制</el-button
+                    >
+                    <el-button
+                        v-if="isSelf"
+                        type="black"
+                        :loading="prepareContinue"
+                        round
+                        size="small"
+                        @click="$emit('continueScheme')"
+                        >继续定制</el-button
+                    >
+                    <el-button
+                        v-if="isSelf || isOther"
+                        type="primary"
+                        :loading="creatingScheme"
+                        round
+                        size="small"
+                        @click="$emit('copyScheme')"
+                        >由此方案定制</el-button
+                    >
+                    <el-button
+                        v-if="isSelf && offerPrice && !offerPrice.integer"
+                        type="dark"
+                        round
+                        size="small"
+                        @click="$emit('offer')"
+                        >报价</el-button
+                    >
+                </template>
             </div>
         </template>
         <i
@@ -78,7 +107,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType } from "vue";
+import { computed, defineComponent, ref, PropType } from "vue";
 import { splitPrice } from "@/utils/currency";
 import { Product, Scheme, isProduct } from "@/api/interface/provider.interface";
 
@@ -153,27 +182,49 @@ export default defineComponent({
                     };
                 }
             }),
-            sizeText: computed(() => {
+            sizeList: computed(() => {
                 const p = props.product;
                 if (!p) {
-                    return undefined;
+                    return [];
                 }
-                return `${p.height} × ${p.depth} × ${p.width} (m)`;
+                return [
+                    {
+                        label: "高度：",
+                        value: p.height + " m",
+                    },
+                    {
+                        label: "深度：",
+                        value: p.depth + " m",
+                    },
+                    {
+                        label: "宽度：",
+                        value: p.width + " m",
+                    },
+                ];
             }),
+            // sizeText: computed(() => {
+            //     const p = props.product;
+            //     if (!p) {
+            //         return undefined;
+            //     }
+            //     return `${p.height} × ${p.depth} × ${p.width} (m)`;
+            // }),
             description: computed(() => {
                 const p = props.product;
                 if (!p) {
                     return "暂无描述";
                 }
-                return "-";
+                return "关于新中式商品的一段描述，文字对齐的方式需要注意。关于新中式商品的一段描述，文字对齐的方式需要注意。关于新中式商品的一段描述，文字对齐的方式需要注意。";
             }),
             unitPrice: computed(() => {
                 const p = props.product;
                 if (!p) {
                     return "暂无单价";
                 }
-                return "-";
+                return "800";
             }),
+            rate: ref(5),
+            rateTexts: ["1分", "2分", "3分", "4分", "5分"],
         };
     },
 });
@@ -181,43 +232,98 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .product-info-menu {
-    transition: right 0.3s ease;
-
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 3%;
     &__text {
         width: 100%;
         &-title {
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--el-color-info);
             font-size: 22px;
             font-weight: 800;
             color: var(--el-color-black);
-            margin-bottom: 13px;
+            text-align: center;
         }
-        .text-label,
-        .text-value {
-            color: #6f6f6fff;
-            font-size: 16px;
+        &-unitPrice {
+            margin-top: 17px;
+            color: var(--el-color-black);
+            .unit-price {
+                &__symbol {
+                    font-weight: bold;
+                    font-size: 20px;
+                }
+                &__value {
+                    font-weight: bold;
+                    font-size: 40px;
+                }
+                &__unit {
+                    margin-left: 5px;
+                    font-size: 20px;
+                }
+            }
         }
-        .text-label {
-            font-weight: 800;
+        &-state {
+            margin-top: 17px;
+            .sale-state {
+                &__1 {
+                    color: #ff7f00;
+                    font-size: 22px;
+                    font-weight: bold;
+                }
+                &__2 {
+                    color: var(--el-color-black);
+                    font-size: 18px;
+                }
+            }
         }
-        &-item {
-            padding: 11px 0;
-            border-top: 1px solid var(--el-color-info);
-            &:last-of-type {
-                border-bottom: 1px solid var(--el-color-info);
+        &-size {
+            margin-top: 17px;
+            .size-item {
+                font-size: 22px;
+                font-weight: bold;
+                &__label {
+                    color: var(--el-color-black);
+                }
+                &__value {
+                    display: inline-block;
+                    margin-left: 17px;
+                    width: 75px;
+                    color: #7c7c7cff;
+                    text-align: right;
+                }
             }
         }
         &-description {
-            display: block;
-            margin-top: 22px;
-            padding: 11px;
-            min-height: 116px;
-            color: #5c5c5cff;
-            font-size: 18px;
-            background-color: #f4f4f4ff;
+            margin-top: 33px;
+            .description__label {
+                font-size: 18px;
+                font-weight: bold;
+                color: #7c7c7c;
+            }
+            .description__value {
+                margin-top: 6px;
+                line-height: 26px;
+                font-size: 14px;
+                color: #909090;
+                white-space: pre-wrap;
+            }
+        }
+        &-rate {
+            margin-top: 30px;
+        }
+        :deep(.el-rate) {
+            .el-rate__text {
+                font-size: 18px;
+                font-weight: bold;
+                color: #7c7c7c !important;
+            }
         }
     }
 
     &__offer {
+        margin-top: 17px;
         font-weight: bold;
         &-symbol {
             color: #bb4050;
@@ -230,7 +336,7 @@ export default defineComponent({
     }
 
     &__action {
-        margin-top: 42px;
+        margin-top: 30px;
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -244,22 +350,4 @@ export default defineComponent({
         }
     }
 }
-
-// @media (min-width: 1150px) {
-//     .product-info-menu {
-//         width: $infoWidthMedium;
-//         &.collapse {
-//             right: -230px;
-//         }
-//     }
-// }
-
-// @media (min-width: 1366px) {
-//     .product-info-menu {
-//         width: $infoWidthLarge;
-//         &.collapse {
-//             right: -280px;
-//         }
-//     }
-// }
 </style>

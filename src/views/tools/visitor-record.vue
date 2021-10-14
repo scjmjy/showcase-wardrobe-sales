@@ -1,39 +1,61 @@
 <template>
     <div class="visitor-record">
+        <app-header class="visitor-record__header" type="dark" />
         <div class="visitor-record-header">
-            <el-button icon="el-icon-arrow-left" type="text" @click="$router.back()">返回</el-button>
+            <!-- <el-button icon="el-icon-arrow-left" type="text" @click="$router.back()">返回</el-button> -->
             <span class="visitor-record-header__title">游客记录工具</span>
-            <el-button class="visitor-record-header__add" type="primary" @click="addRecord">增加记录</el-button>
+            <el-button class="visitor-record-header__add" type="primary" @click="addRecord">添加游客记录</el-button>
         </div>
         <el-table class="visitor-record-table" :data="currentPageData" height="100px" size="large" v-loading="loading">
-            <el-table-column label="游客" prop="no" width="200" align="center" />
-            <el-table-column label="进店时间" align="center">
+            <el-table-column label="游客" prop="no" width="240" align="center" />
+            <el-table-column label="到访日期" align="center">
                 <template #default="scope">
                     <el-date-picker
-                        v-model="scope.row.etime"
-                        type="datetime"
-                        placeholder="选择进店时间"
-                        format="YYYY-MM-DD HH:mm"
+                        v-model="scope.row._date"
+                        type="date"
+                        placeholder="选择到访日期"
+                        format="YYYY-MM-DD"
+                        prefix-icon="el-icon-edit"
                         @change="onItemChange(scope.$index, scope.row)"
                     >
                     </el-date-picker>
+                </template>
+            </el-table-column>
+            <el-table-column label="进店时间" align="center">
+                <template #default="scope">
+                    <el-time-picker
+                        v-model="scope.row.etime"
+                        type="time"
+                        placeholder="选择进店时间"
+                        format="HH:mm"
+                        :disabled="!scope.row._date"
+                        @change="onItemChange(scope.$index, scope.row)"
+                    >
+                    </el-time-picker>
                 </template>
             </el-table-column>
             <el-table-column label="离店时间" align="center">
                 <template #default="scope">
-                    <el-date-picker
+                    <el-time-picker
                         v-model="scope.row.ltime"
-                        type="datetime"
+                        type="time"
                         placeholder="选择离店时间"
-                        format="YYYY-MM-DD HH:mm"
+                        format="HH:mm"
+                        :disabled="!scope.row._date"
                         @change="onItemChange(scope.$index, scope.row)"
                     >
-                    </el-date-picker>
+                    </el-time-picker>
                 </template>
             </el-table-column>
-            <el-table-column label="" width="200" align="right">
+            <el-table-column label="操作" width="120" align="center">
                 <template #default="scope">
-                    <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    <el-button
+                        icon="el-icon-delete"
+                        size="mini"
+                        type="danger"
+                        circle
+                        @click="handleDelete(scope.$index, scope.row)"
+                    ></el-button>
                 </template>
             </el-table-column>
             <template #empty>
@@ -58,10 +80,12 @@ import PageScroll, { LOAD_STATE } from "@/utils/page-scroll";
 import apiProvider from "@/api/provider";
 import LoadMore from "@/components/LoadMore.vue";
 import { VisitorRecordItem } from "@/api/interface/provider.interface";
+import AppHeader from "@/views/home/components/AppHeader.vue";
 
 export default defineComponent({
     name: "VisitorRecord",
     components: {
+        AppHeader,
         LoadMore,
     },
     setup() {
@@ -85,7 +109,17 @@ export default defineComponent({
             const end = start + pageScroll.pageSize;
             return recordList.value.slice(start, end);
         });
-        const pageScroll = new PageScroll(undefined, requestApi, loadState, recordList, {
+        const pageScroll = new PageScroll<VisitorRecordItem>(undefined, requestApi, loadState, recordList, {
+            beforeDataHandler: (data) => {
+                data.forEach((item) => {
+                    Object.defineProperty(item, "_date", {
+                        value: item.etime,
+                        enumerable: true,
+                        writable: true,
+                    });
+                });
+                return data;
+            },
             onDataFinish: () => {
                 loading.value = false;
             },
@@ -106,7 +140,27 @@ export default defineComponent({
             reloadAll();
         }
         async function onItemChange(index: number, row: VisitorRecordItem) {
-            await apiProvider.updateVisitorItem(row);
+            let enterDatetimeStr = "";
+            let leaveDatetimeStr = "";
+            const date = new Date(row._date);
+            if (row.etime) {
+                const enterDateime = new Date(row.etime);
+                enterDateime.setFullYear(date.getFullYear());
+                enterDateime.setMonth(date.getMonth());
+                enterDateime.setDate(date.getDate());
+                enterDatetimeStr = enterDateime.toUTCString();
+            }
+            if (row.ltime) {
+                const leaveDateime = new Date(row.ltime);
+                leaveDateime.setFullYear(date.getFullYear());
+                leaveDateime.setMonth(date.getMonth());
+                leaveDateime.setDate(date.getDate());
+                leaveDatetimeStr = leaveDateime.toUTCString();
+            }
+            const item = Object.assign({}, row);
+            item.etime = enterDatetimeStr;
+            item.ltime = leaveDatetimeStr;
+            await apiProvider.updateVisitorItem(item);
         }
         function prevPage() {
             if (currentPageNum.value <= 1) {
@@ -153,10 +207,12 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .visitor-record {
-    max-width: 1440px;
+    // max-width: 1440px;
+    width: 100%;
     height: 100%;
     overflow: hidden;
-    margin: 40px auto 20px;
+    margin: 82px auto 20px;
+    padding: 0 40px;
     display: flex;
     flex-direction: column;
 
@@ -173,7 +229,8 @@ export default defineComponent({
     &-table {
         margin-top: 20px;
         margin-bottom: 20px;
-        width: 1000px;
+        // width: 1000px;
+        width: 100%;
         flex: 1;
     }
 
@@ -184,7 +241,19 @@ export default defineComponent({
         }
     }
     :deep(.el-date-editor) {
-        --el-date-editor-width: 250px;
+        --el-date-editor-width: 200px;
+        .el-input__inner {
+            color: #7c7c7cff !important;
+            font-size: 20px !important;
+            text-align: center;
+            border-bottom: unset !important;
+        }
+    }
+
+    :deep(.el-date-editor--time) {
+        .el-input__icon {
+            color: #196bffff !important;
+        }
     }
 }
 </style>

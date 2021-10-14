@@ -76,7 +76,7 @@ export default class PageScroll<T> {
                         this.nextRequestPage++;
                     }
                     if (this.handlers && this.handlers.beforeDataHandler) {
-                        result = this.handlers.beforeDataHandler(result);
+                        result = this.handlers.beforeDataHandler(result) || result;
                     }
                     if (result.length) {
                         this.dataArray.value.splice((this.currentPage - 1) * this.pageSize, this.pageSize, ...result);

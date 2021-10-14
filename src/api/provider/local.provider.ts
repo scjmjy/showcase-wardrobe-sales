@@ -280,10 +280,10 @@ export default class LocalProvider implements ApiProvider {
             ok: true,
             data: new Array(10).fill(0).map((val, index) => {
                 return {
-                    id: index + "",
+                    id: index,
                     name: cid + "-商品-" + index,
                     manifest: "manifest",
-                    compostion: "compostion",
+                    composition: "compostion",
                     description: "description",
                     pic: "https://picsum.photos/300/300?random=" + index + cid,
                     width: 0,
@@ -295,6 +295,7 @@ export default class LocalProvider implements ApiProvider {
                     widthmin: 0,
                     heightmax: 0,
                     heightmin: 0,
+                    customized: 1,
                 };
             }),
         });
@@ -305,10 +306,10 @@ export default class LocalProvider implements ApiProvider {
             status: 200,
             ok: true,
             data: {
-                id: pid + "",
+                id: +pid,
                 name: "商品-" + pid,
                 manifest: "manifest",
-                compostion: "compostion",
+                composition: "compostion",
                 description: "description",
                 pic: "https://picsum.photos/300/300?random=" + pid,
                 width: 0,
@@ -320,6 +321,7 @@ export default class LocalProvider implements ApiProvider {
                 widthmin: 0,
                 heightmax: 0,
                 heightmin: 0,
+                customized: 1,
             },
         });
     }
@@ -344,7 +346,7 @@ export default class LocalProvider implements ApiProvider {
             ok: true,
             data: new Array(10).fill(0).map((val, index) => {
                 return {
-                    id: index + "",
+                    id: index,
                     name: svcid + "-方案-" + index,
                     cid: svcid + "",
                     customer: "客户" + svcid,
@@ -354,6 +356,7 @@ export default class LocalProvider implements ApiProvider {
                     composition: "composition",
                     offer: mockOffer[index % mockOffer.length],
                     ptime: mockDate[index % mockDate.length],
+                    pic: "",
                     cover: [
                         "https://picsum.photos/300/300?random=" + index + svcid,
                         "https://picsum.photos/300/300?random=1" + index + svcid,
@@ -368,6 +371,7 @@ export default class LocalProvider implements ApiProvider {
                     pwidthmin: 0,
                     pheightmax: 0,
                     pheightmin: 0,
+                    customized: 1,
                 };
             }),
         });
@@ -377,7 +381,7 @@ export default class LocalProvider implements ApiProvider {
             status: 200,
             ok: true,
             data: {
-                id: sid + "",
+                id: +sid,
                 name: "方案-" + sid,
                 cid: 2 + "",
                 customer: "customer",
@@ -387,6 +391,7 @@ export default class LocalProvider implements ApiProvider {
                 composition: "composition",
                 offer: +sid % 2 === 0 ? "10000" : "0",
                 ptime: Date.now() + "",
+                pic: "",
                 cover: [
                     "https://picsum.photos/300/300?random=" + sid,
                     "https://picsum.photos/300/300?random=1" + sid,
@@ -401,6 +406,7 @@ export default class LocalProvider implements ApiProvider {
                 pwidthmin: 0,
                 pheightmax: 0,
                 pheightmin: 0,
+                customized: 1,
             },
         });
     }
@@ -472,6 +478,7 @@ export default class LocalProvider implements ApiProvider {
         const record: VisitorRecordItem = {
             no,
             customerName: eid + "",
+            _date: "",
         };
         localVisitorRecordList.push(record);
         return Promise.resolve({

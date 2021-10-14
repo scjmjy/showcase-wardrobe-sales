@@ -45,12 +45,12 @@ $button-font-size: (
     "small": 18px,
     "mini": 14px,
 );
-$button-font-color: (
-    // "info": #644c1f,
-);
-$button-background-color: (
-    // "info": #644c1f,
-);
+// $button-font-color: (
+//     // "info": #644c1f,
+// );
+// $button-background-color: (
+//     // "info": #644c1f,
+// );
 $tag: (
     "font-size": 16px,
     "border-radius": 20px,
@@ -64,15 +64,21 @@ $scrollbar: (
     "background-color": var(--el-color-primary),
     "hover-background-color": var(--el-color-primary),
 );
+$table: (
+    "header-font-color": var(--el-color-black),
+    "font-color": #7c7c7cff,
+);
+
 @forward "~element-plus/theme-chalk/src/common/var.scss" with(
     $colors: $colors,
     $font-size: $font-size,
     $button-font-size: $button-font-size,
-    $button-font-color: $button-font-color,
-    $button-background-color: $button-background-color,
+    // $button-font-color: $button-font-color,
+    // $button-background-color: $button-background-color,
     $tag: $tag,
     $text-color: $text-color,
     $scrollbar: $scrollbar,
+    $table: $table,
     $font-path: '~element-plus/theme-chalk/fonts',
 );
 

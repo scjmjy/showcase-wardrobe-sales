@@ -1,3 +1,5 @@
+@use "~element-plus/theme-chalk/src/mixins/button" as *;
+
 .el-input--prefix .el-input__inner {
     padding-left: 45px !important;
 }
@@ -60,14 +62,19 @@
 .el-message-box {
     border-color: var(--el-color-black);
     &__header {
-        background-color: var(--el-color-black);
+        background-color: var(--el-color-primary);
     }
     &__title {
-        color: white;
+        color: var(--el-color-black);
     }
     &__close {
+        color: var(--el-color-black) !important;
         font-size: 26px;
         font-weight: bold;
+        &:focus,
+        &:hover {
+            color: white !important;
+        }
     }
 }
 
@@ -90,7 +97,7 @@
     }
 }
 .el-button--dark {
-    --el-button-font-color: #ffffff;
+    --el-button-font-color: white;
     --el-button-background-color: #644c1f;
     // --el-button-border-color: #644c1f;
     --el-button-hover-color: #83642a;
@@ -98,37 +105,38 @@
     --el-button-active-background-color: #58431c;
     // --el-button-active-border-color: #cdcdcd;
 
-    &:hover,
-    &:focus {
-        background: var(--el-button-hover-color);
-        border-color: var(--el-button-hover-color);
-        color: var(--el-button-font-color);
-    }
+    @include button-variant("primary");
+}
+.el-button--black {
+    --el-button-font-color: white;
+    --el-button-background-color: var(--el-color-black);
+    --el-button-border-color: var(--el-color-black);
+    --el-button-hover-color: white;
+    // --el-button-active-font-color: white;
+    // --el-button-active-background-color: #58431c;
+    // --el-button-active-border-color: #cdcdcd;
 
-    &:active {
-        background: var(--el-button-active-background-color);
-        border-color: var(--el-button-active-border-color);
-        color: var(--el-button-active-font-color);
-        outline: none;
+    @include button-variant("primary");
+
+    &:focus,
+    &:active,
+    &:hover {
+        color: var(--el-color-black);
+        border-color: var(--el-color-black) !important;
+        border-style: solid !important;
     }
 }
-// $darkColor: #172021;
 
-// .el-button--black.is-active {
-//     background: white !important;
-//     border-color: $darkColor !important;
-//     color: $darkColor !important;
-// }
-
-// .el-button--black:focus,
-// .el-button--black:hover {
-//     background: white !important;
-//     border-color: $darkColor !important;
-//     color: $darkColor !important;
-// }
-
-// .el-button--black {
-//     color: #fff !important;
-//     background-color: $darkColor !important;
-//     border-color: $darkColor !important;
-// }
+.el-table {
+    &__header {
+        .cell {
+            font-weight: bold;
+            font-size: 22px;
+        }
+    }
+    &__body {
+        .cell {
+            font-size: 20px;
+        }
+    }
+}

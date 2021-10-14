@@ -82,7 +82,7 @@ export default defineComponent({
     }
 
     &.active &__img {
-        border: 3px solid var(--el-color-primary);
+        border: 3px solid var(--el-color-danger);
     }
 }
 </style>
