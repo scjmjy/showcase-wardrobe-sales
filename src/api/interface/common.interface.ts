@@ -10,6 +10,12 @@ export interface NameValue {
     value: string | number;
 }
 
+export interface Size3D {
+    width: number;
+    height: number;
+    depth: number;
+}
+
 // export interface RadarIndicator {
 //     name: string;
 //     max: number;

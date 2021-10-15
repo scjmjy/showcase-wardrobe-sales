@@ -24,12 +24,7 @@ export function hideSchemeSaveLoading(delay = 150) {
     }
 }
 
-export type CustomizeMode = "new" | "continue" | "copy";
-export interface CustomizeSize {
-    height: number;
-    depth: number;
-    width: number;
-}
+export type CustomizeMode = "new" | "continue" | "copy" | "new-non-custom";
 export interface CustomizeMinMax {
     depthMax: number;
     depthMin: number;

@@ -6,7 +6,7 @@
                     <div v-if="!isNew">{{ titles.ownerName }}</div>
                     <div>{{ titles.productName }}</div>
                 </div>
-                <div v-if="nonCustom" class="product-info-menu__text-unitPrice">
+                <div v-if="nonCustom && isNew" class="product-info-menu__text-unitPrice">
                     <span class="unit-price__symbol">￥</span>
                     <span class="unit-price__value">{{ unitPrice }}</span>
                     <span class="unit-price__unit">元/平米</span>
@@ -15,12 +15,12 @@
                     v-else-if="!isNew && offerPrice && offerPrice.integer"
                     class="product-info-menu__text-item product-info-menu__offer"
                 >
-                    <span class="text-label">报价：</span>
+                    <span class="text-label">{{ nonCustom ? "总价" : "报价" }}：</span>
                     <span class="product-info-menu__offer-symbol"> ￥ </span>
                     <span class="product-info-menu__offer-offer">{{ offerPrice.integer }}</span>
                     <span class="product-info-menu__offer-symbol">.{{ offerPrice.decimal }} </span>
                 </div>
-                <div v-if="nonCustom" class="product-info-menu__text-state">
+                <div v-if="nonCustom" class="product-info-menu__text-state" style="visibility: hidden">
                     <span class="sale-state__1">在售</span>
                     <span class="sale-state__2">（现货）</span>
                 </div>
@@ -41,6 +41,7 @@
                     :texts="rateTexts"
                     show-text
                     disabled
+                    style="visibility: hidden"
                 ></el-rate>
             </div>
             <div class="product-info-menu__action">
@@ -151,6 +152,12 @@ export default defineComponent({
         return {
             offerPrice: computed(() => {
                 const p = props.product;
+                if (props.nonCustom) {
+                    return {
+                        integer: 3000,
+                        decimal: "00",
+                    };
+                }
                 if (!p || isProduct(p)) {
                     return undefined;
                 }
@@ -214,7 +221,7 @@ export default defineComponent({
                 if (!p) {
                     return "暂无描述";
                 }
-                return "关于新中式商品的一段描述，文字对齐的方式需要注意。关于新中式商品的一段描述，文字对齐的方式需要注意。关于新中式商品的一段描述，文字对齐的方式需要注意。";
+                return "-";
             }),
             unitPrice: computed(() => {
                 const p = props.product;
@@ -244,7 +251,7 @@ export default defineComponent({
             font-size: 22px;
             font-weight: 800;
             color: var(--el-color-black);
-            text-align: center;
+            // text-align: center;
         }
         &-unitPrice {
             margin-top: 17px;
@@ -257,6 +264,7 @@ export default defineComponent({
                 &__value {
                     font-weight: bold;
                     font-size: 40px;
+                    vertical-align: sub;
                 }
                 &__unit {
                     margin-left: 5px;

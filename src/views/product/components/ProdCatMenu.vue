@@ -18,7 +18,7 @@ import { computed, DefineComponent, defineComponent, nextTick, reactive, ref } f
 import apiProvider from "@/api/provider";
 import { CategoryFilter, findDefaultActiveProdCat, ProductCategory } from "@/api/interface/provider.interface";
 import variables from "@/assets/scss/variables.scss";
-import { LabelValue } from "@/api/interface/common.interfact";
+import { LabelValue } from "@/api/interface/common.interface";
 import MenuItem from "./MenuItem.vue";
 import { ElMenu } from "element-plus";
 

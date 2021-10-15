@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import { LabelValue } from "@/api/interface/common.interfact";
+import { LabelValue } from "@/api/interface/common.interface";
 import { defineComponent, PropType } from "vue";
 
 export interface ImgRadioItemType {

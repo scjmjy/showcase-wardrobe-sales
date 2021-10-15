@@ -1,5 +1,5 @@
 import { PartCount } from "@/lib/scheme";
-import { LabelValue } from "./common.interfact";
+import { LabelValue, Size3D } from "./common.interface";
 
 // import { LabelValue } from "./common.interface";
 export interface AjaxResponse<T> {
@@ -123,7 +123,7 @@ export function isProduct(p: any): p is Product {
     return p.pid === undefined;
 }
 export interface CreateSchemeResult {
-    id: number | string;
+    id: number;
 }
 
 export interface PartCategory {
@@ -355,6 +355,7 @@ export default interface ApiProvider {
         pid?: string | number,
         sid?: string | number,
     ): Promise<AjaxResponse<CreateSchemeResult>>;
+    changeSchemeSize(sid: number, size: Size3D): Promise<AjaxResponse<void>>;
 
     requestPartCategories(): Promise<AjaxResponse<PartCategory[]>>;
     /**

@@ -22,6 +22,7 @@ import { AreaHints, Area } from "@/lib/model/hint";
 import { AnchorMeta } from "@/lib/model/pscope";
 
 import { IndexDb, DBValue } from "@/lib/indexdb";
+import { Size3D } from "@/api/interface/common.interface";
 
 export default defineComponent({
     name: "Babylon",
@@ -52,6 +53,10 @@ export default defineComponent({
         scheme: {
             type: Scheme,
             default: null,
+        },
+        size: {
+            type: Object as PropType<Size3D>,
+            default: () => ({ width: 0, height: 0, depth: 0 }),
         },
         baseOSSUrl: {
             type: String,
@@ -1582,8 +1587,9 @@ export default defineComponent({
             this.wall.receiveShadows = true;
         },
 
-        showReferenceRuler(showRuler: boolean, sizeHeight = 0, sizeWidth = 0, sizeDepth = 0): void {
-            this.gui.showRuler(this.graphics, this.bizdata as BizData, showRuler, sizeHeight, sizeWidth, sizeDepth);
+        showReferenceRuler(showRuler: boolean): void {
+            const { height, width, depth } = this.size;
+            this.gui.showRuler(this.graphics, this.bizdata as BizData, showRuler, height, width, depth);
         },
 
         async screenshotApi(size = { width: 800, height: 600 }): Promise<string> {

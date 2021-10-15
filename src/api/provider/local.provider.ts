@@ -1,4 +1,5 @@
 import { PartCount } from "@/lib/scheme";
+import { Size3D } from "../interface/common.interface";
 import ApiProvider, {
     AjaxResponse,
     Background,
@@ -25,6 +26,9 @@ import ApiProvider, {
 
 const localVisitorRecordList: VisitorRecordItem[] = [];
 export default class LocalProvider implements ApiProvider {
+    changeSchemeSize(sid: number, size: Size3D): Promise<AjaxResponse<void>> {
+        throw new Error("Method not implemented.");
+    }
     request3DModels(): Promise<AjaxResponse<Model3DFile[]>> {
         throw new Error("Method not implemented.");
     }

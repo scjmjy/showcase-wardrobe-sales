@@ -26,6 +26,7 @@ import {
 import LocalProvider from "./local.provider";
 import emitter from "@/event";
 import { PartCount } from "@/lib/scheme";
+import { Size3D } from "../interface/common.interface";
 
 export default class RestProvider extends LocalProvider {
     login(
@@ -294,6 +295,32 @@ export default class RestProvider extends LocalProvider {
                         status: 500,
                         show: "error",
                         msg: "创建方案出错",
+                    });
+                });
+        });
+    }
+    changeSchemeSize(sid: number, size: Size3D): Promise<AjaxResponse<void>> {
+        return new Promise((resolve) => {
+            request({
+                method: "PUT",
+                url: "/api/v1/biz/scheme/dimension",
+                data: {
+                    sid,
+                    ...size,
+                },
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "修改方案尺寸出错",
                     });
                 });
         });

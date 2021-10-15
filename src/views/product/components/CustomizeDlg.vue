@@ -27,7 +27,19 @@
             <el-form-item label="单元柜宽度" prop="width">
                 <el-input v-model.number="formData.width" type="number"></el-input>
             </el-form-item>
-            <div v-if="price" class="customize-dlg__price">总价：<strong>-</strong> 元</div>
+            <div v-if="unitPrice" class="customize-dlg__price">
+                <span class="customize-dlg__price-label"> 总价： </span>
+                <vue3-autocounter
+                    ref="counter"
+                    class="customize-dlg__price-value"
+                    :startAmount="lastValue"
+                    :endAmount="totalPrice"
+                    :duration="1.5"
+                    separator=","
+                    @finished="onFinished"
+                />
+                <span class="customize-dlg__price-unit"> 元</span>
+            </div>
         </el-form>
         <template #footer>
             <div class="customize-dlg__footer">
@@ -43,9 +55,10 @@
 <script lang="ts">
 import { computed, defineComponent, PropType, reactive, ref } from "vue";
 import { ElForm, ElMessage } from "element-plus";
-import { CustomizeMode, CustomizeSize, CustomizeMinMax } from "../helpers";
+import { CustomizeMode, CustomizeMinMax } from "../helpers";
+import { Size3D } from "@/api/interface/common.interface";
 
-function defaultSize(): CustomizeSize {
+function defaultSize(): Size3D {
     return {
         height: 2.4,
         depth: 0.6,
@@ -79,16 +92,16 @@ export default defineComponent({
             default: false,
         },
         size: {
-            type: Object as PropType<CustomizeSize>,
+            type: Object as PropType<Size3D>,
             default: defaultSize(),
         },
         minMax: {
             type: Object as PropType<CustomizeMinMax>,
             default: defaultMinMax(),
         },
-        price: {
+        unitPrice: {
             type: Number,
-            default: 0,
+            default: undefined,
         },
     },
     setup(props, ctx) {
@@ -130,11 +143,22 @@ export default defineComponent({
         const invalid = computed(() => {
             return Object.values(invalidProps.value).includes(true);
         });
+        const lastValue = ref(0);
+        const totalPrice = computed(() => {
+            const { unitPrice } = props;
+            if (unitPrice === undefined) {
+                return undefined;
+            } else {
+                return formData.height * formData.width * unitPrice;
+            }
+        });
         return {
             elForm,
             formData,
             formRules,
             invalid,
+            totalPrice,
+            lastValue,
             title: computed(() => {
                 return "修改柜体尺寸";
                 // switch (props.mode) {
@@ -158,6 +182,9 @@ export default defineComponent({
                 //         return "确认";
                 // }
             }),
+            onFinished() {
+                lastValue.value = totalPrice.value || 0;
+            },
             doCancel() {
                 ctx.emit("cancel", false);
             },
@@ -186,8 +213,12 @@ export default defineComponent({
     &__unit,
     &__price {
         color: var(--el-color-black);
-        font-size: 18px;
+        font-size: 22px;
         text-align: right;
+        &-value {
+            color: var(--el-color-danger);
+            font-weight: bold;
+        }
     }
 
     &__footer {

@@ -6,6 +6,8 @@ import "babylonjs-serializers"; // 会在全局的 BABYLON 里注册 serializers
 import ElementPlus from "element-plus";
 import "skeleton-elements/skeleton-elements.css";
 
+import Vue3Autocounter from "vue3-autocounter";
+
 import { createApp } from "vue";
 import App from "./App.vue";
 import store from "./store";
@@ -19,8 +21,9 @@ import StateIcon from "@/components/StateIcon.vue";
 import "@/assets/scss/dev.scss";
 
 const app = createApp(App);
-app.component(ElCollapseTransitionH.name, ElCollapseTransitionH);
-app.component(StateIcon.name, StateIcon);
+app.component(ElCollapseTransitionH.name, ElCollapseTransitionH)
+    .component(StateIcon.name, StateIcon)
+    .component("vue3-autocounter", Vue3Autocounter);
 
 app.use(router).use(store).use(ElementPlus).use(SvgIcon).mount("#app");
 

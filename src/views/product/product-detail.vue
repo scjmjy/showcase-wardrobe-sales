@@ -12,6 +12,7 @@
             ref="refBabylon"
             class="product-detail__3d"
             :scheme="scheme"
+            :size="customizeSize"
             :selectedPart="selectedPart"
             :selectedWallId="selectedWallId"
             :selectedFloorId="selectedFloorId"
@@ -68,6 +69,7 @@
             :mode="customizeMode"
             :size="customizeSize"
             :minMax="customizeMinMax"
+            :unit-price="testUnitPrice"
             @confirm="onCustomizeConfirm"
             @cancel="onCustomizeCancel"
         />
@@ -108,7 +110,6 @@ import {
     showSchemeSaveLoading,
     hideSchemeSaveLoading,
     CustomizeMode,
-    CustomizeSize,
     CustomizeMinMax,
     SchemeMode,
     resetGooeyMenu,
@@ -116,6 +117,7 @@ import {
     InOutState,
     OpenCloseState,
 } from "./helpers";
+import { Size3D } from "@/api/interface/common.interface";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -162,6 +164,7 @@ export default defineComponent({
         const showMetalsDlg = ref(false);
         const creatingScheme = ref(false);
         const prepareContinue = ref(false);
+        const testUnitPrice = ref(0);
 
         async function gotoEditScheme() {
             mode.value = "edit";
@@ -192,8 +195,7 @@ export default defineComponent({
         let selectedWallId = ref(0);
 
         function showReferenceRuler(show: boolean) {
-            const { width, height, depth } = product.value;
-            refBabylon.value?.showReferenceRuler(show, height, width, depth);
+            refBabylon.value?.showReferenceRuler(show);
         }
 
         const gooeyMenuItems = ref<MenuItem[]>([
@@ -276,7 +278,7 @@ export default defineComponent({
                     break;
             }
         }
-        async function createNewScheme() {
+        async function createNewScheme(nonCustom = false, size?: Size3D) {
             const { customerId, currentSvcId } = store.state.currentCustomer;
             const cid = customerId.toString();
             const eid = store.state.user.eid;
@@ -284,7 +286,7 @@ export default defineComponent({
             let svcid: number | undefined = 0;
             let pid: number | string | undefined = undefined;
             let sid: number | string | undefined = undefined;
-            if (customizeMode.value === "new") {
+            if (customizeMode.value === "new" || customizeMode.value === "new-non-custom") {
                 pid = product.value.id;
                 schemeName = product.value.name;
                 svcid = svcId;
@@ -303,13 +305,25 @@ export default defineComponent({
 
             const res = await apiProvider.createNewScheme(schemeName, svcid, eid, cid, pid, sid);
             if (res.ok && res.data) {
+                const newSchemeId = res.data.id;
                 store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
+
+                if (size) {
+                    await apiProvider.changeSchemeSize(newSchemeId, size);
+                }
 
                 apiProvider.requestSchemeDetail(res.data.id).then((res) => {
                     if (res.ok && res.data) {
                         product.value = res.data;
                         product.value.cid = cid;
-                        gotoEditScheme();
+                        if (nonCustom) {
+                            captureSchemeScreenshot();
+                            if (refOfferDlg.value) {
+                                refOfferDlg.value.doOffer();
+                            }
+                        } else {
+                            gotoEditScheme();
+                        }
                     }
                 });
             } else if (res.show) {
@@ -432,11 +446,11 @@ export default defineComponent({
             setSchemeDirty,
             schemeDetailDirty,
             customizeMode,
-            customizeSize: computed<CustomizeSize | undefined>(() => {
+            customizeSize: computed<Size3D | undefined>(() => {
                 const p = product.value;
-                if (isProduct(p)) {
-                    return undefined;
-                }
+                // if (isProduct(p)) {
+                //     return undefined;
+                // }
                 return {
                     width: p.width,
                     height: p.height,
@@ -493,11 +507,12 @@ export default defineComponent({
             creatingScheme,
             prepareContinue,
             customerName,
+            testUnitPrice,
             orderNonCustomProduct() {
-                ElMessage({
-                    type: "warning",
-                    message: "TODO： 下单非定制商品！",
-                });
+                // TODO backend should give us this vlue
+                customizeMode.value = "new-non-custom";
+                testUnitPrice.value = 800;
+                showCustomizeDlg.value = true;
             },
             newScheme() {
                 if (!store.state.currentCustomer.customerId) {
@@ -527,7 +542,12 @@ export default defineComponent({
                 createNewScheme();
                 // showCustomizeDlg.value = true;
             },
-            onCustomizeConfirm(size: CustomizeSize) {
+            async onCustomizeConfirm(size: Size3D) {
+                if (customizeMode.value === "new-non-custom") {
+                    await createNewScheme(true, size);
+                    showCustomizeDlg.value = false;
+                    return;
+                }
                 showCustomizeDlg.value = false;
                 const scheme = product.value as Scheme;
                 scheme.width = size.width;
@@ -538,6 +558,7 @@ export default defineComponent({
                 setTimeout(() => {
                     showReferenceRuler(true);
                 }, 200);
+                await apiProvider.changeSchemeSize(scheme.id, size);
             },
             onCustomizeCancel() {
                 showCustomizeDlg.value = false;
