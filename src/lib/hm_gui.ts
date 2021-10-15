@@ -302,7 +302,7 @@ export class PopupGUI {
         lengthText.linkWithMesh(frameRulerMiddle);
         lengthText.linkOffsetYInPixels = -20;
         if (!title.startsWith("width")) {
-            lengthText.linkOffsetXInPixels = 75;
+            lengthText.linkOffsetXInPixels = 35;
             lengthText.linkOffsetYInPixels = -35;
         }
         lengthText.isVisible = true;
