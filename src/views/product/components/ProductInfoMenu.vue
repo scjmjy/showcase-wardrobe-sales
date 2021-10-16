@@ -156,12 +156,12 @@ export default defineComponent({
         return {
             offerPrice: computed(() => {
                 const p = props.product;
-                if (props.nonCustom) {
-                    return {
-                        integer: 3000,
-                        decimal: "00",
-                    };
-                }
+                // if (props.nonCustom) {
+                //     return {
+                //         integer: 3000,
+                //         decimal: "00",
+                //     };
+                // }
                 if (!p || isProduct(p)) {
                     return undefined;
                 }
@@ -225,7 +225,8 @@ export default defineComponent({
                 if (!p) {
                     return "暂无描述";
                 }
-                return "-";
+                return "关于新中式商品的一段描述，文字对齐的方式需要注意。关于新中式商品的一段描述，文字对齐的方式需要注意。关于新中式商品的一段描述，文字对齐的方式需要注意。";
+                // return p.description;
             }),
             unitPrice: computed(() => {
                 const p = props.product;
@@ -250,7 +251,7 @@ export default defineComponent({
     &__text {
         width: 100%;
         &-title {
-            padding-bottom: 6px;
+            padding: 10px 0;
             border-bottom: 1px solid var(--el-color-info);
             font-size: 22px;
             font-weight: 800;

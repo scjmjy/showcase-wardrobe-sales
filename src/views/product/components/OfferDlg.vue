@@ -4,7 +4,7 @@
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         title="报价详情"
-        width="50%"
+        width="530px"
         v-bind="$attrs"
         @opened="doOffer"
     >
@@ -38,7 +38,7 @@
                 </span>
             </div>
         </div>
-        <div class="offer-dlg__price">
+        <div class="offer-dlg__price" :class="{ 'is-area': offerInfo.otype === 'area' }">
             <span class="offer-dlg__price-label">合计：</span>
             <span class="offer-dlg__price-symbol"> ￥ </span>
             <span class="offer-dlg__price-offer">{{ offerPrice.integer }}</span>
@@ -146,7 +146,9 @@ export default defineComponent({
         }
     }
     &__price {
-        margin-top: 30px;
+        &:not(.is-area) {
+            margin-top: 30px;
+        }
         padding-top: 10px;
         padding-right: 30px;
         border-top: 1px solid var(--el-color-info);
