@@ -48,6 +48,7 @@
                 <template v-if="nonCustom">
                     <el-button
                         v-if="isNew"
+                        class="button-shadow"
                         type="black"
                         :loading="creatingScheme"
                         round
@@ -59,6 +60,7 @@
                 <template v-else>
                     <el-button
                         v-if="isNew"
+                        class="button-shadow"
                         type="black"
                         :loading="creatingScheme"
                         round
@@ -68,6 +70,7 @@
                     >
                     <el-button
                         v-if="isSelf"
+                        class="button-shadow"
                         type="black"
                         :loading="prepareContinue"
                         round
@@ -77,6 +80,7 @@
                     >
                     <el-button
                         v-if="isSelf || isOther"
+                        class="button-shadow"
                         type="primary"
                         :loading="creatingScheme"
                         round

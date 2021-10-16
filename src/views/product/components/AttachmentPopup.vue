@@ -7,12 +7,19 @@
             <category-tabs ref="catTabs">
                 <template #content-header>
                     <div class="attachment-popup__content-header">
+                        <div class="attachment-popup__content-header__action">
+                            <el-button type="primary" size="small">保存修改</el-button>
+                            <el-button
+                                type="warning"
+                                circle
+                                icon="el-icon-arrow-down"
+                                size="small"
+                                @click="toggleTrigger"
+                            ></el-button>
+                        </div>
                         <attachment-item :item="item" column />
-                        <i class="attachment-popup__content-trigger el-icon-arrow-down" @click="toggleTrigger"></i>
+                        <!-- <i class="attachment-popup__content-trigger el-icon-arrow-down" @click="toggleTrigger"></i> -->
                     </div>
-                </template>
-                <template #content-footer>
-                    <el-button type="primary">保存修改</el-button>
                 </template>
             </category-tabs>
         </div>
@@ -96,7 +103,12 @@ export default defineComponent({
             flex: 1;
         }
         &-header {
-            position: relative;
+            // position: relative;
+            padding: 10px;
+            &__action {
+                display: flex;
+                justify-content: space-between;
+            }
         }
         &-trigger {
             cursor: pointer;

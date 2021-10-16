@@ -89,3 +89,12 @@
 .u-trigger--180 {
     transform: rotateZ(-180deg);
 }
+
+.is-blur {
+    filter: blur(2px);
+}
+
+.button-shadow {
+    box-shadow: 7px 7px 4px 0px #17202133;
+    border-radius: 2px !important;
+}
