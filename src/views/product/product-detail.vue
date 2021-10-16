@@ -317,12 +317,12 @@ export default defineComponent({
                     await apiProvider.changeSchemeSize(newSchemeId, size);
                 }
 
-                apiProvider.requestSchemeDetail(res.data.id).then((res) => {
+                return apiProvider.requestSchemeDetail(res.data.id).then(async (res) => {
                     if (res.ok && res.data) {
                         product.value = res.data;
                         product.value.cid = cid;
                         if (nonCustom) {
-                            captureSchemeScreenshot();
+                            await captureSchemeScreenshot();
                             if (refOfferDlg.value) {
                                 refOfferDlg.value.doOffer();
                             }
@@ -571,6 +571,7 @@ export default defineComponent({
                 if (customizeMode.value === "new-non-custom") {
                     await createNewScheme(true, size);
                     showCustomizeDlg.value = false;
+                    router.push("/");
                     return;
                 }
                 showCustomizeDlg.value = false;
