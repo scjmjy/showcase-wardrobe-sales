@@ -2,25 +2,35 @@
     <div class="attachment-popup">
         <div class="attachment-popup__overlay"></div>
         <div class="attachment-popup__content">
-            <attachment-item :item="item" column />
-            <cat-tab class="attachment-popup__content-cat" :cat="cat" active></cat-tab>
-            <!-- <el-button type="primary">保存修改</el-button> -->
-            <i class="attachment-popup__content-trigger el-icon-arrow-down" @click="toggleTrigger"></i>
+            <!-- <attachment-item :item="item" column /> -->
+            <!-- <cat-tab class="attachment-popup__content-cat" :cat="cat" active></cat-tab> -->
+            <category-tabs ref="catTabs">
+                <template #content-header>
+                    <div class="attachment-popup__content-header">
+                        <attachment-item :item="item" column />
+                        <i class="attachment-popup__content-trigger el-icon-arrow-down" @click="toggleTrigger"></i>
+                    </div>
+                </template>
+                <template #content-footer>
+                    <el-button type="primary">保存修改</el-button>
+                </template>
+            </category-tabs>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, ref } from "vue";
+import { computed, defineComponent, onMounted, PropType, ref } from "vue";
 import { ManifestPart, PartCategory } from "@/api/interface/provider.interface";
-import CatTab from "./CatTab.vue";
+import CategoryTabs from "./CategoryTabs.vue";
 import AttachmentItem from "./AttachmentItem.vue";
 
 export default defineComponent({
     name: "AttachmentPopup",
     components: {
-        CatTab,
+        CategoryTabs,
         AttachmentItem,
+        // CatTab,
     },
     props: {
         item: {
@@ -29,14 +39,19 @@ export default defineComponent({
         },
     },
     setup(props, ctx) {
-        const cat = computed<PartCategory>(() => ({
-            // id: props.item.partid,
-            id: 15,
-            name: props.item.pname,
-            pic: props.item.pic,
-        }));
+        // const cat = computed<PartCategory>(() => ({
+        //     id: props.item.partid,
+        //     name: props.item.pname,
+        //     pic: props.item.pic,
+        // }));
+        const catTabs = ref<InstanceType<typeof CategoryTabs>>();
+        onMounted(() => {
+            // TODO catId is unknown
+            catTabs.value?.selectPart(79, props.item.partid);
+        });
         return {
-            cat,
+            catTabs,
+            // cat,
             toggleTrigger() {
                 ctx.emit("hide");
             },
@@ -71,15 +86,18 @@ export default defineComponent({
         background-color: white;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
-        padding: 20px 10%;
+        // padding: 20px 10%;
+        overflow: hidden;
 
-        display: flex;
-        flex-direction: column;
+        // display: flex;
+        // flex-direction: column;
 
         &-cat {
             flex: 1;
         }
-
+        &-header {
+            position: relative;
+        }
         &-trigger {
             cursor: pointer;
             position: absolute;
@@ -90,6 +108,7 @@ export default defineComponent({
             background-color: #00000059;
             color: white;
             font-size: 30px;
+            z-index: 2;
         }
     }
 }

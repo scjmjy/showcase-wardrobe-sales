@@ -261,6 +261,29 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
+    requestProductDetail(pid: string | number): Promise<AjaxResponse<Product>> {
+        return new Promise((resolve) => {
+            request({
+                method: "GET",
+                url: "/api/v1/biz/product/" + pid,
+            })
+                .then((res) => {
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: res.data,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取商品详情出错",
+                    });
+                });
+        });
+    }
     createNewScheme(
         name: string,
         svcid: number | undefined,

@@ -1,5 +1,5 @@
 <template>
-    <div ref="refDiv" class="parts-menu">
+    <div class="parts-menu">
         <div v-show="opened" class="parts-menu__left" :class="{ 'is-level-up': !!tabStack.length }">
             <div class="parts-menu__left-header">
                 <el-button type="primary" plain @click="$emit('action', 'manifest')">清单</el-button>
@@ -131,10 +131,6 @@ export default defineComponent({
             type: String as PropType<"in" | "out">,
             default: "out",
         },
-        cat: {
-            type: Object as PropType<PartCategory>,
-            default: () => ({}),
-        },
         opened: {
             type: Boolean,
             default: false,
@@ -150,7 +146,6 @@ export default defineComponent({
     emits: ["update:opened", "part", "action", "bg"],
     setup(props, ctx) {
         const store = useStore<StateType>();
-        const refDiv = ref<HTMLDivElement>();
         const cats = ref<PartCategory[]>([]);
         const catMeta = ref<PartCategoryMeta>();
         const selectedTabName = ref<string>();
@@ -162,7 +157,6 @@ export default defineComponent({
                 cats.value = res.data || [];
             }
         });
-        const typeText = computed(() => (props.type === "in" ? "内配" : "外观"));
         const inCats = computed<PartCategory[]>(() => {
             if (!store.state.globalCfg) {
                 return [];
@@ -286,23 +280,16 @@ export default defineComponent({
         provide("selectedPartId", selectedPartId);
 
         function slide(direction: "left" | "right") {
-            // refDiv.value?.scrollTo({
-            //     behavior: "smooth",
-            //     top: 0,
-            //     left: direction === "left" ? 428 : 0,
-            // });
             slideLeft.value = direction === "left" ? true : false;
         }
 
         return {
-            typeText,
             cats,
             activeCats,
             activeTabs,
             topLevelTabs,
             tabStack,
             catMeta,
-            refDiv,
             selectedTabName,
             selectedAttachmentItem,
             schemeManifest,
@@ -312,8 +299,8 @@ export default defineComponent({
                 slide("right");
                 selectedAttachmentItem.value = undefined;
             },
-            onCatChange(tab: any) {
-                console.log("tab", tab.instance);
+            onCatChange(_tab: any) {
+                // console.log("tab", tab.instance);
 
                 // const catId = tab.props.name;
                 // selectedCatId.value = catId;

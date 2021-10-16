@@ -136,6 +136,7 @@ export default defineComponent({
         const router = useRouter();
         const store = useStore<StateType>();
 
+        const ready = ref(false);
         const mode = ref<"view" | "edit" | "">("view");
         let svcId = +(route.query.svc || 0);
 
@@ -250,10 +251,14 @@ export default defineComponent({
         }
         requestScheme3D();
 
-        onMounted(() => {
+        onMounted(async () => {
             if (schemeMode.value !== "scheme-new") {
-                requestSchemeDetail();
+                await requestSchemeDetail();
+            } else {
+                await requestProductDetail();
             }
+            ready.value = true;
+            showReferenceRuler(true);
         });
         function eventHandle(event: Event) {
             switch (event.type) {
@@ -356,6 +361,11 @@ export default defineComponent({
             await util.uploadSchemeScreenshot(product.value.id, base64);
         }
 
+        async function requestProductDetail() {
+            const res = await apiProvider.requestProductDetail(product.value.id);
+            Object.assign(product.value, res.data);
+        }
+
         async function requestSchemeDetail() {
             const res = await apiProvider.requestSchemeDetail(product.value.id);
             Object.assign(product.value, res.data);
@@ -437,6 +447,7 @@ export default defineComponent({
             }
         }
         return {
+            ready,
             gooeyMenuItems,
             gooeyMenuOpened,
             refBabylon,
@@ -446,7 +457,7 @@ export default defineComponent({
             setSchemeDirty,
             schemeDetailDirty,
             customizeMode,
-            customizeSize: computed<Size3D | undefined>(() => {
+            customizeSize: computed<Size3D>(() => {
                 const p = product.value;
                 // if (isProduct(p)) {
                 //     return undefined;

@@ -261,7 +261,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .cat-tab {
-    height: 100%;
+    // height: 100%;
     padding-right: 3px;
     overflow: hidden;
     display: flex;
