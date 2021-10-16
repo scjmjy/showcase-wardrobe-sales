@@ -362,8 +362,12 @@ export default defineComponent({
         }
 
         async function requestProductDetail() {
-            const res = await apiProvider.requestProductDetail(product.value.id);
-            Object.assign(product.value, res.data);
+            const id = product.value.id;
+            const res = await apiProvider.requestProductDetail(id);
+            if (res.ok && res.data) {
+                res.data.id = id;
+                Object.assign(product.value, res.data);
+            }
         }
 
         async function requestSchemeDetail() {
@@ -471,7 +475,17 @@ export default defineComponent({
             customizeMinMax: computed<CustomizeMinMax | undefined>(() => {
                 const p = product.value;
                 if (isProduct(p)) {
-                    return undefined;
+                    return {
+                        depthMax: p.depthmax,
+                        depthMin: p.depthmin,
+                        // depthMin: p.depth,
+                        widthMax: p.widthmax,
+                        widthMin: p.widthmin,
+                        // widthMin: p.width,
+                        heightMax: p.heightmax,
+                        heightMin: p.heightmin,
+                        // heightMin: p.height,
+                    };
                 }
                 return {
                     depthMax: p.pdepthmax,
