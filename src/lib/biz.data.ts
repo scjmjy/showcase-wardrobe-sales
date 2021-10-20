@@ -260,6 +260,22 @@ export class BizData {
         return resDoor;
     }
 
+    changeAttachments(oldPartId: number, newPartId: number): void {
+        this.scheme.manifest.cubes.forEach((cube) => {
+            cube.items.forEach((item) => {
+                item.attachment.forEach((attachment) => {
+                    if (attachment.partId === oldPartId) attachment.partId = newPartId;
+                });
+            });
+        });
+
+        this.scheme.manifest.doors.forEach((door) => {
+            door.attachment.forEach((attachment) => {
+                if (attachment.partId === oldPartId) attachment.partId = newPartId;
+            });
+        });
+    }
+
     getAllDoorsId(): string[] {
         const ids: string[] = [];
         this.scheme.manifest.doors.forEach((d) => {

@@ -1667,6 +1667,10 @@ export default defineComponent({
                 i++;
             });
         },
+
+        changeAttachments(oldPartId: number, newPartId: number): void {
+            this.bizdata.changeAttachments(oldPartId, newPartId);
+        },
     },
 });
 </script>
