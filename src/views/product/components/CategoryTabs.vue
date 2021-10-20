@@ -23,20 +23,14 @@
 
 <script lang="ts">
 import { computed, defineComponent, PropType, provide, ref, watch } from "vue";
-import { useStore } from "vuex";
-import { StateType } from "@/store";
 import {
-    BackgroundType,
     findSiblingCats,
-    ManifestPart,
     Part,
     PartCategory,
     PartCategoryMeta,
     ProductCategory,
-    SchemeManifest,
 } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
-import { PartCount } from "@/lib/scheme";
 import CatTab from "./CatTab.vue";
 import CatsList from "./CatsList.vue";
 
@@ -58,10 +52,6 @@ export default defineComponent({
             type: String as PropType<"in" | "out">,
             default: "out",
         },
-        cat: {
-            type: Object as PropType<PartCategory>,
-            default: () => ({}),
-        },
         opened: {
             type: Boolean,
             default: false,
@@ -71,7 +61,7 @@ export default defineComponent({
         CatTab,
         CatsList,
     },
-    emits: ["update:opened", "part", "action", "bg"],
+    emits: ["update:opened", "part"],
     setup(props, ctx) {
         const cats = ref<PartCategory[]>([]);
         const catMeta = ref<PartCategoryMeta>();
@@ -157,9 +147,18 @@ export default defineComponent({
         });
 
         const selectedPartId = ref(0);
+        const selectedPart = ref<Part>();
         const selectedCatId = ref(0);
 
         provide("selectedPartId", selectedPartId);
+        // provide("selectedPart", selectedPart);
+
+        // watch(
+        //     () => selectedPart.value,
+        //     (part) => {
+        //         ctx.emit("select-part", part);
+        //     },
+        // );
 
         return {
             cats,
@@ -195,46 +194,18 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-$header-height: 56px;
-
 .category-tabs {
     position: relative;
     height: 100%;
-    // box-shadow: 0px 10px 18px rgba(0, 0, 0, 0.07);
     background-color: white;
     overflow: hidden;
     white-space: nowrap;
-
-    // &-header {
-    //     display: flex;
-    //     justify-content: space-between;
-    //     align-items: center;
-    //     height: $header-height;
-    //     color: var(--el-color-black);
-    //     font-size: 26px;
-    //     font-weight: bold;
-    //     box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
-
-    //     :deep(.el-button) {
-    //         width: 50%;
-    //         height: 100%;
-    //         background: linear-gradient(180deg, #c1b399 0%, #ffeac4 0%, #c1b399 100%);
-    //         font-weight: bold;
-    //         & + .el-button {
-    //             margin-left: 1px;
-    //         }
-
-    //         &:not(:hover) {
-    //             color: var(--el-color-black);
-    //         }
-    //     }
-    // }
 
     &-levelup {
         cursor: pointer;
         position: absolute;
         left: 20px;
-        top: $header-height;
+        top: 0px;
         padding: 10px;
         color: var(--el-color-black);
         font-size: 30px;
@@ -255,10 +226,7 @@ $header-height: 56px;
         margin-right: 0px !important;
         overflow-y: auto;
         :deep(.el-tabs__item) {
-            // color: var(--el-color-black);
             font-size: 15px;
-            // line-height: 30px;
-            // height: 30px;
             &.is-active {
                 font-weight: bold;
             }

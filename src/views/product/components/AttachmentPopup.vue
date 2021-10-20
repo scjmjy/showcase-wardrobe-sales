@@ -4,11 +4,13 @@
         <div class="attachment-popup__content">
             <!-- <attachment-item :item="item" column /> -->
             <!-- <cat-tab class="attachment-popup__content-cat" :cat="cat" active></cat-tab> -->
-            <category-tabs ref="catTabs">
+            <category-tabs ref="catTabs" @part="onPartClick">
                 <template #content-header>
                     <div class="attachment-popup__content-header">
                         <div class="attachment-popup__content-header__action">
-                            <el-button type="primary" size="small">保存修改</el-button>
+                            <el-button type="primary" size="small" :disabled="!selectedPart" @click="changePart"
+                                >保存修改</el-button
+                            >
                             <el-button
                                 type="warning"
                                 circle
@@ -28,7 +30,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, PropType, ref } from "vue";
-import { ManifestPart, PartCategory } from "@/api/interface/provider.interface";
+import { ManifestPart, Part, PartCategory } from "@/api/interface/provider.interface";
 import CategoryTabs from "./CategoryTabs.vue";
 import AttachmentItem from "./AttachmentItem.vue";
 
@@ -46,21 +48,27 @@ export default defineComponent({
         },
     },
     setup(props, ctx) {
-        // const cat = computed<PartCategory>(() => ({
-        //     id: props.item.partid,
-        //     name: props.item.pname,
-        //     pic: props.item.pic,
-        // }));
         const catTabs = ref<InstanceType<typeof CategoryTabs>>();
+        const selectedPart = ref<Part>();
+        const selectedPartCat = ref<PartCategory>();
         onMounted(() => {
             // TODO catId is unknown
             catTabs.value?.selectPart(79, props.item.partid);
         });
         return {
+            selectedPart,
+            selectedPartCat,
             catTabs,
-            // cat,
             toggleTrigger() {
                 ctx.emit("hide");
+            },
+            onPartClick(part: Part, cat: PartCategory) {
+                console.log("[onPartClick]", part, cat);
+                selectedPart.value = part;
+                selectedPartCat.value = cat;
+            },
+            changePart() {
+                ctx.emit("change", selectedPart.value, selectedPartCat.value);
             },
         };
     },

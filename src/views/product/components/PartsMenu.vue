@@ -84,6 +84,7 @@
                 v-if="selectedAttachmentItem"
                 class="parts-menu__attachmenPopup"
                 :item="selectedAttachmentItem"
+                @change="onAttachmentChange"
                 @hide="onAttachmentPopupHide"
             ></attachment-popup>
         </transition>
@@ -301,7 +302,6 @@ export default defineComponent({
             },
             onCatChange(_tab: any) {
                 // console.log("tab", tab.instance);
-
                 // const catId = tab.props.name;
                 // selectedCatId.value = catId;
                 // requestPartCatMeta();
@@ -309,6 +309,14 @@ export default defineComponent({
             onUpLevelClick,
             onAttachmentItemSelect(item: ManifestPart) {
                 selectedAttachmentItem.value = item;
+            },
+            onAttachmentChange(part: Part, _cat: PartCategory) {
+                if (selectedAttachmentItem.value) {
+                    selectedAttachmentItem.value.pname = part.name;
+                    selectedAttachmentItem.value.pic = part.pic;
+                    selectedAttachmentItem.value.partid = +part.id;
+                    selectedAttachmentItem.value = undefined;
+                }
             },
             onAttachmentPopupHide() {
                 selectedAttachmentItem.value = undefined;

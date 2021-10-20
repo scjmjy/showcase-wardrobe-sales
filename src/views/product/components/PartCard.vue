@@ -25,6 +25,7 @@ export default defineComponent({
     setup(props, ctx) {
         const refEl = ref<HTMLDivElement>();
         const selectedPartId = inject<Ref<number>>("selectedPartId", ref(0));
+        // const selectedPart = inject<Ref<Part>>("selectedPart", ref<Part>());
         const active = computed(() => props.part.id == selectedPartId.value);
         onMounted(() => {
             watch(
@@ -50,6 +51,7 @@ export default defineComponent({
             active,
             onImgClick() {
                 selectedPartId.value = +props.part.id;
+                // selectedPart.value = props.part;
                 ctx.emit("click", props.part);
             },
         };
