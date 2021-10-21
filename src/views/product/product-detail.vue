@@ -209,37 +209,56 @@ export default defineComponent({
             refBabylon.value?.showReferenceRuler(show);
         }
 
-        const gooeyMenuItems = ref<MenuItem[]>([
-            {
-                value: "d3",
-                icon: "d3",
-                onActive() {
-                    refBabylon.value?.setCameraAlpha(Math.PI / 3);
+        const gooeyMenuItems = computed<MenuItem[]>(() => {
+            const items: MenuItem[] = [
+                {
+                    value: "d3",
+                    icon: "d3",
+                    onActive() {
+                        refBabylon.value?.setCameraAlpha(Math.PI / 3);
+                    },
+                    onUnactive() {
+                        refBabylon.value?.setDefaultCamera();
+                    },
                 },
-                onUnactive() {
-                    refBabylon.value?.setDefaultCamera();
+                {
+                    value: "ruler",
+                    icon: "ruler-2",
+                    onActive() {
+                        showReferenceRuler(true);
+                    },
+                    onUnactive() {
+                        showReferenceRuler(false);
+                    },
                 },
-            },
-            {
-                value: "ruler",
-                icon: "ruler-2",
-                onActive() {
-                    showReferenceRuler(true);
+                {
+                    value: "size-3d",
+                    icon: "size-3d",
+                    type: "button",
+                    onClick() {
+                        showReferenceRuler(false);
+                        showCustomizeDlg.value = true;
+                    },
                 },
-                onUnactive() {
-                    showReferenceRuler(false);
-                },
-            },
-            {
-                value: "size-3d",
-                icon: "size-3d",
-                type: "button",
-                onClick() {
-                    showReferenceRuler(false);
-                    showCustomizeDlg.value = true;
-                },
-            },
-        ]);
+            ];
+            if (stateInOut.value === InOutState.out) {
+                items.push({
+                    value: "parts-outdoor",
+                    icon: "parts-outdoor",
+                    onActive() {
+                        if (scheme3DType.value === 0) {
+                            refBabylon.value?.showDoors(false);
+                        }
+                    },
+                    onUnactive() {
+                        if (scheme3DType.value === 0) {
+                            refBabylon.value?.showDoors(true);
+                        }
+                    },
+                });
+            }
+            return items;
+        });
         const gooeyMenuOpened = ref(false);
         const scheme = ref<Scheme3D>();
         const schemeDetailDirty = ref(false);

@@ -467,7 +467,7 @@ $header-height: 56px;
             }
             :deep(.el-tabs__header) {
                 // margin-right: 0px;
-                // padding-top: 10px;
+                padding-top: 5px;
                 background-color: var(--el-color-bg);
                 transition: padding 0.3s ease;
             }
@@ -545,6 +545,7 @@ $header-height: 56px;
             height: $header-height;
             box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
             &-title {
+                padding-left: 8px;
                 color: var(--el-color-black);
                 font-size: 26px;
                 // font-weight: bold;

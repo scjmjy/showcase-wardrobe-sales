@@ -19,13 +19,13 @@
         >
             <div class="customize-dlg__unit">单位：m</div>
             <el-form-item label="高度" prop="height">
-                <el-input v-model.number="formData.height" type="number"></el-input>
+                <el-input v-model.number="formData.height" type="number" step="0.01"></el-input>
             </el-form-item>
             <el-form-item label="深度" prop="depth">
-                <el-input v-model.number="formData.depth" type="number"></el-input>
+                <el-input v-model.number="formData.depth" type="number" step="0.01"></el-input>
             </el-form-item>
             <el-form-item label="宽度" prop="width">
-                <el-input v-model.number="formData.width" type="number"></el-input>
+                <el-input v-model.number="formData.width" type="number" step="0.01"></el-input>
             </el-form-item>
             <div v-if="unitPrice" class="customize-dlg__price">
                 <span class="customize-dlg__price-label"> 总价： </span>
