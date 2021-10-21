@@ -5,6 +5,7 @@ export enum PartType {
     UNKNOWN = 0,
     GENERAL = 1,
     T_FRAME = 2,
+    LIGHTSTRIP = 3,
 }
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
