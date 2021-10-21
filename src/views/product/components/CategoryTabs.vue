@@ -33,6 +33,8 @@ import {
 import apiProvider from "@/api/provider";
 import CatTab from "./CatTab.vue";
 import CatsList from "./CatsList.vue";
+import { useStore } from "vuex";
+import { StateType } from "@/store";
 
 interface TabType {
     component: string;
@@ -63,26 +65,11 @@ export default defineComponent({
     },
     emits: ["update:opened", "part"],
     setup(props, ctx) {
-        const cats = ref<PartCategory[]>([]);
+        const store = useStore<StateType>();
+        const cats = store.state.cats;
         const catMeta = ref<PartCategoryMeta>();
         const selectedTabName = ref<string>();
         const tabStack = ref<TabType[][]>([]);
-        apiProvider.requestPartCategories().then((res) => {
-            if (res.ok) {
-                cats.value = res.data || [];
-            }
-        });
-        watch(
-            () => cats.value,
-            (cats) => {
-                tabStack.value.length = 0;
-                if (props.type === "in") {
-                    selectedTabName.value = topLevelTabs.value[0].name;
-                } else {
-                    selectedTabName.value = topLevelTabs.value[1].name;
-                }
-            },
-        );
 
         function onUpLevelClick() {
             tabStack.value.pop();
@@ -140,6 +127,17 @@ export default defineComponent({
             const partsTabs = cats2Tabs(cats.value);
             return partsTabs;
         });
+        watch(
+            () => topLevelTabs.value,
+            (tabs) => {
+                tabStack.value.length = 0;
+                if (tabs.length) {
+                    selectedTabName.value = tabs[0].name;
+                } else {
+                    selectedTabName.value = "";
+                }
+            },
+        );
 
         const activeTabs = computed(() => {
             const len = tabStack.value.length;
@@ -147,7 +145,7 @@ export default defineComponent({
         });
 
         const selectedPartId = ref(0);
-        const selectedPart = ref<Part>();
+        // const selectedPart = ref<Part>();
         const selectedCatId = ref(0);
 
         provide("selectedPartId", selectedPartId);

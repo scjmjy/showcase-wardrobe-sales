@@ -275,9 +275,11 @@ export default defineComponent({
         font-size: 18px;
         font-weight: bold;
         // margin-right: 5px;
+        transition: padding 0.3s;
         &:hover {
             background-color: var(--el-color-primary-light-4);
             border-radius: 10px;
+            padding: 0 5px;
         }
     }
     &__meta-title {

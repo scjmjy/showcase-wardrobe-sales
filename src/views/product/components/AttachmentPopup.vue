@@ -53,7 +53,7 @@ export default defineComponent({
         const selectedPartCat = ref<PartCategory>();
         onMounted(() => {
             // TODO catId is unknown
-            catTabs.value?.selectPart(79, props.item.partid);
+            catTabs.value?.selectPart(15, props.item.partid);
         });
         return {
             selectedPart,
@@ -113,6 +113,7 @@ export default defineComponent({
         &-header {
             // position: relative;
             padding: 10px;
+            border-bottom: 1px solid var(--el-color-info);
             &__action {
                 display: flex;
                 justify-content: space-between;

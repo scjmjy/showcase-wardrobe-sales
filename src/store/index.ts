@@ -5,6 +5,7 @@ import {
     LoginResult,
     Model3DFile,
     PartAttachmentList,
+    PartCategory,
     Product,
     Scheme,
 } from "@/api/interface/provider.interface";
@@ -21,6 +22,7 @@ const state = {
     },
     globalCfg: undefined as GlobalCfg | undefined,
     attachments: [] as PartAttachmentList,
+    cats: [] as PartCategory[],
     dirty: {
         customerList: false,
         schemeList: new Set<string>(),
@@ -35,6 +37,7 @@ export default createStore({
         isLoggedIn: (state) => Boolean(state.user.userId),
         isServing: (state) => Boolean(state.currentCustomer.customerId),
         token: (state) => state.user.token,
+        partCats: (state) => state.cats,
     },
     mutations: {
         "SWITCH-CUSTOMER"(state, payload) {
@@ -77,6 +80,9 @@ export default createStore({
         "SET-PART-ATTACHMENTS"(state, attachments: PartAttachmentList) {
             state.attachments = attachments;
         },
+        "SET-PART-CATEGORIES"(state, cats: PartCategory[]) {
+            state.cats = cats;
+        },
         "SET-DIRTY-CUSTOMER"(state, dirty: boolean) {
             state.dirty.customerList = dirty;
         },
@@ -117,6 +123,8 @@ export default createStore({
                 commit("SET-GLOBAL-CONFIG", cfg);
                 const attachments = (await apiProvider.requestPartAttachments()).data;
                 commit("SET-PART-ATTACHMENTS", attachments);
+                const cats = (await apiProvider.requestPartCategories()).data;
+                commit("SET-PART-CATEGORIES", cats);
                 emitter.emit("logged-in", "");
                 return cfg;
             } catch (error) {

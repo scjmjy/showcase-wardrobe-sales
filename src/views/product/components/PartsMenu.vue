@@ -147,17 +147,12 @@ export default defineComponent({
     emits: ["update:opened", "part", "action", "bg"],
     setup(props, ctx) {
         const store = useStore<StateType>();
-        const cats = ref<PartCategory[]>([]);
+        const cats = store.getters.partCats;
         const catMeta = ref<PartCategoryMeta>();
         const selectedTabName = ref<string>();
         const selectedAttachmentItem = ref<ManifestPart>();
         const schemeManifest = ref<SchemeManifest>();
         const slideLeft = ref(false);
-        apiProvider.requestPartCategories().then((res) => {
-            if (res.ok) {
-                cats.value = res.data || [];
-            }
-        });
         const inCats = computed<PartCategory[]>(() => {
             if (!store.state.globalCfg) {
                 return [];
