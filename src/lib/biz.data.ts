@@ -118,7 +118,7 @@ export class BizData {
             // Clear old attachments and add new attachments.
             item.attachment.length = 0;
             newPart.attachments.forEach((attachment) => {
-                const partCount = new PartCount(attachment.catid, attachment.apcmid, attachment.count);
+                const partCount = new PartCount(attachment.ptcid, attachment.apcmid, attachment.count);
                 item.attachment.push(partCount);
             });
         }
@@ -225,7 +225,7 @@ export class BizData {
                 };
                 const attachment: Array<PartCount> = [];
                 newPart.attachments.forEach((item) => {
-                    const partCount = new PartCount(item.catid, item.apcmid, item.count);
+                    const partCount = new PartCount(item.ptcid, item.apcmid, item.count);
                     attachment.push(partCount);
                 });
                 resDoor = new Door(
@@ -249,7 +249,7 @@ export class BizData {
                     if (partCount !== undefined) {
                         partCount.count += item.count;
                     } else {
-                        const partCount = new PartCount(item.catid, item.apcmid, item.count);
+                        const partCount = new PartCount(item.ptcid, item.apcmid, item.count);
                         thatDoor.attachment.push(partCount);
                     }
                 });
@@ -260,18 +260,28 @@ export class BizData {
         return resDoor;
     }
 
-    changeAttachments(oldPartId: number, newPartId: number): void {
+    changeAttachments(oldPartId: number, newPartId: number, newPartCatId: number): void {
         this.scheme.manifest.cubes.forEach((cube) => {
             cube.items.forEach((item) => {
                 item.attachment.forEach((attachment) => {
-                    if (attachment.partId === oldPartId) attachment.partId = newPartId;
+                    if (attachment.partId === oldPartId) {
+                        attachment.catId = newPartCatId;
+                        attachment.partId = newPartId;
+                        this.scheme.dirty = true;
+                        return;
+                    }
                 });
             });
         });
 
         this.scheme.manifest.doors.forEach((door) => {
             door.attachment.forEach((attachment) => {
-                if (attachment.partId === oldPartId) attachment.partId = newPartId;
+                if (attachment.partId === oldPartId) {
+                    attachment.catId = newPartCatId;
+                    attachment.partId = newPartId;
+                    this.scheme.dirty = true;
+                    return;
+                }
             });
         });
     }

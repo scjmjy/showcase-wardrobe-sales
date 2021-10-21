@@ -1,11 +1,6 @@
 <template>
     <div class="parts-menu">
         <div v-show="opened" class="parts-menu__left" :class="{ 'is-level-up': !!tabStack.length }">
-            <div class="parts-menu__left-header">
-                <el-button type="primary" plain @click="$emit('action', 'manifest')">清单</el-button>
-                <el-button type="primary" plain @click="$emit('action', 'complete')">完成</el-button>
-                <!-- <el-button type="primary" plain @click="$emit('action', 'offer')">报价</el-button> -->
-            </div>
             <i
                 v-if="!!tabStack.length && !slideLeft"
                 class="parts-menu__left-levelup iconfont icon-level-up"
@@ -22,6 +17,24 @@
                     <template v-if="index === 0 && type === 'out'" #label>
                         <div class="parts-menu__tab-bgLabel">{{ tab.label }}</div>
                     </template>
+                    <div class="parts-menu__left-cats-header">
+                        <el-button
+                            type="black"
+                            icon="el-iconfont icon-manifest"
+                            size="small"
+                            @click="$emit('action', 'manifest')"
+                            >清单</el-button
+                        >
+                        <el-button
+                            type="success"
+                            round
+                            size="small"
+                            :disabled="completeDisabled"
+                            @click="$emit('action', 'complete')"
+                            >完成
+                            <i class="el-icon-right"></i>
+                        </el-button>
+                    </div>
                     <component
                         :is="tab.component"
                         :up="!!tabStack.length"
@@ -39,13 +52,12 @@
                     icon="el-icon-arrow-left"
                     type="text"
                     @click="onClickBack"
-                    >返回</el-button
+                    >明细清单</el-button
                 >
-                <span class="parts-menu__right-header-title"> 明细清单 </span>
                 <el-button
                     class="parts-menu__right-header-offer"
-                    type="primary"
-                    plain
+                    icon="el-iconfont icon-offer"
+                    type="success"
                     size="small"
                     @click="$emit('action', 'offer')"
                     >报价</el-button
@@ -136,6 +148,10 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        completeDisabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     components: {
         CatTab,
@@ -144,7 +160,7 @@ export default defineComponent({
         ManifestList,
         AttachmentPopup,
     },
-    emits: ["update:opened", "part", "action", "bg"],
+    emits: ["update:opened", "part", "action", "bg", "attachment-replacement"],
     setup(props, ctx) {
         const store = useStore<StateType>();
         const cats = computed<PartCategory[]>(() => store.getters.partCats);
@@ -167,17 +183,6 @@ export default defineComponent({
         });
         const activeCats = computed(() => (props.type === "in" ? inCats.value : outCats.value));
         const tabStack = ref<TabType[][]>([]);
-        watch(
-            () => activeCats.value,
-            (cats) => {
-                tabStack.value.length = 0;
-                if (props.type === "in") {
-                    selectedTabName.value = topLevelTabs.value[0].name;
-                } else {
-                    selectedTabName.value = topLevelTabs.value[1].name;
-                }
-            },
-        );
 
         const bgTab: TabType = {
             name: "bg",
@@ -264,6 +269,20 @@ export default defineComponent({
             }
             return [bgTab, ...partsTabs];
         });
+        watch(
+            () => topLevelTabs.value,
+            (tabs) => {
+                tabStack.value.length = 0;
+                if (props.type === "in") {
+                    selectedTabName.value = tabs[0].name;
+                } else {
+                    selectedTabName.value = tabs[1].name;
+                }
+            },
+            {
+                immediate: true,
+            },
+        );
 
         const activeTabs = computed(() => {
             const len = tabStack.value.length;
@@ -307,9 +326,16 @@ export default defineComponent({
             },
             onAttachmentChange(part: Part, _cat: PartCategory) {
                 if (selectedAttachmentItem.value) {
-                    selectedAttachmentItem.value.pname = part.name;
-                    selectedAttachmentItem.value.pic = part.pic;
-                    selectedAttachmentItem.value.partid = +part.id;
+                    const oldAttachment = Object.assign({}, selectedAttachmentItem.value);
+                    const newAttachment = Object.assign({}, oldAttachment, {
+                        pname: part.name,
+                        pic: part.pic,
+                        partid: +part.id,
+                    });
+                    ctx.emit("attachment-replacement", newAttachment, oldAttachment);
+
+                    Object.assign(selectedAttachmentItem.value, newAttachment);
+
                     selectedAttachmentItem.value = undefined;
                 }
             },
@@ -356,7 +382,7 @@ export default defineComponent({
                             const found = parts.find((p) => p.partId === item.partid);
                             if (found) {
                                 item.count = found.count;
-                                item.catid = found.catId || 15;
+                                item.catid = found.catId;
                             }
                         }
                     }
@@ -402,36 +428,12 @@ $header-height: 56px;
         width: 100%;
         height: 100%;
         vertical-align: top;
-        &-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: $header-height;
-            color: var(--el-color-black);
-            font-size: 26px;
-            font-weight: bold;
-            box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
-
-            :deep(.el-button) {
-                width: 50%;
-                height: 100%;
-                background: linear-gradient(180deg, #c1b399 0%, #ffeac4 0%, #c1b399 100%);
-                font-weight: bold;
-                & + .el-button {
-                    margin-left: 1px;
-                }
-
-                &:not(:hover) {
-                    color: var(--el-color-black);
-                }
-            }
-        }
 
         &-levelup {
             cursor: pointer;
             position: absolute;
             left: 20px;
-            top: $header-height;
+            top: 3px;
             padding: 10px;
             color: var(--el-color-black);
             font-size: 30px;
@@ -461,12 +463,13 @@ $header-height: 56px;
                 }
             }
             :deep(.el-tabs__header) {
-                margin-right: 0px;
-                padding-top: 10px;
+                // margin-right: 0px;
+                // padding-top: 10px;
                 background-color: var(--el-color-bg);
+                transition: padding 0.3s ease;
             }
             :deep(.el-tabs__content) {
-                padding-left: 10px;
+                padding-right: 3px;
                 height: 100%;
                 .el-tab-pane {
                     height: 100%;
@@ -489,6 +492,25 @@ $header-height: 56px;
                 width: 5px !important;
                 left: 0px !important;
                 background-color: #d8d8d8ff;
+            }
+            &-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                height: $header-height;
+                padding: 5px 0;
+                margin-bottom: 5px;
+                border-bottom: 1px solid var(--el-color-info);
+                :deep(.el-button) {
+                    width: 50%;
+                    height: 100%;
+                    font-weight: bold;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    &.is-disabled {
+                        background-color: var(--el-color-info);
+                    }
+                }
             }
         }
     }
@@ -514,33 +536,26 @@ $header-height: 56px;
         }
         &-header {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             align-items: center;
             padding: 0px 0px 0px 10px;
             height: $header-height;
             box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
-            &-title {
-                color: var(--el-color-black);
-                font-size: 26px;
-                font-weight: bold;
-                flex: 2;
-                text-align: center;
-            }
+            // &-title {
+            //     color: var(--el-color-black);
+            //     font-size: 26px;
+            //     font-weight: bold;
+            //     flex: 2;
+            //     text-align: center;
+            // }
             &-offer {
-                // width: 50%;
                 height: 100%;
-                background: linear-gradient(180deg, #c1b399 0%, #ffeac4 0%, #c1b399 100%);
-                font-weight: bold;
-
-                &:not(:hover) {
-                    color: var(--el-color-black);
-                }
             }
             &-back {
-                padding: 0px;
+                padding-left: 5px;
                 line-height: normal;
                 min-height: unset;
-                flex: 1;
+                color: var(--el-color-black);
             }
         }
         &-manifest {

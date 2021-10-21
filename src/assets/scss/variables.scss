@@ -11,7 +11,7 @@ $colors: (
         "new": #4472c4,
     ),
     "success": (
-        "base": #67c23a,
+        "base": #0058a3,
     ),
     "warning": (
         "base": #e6a23c,
@@ -68,7 +68,9 @@ $table: (
     "header-font-color": var(--el-color-black),
     "font-color": #7c7c7cff,
 );
-
+$border-radius: (
+    "base": 2px,
+);
 @forward "~element-plus/theme-chalk/src/common/var.scss" with(
     $colors: $colors,
     $font-size: $font-size,
@@ -79,6 +81,7 @@ $table: (
     $text-color: $text-color,
     $scrollbar: $scrollbar,
     $table: $table,
+    $border-radius: $border-radius,
     $font-path: '~element-plus/theme-chalk/fonts',
 );
 

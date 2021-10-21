@@ -1,10 +1,6 @@
 <template>
     <div class="category-tabs" :class="{ 'is-level-up': !!tabStack.length }">
-        <i
-            v-if="!!tabStack.length && !slideLeft"
-            class="category-tabs-levelup iconfont icon-level-up"
-            @click="onUpLevelClick"
-        ></i>
+        <i v-if="!!tabStack.length" class="category-tabs-levelup iconfont icon-level-up" @click="onUpLevelClick"></i>
         <el-tabs v-model="selectedTabName" class="category-tabs-cats" tab-position="left">
             <el-tab-pane v-for="tab in activeTabs" :key="tab.name" :label="tab.label" :name="tab.name">
                 <slot name="content-header" />
@@ -14,6 +10,7 @@
                     v-bind="tab.bind"
                     v-on="tab.on"
                     :active="selectedTabName === tab.name"
+                    style="flex: 1"
                 />
                 <slot name="content-footer" />
             </el-tab-pane>
@@ -233,15 +230,19 @@ export default defineComponent({
             }
         }
         :deep(.el-tabs__header) {
-            margin-right: 0px;
-            padding-top: 10px;
+            // margin-right: 0px;
+            // padding-top: 10px;
             background-color: var(--el-color-bg);
+            transition: padding 0.3s ease;
         }
         :deep(.el-tabs__content) {
-            padding-left: 10px;
+            padding-right: 3px;
             height: 100%;
             .el-tab-pane {
                 height: 100%;
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
             }
         }
         :deep(.el-tabs__active-bar.is-left) {

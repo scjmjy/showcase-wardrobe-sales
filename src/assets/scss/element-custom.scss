@@ -58,6 +58,21 @@
     &__headerbtn:hover &__close {
         color: white;
     }
+    &__footer {
+        display: flex;
+        justify-content: space-around;
+        .el-button {
+            color: var(--el-color-black);
+            width: 35%;
+        }
+        // &-btn-ok,
+        // &-btn-cancel {
+        //     color: var(--el-color-black);
+        // }
+        &-btn-cancel {
+            background-color: #dbdbdb;
+        }
+    }
 }
 .el-message-box {
     border-color: var(--el-color-black);
@@ -67,6 +82,9 @@
     &__title {
         color: var(--el-color-black);
     }
+    &__content {
+        padding: 20px;
+    }
     &__close {
         color: var(--el-color-black) !important;
         font-size: 26px;
@@ -74,6 +92,14 @@
         &:focus,
         &:hover {
             color: white !important;
+        }
+    }
+    &__btns {
+        display: flex;
+        justify-content: space-around;
+        .el-button {
+            color: var(--el-color-black);
+            width: 35%;
         }
     }
 }
@@ -123,6 +149,26 @@
     &:hover {
         color: var(--el-color-black);
         border-color: var(--el-color-black) !important;
+        border-style: solid !important;
+    }
+}
+
+.el-button--blue {
+    --el-button-font-color: white;
+    --el-button-background-color: var(--el-color-blue);
+    --el-button-border-color: var(--el-color-blue);
+    --el-button-hover-color: white;
+    // --el-button-active-font-color: white;
+    // --el-button-active-background-color: #58431c;
+    // --el-button-active-border-color: #cdcdcd;
+
+    @include button-variant("primary");
+
+    &:focus,
+    &:active,
+    &:hover {
+        color: var(--el-color-black);
+        border-color: var(--el-color-blue) !important;
         border-style: solid !important;
     }
 }

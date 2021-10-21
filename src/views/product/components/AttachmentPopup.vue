@@ -8,21 +8,22 @@
                 <template #content-header>
                     <div class="attachment-popup__content-header">
                         <attachment-item :item="item" column />
-                        <i class="attachment-popup__content-trigger el-icon-arrow-down" @click="toggleTrigger"></i>
+                        <!-- <i class="attachment-popup__content-trigger el-icon-arrow-down" @click="toggleTrigger"></i> -->
+                        <el-button
+                            class="attachment-popup__content-trigger"
+                            type="warning"
+                            circle
+                            icon="el-icon-arrow-down"
+                            size="small"
+                            @click="toggleTrigger"
+                        ></el-button>
                     </div>
                 </template>
                 <template #content-footer>
-                    <div class="attachment-popup__content-footer__action">
-                        <el-button type="primary" size="small" :disabled="!selectedPart" @click="changePart"
+                    <div class="attachment-popup__content-footer">
+                        <el-button type="primary" size="small" :disabled="saveBtnDisabled" @click="changeAttachment"
                             >保存修改</el-button
                         >
-                        <!-- <el-button
-                                type="warning"
-                                circle
-                                icon="el-icon-arrow-down"
-                                size="small"
-                                @click="toggleTrigger"
-                            ></el-button> -->
                     </div>
                 </template>
             </category-tabs>
@@ -70,6 +71,9 @@ export default defineComponent({
             selectedPartCat,
             siblings,
             catTabs,
+            saveBtnDisabled: computed(() => {
+                return !selectedPart.value || selectedPart.value.id == props.item.partid;
+            }),
             toggleTrigger() {
                 ctx.emit("hide");
             },
@@ -78,7 +82,7 @@ export default defineComponent({
                 selectedPart.value = part;
                 selectedPartCat.value = cat;
             },
-            changePart() {
+            changeAttachment() {
                 ctx.emit("change", selectedPart.value, selectedPartCat.value);
             },
         };
@@ -123,25 +127,25 @@ export default defineComponent({
             flex: 1;
         }
         &-header {
-            // position: relative;
-            padding: 10px;
+            position: relative;
+            padding: 5px;
             border-bottom: 1px solid var(--el-color-info);
+            margin-bottom: 5px;
         }
         &-footer {
-            &__action {
-                text-align: center;
-            }
+            text-align: center;
+            padding: 5px 0;
         }
         &-trigger {
             cursor: pointer;
             position: absolute;
-            top: 30px;
-            right: 43px;
-            padding: 5px;
-            border-radius: 50%;
-            background-color: #00000059;
-            color: white;
-            font-size: 30px;
+            top: 20px;
+            right: 20px;
+            // padding: 5px;
+            // border-radius: 50%;
+            // background-color: #00000059;
+            // color: white;
+            // font-size: 30px;
             z-index: 2;
         }
     }

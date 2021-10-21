@@ -2,7 +2,7 @@
     <div class="manifest-list">
         <el-divider>配件清单</el-divider>
         <manifest-item v-for="(item, index) of partList" :key="index" :item="item"></manifest-item>
-        <el-divider style="margin-top: 30px">附件清单</el-divider>
+        <el-divider v-if="attachmentList.length" style="margin-top: 30px">附件清单</el-divider>
         <attachment-item
             v-for="(item, index) of attachmentList"
             :key="index"

@@ -154,7 +154,7 @@ export default defineComponent({
                                             const attachment: Array<PartCount> = [];
                                             newPart.attachments.forEach((item) => {
                                                 const partCount = new PartCount(
-                                                    item.catid,
+                                                    item.ptcid,
                                                     item.apcmid,
                                                     item.count * doorNum,
                                                 );
@@ -1492,7 +1492,7 @@ export default defineComponent({
                                                 const attachment: Array<PartCount> = [];
                                                 this.newPart.attachments.forEach((item) => {
                                                     const partCount = new PartCount(
-                                                        item.catid,
+                                                        item.ptcid,
                                                         item.apcmid,
                                                         item.count,
                                                     );
@@ -1676,8 +1676,8 @@ export default defineComponent({
             });
         },
 
-        changeAttachments(oldPartId: number, newPartId: number): void {
-            this.bizdata.changeAttachments(oldPartId, newPartId);
+        changeAttachments(oldPartId: number, newPartId: number, newPartCatId: number): void {
+            this.bizdata.changeAttachments(oldPartId, newPartId, newPartCatId);
         },
     },
 });

@@ -55,8 +55,10 @@
                 class="product-detail__menu2d"
                 :class="{ collapse: !showMenu }"
                 :type="stateInOut"
+                :completeDisabled="completeDisabled"
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
+                @attachment-replacement="onAttachmentChange"
             ></parts-menu>
         </template>
         <template v-if="mode === 'view'">
@@ -93,7 +95,15 @@ import { useStore } from "vuex";
 import { ElMessage, ElMessageBox } from "element-plus";
 import Babylon from "@/components/Babylon/Babylon.vue";
 import { StateType } from "@/store";
-import { Part, PartAttachment, PartCategory, Product, Scheme, isProduct } from "@/api/interface/provider.interface";
+import {
+    Part,
+    PartAttachment,
+    PartCategory,
+    Product,
+    Scheme,
+    isProduct,
+    ManifestPart,
+} from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
 import * as util from "@/lib/scheme.util";
@@ -348,6 +358,7 @@ export default defineComponent({
 
         async function saveScheme() {
             await util.saveSchemeAsync(product.value.id, scheme.value!);
+            captureSchemeScreenshot();
             const scheme2d = product.value as Scheme;
             if (scheme2d.offer && refOfferDlg.value) {
                 await refOfferDlg.value.doOffer();
@@ -520,6 +531,7 @@ export default defineComponent({
             openCloseStates,
             showMenu,
             collapseInfoMenu,
+            completeDisabled: computed(() => !scheme.value || !scheme.value.dirty),
             mode,
             schemeMode,
             product,
@@ -595,6 +607,9 @@ export default defineComponent({
                 setSchemeDirty();
             },
             onPartsMenuAction,
+            onAttachmentChange(newAttachment: ManifestPart, oldAttachment: ManifestPart) {
+                refBabylon.value?.changeAttachments(oldAttachment.partid, newAttachment.partid, newAttachment.catid);
+            },
             async gotoBack() {
                 if (scheme.value?.dirty) {
                     try {
@@ -627,8 +642,6 @@ export default defineComponent({
                 showMenu.value = false;
                 resetGooeyMenu(gooeyMenuItems.value);
                 mode.value = "view";
-
-                captureSchemeScreenshot();
             },
             onInOutChange(_state: InOutState) {
                 showMenu.value = true;
@@ -645,9 +658,9 @@ export default defineComponent({
             },
             onPartSelect(part: Part, cat: PartCategory) {
                 if (!part.manifest) {
-                    selectedMetalPart.value = part;
-                    selectedMetalPart.value.catId = +cat.id;
-                    showMetalsDlg.value = true;
+                    // selectedMetalPart.value = part;
+                    // selectedMetalPart.value.catId = +cat.id;
+                    // showMetalsDlg.value = true;
                     return;
                 }
                 const marnifestUrl = part.manifest.replace(baseUrl.value || "", "");

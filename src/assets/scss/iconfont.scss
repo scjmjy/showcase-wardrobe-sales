@@ -31,6 +31,15 @@
         color: var(--el-color-primary);
     }
 }
+.el-iconfont {
+    @extend .iconfont;
+    color: inherit;
+    padding: 4px;
+}
+
+.icon-manifest:before {
+  content: "\e60c";
+}
 
 .icon-door-close:before {
   content: "\e7b1";

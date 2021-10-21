@@ -42,12 +42,15 @@
             </div>
         </el-form>
         <template #footer>
-            <div class="customize-dlg__footer">
-                <el-button type="primary" :loading="loading" :disabled="invalid" @click="doConfirm">{{
-                    okText
-                }}</el-button>
-                <el-button @click="doCancel">取消</el-button>
-            </div>
+            <el-button class="el-dialog__footer-btn-cancel" @click="doCancel">取消</el-button>
+            <el-button
+                class="el-dialog__footer-btn-ok"
+                type="primary"
+                :loading="loading"
+                :disabled="invalid"
+                @click="doConfirm"
+                >{{ okText }}</el-button
+            >
         </template>
     </el-dialog>
 </template>
@@ -218,15 +221,6 @@ export default defineComponent({
         &-value {
             color: var(--el-color-danger);
             font-weight: bold;
-        }
-    }
-
-    &__footer {
-        display: flex;
-        justify-content: space-around;
-
-        .el-button {
-            width: 35%;
         }
     }
 

@@ -125,7 +125,7 @@ export default class RestProvider extends LocalProvider {
                     const data: PartAttachmentList = res.data || [];
                     for (const item of data) {
                         for (const item2 of item.attachmentsList) {
-                            item2.catid = 15;
+                            item2.ptcid = 15;
                         }
                     }
                     resolve({

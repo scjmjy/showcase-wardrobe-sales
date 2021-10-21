@@ -128,7 +128,9 @@ export default defineComponent({
                 setTimeout(() => {
                     loadingSchemeList.value = false;
                     if (services.value.length && !openedServices.value) {
-                        openedServices.value = [services.value[0].no];
+                        const { currentSvcId } = store.state.currentCustomer;
+                        const serving = services.value.find((s) => s.id === currentSvcId);
+                        openedServices.value = serving ? [serving.no] : [services.value[0].no];
                     }
                 }, 200);
             },
@@ -218,7 +220,11 @@ export default defineComponent({
                 });
             },
             newScheme(svc?: Service) {
-                const query = svc ? { svc: svc.id } : {};
+                let query = {};
+                if (svc) {
+                    store.commit("SET-CUSTOMER-CURRENT-SVCID", svc.id);
+                    query = { svc: svc.id };
+                }
                 router.push({
                     path: "/select-product",
                     query,

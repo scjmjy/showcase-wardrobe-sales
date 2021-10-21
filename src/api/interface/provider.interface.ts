@@ -271,7 +271,7 @@ export interface VisitorRecordItem {
 
 export interface PartAttachment {
     apcmid: number; // part id
-    catid: number; // part category id
+    ptcid: number; // part category id
     count: number; // part count
 }
 export interface PartAttachmentItem {
