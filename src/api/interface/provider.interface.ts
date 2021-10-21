@@ -191,6 +191,7 @@ export interface PartCategoryMeta {
 }
 export interface Part {
     id: string | number;
+    catId?: number;
     name: string;
     depth: number;
     width: number;
@@ -253,6 +254,7 @@ export interface ManifestPart {
     pname: string;
     count: number;
     pic: string;
+    catid: number;
     partid: number;
     type: "3d" | "2d"; // 配件类型（1 for 3d; 2 for 2d）
 }
@@ -269,6 +271,7 @@ export interface VisitorRecordItem {
 
 export interface PartAttachment {
     apcmid: number; // part id
+    catid: number; // part category id
     count: number; // part count
 }
 export interface PartAttachmentItem {

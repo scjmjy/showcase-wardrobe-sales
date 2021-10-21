@@ -646,6 +646,7 @@ export default defineComponent({
             onPartSelect(part: Part, cat: PartCategory) {
                 if (!part.manifest) {
                     selectedMetalPart.value = part;
+                    selectedMetalPart.value.catId = +cat.id;
                     showMetalsDlg.value = true;
                     return;
                 }

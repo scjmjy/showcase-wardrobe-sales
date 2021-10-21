@@ -121,10 +121,17 @@ export default class RestProvider extends LocalProvider {
                 url: "/api/v1/biz/parts/attachments",
             })
                 .then((res) => {
+                    // TODO
+                    const data: PartAttachmentList = res.data || [];
+                    for (const item of data) {
+                        for (const item2 of item.attachmentsList) {
+                            item2.catid = 15;
+                        }
+                    }
                     resolve({
                         ok: true,
                         status: res.status,
-                        data: res.data,
+                        data,
                     });
                 })
                 .catch(() => {

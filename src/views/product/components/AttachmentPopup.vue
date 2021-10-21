@@ -4,23 +4,25 @@
         <div class="attachment-popup__content">
             <!-- <attachment-item :item="item" column /> -->
             <!-- <cat-tab class="attachment-popup__content-cat" :cat="cat" active></cat-tab> -->
-            <category-tabs ref="catTabs" @part="onPartClick">
+            <category-tabs ref="catTabs" :cats="siblings" @part="onPartClick">
                 <template #content-header>
                     <div class="attachment-popup__content-header">
-                        <div class="attachment-popup__content-header__action">
-                            <el-button type="primary" size="small" :disabled="!selectedPart" @click="changePart"
-                                >保存修改</el-button
-                            >
-                            <el-button
+                        <attachment-item :item="item" column />
+                        <i class="attachment-popup__content-trigger el-icon-arrow-down" @click="toggleTrigger"></i>
+                    </div>
+                </template>
+                <template #content-footer>
+                    <div class="attachment-popup__content-footer__action">
+                        <el-button type="primary" size="small" :disabled="!selectedPart" @click="changePart"
+                            >保存修改</el-button
+                        >
+                        <!-- <el-button
                                 type="warning"
                                 circle
                                 icon="el-icon-arrow-down"
                                 size="small"
                                 @click="toggleTrigger"
-                            ></el-button>
-                        </div>
-                        <attachment-item :item="item" column />
-                        <!-- <i class="attachment-popup__content-trigger el-icon-arrow-down" @click="toggleTrigger"></i> -->
+                            ></el-button> -->
                     </div>
                 </template>
             </category-tabs>
@@ -30,9 +32,11 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, PropType, ref } from "vue";
-import { ManifestPart, Part, PartCategory } from "@/api/interface/provider.interface";
+import { findSiblingCats, ManifestPart, Part, PartCategory } from "@/api/interface/provider.interface";
 import CategoryTabs from "./CategoryTabs.vue";
 import AttachmentItem from "./AttachmentItem.vue";
+import { useStore } from "vuex";
+import { StateType } from "@/store";
 
 export default defineComponent({
     name: "AttachmentPopup",
@@ -48,16 +52,23 @@ export default defineComponent({
         },
     },
     setup(props, ctx) {
+        const store = useStore<StateType>();
+        const cats = computed<PartCategory[]>(() => store.getters.partCats);
         const catTabs = ref<InstanceType<typeof CategoryTabs>>();
         const selectedPart = ref<Part>();
         const selectedPartCat = ref<PartCategory>();
+        const siblings = computed(() => {
+            const { catid } = props.item;
+            return findSiblingCats(catid, cats.value) || [];
+        });
         onMounted(() => {
-            // TODO catId is unknown
-            catTabs.value?.selectPart(15, props.item.partid);
+            const { catid, partid } = props.item;
+            catTabs.value?.selectPart(catid, partid);
         });
         return {
             selectedPart,
             selectedPartCat,
+            siblings,
             catTabs,
             toggleTrigger() {
                 ctx.emit("hide");
@@ -81,8 +92,9 @@ export default defineComponent({
     position: absolute;
     left: 0px;
     top: 0px;
+    bottom: 0px;
     width: 100%;
-    height: 100%;
+    // height: 100%;
     padding-top: 25%;
     &__overlay {
         z-index: -1;
@@ -114,9 +126,10 @@ export default defineComponent({
             // position: relative;
             padding: 10px;
             border-bottom: 1px solid var(--el-color-info);
+        }
+        &-footer {
             &__action {
-                display: flex;
-                justify-content: space-between;
+                text-align: center;
             }
         }
         &-trigger {

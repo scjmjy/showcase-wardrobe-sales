@@ -58,6 +58,10 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        cats: {
+            type: Array as PropType<PartCategory[]>,
+            default: () => [],
+        },
     },
     components: {
         CatTab,
@@ -65,8 +69,8 @@ export default defineComponent({
     },
     emits: ["update:opened", "part"],
     setup(props, ctx) {
-        const store = useStore<StateType>();
-        const cats = store.state.cats;
+        // const store = useStore<StateType>();
+        // const cats = computed<PartCategory[]>(() => store.getters.partCats);
         const catMeta = ref<PartCategoryMeta>();
         const selectedTabName = ref<string>();
         const tabStack = ref<TabType[][]>([]);
@@ -124,7 +128,7 @@ export default defineComponent({
         }
 
         const topLevelTabs = computed<TabType[]>(() => {
-            const partsTabs = cats2Tabs(cats.value);
+            const partsTabs = cats2Tabs(props.cats);
             return partsTabs;
         });
         watch(
@@ -159,7 +163,6 @@ export default defineComponent({
         // );
 
         return {
-            cats,
             activeTabs,
             topLevelTabs,
             tabStack,
@@ -177,7 +180,7 @@ export default defineComponent({
                 // 清空堆栈
                 tabStack.value.length = 0;
 
-                const siblings = findSiblingCats(catId, cats.value);
+                const siblings = findSiblingCats(catId, props.cats);
                 if (siblings) {
                     const tabs = cats2Tabs(siblings);
                     selectedTabName.value = catId.toString();

@@ -239,6 +239,10 @@ export class Manifest {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class PartCount {
+    @JsonProperty({ value: "catId" })
+    @JsonClassType({ type: () => [Number] })
+    catId: number;
+
     @JsonProperty({ value: "partId" })
     @JsonClassType({ type: () => [Number] })
     partId: number;
@@ -247,7 +251,8 @@ export class PartCount {
     @JsonClassType({ type: () => [Number] })
     count: number;
 
-    constructor(partId: number, count: number) {
+    constructor(catId: number, partId: number, count: number) {
+        this.catId = catId;
         this.partId = partId;
         this.count = count;
     }
@@ -271,12 +276,12 @@ export class Scheme {
         this.dirty = false;
     }
 
-    private addPart(parts: Array<PartCount>, partId: number, count: number): void {
+    private addPart(parts: Array<PartCount>, catId: number, partId: number, count: number): void {
         const part = parts.find((part: { partId: number }) => part.partId === partId);
         if (part !== undefined) {
             part.count += count;
         } else {
-            const newPart = new PartCount(partId, count);
+            const newPart = new PartCount(catId, partId, count);
             parts.push(newPart);
         }
     }
@@ -286,9 +291,9 @@ export class Scheme {
 
         // Add cube, item partCount.
         this.manifest.cubes.forEach((cube) => {
-            this.addPart(parts, cube.partId, 1);
+            this.addPart(parts, cube.catId || 0, cube.partId, 1);
             cube.items.forEach((item) => {
-                this.addPart(parts, item.partId, 1);
+                this.addPart(parts, item.catId || 0, item.partId, 1);
             });
         });
 
@@ -298,21 +303,21 @@ export class Scheme {
             for (let i = 0; i < door.locations.length; i++) {
                 doorNum += door.locations[i].index.length;
             }
-            this.addPart(parts, door.partId, doorNum);
+            this.addPart(parts, door.catId || 0, door.partId, doorNum);
         });
 
         // add attachment partCount.
         this.manifest.cubes.forEach((cube) => {
             cube.items.forEach((item) => {
                 item.attachment.forEach((attachment) => {
-                    this.addPart(parts, attachment.partId, attachment.count);
+                    this.addPart(parts, attachment.catId, attachment.partId, attachment.count);
                 });
             });
         });
 
         this.manifest.doors.forEach((door) => {
             door.attachment.forEach((attachment) => {
-                this.addPart(parts, attachment.partId, attachment.count);
+                this.addPart(parts, attachment.catId, attachment.partId, attachment.count);
             });
         });
 

@@ -56,14 +56,14 @@ export default defineComponent({
                 schemePart.value = undefined;
                 if (props.scheme3d && props.part) {
                     const parts = props.scheme3d.getPartCounts();
-                    const { id } = props.part;
+                    const { id, catId = 0 } = props.part;
                     const found = parts.find((p) => p.partId === id);
                     if (found) {
                         isNew = false;
-                        schemePart.value = new PartCount(found.partId, found.count);
+                        schemePart.value = new PartCount(found.catId, found.partId, found.count);
                     } else {
                         isNew = true;
-                        const part = new PartCount(+id, 0);
+                        const part = new PartCount(catId, +id, 0);
                         schemePart.value = part;
                     }
                 }

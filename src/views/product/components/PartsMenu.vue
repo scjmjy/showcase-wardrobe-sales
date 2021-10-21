@@ -147,7 +147,7 @@ export default defineComponent({
     emits: ["update:opened", "part", "action", "bg"],
     setup(props, ctx) {
         const store = useStore<StateType>();
-        const cats = store.getters.partCats;
+        const cats = computed<PartCategory[]>(() => store.getters.partCats);
         const catMeta = ref<PartCategoryMeta>();
         const selectedTabName = ref<string>();
         const selectedAttachmentItem = ref<ManifestPart>();
@@ -353,7 +353,11 @@ export default defineComponent({
                     if (res.ok && res.data) {
                         schemeManifest.value = res.data || [];
                         for (const item of schemeManifest.value) {
-                            item.count = parts.find((p) => p.partId === item.partid)?.count || 0;
+                            const found = parts.find((p) => p.partId === item.partid);
+                            if (found) {
+                                item.count = found.count;
+                                item.catid = found.catId || 15;
+                            }
                         }
                     }
                 });
