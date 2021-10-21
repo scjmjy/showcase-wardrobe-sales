@@ -51,7 +51,6 @@
                         class="button-shadow"
                         type="black"
                         :loading="creatingScheme"
-                        round
                         size="small"
                         @click="$emit('order')"
                         >下单</el-button
@@ -63,7 +62,6 @@
                         class="button-shadow"
                         type="black"
                         :loading="creatingScheme"
-                        round
                         size="small"
                         @click="$emit('newScheme')"
                         >开始定制</el-button
@@ -73,7 +71,6 @@
                         class="button-shadow"
                         type="black"
                         :loading="prepareContinue"
-                        round
                         size="small"
                         @click="$emit('continueScheme')"
                         >继续定制</el-button
@@ -83,7 +80,6 @@
                         class="button-shadow"
                         type="primary"
                         :loading="creatingScheme"
-                        round
                         size="small"
                         @click="$emit('copyScheme')"
                         >由此方案定制</el-button
@@ -359,7 +355,6 @@ export default defineComponent({
             width: 100%;
             margin-left: 0 !important;
             margin-bottom: 17px;
-            border-radius: 6px;
         }
     }
 }

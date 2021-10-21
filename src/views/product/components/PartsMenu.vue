@@ -19,6 +19,7 @@
                     </template>
                     <div class="parts-menu__left-cats-header">
                         <el-button
+                            class="button-shadow"
                             type="black"
                             icon="el-iconfont icon-manifest"
                             size="small"
@@ -26,10 +27,11 @@
                             >清单</el-button
                         >
                         <el-button
+                            class="button-shadow"
                             type="success"
                             round
                             size="small"
-                            :disabled="completeDisabled"
+                            :disabled="false"
                             @click="$emit('action', 'complete')"
                             >完成
                             <i class="el-icon-right"></i>
@@ -55,10 +57,11 @@
                     >明细清单</el-button
                 >
                 <el-button
-                    class="parts-menu__right-header-offer"
+                    class="parts-menu__right-header-offer button-shadow"
                     icon="el-iconfont icon-offer"
                     type="success"
                     size="small"
+                    round
                     @click="$emit('action', 'offer')"
                     >报价</el-button
                 >
@@ -433,7 +436,7 @@ $header-height: 56px;
             cursor: pointer;
             position: absolute;
             left: 20px;
-            top: 3px;
+            top: 5px;
             padding: 10px;
             color: var(--el-color-black);
             font-size: 30px;
@@ -444,7 +447,7 @@ $header-height: 56px;
         }
         &.is-level-up {
             :deep(.el-tabs__header) {
-                padding-top: 45px;
+                padding-top: $header-height;
             }
         }
         &-cats {
@@ -498,7 +501,7 @@ $header-height: 56px;
                 justify-content: space-between;
                 align-items: center;
                 height: $header-height;
-                padding: 5px 0;
+                padding: 5px 0px 8px 0px;
                 margin-bottom: 5px;
                 border-bottom: 1px solid var(--el-color-info);
                 :deep(.el-button) {
@@ -538,7 +541,7 @@ $header-height: 56px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0px 0px 0px 10px;
+            padding: 0px 10px 0px 10px;
             height: $header-height;
             box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
             // &-title {
@@ -549,7 +552,7 @@ $header-height: 56px;
             //     text-align: center;
             // }
             &-offer {
-                height: 100%;
+                // height: 100%;
             }
             &-back {
                 padding-left: 5px;
