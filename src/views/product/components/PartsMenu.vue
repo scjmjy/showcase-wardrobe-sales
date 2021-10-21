@@ -54,8 +54,8 @@
                     icon="el-icon-arrow-left"
                     type="text"
                     @click="onClickBack"
-                    >明细清单</el-button
-                >
+                ></el-button>
+                <span class="parts-menu__right-header-title"> 明细清单 </span>
                 <el-button
                     class="parts-menu__right-header-offer button-shadow"
                     icon="el-iconfont icon-offer"
@@ -544,13 +544,13 @@ $header-height: 56px;
             padding: 0px 10px 0px 10px;
             height: $header-height;
             box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
-            // &-title {
-            //     color: var(--el-color-black);
-            //     font-size: 26px;
-            //     font-weight: bold;
-            //     flex: 2;
-            //     text-align: center;
-            // }
+            &-title {
+                color: var(--el-color-black);
+                font-size: 26px;
+                // font-weight: bold;
+                flex: 2;
+                text-align: center;
+            }
             &-offer {
                 // height: 100%;
             }
