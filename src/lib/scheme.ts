@@ -1,5 +1,6 @@
 import { PartAttachment } from "@/api/interface/provider.interface";
 import { JsonClassType, JsonInclude, JsonIncludeType, JsonProperty } from "jackson-js";
+import store from "@/store";
 
 export enum PartType {
     UNKNOWN = 0,
@@ -258,7 +259,17 @@ export class PartCount {
         this.count = count;
     }
 }
-
+function findAttachmentCatId(partId: number, attachmentId: number) {
+    const part = store.state.attachments.find((item) => item.partCmId === partId);
+    if (!part) {
+        return undefined;
+    }
+    const attach = part.attachmentsList.find((item) => item.apcmid === attachmentId);
+    if (!attach) {
+        return undefined;
+    }
+    return attach.ptcid;
+}
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Scheme {
     @JsonProperty({ value: "config" })
@@ -311,6 +322,9 @@ export class Scheme {
         this.manifest.cubes.forEach((cube) => {
             cube.items.forEach((item) => {
                 item.attachment.forEach((attachment) => {
+                    if (!attachment.catId) {
+                        attachment.catId = findAttachmentCatId(item.partId, attachment.partId) || 0;
+                    }
                     this.addPart(parts, attachment.catId, attachment.partId, attachment.count);
                 });
             });
@@ -318,6 +332,9 @@ export class Scheme {
 
         this.manifest.doors.forEach((door) => {
             door.attachment.forEach((attachment) => {
+                if (!attachment.catId) {
+                    attachment.catId = findAttachmentCatId(door.partId, attachment.partId) || 0;
+                }
                 this.addPart(parts, attachment.catId, attachment.partId, attachment.count);
             });
         });

@@ -339,10 +339,10 @@ export default defineComponent({
 
             const res = await apiProvider.createNewScheme(schemeName, svcid, eid, cid, pid, sid);
             if (res.ok && res.data) {
-                const newSchemeId = res.data.id;
                 store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
 
                 if (size) {
+                    const newSchemeId = res.data.id;
                     await apiProvider.changeSchemeSize(newSchemeId, size);
                 }
 
@@ -350,8 +350,9 @@ export default defineComponent({
                     if (res.ok && res.data) {
                         product.value = res.data;
                         product.value.cid = cid;
+
+                        await captureSchemeScreenshot();
                         if (nonCustom) {
-                            await captureSchemeScreenshot();
                             if (refOfferDlg.value) {
                                 refOfferDlg.value.doOffer();
                             }
