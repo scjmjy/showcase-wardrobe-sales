@@ -68,6 +68,7 @@ export default defineComponent({
     }
     &__info {
         margin-left: 18px;
+        padding-bottom: 5px;
         flex: 1;
         height: 100px;
         display: flex;

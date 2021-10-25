@@ -78,7 +78,7 @@ export default defineComponent({
         color: var(--el-text-color-primary);
         &-num,
         :deep(.el-input__inner) {
-            font-size: 22px;
+            // font-size: 22px;
             font-weight: bold;
         }
     }

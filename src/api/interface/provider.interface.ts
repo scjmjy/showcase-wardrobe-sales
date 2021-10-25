@@ -203,13 +203,15 @@ export interface Part {
     mutime?: string;
 }
 
-export type PartIdList = (string | number)[];
+export type IdList = (string | number)[];
 
 export interface GlobalCfg {
-    // 内饰配件ID列表
-    partsCatInterior: PartIdList;
-    // 外观配件ID列表
-    partsCatExterior: PartIdList;
+    // 内饰配件分类ID列表
+    partsCatInterior: IdList;
+    // 外观配件分类ID列表
+    partsCatExterior: IdList;
+    // 板材配件分类ID列表
+    partsCatBoard: IdList;
     baseUrl: string;
 }
 

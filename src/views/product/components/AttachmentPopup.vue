@@ -21,7 +21,12 @@
                 </template>
                 <template #content-footer>
                     <div class="attachment-popup__content-footer">
-                        <el-button type="primary" size="small" :disabled="saveBtnDisabled" @click="changeAttachment"
+                        <el-button
+                            class="button-shadow"
+                            type="primary"
+                            size="small"
+                            :disabled="saveBtnDisabled"
+                            @click="changeAttachment"
                             >保存修改</el-button
                         >
                     </div>
@@ -133,8 +138,10 @@ export default defineComponent({
             margin-bottom: 5px;
         }
         &-footer {
+            margin-top: 5px;
+            padding: 5px 0 10px;
             text-align: center;
-            padding: 5px 0;
+            box-shadow: 0px -2px 3px 0px #e6e6e6;
         }
         &-trigger {
             cursor: pointer;

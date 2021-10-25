@@ -1,6 +1,5 @@
 <template>
     <div class="cat-tab">
-        <!-- <el-button v-if="up" type="text" size="small" @click="onUpClick">上一层</el-button> -->
         <div v-if="showFilterHeader" class="cat-tab__filterHeader" @click="onFilterToggleClick">
             <span>筛选</span>
             <el-button
@@ -105,7 +104,7 @@ export default defineComponent({
         LoadMore,
     },
     props: {
-        up: {
+        collapse: {
             type: Boolean,
             default: false,
         },
@@ -128,7 +127,7 @@ export default defineComponent({
         const selectedBrandIds = ref<string[]>([]);
         const selectedColorId = ref("");
         const selectedMatId = ref("");
-        const showFilter = ref(true);
+        const showFilter = ref(!props.collapse);
 
         const children = props.cat.children || [];
         if (children.length > 0) {
@@ -249,10 +248,6 @@ export default defineComponent({
             onScroll,
             onPartClick(part: Part) {
                 ctx.emit("part", part, props.cat);
-            },
-            onUpClick() {
-                // const isBg = !!props.cat.btype;
-                ctx.emit("up");
             },
         };
     },

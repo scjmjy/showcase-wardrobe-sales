@@ -546,9 +546,9 @@ $header-height: 56px;
             box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
             &-title {
                 padding-left: 8px;
+                padding-bottom: 5px;
                 color: var(--el-color-black);
                 font-size: 26px;
-                // font-weight: bold;
                 flex: 2;
                 text-align: center;
             }

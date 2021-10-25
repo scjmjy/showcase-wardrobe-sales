@@ -90,6 +90,7 @@ export default defineComponent({
                     component = "CatTab";
                     bind = {
                         cat: c,
+                        collapse: true,
                         active: false,
                     };
                     on.part = (part: Part, cat: PartCategory) => {

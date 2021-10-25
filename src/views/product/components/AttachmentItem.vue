@@ -58,6 +58,9 @@ export default defineComponent({
     display: flex;
     align-items: center;
     white-space: pre-wrap;
+    background-color: var(--el-color-info);
+    border-radius: 6px;
+    padding: 10px;
     &__img {
         width: 44px;
         height: 44px;
@@ -84,7 +87,7 @@ export default defineComponent({
         align-items: center;
         &-num,
         :deep(.el-input__inner) {
-            font-size: 22px;
+            // font-size: 22px;
             font-weight: bold;
         }
         &-trigger {
