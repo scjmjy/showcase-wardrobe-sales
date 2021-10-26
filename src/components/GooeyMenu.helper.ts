@@ -4,6 +4,7 @@ export interface MenuItem {
     icon: string;
     active?: boolean;
     type?: "menuitem" | "button";
+    noClose?: boolean;
     onActive?: () => void;
     onUnactive?: () => void;
     onClick?: () => void;

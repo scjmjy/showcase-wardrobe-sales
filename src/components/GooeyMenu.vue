@@ -86,7 +86,7 @@ export default defineComponent({
             onItemClick(item: MenuItem) {
                 item.active = !item.active;
                 ctx.emit("click", item);
-                ctx.emit("update:modelValue", false);
+                !item.noClose && ctx.emit("update:modelValue", false);
                 if (item.type === "button") {
                     item.onClick && item.onClick();
                 } else if (item.active) {

@@ -245,6 +245,7 @@ export default defineComponent({
                 items.push({
                     value: "parts-outdoor",
                     icon: "parts-outdoor",
+                    noClose: true,
                     onActive() {
                         if (scheme3DType.value === 0) {
                             refBabylon.value?.showDoors(false);
@@ -665,6 +666,7 @@ export default defineComponent({
             },
             onInOutChange(_state: InOutState) {
                 showMenu.value = true;
+                gooeyMenuOpened.value = false;
             },
             onOpenCloseChange(state: OpenCloseState) {
                 if (scheme3DType.value === 0) {
