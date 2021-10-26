@@ -253,10 +253,15 @@ export class PartCount {
     @JsonClassType({ type: () => [Number] })
     count: number;
 
-    constructor(catId: number, partId: number, count: number) {
+    @JsonProperty({ value: "sizeRatio" })
+    @JsonClassType({ type: () => [Size] })
+    sizeRatio: Size | null;
+
+    constructor(catId: number, partId: number, count: number, sizeRatio: Size | null = null) {
         this.catId = catId;
         this.partId = partId;
         this.count = count;
+        this.sizeRatio = sizeRatio;
     }
 }
 function findAttachmentCatId(partId: number, attachmentId: number) {
@@ -288,12 +293,18 @@ export class Scheme {
         this.dirty = false;
     }
 
-    private addPart(parts: Array<PartCount>, catId: number, partId: number, count: number): void {
+    private addPart(
+        parts: Array<PartCount>,
+        catId: number,
+        partId: number,
+        count: number,
+        sizeRatio: Size | null = null,
+    ): void {
         const part = parts.find((part: { partId: number }) => part.partId === partId);
         if (part !== undefined) {
             part.count += count;
         } else {
-            const newPart = new PartCount(catId, partId, count);
+            const newPart = new PartCount(catId, partId, count, sizeRatio);
             parts.push(newPart);
         }
     }
@@ -301,11 +312,22 @@ export class Scheme {
     getPartCounts(): Array<PartCount> {
         const parts: Array<PartCount> = [];
 
+        let totalWidth = 0;
+        let totalHeight = 0;
+        let totalDepth = 0;
+        this.manifest.cubes.forEach((cube: Cube) => {
+            totalWidth += cube.size.x;
+            if (cube.size.y > totalHeight) totalHeight = cube.size.y;
+            if (cube.size.z > totalDepth) totalDepth = cube.size.z;
+        });
+
         // Add cube, item partCount.
         this.manifest.cubes.forEach((cube) => {
-            this.addPart(parts, cube.catId || 0, cube.partId, 1);
+            let sizeRatio = new Size(cube.size.x / totalWidth, cube.size.y / totalHeight, cube.size.z / totalDepth);
+            this.addPart(parts, cube.catId || 0, cube.partId, 1, sizeRatio);
             cube.items.forEach((item) => {
-                this.addPart(parts, item.catId || 0, item.partId, 1);
+                sizeRatio = new Size(item.size.x / totalWidth, item.size.y / totalHeight, item.size.z / totalDepth);
+                this.addPart(parts, item.catId || 0, item.partId, 1, sizeRatio);
             });
         });
 
@@ -315,7 +337,8 @@ export class Scheme {
             for (let i = 0; i < door.locations.length; i++) {
                 doorNum += door.locations[i].index.length;
             }
-            this.addPart(parts, door.catId || 0, door.partId, doorNum);
+            const sizeRatio = new Size(door.size.x / totalWidth, door.size.y / totalHeight, door.size.z / totalDepth);
+            this.addPart(parts, door.catId || 0, door.partId, doorNum, sizeRatio);
         });
 
         // add attachment partCount.
