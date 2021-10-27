@@ -155,6 +155,15 @@ export default defineComponent({
 
         const product = ref(productDetailData as Product | Scheme);
 
+        const customizeSize = computed<Size3D>(() => {
+            const { width, height, depth } = product.value;
+            return {
+                width: width,
+                height: height,
+                depth: depth,
+            };
+        });
+
         const scheme3DType = computed(() => {
             // 0 - 定制商品
             // 1 - 非定制商品
@@ -358,7 +367,7 @@ export default defineComponent({
                         await captureSchemeScreenshot();
                         if (nonCustom) {
                             if (refOfferDlg.value) {
-                                refOfferDlg.value.doOffer();
+                                refOfferDlg.value.doOffer(customizeSize.value);
                             }
                         } else {
                             gotoEditScheme();
@@ -385,7 +394,7 @@ export default defineComponent({
             captureSchemeScreenshot();
             const scheme2d = product.value as Scheme;
             if (scheme2d.offer && refOfferDlg.value) {
-                await refOfferDlg.value.doOffer();
+                await refOfferDlg.value.doOffer(customizeSize.value);
             }
             if (scheme.value !== undefined) scheme.value.dirty = false;
             schemeDetailDirty.value = true;
@@ -415,7 +424,7 @@ export default defineComponent({
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
-                    await refPartsMenu.value?.showManifest(scheme.value!.getPartCounts());
+                    await refPartsMenu.value?.showManifest(scheme.value!.getPartCounts(), customizeSize.value);
                     break;
                 case "offer":
                     if (scheme.value?.dirty) {
@@ -496,17 +505,7 @@ export default defineComponent({
             setSchemeDirty,
             schemeDetailDirty,
             customizeMode,
-            customizeSize: computed<Size3D>(() => {
-                const p = product.value;
-                // if (isProduct(p)) {
-                //     return undefined;
-                // }
-                return {
-                    width: p.width,
-                    height: p.height,
-                    depth: p.depth,
-                };
-            }),
+            customizeSize,
             customizeMinMax: computed<CustomizeMinMax | undefined>(() => {
                 const p = product.value;
                 if (isProduct(p)) {

@@ -1,18 +1,19 @@
 <template>
-    <div class="manifest-item">
-        <el-image class="manifest-item__img" :src="url" fit="contain"></el-image>
-        <div class="manifest-item__info">
-            <div class="manifest-item__name">{{ name }}</div>
-            <div class="manifest-item__count">
-                数量：<span>{{ count }}</span
-                >个
+    <div class="offer-item" v-if="item">
+        <el-image class="offer-item__img" :src="item.pic" fit="contain"></el-image>
+        <div class="offer-item__info">
+            <div class="offer-item__name">{{ item.pname }}</div>
+            <div class="offer-item__count">
+                <span>{{ item.area ? "面积：" : "数量：" }}</span>
+                <span class="manifest-item__count-num">{{ item.area || item.count }}</span>
+                <span>{{ item.area ? "㎡" : "个" }}</span>
             </div>
-            <!-- <div class="manifest-item__count">
+            <!-- <div class="offer-item__count">
                 单价：<span>{{ unitPrice }}</span
                 >元，数量：<span>{{ count }}</span
                 >个
             </div> -->
-            <!-- <div class="manifest-item__price">
+            <!-- <div class="offer-item__price">
                 小计：<span>{{ price }}</span
                 >元
             </div> -->
@@ -21,42 +22,31 @@
 </template>
 
 <script lang="ts">
-import { computed } from "vue";
+import { PartOffer } from "@/api/interface/provider.interface";
+import { computed, PropType } from "vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
     name: "ManifestItem",
     props: {
-        name: {
-            type: String,
-            default: "",
-        },
-        url: {
-            type: String,
-            default: "",
-        },
-        count: {
-            type: [String, Number],
-            default: 0,
-        },
-        price: {
-            type: [String, Number],
-            default: 0,
+        item: {
+            type: Object as PropType<PartOffer>,
+            default: undefined,
         },
     },
     setup(props, ctx) {
         return {
-            unitPrice: computed(() => {
-                const unitPrice = +props.price / +props.count;
-                return unitPrice;
-            }),
+            // unitPrice: computed(() => {
+            //     const unitPrice = +props.price / +props.count;
+            //     return unitPrice;
+            // }),
         };
     },
 });
 </script>
 
 <style scoped lang="scss">
-.manifest-item {
+.offer-item {
     display: flex;
     align-items: center;
     &__img {

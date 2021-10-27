@@ -8,17 +8,10 @@
         v-bind="$attrs"
         @opened="doOffer"
     >
-        <div v-if="offerInfo.otype === 'part'" class="offer-dlg__list">
-            <offer-item
-                v-for="(item, index) of itemList"
-                :key="index"
-                :url="item.pic"
-                :name="item.pname"
-                :price="item.price"
-                :count="item.count"
-            ></offer-item>
+        <div class="offer-dlg__list">
+            <offer-item v-for="(item, index) of itemList" :key="index" :item="item"></offer-item>
         </div>
-        <div v-else class="offer-dlg__area">
+        <!-- <div v-else class="offer-dlg__area">
             <div class="offer-dlg__area-item">
                 <span>单价：</span>
                 <span>
@@ -37,7 +30,7 @@
                     <strong>{{ offerInfo.taxrate }} </strong>
                 </span>
             </div>
-        </div>
+        </div> -->
         <div class="offer-dlg__price" :class="{ 'is-area': offerInfo.otype === 'area' }">
             <span class="offer-dlg__price-label">合计：</span>
             <span class="offer-dlg__price-symbol"> ￥ </span>
@@ -54,6 +47,8 @@ import { splitPrice } from "@/utils/currency";
 import apiProvider from "@/api/provider";
 import { Scheme } from "@/lib/scheme";
 import OfferItem from "./OfferItem.vue";
+import { Size3D } from "@/api/interface/common.interface";
+import { computePartArea } from "../helpers";
 
 export default defineComponent({
     name: "OfferDlg",
@@ -109,11 +104,18 @@ export default defineComponent({
                     };
                 }
             }),
-            doOffer() {
+            doOffer(size: Size3D) {
                 const compositions = props.scheme.getPartCounts();
                 return apiProvider.requestSchemeOffer(props.schemeId, compositions).then((res) => {
                     if (res.ok && res.data) {
                         schemeOffer.value = res.data;
+                        for (const item of schemeOffer.value.details) {
+                            const found = compositions.find((p) => p.partId === item.area); // TODO item.partid
+                            if (found) {
+                                item.count = found.count;
+                                item.area = computePartArea(found, size);
+                            }
+                        }
                     }
                 });
             },

@@ -1,6 +1,9 @@
-import { MenuItem } from "@/components/GooeyMenu.helper";
-import { ElMessage, ElLoading, ILoadingInstance } from "element-plus";
 import { ref } from "vue";
+import store from "@/store";
+import { ElMessage, ElLoading, ILoadingInstance } from "element-plus";
+import { MenuItem } from "@/components/GooeyMenu.helper";
+import { PartCount, Size } from "@/lib/scheme";
+import { Size3D } from "@/api/interface/common.interface";
 
 let loading: ILoadingInstance | undefined = undefined;
 export function showSchemeSaveLoading() {
@@ -95,4 +98,28 @@ export function useStateIcons() {
         inOutStates,
         openCloseStates,
     };
+}
+
+export function computePartArea(partCount: PartCount, wardrobeSize: Size3D) {
+    let area: number | undefined = undefined;
+    if (!store.state.globalCfg || !partCount.sizeRatio) {
+        return area;
+    }
+    const { partsCatCube, partsCatPartition } = store.state.globalCfg;
+    const { x, y, z } = partCount.sizeRatio;
+    const width = x * wardrobeSize.width,
+        height = y * wardrobeSize.height,
+        depth = z * wardrobeSize.depth;
+    if (partsCatCube.includes(partCount.catId)) {
+        // 柜体面积（深 * 宽 * 2 + 高 * 深 * 2 + 高 * 宽）
+        area = depth * width * 2 + height * depth * 2 + height * width;
+        area *= partCount.count;
+        area = +area.toFixed(2);
+    } else if (partsCatPartition.includes(partCount.catId)) {
+        // 隔板（深 * 宽）
+        area = depth * width;
+        area *= partCount.count;
+        area = +area.toFixed(2);
+    }
+    return area;
 }

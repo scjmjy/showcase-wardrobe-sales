@@ -46,7 +46,9 @@ export default defineComponent({
             });
         });
         const partList = computed(() => {
-            return props.list.filter((item) => item.type === "3d");
+            return props.list.filter(
+                (item) => item.type === "3d" && !store.state.globalCfg?.partsCatBoard.includes(item.catid),
+            );
         });
         const attachmentList = computed(() => {
             return props.list.filter((item) => item.type === "2d");

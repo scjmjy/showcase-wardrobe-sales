@@ -4,9 +4,9 @@
         <div class="manifest-item__info">
             <div class="manifest-item__name">{{ item.pname }}</div>
             <div v-if="item.type === '3d'" class="manifest-item__count">
-                <span>数量：</span>
-                <span class="manifest-item__count-num">{{ item.count }}</span
-                >个
+                <span>{{ item.area ? "面积：" : "数量：" }}</span>
+                <span class="manifest-item__count-num">{{ item.area || item.count }}</span>
+                <span>{{ item.area ? "㎡" : "个" }}</span>
             </div>
             <div v-else class="manifest-item__count">
                 <span>数量：</span>

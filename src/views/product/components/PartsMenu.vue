@@ -128,6 +128,8 @@ import CatsList from "./CatsList.vue";
 import type { ImgCardItemType } from "./ImgCardItem.vue";
 import ManifestList from "./ManifestList.vue";
 import AttachmentPopup from "./AttachmentPopup.vue";
+import { Size3D } from "@/api/interface/common.interface";
+import { computePartArea } from "../helpers";
 
 interface TabType {
     component: string;
@@ -375,7 +377,7 @@ export default defineComponent({
                 selectedPartId.value = 0;
                 selectedCatId.value = 0;
             },
-            showManifest(parts: PartCount[]) {
+            showManifest(parts: PartCount[], size: Size3D) {
                 slide("left");
                 const partIds = parts.filter((p) => p.count > 0).map((p) => p.partId);
                 return apiProvider.requestSchemeManifestV2(partIds).then((res) => {
@@ -386,6 +388,7 @@ export default defineComponent({
                             if (found) {
                                 item.count = found.count;
                                 item.catid = found.catId;
+                                item.area = computePartArea(found, size);
                             }
                         }
                     }

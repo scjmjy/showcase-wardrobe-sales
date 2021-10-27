@@ -212,6 +212,8 @@ export interface GlobalCfg {
     partsCatExterior: IdList;
     // 板材配件分类ID列表
     partsCatBoard: IdList;
+    partsCatCube: IdList;
+    partsCatPartition: IdList;
     baseUrl: string;
 }
 
@@ -237,7 +239,8 @@ export interface OssSignature {
 
 export interface PartOffer {
     pname: string;
-    count: string;
+    count: number;
+    area?: number;
     price: string;
     pic: string;
 }
@@ -255,6 +258,7 @@ export interface SchemeOffer {
 export interface ManifestPart {
     pname: string;
     count: number;
+    area?: number;
     pic: string;
     catid: number;
     partid: number;
