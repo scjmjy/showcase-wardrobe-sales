@@ -122,11 +122,17 @@ export class GeneralStl implements IStl {
 
     computeAreaHints(manifest: Manifest, partType: number, partSize: Size): AreaHints {
         const cubeHintArray: Array<CubeAreaHint> = [];
+        let total = 0;
         for (const cube of manifest.cubes) {
             const cubeHint: CubeAreaHint = this.computeCubeAreaHint(cube, partType, partSize);
+            total = total + cubeHint.areas.length;
             cubeHintArray.push(cubeHint);
         }
-        return new AreaHints(cubeHintArray);
+        if (total == 0) {
+            return new AreaHints(false, cubeHintArray);
+        } else {
+            return new AreaHints(true, cubeHintArray);
+        }
     }
 
     private computeCubeAreaHint(cube: Cube, partType: PartType, partSize: Size): CubeAreaHint {

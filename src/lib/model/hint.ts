@@ -37,11 +37,15 @@ export class CubeAreaHint {
 
 @JsonInclude({value: JsonIncludeType.NON_NULL})
 export class AreaHints {
+    @JsonProperty({value: 'spaceEnough'})
+    @JsonClassType({type: () => [Boolean]})
+    spaceEnough: boolean;
     @JsonProperty({value: 'cubeHints'})
     @JsonClassType({type: () => [Array, [CubeAreaHint]]})
     cubeHints: Array<CubeAreaHint>;
 
-    constructor(cubeHints: Array<CubeAreaHint> = []) {
+    constructor(spaceEnough: boolean = true, cubeHints: Array<CubeAreaHint> = []) {
         this.cubeHints = cubeHints;
+        this.spaceEnough = spaceEnough;
     }
 }
