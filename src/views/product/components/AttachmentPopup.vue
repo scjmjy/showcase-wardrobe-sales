@@ -7,7 +7,7 @@
             <category-tabs ref="catTabs" :cats="siblings" @part="onPartClick">
                 <template #content-header>
                     <div class="attachment-popup__content-header">
-                        <attachment-item :item="item" column />
+                        <attachment-item :item="attachmentItem" column />
                         <!-- <i class="attachment-popup__content-trigger el-icon-arrow-down" @click="toggleTrigger"></i> -->
                         <el-button
                             class="attachment-popup__content-trigger"
@@ -67,6 +67,15 @@ export default defineComponent({
             const { catid } = props.item;
             return findSiblingCats(catid, cats.value) || [];
         });
+        const attachmentItem = computed(() => {
+            const item = Object.assign({}, props.item);
+            if (selectedPart.value) {
+                const { pic, name } = selectedPart.value;
+                item.pic = pic;
+                item.pname = name;
+            }
+            return item;
+        });
         onMounted(() => {
             const { catid, partid } = props.item;
             catTabs.value?.selectPart(catid, partid);
@@ -76,6 +85,7 @@ export default defineComponent({
             selectedPartCat,
             siblings,
             catTabs,
+            attachmentItem,
             saveBtnDisabled: computed(() => {
                 return !selectedPart.value || selectedPart.value.id == props.item.partid;
             }),
