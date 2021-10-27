@@ -60,13 +60,15 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+$margin: 3%;
+$width: (100% - $margin * 4) / 2;
 .part-card {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     vertical-align: top;
-    margin: 10px;
-    width: 37%;
+    margin: $margin;
+    width: $width;
     &__img {
         width: 100%;
         height: 100%;

@@ -468,6 +468,7 @@ $header-height: 56px;
             :deep(.el-tabs__header) {
                 // margin-right: 0px;
                 padding-top: 5px;
+                padding-bottom: 80px;
                 background-color: var(--el-color-bg);
                 transition: padding 0.3s ease;
             }
@@ -476,6 +477,8 @@ $header-height: 56px;
                 height: 100%;
                 .el-tab-pane {
                     height: 100%;
+                    display: flex;
+                    flex-direction: column;
                 }
             }
             :deep(.el-tabs__active-bar.is-left) {

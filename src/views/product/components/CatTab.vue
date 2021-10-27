@@ -291,6 +291,7 @@ export default defineComponent({
     }
     &__parts {
         overflow-y: auto;
+        flex: 1;
     }
 }
 </style>

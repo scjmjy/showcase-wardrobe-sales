@@ -214,6 +214,7 @@ export default defineComponent({
                 {
                     value: "d3",
                     icon: "d3",
+                    noClose: true,
                     onActive() {
                         refBabylon.value?.setCameraAlpha(Math.PI / 3);
                     },
@@ -224,6 +225,7 @@ export default defineComponent({
                 {
                     value: "ruler",
                     icon: "ruler-2",
+                    noClose: true,
                     onActive() {
                         showReferenceRuler(true);
                     },
@@ -235,6 +237,7 @@ export default defineComponent({
                     value: "size-3d",
                     icon: "size-3d",
                     type: "button",
+                    noClose: true,
                     onClick() {
                         showReferenceRuler(false);
                         showCustomizeDlg.value = true;
