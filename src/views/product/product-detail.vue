@@ -696,6 +696,7 @@ export default defineComponent({
 
                 selectedPart.value = {
                     id: +part.id,
+                    name: part.name,
                     width: part.width,
                     height: part.height,
                     depth: part.depth,

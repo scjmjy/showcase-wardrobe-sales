@@ -205,7 +205,15 @@ export default defineComponent({
                                 this.defaultPartType,
                                 new Size(newPart.width, newPart.height, newPart.depth),
                             );
-                            this.ShowAvailableArea(newPart, this.areaHints);
+
+                            if (!this.areaHints.spaceEnough) {
+                                ElMessage({
+                                    type: "warning",
+                                    message: "没有足够的有效区域摆放该配件！",
+                                });
+                            } else {
+                                this.ShowAvailableArea(newPart, this.areaHints);
+                            }
                         }
                     }
                 }
@@ -1176,6 +1184,11 @@ export default defineComponent({
                                                                         this.loadSchemeCompleted();
                                                                 });
                                                         });
+
+                                                        if (item.catId === 24) {
+                                                            const info = item.id.split("_");
+                                                            this.addSpotlight(info[1], item.size.x, itemOrigin);
+                                                        }
                                                     })
                                                     .catch((err) => {
                                                         throw Error(`Load part manifest by error: ${err}`);
@@ -1428,7 +1441,7 @@ export default defineComponent({
                                         })
                                             .then((res) => {
                                                 const itemMf = res.data;
-                                                const itemId = uuidv4();
+                                                let itemId = uuidv4();
                                                 // const startPos = new BABYLON.Vector3(
                                                 //     0,
                                                 //     pickedPointY - itemMf.size.y * 0.5,
@@ -1498,6 +1511,12 @@ export default defineComponent({
                                                     );
                                                     attachment.push(partCount);
                                                 });
+
+                                                // Add spot light.
+                                                if (catId === 24) {
+                                                    itemId += "_" + this.newPart.name;
+                                                    this.addSpotlight(this.newPart.name, this.newPart.width, itemOrigin);
+                                                }
 
                                                 // TODO: only handle the case of locationType==1.
                                                 const location = new Location(1, anchorMeta.pivot, null);
@@ -1678,6 +1697,48 @@ export default defineComponent({
 
         changeAttachments(oldPartId: number, newPartId: number, newPartCatId: number): void {
             this.bizdata.changeAttachments(oldPartId, newPartId, newPartCatId);
+        },
+
+        addSpotlight(partName: string, partWidth: number, pivot: BABYLON.Vector3) {
+            let lightColor = "#ffff66";
+            let lightIntensity = 20;
+            if (partName.startsWith("暖色")) {
+                if (partName.includes("30")) lightColor = "#ffffbb";
+                else if (partName.includes("40")) lightColor = "#ffff66";
+                else if (partName.includes("50")) lightColor = "#ffff00";
+            } else if (partName.startsWith("白色")) {
+                lightColor = "#ffffff";
+                if (partName.includes("30")) lightIntensity = 15;
+                else if (partName.includes("40")) lightIntensity = 20;
+                else if (partName.includes("50")) lightIntensity = 25;
+            }
+
+            if (partWidth > 0.6) {
+                const spotLight1 = new BABYLON.SpotLight(
+                    "SpotLight",
+                    new BABYLON.Vector3(pivot.x + 0.265, pivot.y, pivot.z),
+                    new BABYLON.Vector3(0, -1, 0),
+                    Math.PI / 1.2,
+                    1000,
+                    this.graphics.scene,
+                );
+                spotLight1.diffuse = BABYLON.Color3.FromHexString(lightColor);
+                spotLight1.intensity = lightIntensity;
+
+                const spotLight2 = spotLight1.clone("SpotLight") as BABYLON.SpotLight;
+                spotLight2.position = new BABYLON.Vector3(pivot.x - 0.265, pivot.y, pivot.z);
+            } else {
+                const spotLight = new BABYLON.SpotLight(
+                    "SpotLight",
+                    pivot,
+                    new BABYLON.Vector3(0, -1, 0),
+                    Math.PI / 1.2,
+                    1000,
+                    this.graphics.scene,
+                );
+                spotLight.diffuse = BABYLON.Color3.FromHexString(lightColor);
+                spotLight.intensity = lightIntensity;
+            }
         },
     },
 });

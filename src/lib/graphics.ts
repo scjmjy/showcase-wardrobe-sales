@@ -661,6 +661,11 @@ export class Graphics {
             loadedList.meshes.forEach((mesh) => {
                 mesh.isPickable = isPickable;
                 mesh.receiveShadows = true;
+
+                if (mesh.material && mesh.material.getClassName() === "PBRMaterial") {
+                    const pbrMat = mesh.material as BABYLON.PBRMaterial;
+                    pbrMat.maxSimultaneousLights = 20;
+                }
             });
             return rootMesh;
         } else {

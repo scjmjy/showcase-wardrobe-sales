@@ -444,6 +444,7 @@ export class Config {
 
 export interface Part {
     id: number;
+    name: string;
     width: number;
     height: number;
     depth: number;
