@@ -21,6 +21,7 @@ export class Graphics {
     private _camera!: BABYLON.ArcRotateCamera;
     private _light!: BABYLON.DirectionalLight;
     private _shadowGenerator!: BABYLON.ShadowGenerator;
+    private emissiveLayer: BABYLON.Nullable<BABYLON.HighlightLayer> = null;
 
     private _pprenderer!: BABYLON.DefaultRenderingPipeline;
     private _ssaorenderer!: BABYLON.SSAORenderingPipeline;
@@ -199,16 +200,20 @@ export class Graphics {
         });
     }
 
-    public highlightMesh(mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, color: BABYLON.Color3): void {
+    public highlightMesh(
+        mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
+        color: BABYLON.Color3,
+        highlightLayer: BABYLON.HighlightLayer
+    ): void {
         if (mesh !== null) {
             // TODO: only handle child, not all descendant(not including grandchild).
             const childMeshes = mesh.getChildMeshes();
             childMeshes.forEach((childMesh) => {
-                this.highlightLayer.addMesh(childMesh as BABYLON.Mesh, color);
+                highlightLayer.addMesh(childMesh as BABYLON.Mesh, color);
             });
 
             const rootMesh = mesh as BABYLON.Mesh;
-            if (rootMesh) this.highlightLayer.addMesh(rootMesh, color);
+            if (rootMesh) highlightLayer.addMesh(rootMesh, color);
 
             // TODO: Ugly way to fix a bug. Not follow the design.
             if (mesh.name.startsWith(ObjectType.CUBE)) {
@@ -217,7 +222,7 @@ export class Graphics {
                     if (isDoor) {
                         mesh.getChildMeshes().forEach((childMesh) => {
                             if (childMesh.getClassName() === "Mesh") {
-                                this.highlightLayer.addExcludedMesh(childMesh as BABYLON.Mesh);
+                                highlightLayer.addExcludedMesh(childMesh as BABYLON.Mesh);
                                 childMesh.renderingGroupId = 1;
                                 this.scene.setRenderingAutoClearDepthStencil(1, false, false, false);
                             }
@@ -227,7 +232,7 @@ export class Graphics {
             } else if (mesh.name.startsWith(ObjectType.DOOR)) {
                 mesh.getChildMeshes().forEach((childMesh) => {
                     if (childMesh.getClassName() === "Mesh") {
-                        this.highlightLayer.removeExcludedMesh(childMesh as BABYLON.Mesh);
+                        highlightLayer.removeExcludedMesh(childMesh as BABYLON.Mesh);
                         childMesh.renderingGroupId = 0;
                     }
                 });
@@ -235,16 +240,16 @@ export class Graphics {
         }
     }
 
-    public removeHighlightMesh(mesh: BABYLON.Nullable<BABYLON.AbstractMesh>): void {
+    public removeHighlightMesh(mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, highlightLayer: BABYLON.HighlightLayer): void {
         if (mesh !== null) {
             // TODO: only handle child, not all descendant(not including grandchild).
             const childMeshes = mesh.getChildMeshes();
             childMeshes.forEach((childMesh) => {
-                this.highlightLayer.removeMesh(childMesh as BABYLON.Mesh);
+                highlightLayer.removeMesh(childMesh as BABYLON.Mesh);
             });
 
             const rootMesh = mesh as BABYLON.Mesh;
-            if (rootMesh) this.highlightLayer.removeMesh(rootMesh);
+            if (rootMesh) highlightLayer.removeMesh(rootMesh);
         }
     }
 
@@ -281,11 +286,11 @@ export class Graphics {
 
                         if (pickedMesh !== this._currentMesh) {
                             if (this._currentMesh !== null) {
-                                this.removeHighlightMesh(this._currentMesh);
+                                this.removeHighlightMesh(this._currentMesh, this.highlightLayer);
                             }
 
                             this._currentMesh = pickedMesh;
-                            this.highlightMesh(this._currentMesh, this._selectedColor);
+                            this.highlightMesh(this._currentMesh, this._selectedColor, this.highlightLayer);
                         }
                     } else {
                         if (this._currentMesh) {
@@ -293,7 +298,7 @@ export class Graphics {
                                 name: this._currentMesh.name,
                             });
 
-                            this.removeHighlightMesh(this._currentMesh);
+                            this.removeHighlightMesh(this._currentMesh, this.highlightLayer);
                             this._currentMesh = null;
                         }
                     }
@@ -319,17 +324,17 @@ export class Graphics {
                     //         const pickedMesh = this.getRootMesh(ptInfo.pickedMesh);
 
                     //         if (this._currentHighlightMesh != null && this._currentHighlightMesh != pickedMesh) {
-                    //             this.removeHighlightMesh(this._currentHighlightMesh);
+                    //             this.removeHighlightMesh(this._currentHighlightMesh, this.highlightLayer);
                     //             this._currentHighlightMesh = null;
                     //         }
 
                     //         if (this._currentHighlightMesh == null && this._currentMesh != pickedMesh) {
                     //             this._currentHighlightMesh = pickedMesh;
-                    //             this.highlightMesh(this._currentHighlightMesh, this._hoverColor);
+                    //             this.highlightMesh(this._currentHighlightMesh, this._hoverColor, this.highlightLayer);
                     //         }
                     //     } else {
                     //         if (this._currentHighlightMesh != null && this._currentHighlightMesh != this._currentMesh) {
-                    //             this.removeHighlightMesh(this._currentHighlightMesh);
+                    //             this.removeHighlightMesh(this._currentHighlightMesh, this.highlightLayer);
                     //         }
 
                     //         this._currentHighlightMesh = null;
@@ -648,6 +653,7 @@ export class Graphics {
         scaling: BABYLON.Vector3 = BABYLON.Vector3.One(),
         isPickable = true,
         rootUrl = "",
+        isEmissive = false,
     ) {
         const loadedList = await BABYLON.SceneLoader.ImportMeshAsync("", rootUrl, url, this.scene);
         if (loadedList.meshes) {
@@ -657,6 +663,16 @@ export class Graphics {
             rootMesh.rotation = rotation;
             rootMesh.scaling = scaling;
             this.addShadow(rootMesh);
+
+            if (isEmissive) {
+                if (this.emissiveLayer === null) {
+                    this.emissiveLayer = new BABYLON.HighlightLayer("EmissiveLayer", this.scene, {
+                        blurVerticalSize: 1,
+                        blurHorizontalSize: 1,
+                    });
+                }
+                this.highlightMesh(rootMesh, BABYLON.Color3.Yellow(), this.emissiveLayer);
+            }
 
             loadedList.meshes.forEach((mesh) => {
                 mesh.isPickable = isPickable;
@@ -705,7 +721,7 @@ export class Graphics {
 
     public removeCurrentHighlight(): void {
         if (this._currentMesh !== null) {
-            this.removeHighlightMesh(this._currentMesh);
+            this.removeHighlightMesh(this._currentMesh, this.highlightLayer);
             this._currentHighlightMesh = null;
             this._currentMesh = null;
         }

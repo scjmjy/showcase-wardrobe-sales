@@ -1156,6 +1156,9 @@ export default defineComponent({
                                                             );
                                                             const itemName = ObjectType.ITEM + "_" + item.id;
 
+                                                            let isEmissive = false;
+                                                            if (item.catId === 25) isEmissive = true;
+
                                                             let rootUrl = "file:///";
                                                             let modelUrl = model.url;
                                                             const modelFile = await this.loadModelFromDB(modelUrl);
@@ -1172,6 +1175,7 @@ export default defineComponent({
                                                                     modelScaling,
                                                                     false,
                                                                     rootUrl,
+                                                                    isEmissive,
                                                                 )
                                                                 .then((mesh) => {
                                                                     if (schemeType === 1) {
@@ -1474,6 +1478,10 @@ export default defineComponent({
                                                     cubeData.origin.z + anchorMeta.pivot.z,
                                                 );
 
+                                                const catId = this.newPart.catId;
+                                                let isEmissive = false;
+                                                if (catId === 25) isEmissive = true;
+
                                                 // TODO: create a parent mesh to contain all import meshes.
                                                 itemMf.models.forEach(async (model: any) => {
                                                     const modelPos = new BABYLON.Vector3(
@@ -1503,11 +1511,11 @@ export default defineComponent({
                                                         modelScaling,
                                                         true,
                                                         rootUrl,
+                                                        isEmissive,
                                                     );
                                                 });
 
                                                 const partId = this.newPart.id;
-                                                const catId = this.newPart.catId;
                                                 const attachment: Array<PartCount> = [];
                                                 this.newPart.attachments.forEach((item) => {
                                                     const partCount = new PartCount(
