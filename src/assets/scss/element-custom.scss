@@ -186,3 +186,10 @@
         }
     }
 }
+
+.el-message--blue {
+    --el-message-font-color: var(--el-color-success);
+    .el-message__icon {
+        --el-message-font-color: var(--el-color-success);
+    }
+}

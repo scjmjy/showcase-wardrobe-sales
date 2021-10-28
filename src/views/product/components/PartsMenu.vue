@@ -496,11 +496,19 @@ $header-height: 56px;
 
             :deep(.el-tabs__nav-scroll) {
                 width: 90px;
+                overflow-y: auto;
             }
-            :deep(.el-tabs__nav-wrap::after) {
-                width: 5px !important;
-                left: 0px !important;
-                background-color: #d8d8d8ff;
+            :deep(.el-tabs__nav-wrap) {
+                padding: 0px !important;
+                &::after {
+                    width: 5px !important;
+                    left: 0px !important;
+                    background-color: #d8d8d8ff;
+                }
+                .el-tabs__nav-prev,
+                .el-tabs__nav-next {
+                    display: none;
+                }
             }
             &-header {
                 display: flex;

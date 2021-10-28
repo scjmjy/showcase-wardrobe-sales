@@ -341,7 +341,9 @@ export default defineComponent({
                 } else {
                     ElMessage({
                         type: "warning",
-                        message: "不能更换不同尺寸的柜体",
+                        message: "请选择相同尺寸的柜体件进行替换",
+                        customClass: "el-message--blue",
+                        offset: 300,
                     });
                 }
             }
@@ -563,7 +565,9 @@ export default defineComponent({
                 } else {
                     ElMessage({
                         type: "warning",
-                        message: "不能更换不同尺寸的内配",
+                        message: "请选择相同尺寸的内配件进行替换",
+                        customClass: "el-message--blue",
+                        offset: 300,
                     });
                 }
             }
@@ -733,7 +737,9 @@ export default defineComponent({
                 } else {
                     ElMessage({
                         type: "warning",
-                        message: "不能更换不同尺寸的门",
+                        message: "请选择相同尺寸的门件进行替换",
+                        customClass: "el-message--blue",
+                        offset: 300,
                     });
                 }
             }
