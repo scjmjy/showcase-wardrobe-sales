@@ -664,7 +664,7 @@ export class Graphics {
 
                 if (mesh.material && mesh.material.getClassName() === "PBRMaterial") {
                     const pbrMat = mesh.material as BABYLON.PBRMaterial;
-                    pbrMat.maxSimultaneousLights = 20;
+                    pbrMat.maxSimultaneousLights = 10;
                 }
             });
             return rootMesh;
