@@ -64,7 +64,7 @@
                         :loading="creatingScheme"
                         size="small"
                         @click="$emit('newScheme')"
-                        >开始定制</el-button
+                        >开始设计</el-button
                     >
                     <el-button
                         v-if="isSelf"
@@ -73,7 +73,7 @@
                         :loading="prepareContinue"
                         size="small"
                         @click="$emit('continueScheme')"
-                        >继续定制</el-button
+                        >继续设计</el-button
                     >
                     <el-button
                         v-if="isSelf || isOther"
@@ -82,16 +82,8 @@
                         :loading="creatingScheme"
                         size="small"
                         @click="$emit('copyScheme')"
-                        >由此方案定制</el-button
+                        >由此方案设计</el-button
                     >
-                    <!-- <el-button
-                        v-if="isSelf && offerPrice && !offerPrice.integer"
-                        type="dark"
-                        round
-                        size="small"
-                        @click="$emit('offer')"
-                        >报价</el-button
-                    > -->
                 </template>
             </div>
         </template>

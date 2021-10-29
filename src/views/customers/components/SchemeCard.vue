@@ -9,7 +9,7 @@
         </div>
         <!-- <div class="scheme-card__name">{{ name }}</div> -->
         <div class="scheme-card__actions">
-            <div v-if="offer" class="scheme-card__offer" :class="{ 'no-offer': noOffer }">{{ offerText }}</div>
+            <!-- <div v-if="offer" class="scheme-card__offer" :class="{ 'no-offer': noOffer }">{{ offerText }}</div> -->
             <el-button class="scheme-card__btn" type="primary" size="small" round @click="onBtnClick"> 详情 </el-button>
         </div>
     </div>
@@ -118,7 +118,7 @@ export default defineComponent({
         }
     }
     &__btn {
-        width: 40%;
+        width: 70%;
         padding: 5px 0px !important;
     }
 }

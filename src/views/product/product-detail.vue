@@ -174,9 +174,10 @@ export default defineComponent({
             if (isProduct(p)) {
                 return "scheme-new";
             }
-            return p.cid.toString() === store.state.currentCustomer.customerId.toString() + ""
-                ? "scheme-self"
-                : "scheme-other";
+            return "scheme-self";
+            // return p.cid.toString() === store.state.currentCustomer.customerId.toString() + ""
+            //     ? "scheme-self"
+            //     : "scheme-other";
         });
         const customizeMode = ref<CustomizeMode>("new");
         const showCustomizeDlg = ref(false);

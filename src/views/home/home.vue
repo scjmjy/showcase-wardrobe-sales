@@ -2,11 +2,11 @@
     <div class="home">
         <el-tabs class="home__tabs" v-model="currentPane" tab-position="bottom" stretch>
             <el-tab-pane name="customer">
-                <customer-index v-if="isServing" />
-                <customer-login v-else />
+                <customer-index />
+                <!-- <customer-login v-else /> -->
 
                 <template #label>
-                    <tab-pane-label label="客户接待" icon="customer-3" :disabled="currentPane === 'my'" />
+                    <tab-pane-label label="设计" icon="customer-3" :disabled="currentPane === 'my'" />
                 </template>
             </el-tab-pane>
             <el-tab-pane name="my"
@@ -21,7 +21,6 @@
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from "vue";
 import { useStore } from "vuex";
-import CustomerLogin from "./components/CustomerLogin.vue";
 import CustomerIndex from "./components/CustomerIndex.vue";
 import My from "./components/My.vue";
 import TabPaneLabel from "./components/TabPaneLabel.vue";
@@ -30,7 +29,6 @@ import { useRoute } from "vue-router";
 export default defineComponent({
     name: "Home",
     components: {
-        CustomerLogin,
         CustomerIndex,
         My,
         TabPaneLabel,

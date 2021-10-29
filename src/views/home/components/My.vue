@@ -23,14 +23,14 @@
             <el-row :gutter="20">
                 <el-col :span="6" style="text-align: center">
                     <function-card
-                        functionName="我的客户"
+                        functionName="设计画廊"
                         icon="customer-2"
                         color="#A35443"
                         @click="gotoCustomerList"
                     />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
-                    <function-card functionName="商品库" icon="products-2" color="#D69F67" @click="gotoProductList" />
+                    <function-card functionName="商品模板" icon="products-2" color="#D69F67" @click="gotoProductList" />
                 </el-col>
                 <el-col :span="6" style="text-align: center">
                     <function-card functionName="帮助手册" icon="manual-2" color="#D7CBBF" @click="gotoXXX" />
@@ -38,10 +38,10 @@
                 <el-col :span="6" style="text-align: center">
                     <function-card functionName="设置" icon="settings-fill-2" color="#859DA7" @click="gotoXXX" />
                 </el-col>
-                <div style="width: 100%; height: 30px"></div>
+                <!-- <div style="width: 100%; height: 30px"></div>
                 <el-col :span="6" style="text-align: center">
                     <function-card functionName="客户信息" icon="customer-info" color="#e6a23c" @click="gotoTool" />
-                </el-col>
+                </el-col> -->
             </el-row>
         </div>
     </div>

@@ -91,8 +91,9 @@ export default defineComponent({
                 return name ? name[0] : "";
             },
             getCustomeName(name: string) {
-                if (name.length > 10) return name ? name.substring(2, 14) : "";
-                else return name ? name : "";
+                return "设计师-" + name[9];
+                // if (name.length > 10) return name ? name.substring(2, 14) : "";
+                // else return name ? name : "";
             },
             isServingCustomer(id: number | string) {
                 return id == store.state.currentCustomer.customerId;
