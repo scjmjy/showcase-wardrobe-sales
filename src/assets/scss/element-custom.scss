@@ -1,14 +1,18 @@
 @use "~element-plus/theme-chalk/src/mixins/button" as *;
 
-.el-input--prefix .el-input__inner {
-    padding-left: 45px !important;
+.el-input {
+    user-select: text !important; // for ipad
+    &--prefix &__inner {
+        padding-left: 45px !important;
+    }
+    &__inner {
+        user-select: text !important; // for ipad
+        border-top-color: transparent !important;
+        border-left-color: transparent !important;
+        border-right-color: transparent !important;
+    }
 }
 
-.el-input__inner {
-    border-top-color: transparent !important;
-    border-left-color: transparent !important;
-    border-right-color: transparent !important;
-}
 .input-invalid {
     .el-input__inner {
         border-bottom-color: red !important;
