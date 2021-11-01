@@ -1,4 +1,4 @@
-import { Scheme, Cube, Item, Door, PartCount, Part, Size, DoorLocation } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, PartCount, Part, Vector3, DoorLocation } from "@/lib/scheme";
 import { v4 as uuidv4 } from "uuid";
 
 export const ObjectType = {
@@ -218,7 +218,7 @@ export class BizData {
 
             if (resDoor === undefined) {
                 const newDoorId = uuidv4();
-                const size = new Size(newPart.width, newPart.height, newPart.depth);
+                const size = new Vector3(newPart.width, newPart.height, newPart.depth);
                 const loc: DoorLocation = {
                     id: cubeId,
                     index: [index],

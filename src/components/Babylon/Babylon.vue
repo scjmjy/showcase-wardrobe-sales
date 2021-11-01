@@ -8,7 +8,7 @@
 import { defineComponent, PropType } from "vue";
 import * as BABYLON from "babylonjs";
 import { Graphics, GraphicsEvent } from "@/lib/graphics";
-import { Scheme, Cube, Item, Door, Part, PartCount, Location, Size, SizeConfig } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, Part, PartCount, Location, Vector3, SizeConfig } from "@/lib/scheme";
 import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
 import request from "@/utils/request";
@@ -129,7 +129,7 @@ export default defineComponent({
 
                                         // Add new door.
                                         const doorId = uuidv4();
-                                        const size = new Size(newPart.width, newPart.height, newPart.depth);
+                                        const size = new Vector3(newPart.width, newPart.height, newPart.depth);
                                         let doorType = 1;
                                         if (newPart.catId === 2) doorType = 2;
 
@@ -203,7 +203,7 @@ export default defineComponent({
                             this.areaHints = this.stl.computeAreaHints(
                                 this.scheme.manifest,
                                 this.defaultPartType,
-                                new Size(newPart.width, newPart.height, newPart.depth),
+                                new Vector3(newPart.width, newPart.height, newPart.depth),
                             );
 
                             if (!this.areaHints.spaceEnough) {
@@ -448,7 +448,7 @@ export default defineComponent({
 
                             const partId = standardCube.partId;
                             const catId = standardCube.catId;
-                            const size = new Size(standardCube.size.x, standardCube.size.y, standardCube.size.z);
+                            const size = new Vector3(standardCube.size.x, standardCube.size.y, standardCube.size.z);
                             const items: Item[] = [];
                             const newCube = new Cube(cubeUUID, partId, manifest, catId, size, items);
                             this.bizdata.addCube(newCube);
@@ -1422,7 +1422,7 @@ export default defineComponent({
 
                                             const partId = this.newPart.id;
                                             const catId = this.newPart.catId;
-                                            const size = new Size(
+                                            const size = new Vector3(
                                                 this.newPart.width,
                                                 this.newPart.height,
                                                 this.newPart.depth,
@@ -1458,7 +1458,7 @@ export default defineComponent({
                                                 //     0,
                                                 // );
 
-                                                const size = new Size(
+                                                const size = new Vector3(
                                                     this.newPart.width,
                                                     this.newPart.height,
                                                     this.newPart.depth,
@@ -1529,7 +1529,11 @@ export default defineComponent({
                                                 // Add spot light.
                                                 if (catId === 24) {
                                                     itemId += "_" + this.newPart.name;
-                                                    this.addSpotlight(this.newPart.name, this.newPart.width, itemOrigin);
+                                                    this.addSpotlight(
+                                                        this.newPart.name,
+                                                        this.newPart.width,
+                                                        itemOrigin,
+                                                    );
                                                 }
 
                                                 // TODO: only handle the case of locationType==1.

@@ -11,7 +11,7 @@
 import * as BABYLON from "babylonjs";
 
 import { Graphics } from "@/lib/graphics";
-import { Area, Door, Position, Item } from "@/lib/scheme";
+import { Area, Door, Vector3, Item } from "@/lib/scheme";
 import { StObject } from "@/lib/utility/st_object";
 import { StSketchVector3 } from "./geometry/st_geometric_3d";
 import { BizData, CubeData, ObjectType } from "@/lib/biz.data";
@@ -21,23 +21,23 @@ import request from "@/utils/request";
 import { ElMessage } from "element-plus";
 
 export class HmBoundingBox {
-    startPoint: Position;
-    endPoint: Position;
-    constructor(startPoint: Position, endPoint: Position) {
+    startPoint: Vector3;
+    endPoint: Vector3;
+    constructor(startPoint: Vector3, endPoint: Vector3) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
     }
 }
 
 export class HmModel extends StObject {
-    position: Position;
+    position: Vector3;
     readonly rotation: StSketchVector3;
     readonly scaling: StSketchVector3;
     readonly url: string;
 
-    constructor(opt: { position?: Position; rotation?: StSketchVector3; scaling?: StSketchVector3; url: string }) {
+    constructor(opt: { position?: Vector3; rotation?: StSketchVector3; scaling?: StSketchVector3; url: string }) {
         super();
-        this.position = opt.position || new Position(0, 0, 0);
+        this.position = opt.position || new Vector3(0, 0, 0);
         this.rotation = opt.rotation || new StSketchVector3();
         this.scaling = opt.scaling || new StSketchVector3();
         this.url = opt.url;
@@ -100,7 +100,7 @@ export class HmPartManifest extends StObject {
 
     constructor(opt: { bbox?: HmBoundingBox; size: StSketchVector3; models: HmModel[] }) {
         super();
-        this.bbox = opt.bbox || new HmBoundingBox(new Position(0, 0, 0), new Position(0, 0, 0));
+        this.bbox = opt.bbox || new HmBoundingBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
         this.size = opt.size;
         this.models = opt.models;
     }
@@ -190,8 +190,8 @@ class DrobeUtil extends StObject {
             const p1 = r.getPosition(2);
             const area = new Area(
                 cube_id,
-                new Position(p0.x, p0.y, (depth / 2) * -1),
-                new Position(p1.x, p1.y, depth / 2),
+                new Vector3(p0.x, p0.y, (depth / 2) * -1),
+                new Vector3(p1.x, p1.y, depth / 2),
             );
             areas.push(area);
         });
