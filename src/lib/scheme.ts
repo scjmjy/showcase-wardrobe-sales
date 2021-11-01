@@ -66,14 +66,30 @@ export class Location {
     @JsonClassType({ type: () => [Vector3] })
     startPos: Vector3;
 
+    @JsonProperty({ value: "rotation" })
+    @JsonClassType({ type: () => [Vector3] })
+    rotation: Vector3;
+
+    @JsonProperty({ value: "scaling" })
+    @JsonClassType({ type: () => [Vector3] })
+    scaling: Vector3;
+
     // locationType=3, 相对于哪个item
     @JsonProperty({ value: "relativeItem" })
     @JsonClassType({ type: () => [RelativeItem] })
     relativeItem: RelativeItem | null;
 
-    constructor(locationType: number, startPos: Vector3, relativeItem: RelativeItem | null) {
+    constructor(
+        locationType: number,
+        startPos: Vector3,
+        relativeItem: RelativeItem | null,
+        rotation: Vector3 = new Vector3(0, 0, 0),
+        scaling: Vector3 = new Vector3(1, 1, 1),
+    ) {
         this.locationType = locationType;
         this.startPos = startPos;
+        this.rotation = rotation;
+        this.scaling = scaling;
         this.relativeItem = relativeItem;
     }
 }
