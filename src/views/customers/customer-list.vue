@@ -11,7 +11,7 @@
                 > -->
             </div>
             <div v-if="services.length === 0" class="customer-list__empty">
-                <el-empty></el-empty>
+                <el-empty description="暂无服务"></el-empty>
             </div>
             <!-- use v-show because of PageScroll -->
             <div v-show="services.length !== 0" ref="elScroll" class="customer-list__list" @scroll="onScroll">

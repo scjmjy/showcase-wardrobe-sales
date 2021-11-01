@@ -129,7 +129,7 @@ import type { ImgCardItemType } from "./ImgCardItem.vue";
 import ManifestList from "./ManifestList.vue";
 import AttachmentPopup from "./AttachmentPopup.vue";
 import { Size3D } from "@/api/interface/common.interface";
-import { computePartArea } from "../helpers";
+import { makePartCompositions } from "../helpers";
 
 interface TabType {
     component: string;
@@ -379,7 +379,7 @@ export default defineComponent({
             },
             showManifest(parts: PartCount[], size: Size3D) {
                 slide("left");
-                const partIds = parts.filter((p) => p.count > 0).map((p) => p.partId);
+                const partIds = makePartCompositions(parts, size);
                 return apiProvider.requestSchemeManifestV2(partIds).then((res) => {
                     if (res.ok && res.data) {
                         schemeManifest.value = res.data || [];
@@ -388,7 +388,6 @@ export default defineComponent({
                             if (found) {
                                 item.count = found.count;
                                 item.catid = found.catId;
-                                item.area = computePartArea(found, size);
                             }
                         }
                     }

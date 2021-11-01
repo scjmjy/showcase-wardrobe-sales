@@ -82,6 +82,7 @@
             :schemeName="product.product"
             :customerName="customerName"
             :scheme="scheme"
+            :size="customizeSize"
             @closed="onOfferDlgClosed"
         />
         <metals-dlg v-model="showMetalsDlg" :scheme3d="scheme" :part="selectedMetalPart" @change-part="onChangePart" />
@@ -367,7 +368,7 @@ export default defineComponent({
                         await captureSchemeScreenshot();
                         if (nonCustom) {
                             if (refOfferDlg.value) {
-                                refOfferDlg.value.doOffer(customizeSize.value);
+                                refOfferDlg.value.doOffer();
                             }
                         } else {
                             gotoEditScheme();
@@ -394,7 +395,7 @@ export default defineComponent({
             captureSchemeScreenshot();
             const scheme2d = product.value as Scheme;
             if (scheme2d.offer && refOfferDlg.value) {
-                await refOfferDlg.value.doOffer(customizeSize.value);
+                await refOfferDlg.value.doOffer();
             }
             if (scheme.value !== undefined) scheme.value.dirty = false;
             schemeDetailDirty.value = true;

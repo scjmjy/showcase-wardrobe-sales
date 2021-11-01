@@ -3,12 +3,12 @@
         <el-image class="manifest-item__img" :src="item.pic" fit="contain"></el-image>
         <div class="manifest-item__info">
             <div class="manifest-item__name">{{ item.pname }}</div>
-            <div v-if="item.type === '3d'" class="manifest-item__count">
+            <div class="manifest-item__count">
                 <span>{{ item.area ? "面积：" : "数量：" }}</span>
                 <span class="manifest-item__count-num">{{ item.area || item.count }}</span>
                 <span>{{ item.area ? "㎡" : "个" }}</span>
             </div>
-            <div v-else class="manifest-item__count">
+            <!-- <div v-else class="manifest-item__count">
                 <span>数量：</span>
                 <el-input-number
                     size="mini"
@@ -16,7 +16,7 @@
                     :model-value="item.count"
                     @update:modelValue="handleChange"
                 ></el-input-number>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
