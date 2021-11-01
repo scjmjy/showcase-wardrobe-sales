@@ -8,7 +8,7 @@
 import { defineComponent, PropType } from "vue";
 import * as BABYLON from "babylonjs";
 import { Graphics, GraphicsEvent } from "@/lib/graphics";
-import { Scheme, Cube, Item, Door, Part, PartCount, Location, Size, SizeConfig } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, Part, PartCount, Location, Vector3, SizeConfig } from "@/lib/scheme";
 import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
 import request from "@/utils/request";
@@ -129,7 +129,7 @@ export default defineComponent({
 
                                         // Add new door.
                                         const doorId = uuidv4();
-                                        const size = new Size(newPart.width, newPart.height, newPart.depth);
+                                        const size = new Vector3(newPart.width, newPart.height, newPart.depth);
                                         let doorType = 1;
                                         if (newPart.catId === 2) doorType = 2;
 
@@ -203,7 +203,7 @@ export default defineComponent({
                             this.areaHints = this.stl.computeAreaHints(
                                 this.scheme.manifest,
                                 this.defaultPartType,
-                                new Size(newPart.width, newPart.height, newPart.depth),
+                                new Vector3(newPart.width, newPart.height, newPart.depth),
                             );
 
                             if (!this.areaHints.spaceEnough) {
@@ -310,22 +310,7 @@ export default defineComponent({
                                     model.scaling.z,
                                 );
 
-                                let rootUrl = "file:///";
-                                let modelUrl = model.url;
-                                const modelFile = await this.loadModelFromDB(modelUrl);
-                                if (modelFile === null) {
-                                    rootUrl = "";
-                                    modelUrl = this.baseOSSUrl + model.url;
-                                }
-                                this.graphics.importMesh(
-                                    modelUrl,
-                                    meshName,
-                                    modelPos,
-                                    BABYLON.Vector3.Zero(),
-                                    modelScaling,
-                                    true,
-                                    rootUrl,
-                                );
+                                this.importMesh(model.url, meshName, modelPos, BABYLON.Vector3.Zero(), modelScaling);
                             });
 
                             // clear select item
@@ -428,27 +413,12 @@ export default defineComponent({
                                 );
                                 const itemName = ObjectType.CUBE + "_" + cubeUUID;
 
-                                let rootUrl = "file:///";
-                                let modelUrl = model.url;
-                                const modelFile = await this.loadModelFromDB(modelUrl);
-                                if (modelFile === null) {
-                                    rootUrl = "";
-                                    modelUrl = this.baseOSSUrl + model.url;
-                                }
-                                this.graphics.importMesh(
-                                    modelUrl,
-                                    itemName,
-                                    modelPos,
-                                    BABYLON.Vector3.Zero(),
-                                    modelScaling,
-                                    true,
-                                    rootUrl,
-                                );
+                                this.importMesh(model.url, itemName, modelPos, BABYLON.Vector3.Zero(), modelScaling);
                             });
 
                             const partId = standardCube.partId;
                             const catId = standardCube.catId;
-                            const size = new Size(standardCube.size.x, standardCube.size.y, standardCube.size.z);
+                            const size = new Vector3(standardCube.size.x, standardCube.size.y, standardCube.size.z);
                             const items: Item[] = [];
                             const newCube = new Cube(cubeUUID, partId, manifest, catId, size, items);
                             this.bizdata.addCube(newCube);
@@ -534,22 +504,7 @@ export default defineComponent({
                                     model.scaling.z,
                                 );
 
-                                let rootUrl = "file:///";
-                                let modelUrl = model.url;
-                                const modelFile = await this.loadModelFromDB(modelUrl);
-                                if (modelFile === null) {
-                                    rootUrl = "";
-                                    modelUrl = this.baseOSSUrl + model.url;
-                                }
-                                this.graphics.importMesh(
-                                    modelUrl,
-                                    meshName,
-                                    modelPos,
-                                    BABYLON.Vector3.Zero(),
-                                    modelScaling,
-                                    true,
-                                    rootUrl,
-                                );
+                                this.importMesh(model.url, meshName, modelPos, BABYLON.Vector3.Zero(), modelScaling);
                             });
 
                             // clear select item
@@ -611,27 +566,17 @@ export default defineComponent({
                                 );
                                 const doorName = ObjectType.DOOR + "_" + newDoor.id + "_" + index;
 
-                                let rootUrl = "file:///";
-                                let modelUrl = model.url;
-                                const modelFile = await this.loadModelFromDB(modelUrl);
-                                if (modelFile === null) {
-                                    rootUrl = "";
-                                    modelUrl = this.baseOSSUrl + model.url;
-                                }
-                                this.graphics
-                                    .importMesh(
-                                        modelUrl,
-                                        doorName,
-                                        modelPos,
-                                        BABYLON.Vector3.Zero(),
-                                        modelScaling,
-                                        isPickable,
-                                        rootUrl,
-                                    )
-                                    .then((/*mesh*/) => {
-                                        if (loadingSheme && ++this.loadedModelCount >= this.schemeModelCount)
-                                            this.loadSchemeCompleted();
-                                    });
+                                this.importMesh(
+                                    model.url,
+                                    doorName,
+                                    modelPos,
+                                    BABYLON.Vector3.Zero(),
+                                    modelScaling,
+                                    isPickable,
+                                ).then((/*mesh*/) => {
+                                    if (loadingSheme && ++this.loadedModelCount >= this.schemeModelCount)
+                                        this.loadSchemeCompleted();
+                                });
                             });
 
                             if (!loadingSheme) this.bizdata.addDoor(newDoor);
@@ -706,24 +651,8 @@ export default defineComponent({
                                     model.scaling.z,
                                 );
 
-                                let rootUrl = "file:///";
-                                let modelUrl = model.url;
-                                const modelFile = await this.loadModelFromDB(modelUrl);
-                                if (modelFile === null) {
-                                    rootUrl = "";
-                                    modelUrl = this.baseOSSUrl + model.url;
-                                }
-
                                 const newMeshName = ObjectType.DOOR + "_" + newDoor.id + "_" + index;
-                                this.graphics.importMesh(
-                                    modelUrl,
-                                    newMeshName,
-                                    modelPos,
-                                    BABYLON.Vector3.Zero(),
-                                    modelScaling,
-                                    true,
-                                    rootUrl,
-                                );
+                                this.importMesh(model.url, newMeshName, modelPos, BABYLON.Vector3.Zero(), modelScaling);
 
                                 // clear select item
                                 this.clearSelectionApi();
@@ -1089,36 +1018,24 @@ export default defineComponent({
                             );
                             const modelScaling = new BABYLON.Vector3(model.scaling.x, model.scaling.y, model.scaling.z);
                             const cubeName = ObjectType.CUBE + "_" + cube.id;
-
-                            let rootUrl = "file:///";
-                            let modelUrl = model.url;
-                            const modelFile = await this.loadModelFromDB(modelUrl);
-                            if (modelFile === null) {
-                                rootUrl = "";
-                                modelUrl = this.baseOSSUrl + model.url;
-                            }
-
-                            this.graphics
-                                .importMesh(
-                                    modelUrl,
-                                    cubeName,
-                                    modelPos,
-                                    BABYLON.Vector3.Zero(),
-                                    modelScaling,
-                                    false,
-                                    rootUrl,
-                                )
-                                .then((mesh) => {
-                                    if (schemeType === 1) {
-                                        const firstCubeName = ObjectType.CUBE + "_" + firstCubeId;
-                                        if (mesh !== null && mesh.name !== firstCubeName) {
-                                            mesh.getChildMeshes().forEach((childMesh) => {
-                                                childMesh.isVisible = false;
-                                            });
-                                        }
+                            this.importMesh(
+                                model.url,
+                                cubeName,
+                                modelPos,
+                                BABYLON.Vector3.Zero(),
+                                modelScaling,
+                                false,
+                            ).then((mesh) => {
+                                if (schemeType === 1) {
+                                    const firstCubeName = ObjectType.CUBE + "_" + firstCubeId;
+                                    if (mesh !== null && mesh.name !== firstCubeName) {
+                                        mesh.getChildMeshes().forEach((childMesh) => {
+                                            childMesh.isVisible = false;
+                                        });
                                     }
-                                    if (++this.loadedModelCount >= this.schemeModelCount) this.loadSchemeCompleted();
-                                });
+                                }
+                                if (++this.loadedModelCount >= this.schemeModelCount) this.loadSchemeCompleted();
+                            });
                         });
 
                         cube.items.forEach((item: Item) => {
@@ -1159,40 +1076,26 @@ export default defineComponent({
                                                             let isEmissive = false;
                                                             if (item.catId === 25) isEmissive = true;
 
-                                                            let rootUrl = "file:///";
-                                                            let modelUrl = model.url;
-                                                            const modelFile = await this.loadModelFromDB(modelUrl);
-                                                            if (modelFile === null) {
-                                                                rootUrl = "";
-                                                                modelUrl = this.baseOSSUrl + model.url;
-                                                            }
-                                                            this.graphics
-                                                                .importMesh(
-                                                                    modelUrl,
-                                                                    itemName,
-                                                                    modelPos,
-                                                                    BABYLON.Vector3.Zero(),
-                                                                    modelScaling,
-                                                                    false,
-                                                                    rootUrl,
-                                                                    isEmissive,
-                                                                )
-                                                                .then((mesh) => {
-                                                                    if (schemeType === 1) {
-                                                                        if (mesh !== null && cube.id !== firstCubeId) {
-                                                                            mesh.getChildMeshes().forEach(
-                                                                                (childMesh) => {
-                                                                                    childMesh.isVisible = false;
-                                                                                },
-                                                                            );
-                                                                        }
+                                                            this.importMesh(
+                                                                model.url,
+                                                                itemName,
+                                                                modelPos,
+                                                                BABYLON.Vector3.Zero(),
+                                                                modelScaling,
+                                                                false,
+                                                                isEmissive,
+                                                            ).then((mesh) => {
+                                                                if (schemeType === 1) {
+                                                                    if (mesh !== null && cube.id !== firstCubeId) {
+                                                                        mesh.getChildMeshes().forEach((childMesh) => {
+                                                                            childMesh.isVisible = false;
+                                                                        });
                                                                     }
+                                                                }
 
-                                                                    if (
-                                                                        ++this.loadedModelCount >= this.schemeModelCount
-                                                                    )
-                                                                        this.loadSchemeCompleted();
-                                                                });
+                                                                if (++this.loadedModelCount >= this.schemeModelCount)
+                                                                    this.loadSchemeCompleted();
+                                                            });
                                                         });
 
                                                         if (item.catId === 24) {
@@ -1402,27 +1305,18 @@ export default defineComponent({
                                                 );
                                                 const itemName = ObjectType.CUBE + "_" + cubeUUID;
 
-                                                let rootUrl = "file:///";
-                                                let modelUrl = model.url;
-                                                const modelFile = await this.loadModelFromDB(modelUrl);
-                                                if (modelFile === null) {
-                                                    rootUrl = "";
-                                                    modelUrl = this.baseOSSUrl + model.url;
-                                                }
                                                 this.graphics.importMesh(
-                                                    modelUrl,
+                                                    model.url,
                                                     itemName,
                                                     modelPos,
                                                     BABYLON.Vector3.Zero(),
                                                     modelScaling,
-                                                    true,
-                                                    rootUrl,
                                                 );
                                             });
 
                                             const partId = this.newPart.id;
                                             const catId = this.newPart.catId;
-                                            const size = new Size(
+                                            const size = new Vector3(
                                                 this.newPart.width,
                                                 this.newPart.height,
                                                 this.newPart.depth,
@@ -1458,7 +1352,7 @@ export default defineComponent({
                                                 //     0,
                                                 // );
 
-                                                const size = new Size(
+                                                const size = new Vector3(
                                                     this.newPart.width,
                                                     this.newPart.height,
                                                     this.newPart.depth,
@@ -1496,21 +1390,13 @@ export default defineComponent({
                                                     );
                                                     const itemName = ObjectType.ITEM + "_" + itemId;
 
-                                                    let rootUrl = "file:///";
-                                                    let modelUrl = model.url;
-                                                    const modelFile = await this.loadModelFromDB(modelUrl);
-                                                    if (modelFile === null) {
-                                                        rootUrl = "";
-                                                        modelUrl = this.baseOSSUrl + model.url;
-                                                    }
-                                                    this.graphics.importMesh(
-                                                        modelUrl,
+                                                    this.importMesh(
+                                                        model.url,
                                                         itemName,
                                                         modelPos,
                                                         BABYLON.Vector3.Zero(),
                                                         modelScaling,
                                                         true,
-                                                        rootUrl,
                                                         isEmissive,
                                                     );
                                                 });
@@ -1529,7 +1415,11 @@ export default defineComponent({
                                                 // Add spot light.
                                                 if (catId === 24) {
                                                     itemId += "_" + this.newPart.name;
-                                                    this.addSpotlight(this.newPart.name, this.newPart.width, itemOrigin);
+                                                    this.addSpotlight(
+                                                        this.newPart.name,
+                                                        this.newPart.width,
+                                                        itemOrigin,
+                                                    );
                                                 }
 
                                                 // TODO: only handle the case of locationType==1.
@@ -1662,6 +1552,35 @@ export default defineComponent({
             } else {
                 return null;
             }
+        },
+
+        // If finding model in IndexedDB, loading from IndexedDB; otherwise, loading model from OSS server.
+        async importMesh(
+            url: string,
+            name: string,
+            position: BABYLON.Vector3 = BABYLON.Vector3.Zero(),
+            rotation: BABYLON.Vector3 = BABYLON.Vector3.Zero(),
+            scaling: BABYLON.Vector3 = BABYLON.Vector3.One(),
+            isPickable = true,
+            isEmissive = false,
+        ) {
+            let rootUrl = "file:///";
+            let modelUrl = url;
+            const modelFile = await this.loadModelFromDB(modelUrl);
+            if (modelFile === null) {
+                rootUrl = "";
+                modelUrl = this.baseOSSUrl + url;
+            }
+            return this.graphics.importMesh(
+                modelUrl,
+                name,
+                position,
+                rotation,
+                scaling,
+                isPickable,
+                rootUrl,
+                isEmissive,
+            );
         },
 
         showDoors(isVisible: boolean): void {

@@ -7,7 +7,7 @@ import { BizData, ObjectType } from "@/lib/biz.data";
 export class PopupGUI {
     public rulerDisplayed = false;
     private _popupUI!: GUI.AdvancedDynamicTexture;
-    private _popupPanel!: GUI.Container;
+    private _switchCubePanel!: GUI.Rectangle[];
     private _deletePanel: BABYLON.Nullable<GUI.Rectangle> = null;
     private _deleteButton!: GUI.Button;
 
@@ -120,6 +120,11 @@ export class PopupGUI {
             if (this._sliderPanel) {
                 this._sliderPanel.dispose();
                 this._sliderPanel = null;
+            }
+            if (this._switchCubePanel) {
+                for (let i = 0; i < this._switchCubePanel.length; i++) {
+                    this._switchCubePanel[i]!.dispose();
+                }
             }
             return;
         }
@@ -245,6 +250,63 @@ export class PopupGUI {
             });
             this._deletePanel.linkWithMesh(mesh);
         }
+
+        // todo, use real cubes
+        const cubesTemp: BABYLON.Nullable<BABYLON.AbstractMesh>[] = [];
+        this.swtichCubePanel(mesh, cubesTemp);
+    }
+
+    private swtichCubePanel(
+        mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
+        cubes: BABYLON.Nullable<BABYLON.AbstractMesh>[],
+    ) {
+        // clear previous switch cube panel first
+        if (this._switchCubePanel) {
+            for (let i = 0; i < this._switchCubePanel.length; i++) {
+                this._switchCubePanel[i]!.dispose();
+            }
+        }
+        // todo, use real cubes
+        // this.createSwtichCubePanel(mesh, cubes);
+        const cubesTemp: BABYLON.Nullable<BABYLON.AbstractMesh>[] = [];
+        cubesTemp.push(mesh);
+        this.createSwtichCubePanel(mesh, cubesTemp);
+    }
+
+    private createSwtichCubePanel(
+        mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
+        cubes: BABYLON.Nullable<BABYLON.AbstractMesh>[],
+        forceQuit = false,
+    ) {
+        if (mesh == null) return;
+        const info = mesh.name.split("_");
+        const objectType = info[0];
+        if (forceQuit) return;
+        for (let k = 0; k < cubes.length; k++) {
+            this._switchCubePanel = new Array<GUI.Rectangle>();
+            if (this._switchCubePanel[k] == null && ObjectType.CUBE == objectType) {
+                this._switchCubePanel[k] = new GUI.Rectangle();
+                this._switchCubePanel[k].width = "48px";
+                this._switchCubePanel[k].height = "48px";
+                this._switchCubePanel[k].horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+                this._switchCubePanel[k].cornerRadius = 5;
+                this._switchCubePanel[k].background = "white";
+                this._popupUI.addControl(this._switchCubePanel[k]);
+                const _switchCubeButtonLeft = GUI.Button.CreateImageOnlyButton(
+                    "switchCubeButton",
+                    "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/res/3DGestureHint.png",
+                );
+                _switchCubeButtonLeft.width = "46px";
+                _switchCubeButtonLeft.height = "46px";
+                _switchCubeButtonLeft.thickness = 0;
+                this._switchCubePanel[k].addControl(_switchCubeButtonLeft);
+                _switchCubeButtonLeft.onPointerUpObservable.add(() => {});
+                // todo check cube self not shown the switch button
+                // if (cube.name != mesh.name)
+                this._switchCubePanel[k].linkWithMesh(cubes[k]);
+                this._switchCubePanel[k].linkOffsetY = -650;
+            }
+        }
     }
 
     private drawRuler(
@@ -253,14 +315,13 @@ export class PopupGUI {
         center: BABYLON.Vector3,
         direction: BABYLON.Vector3,
         title = "",
-        size: number = 0,
+        size = 0,
     ): void {
         const distance = 0.1;
         const heightValue = 1 * 0.054;
         const halfHeightValue = heightValue * 0.15;
         const widthValue = 0.2 * 0.054;
         const endPointLength = 0.5 * 0.054;
-
         const frameRulerTop = BABYLON.MeshBuilder.CreateCylinder(
             "cylinder_up",
             { diameterTop: 0, height: heightValue, diameterBottom: endPointLength, tessellation: 16 },
@@ -402,8 +463,8 @@ export class PopupGUI {
         graphics: Graphics,
         bizdata: BizData,
         pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
-        min: number = -1,
-        max: number = -1,
+        min = -1,
+        max = -1,
     ) {
         this.displayPanel(graphics, bizdata, pickedMesh, min, max);
     }
@@ -412,9 +473,9 @@ export class PopupGUI {
         graphics: Graphics,
         bizdata: BizData,
         isDisplay: boolean,
-        sizeHeight: number = 0,
-        sizeWidth: number = 0,
-        sizeDepth: number = 0,
+        sizeHeight = 0,
+        sizeWidth = 0,
+        sizeDepth = 0,
     ) {
         this.rulerDisplayed = isDisplay;
 

@@ -1,5 +1,5 @@
 import { IStl } from "./stl.api";
-import { Cube, Item, Manifest, PartType, Position, Size, SizeConfig } from "./scheme";
+import { Cube, Item, Manifest, PartType, Vector3, SizeConfig } from "./scheme";
 import { Area, AreaHints, CubeAreaHint } from "./model/hint";
 import { IAreaDivider, IAreaFilter } from "./spi/spi";
 import { CompositeFilter } from "./spi/filters";
@@ -87,20 +87,20 @@ export class GeneralStl implements IStl {
         //throw new Error("Error occurs!");
     }
 
-    computeAnchorMeta(area: Area, partType: number, partSize: Size): AnchorMeta {
+    computeAnchorMeta(area: Area, partType: number, partSize: Vector3): AnchorMeta {
         const pivot = this.calculateAnchor(area, partType, partSize);
         const scope = this.calculateScope(area, partType, partSize);
         return new AnchorMeta(pivot, scope);
     }
 
-    private calculateAnchor(area: Area, partType: number, partSize: Size): Position {
+    private calculateAnchor(area: Area, partType: number, partSize: Vector3): Vector3 {
         // if the part type is light, item is install under the relative item,
         // so the default position is different from general item
-        if (partType != PartType.LIGHTSTRIP) return new Position(0, area.endPoint.y - partSize.y, 0);
-        else return new Position(0, area.startPoint.y, 0);
+        if (partType != PartType.LIGHTSTRIP) return new Vector3(0, area.endPoint.y - partSize.y, 0);
+        else return new Vector3(0, area.startPoint.y, 0);
     }
 
-    private calculateScope(area: Area, partType: number, partSize: Size): Scope {
+    private calculateScope(area: Area, partType: number, partSize: Vector3): Scope {
         const invertalX = new Array<Interval>();
         const invertalY = new Array<Interval>();
         const invertalZ = new Array<Interval>();
@@ -120,7 +120,7 @@ export class GeneralStl implements IStl {
         return new Scope(invertalX, invertalY, invertalZ);
     }
 
-    computeAreaHints(manifest: Manifest, partType: number, partSize: Size): AreaHints {
+    computeAreaHints(manifest: Manifest, partType: number, partSize: Vector3): AreaHints {
         const cubeHintArray: Array<CubeAreaHint> = [];
         let total = 0;
         for (const cube of manifest.cubes) {
@@ -135,7 +135,7 @@ export class GeneralStl implements IStl {
         }
     }
 
-    private computeCubeAreaHint(cube: Cube, partType: PartType, partSize: Size): CubeAreaHint {
+    private computeCubeAreaHint(cube: Cube, partType: PartType, partSize: Vector3): CubeAreaHint {
         const hintAreas: Array<Area> = [];
         let areas: Array<Area> = [];
         // different logic for light strip area cube
@@ -176,8 +176,8 @@ export class GeneralStl implements IStl {
         const config = this.config.sizeConfig;
         const cubeArea: Area = new Area(
             cube.id,
-            new Position(cube.size.x / 2 - config.cube_thick_left, config.cube_thick_bottom, cube.size.z / 2),
-            new Position(
+            new Vector3(cube.size.x / 2 - config.cube_thick_left, config.cube_thick_bottom, cube.size.z / 2),
+            new Vector3(
                 -cube.size.x / 2 + config.cube_thick_right,
                 cube.size.y - config.cube_thick_top,
                 -cube.size.z / 2 + config.cube_thick_back,
@@ -210,7 +210,7 @@ export class GeneralStl implements IStl {
         return areas;
     }
 
-    private computerLightArea(area: Area, cube: Cube, partType: PartType, partSize: Size): boolean {
+    private computerLightArea(area: Area, cube: Cube, partType: PartType, partSize: Vector3): boolean {
         // recored all shelf of frame with lights installed
         const shelfHasLights = [];
         const items = cube.items;

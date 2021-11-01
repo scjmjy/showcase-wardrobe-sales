@@ -17,7 +17,7 @@ export class Graphics {
     public highlightLayer!: BABYLON.HighlightLayer;
 
     private readonly _canvas: HTMLCanvasElement;
-    private readonly _engine: BABYLON.Engine;
+    public readonly _engine: BABYLON.Engine;
     private _camera!: BABYLON.ArcRotateCamera;
     private _light!: BABYLON.DirectionalLight;
     private _shadowGenerator!: BABYLON.ShadowGenerator;
@@ -203,7 +203,7 @@ export class Graphics {
     public highlightMesh(
         mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
         color: BABYLON.Color3,
-        highlightLayer: BABYLON.HighlightLayer
+        highlightLayer: BABYLON.HighlightLayer,
     ): void {
         if (mesh !== null) {
             // TODO: only handle child, not all descendant(not including grandchild).
@@ -240,7 +240,10 @@ export class Graphics {
         }
     }
 
-    public removeHighlightMesh(mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, highlightLayer: BABYLON.HighlightLayer): void {
+    public removeHighlightMesh(
+        mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
+        highlightLayer: BABYLON.HighlightLayer,
+    ): void {
         if (mesh !== null) {
             // TODO: only handle child, not all descendant(not including grandchild).
             const childMeshes = mesh.getChildMeshes();

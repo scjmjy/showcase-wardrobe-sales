@@ -1,8 +1,8 @@
 import { ref } from "vue";
 import store from "@/store";
-import { ElMessage, ElLoading, ILoadingInstance } from "element-plus";
+import { ElLoading, ILoadingInstance } from "element-plus";
 import { MenuItem } from "@/components/GooeyMenu.helper";
-import { PartCount, Size } from "@/lib/scheme";
+import { PartCount } from "@/lib/scheme";
 import { Size3D } from "@/api/interface/common.interface";
 
 let loading: ILoadingInstance | undefined = undefined;
