@@ -12,13 +12,12 @@ import { Scheme, Cube, Item, Door, Part, PartCount, Location, Vector3, SizeConfi
 import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
 import request from "@/utils/request";
-import { drobeUtil } from "@/lib/drobe.util";
 import * as event from "@/lib/biz.event";
 import { PopupGUI } from "@/lib/hm_gui";
 import { ElMessage } from "element-plus";
 
 import { GeneralStl, StlConfig } from "@/lib/stl";
-import { AreaHints, Area } from "@/lib/model/hint";
+import { AreaHints } from "@/lib/model/hint";
 import { AnchorMeta } from "@/lib/model/pscope";
 
 import { IndexDb, DBValue } from "@/lib/indexdb";
@@ -91,6 +90,7 @@ export default defineComponent({
             areaHints: {} as AreaHints,
             defaultPartType: 1,
             indexDb: {} as IndexDb,
+            placeMode: 0,
         };
     },
     computed: {
@@ -196,10 +196,6 @@ export default defineComponent({
                         } else if (newPart.catId === 2 || newPart.catId === 3) {
                             this.changeAllDoors(newPart);
                         } else {
-                            // old way:
-                            // const availableArea = this.getAvailableAreaByPart(newPart);
-                            // this.ShowAvailableArea(newPart, availableArea);
-
                             this.areaHints = this.stl.computeAreaHints(
                                 this.scheme.manifest,
                                 this.defaultPartType,
@@ -1066,10 +1062,15 @@ export default defineComponent({
                                                                 itemOrigin.y + model.position.y,
                                                                 itemOrigin.z + model.position.z,
                                                             );
+                                                            const modelRotation = new BABYLON.Vector3(
+                                                                model.rotation.x + item.location.rotation.x,
+                                                                model.rotation.y + item.location.rotation.y,
+                                                                model.rotation.z + item.location.rotation.z,
+                                                            );
                                                             const modelScaling = new BABYLON.Vector3(
-                                                                model.scaling.x,
-                                                                model.scaling.y,
-                                                                model.scaling.z,
+                                                                model.scaling.x * item.location.scaling.x,
+                                                                model.scaling.y * item.location.scaling.y,
+                                                                model.scaling.z * item.location.scaling.z,
                                                             );
                                                             const itemName = ObjectType.ITEM + "_" + item.id;
 
@@ -1080,7 +1081,7 @@ export default defineComponent({
                                                                 model.url,
                                                                 itemName,
                                                                 modelPos,
-                                                                BABYLON.Vector3.Zero(),
+                                                                modelRotation,
                                                                 modelScaling,
                                                                 false,
                                                                 isEmissive,
@@ -1167,7 +1168,7 @@ export default defineComponent({
                         const height = area.endPoint.y - area.startPoint.y;
                         const depth = area.endPoint.z - area.startPoint.z;
                         const availableArea = BABYLON.MeshBuilder.CreateBox(
-                            `BackgroundArea_${area.cubeId}_${i.toString()}_${j.toString()}`,
+                            `BackgroundArea_${area.cubeId}_${i}_${j}_${width}_${height}_${depth}`,
                             { width: width, height: height, depth: depth },
                             this.graphics.scene as BABYLON.Scene,
                         );
@@ -1229,11 +1230,6 @@ export default defineComponent({
             cubeArea2.edgesColor = new BABYLON.Color4(1, 1, 1, 1);
             this.graphics.disableLightEffect(cubeArea2);
             this.availableAreas.push(cubeArea2);
-        },
-
-        getAvailableAreaByPart(part: Part): Area[] {
-            const biz: BizData = this.bizdata as BizData;
-            return drobeUtil.getAvailableAreaByPart(biz, part);
         },
 
         clearAvailableAreas(): void {
@@ -1305,7 +1301,7 @@ export default defineComponent({
                                                 );
                                                 const itemName = ObjectType.CUBE + "_" + cubeUUID;
 
-                                                this.graphics.importMesh(
+                                                this.importMesh(
                                                     model.url,
                                                     itemName,
                                                     modelPos,
@@ -1366,15 +1362,38 @@ export default defineComponent({
                                                     size,
                                                 );
 
-                                                const itemOrigin = new BABYLON.Vector3(
-                                                    cubeData.origin.x + anchorMeta.pivot.x,
-                                                    cubeData.origin.y + anchorMeta.pivot.y,
-                                                    cubeData.origin.z + anchorMeta.pivot.z,
-                                                );
-
                                                 const catId = this.newPart.catId;
                                                 let isEmissive = false;
                                                 if (catId === 25) isEmissive = true;
+
+                                                const itemName = ObjectType.ITEM + "_" + itemId;
+
+                                                // const areaWidth = parseFloat(info[4]);
+                                                const areaHeight = parseFloat(info[5]);
+                                                // const areaDepth = parseFloat(info[6]);
+                                                let localOffset = new Vector3(0, 0, 0);
+                                                let localRotation = new Vector3(0, 0, 0);
+                                                let localScaling = new Vector3(1, 1, 1);
+                                                switch (this.placeMode) {
+                                                    case 1: // Horizontal stretch
+                                                        break;
+                                                    case 2: // Vertical stretch
+                                                        localOffset = new Vector3(0, areaHeight * 0.5, 0);
+                                                        localScaling = new Vector3(areaHeight / size.x, 1, 1);
+                                                        localRotation = new Vector3(0, 0, Math.PI * 0.5);
+                                                        break;
+                                                }
+
+                                                const localPosition = new Vector3(
+                                                    anchorMeta.pivot.x + localOffset.x,
+                                                    anchorMeta.pivot.y + localOffset.y,
+                                                    anchorMeta.pivot.z + localOffset.z,
+                                                );
+                                                const itemOrigin = new BABYLON.Vector3(
+                                                    cubeData.origin.x + localPosition.x,
+                                                    cubeData.origin.y + localPosition.y,
+                                                    cubeData.origin.z + localPosition.z,
+                                                );
 
                                                 // TODO: create a parent mesh to contain all import meshes.
                                                 itemMf.models.forEach(async (model: any) => {
@@ -1383,18 +1402,22 @@ export default defineComponent({
                                                         itemOrigin.y + model.position.y,
                                                         itemOrigin.z + model.position.z,
                                                     );
-                                                    const modelScaling = new BABYLON.Vector3(
-                                                        model.scaling.x,
-                                                        model.scaling.y,
-                                                        model.scaling.z,
+                                                    const modelRotation = new BABYLON.Vector3(
+                                                        localRotation.x + model.rotation.x,
+                                                        localRotation.y + model.rotation.y,
+                                                        localRotation.z + model.rotation.z,
                                                     );
-                                                    const itemName = ObjectType.ITEM + "_" + itemId;
+                                                    const modelScaling = new BABYLON.Vector3(
+                                                        localScaling.x * model.scaling.x,
+                                                        localScaling.y * model.scaling.y,
+                                                        localScaling.z * model.scaling.z,
+                                                    );
 
                                                     this.importMesh(
                                                         model.url,
                                                         itemName,
                                                         modelPos,
-                                                        BABYLON.Vector3.Zero(),
+                                                        modelRotation,
                                                         modelScaling,
                                                         true,
                                                         isEmissive,
@@ -1423,7 +1446,13 @@ export default defineComponent({
                                                 }
 
                                                 // TODO: only handle the case of locationType==1.
-                                                const location = new Location(1, anchorMeta.pivot, null);
+                                                const location = new Location(
+                                                    1,
+                                                    localPosition,
+                                                    null,
+                                                    localRotation,
+                                                    localScaling,
+                                                );
                                                 const newItem = new Item(
                                                     itemId,
                                                     partId,
@@ -1463,16 +1492,11 @@ export default defineComponent({
                                 console.log("Log Scene: ", this.graphics.scene);
                                 break;
                             case "6":
-                                // this.adjustCamera();
-                                this.showDoors(true);
+                                this.adjustCamera();
                                 break;
                             case "7":
-                                // Add test codes:
-                                // this.screenshotApi().then((data) => {
-                                //     console.log(data);
-                                // });
-                                // this.switchCube(1);
-                                this.showDoors(false);
+                                if (this.placeMode === 0) this.placeMode = 2;
+                                else this.placeMode = 0;
                                 break;
                         }
                         break;
@@ -1572,13 +1596,13 @@ export default defineComponent({
                 modelUrl = this.baseOSSUrl + url;
             }
             return this.graphics.importMesh(
+                rootUrl,
                 modelUrl,
                 name,
                 position,
                 rotation,
                 scaling,
                 isPickable,
-                rootUrl,
                 isEmissive,
             );
         },

@@ -649,13 +649,13 @@ export class Graphics {
     }
 
     public async importMesh(
+        rootUrl = "",
         url: string,
         name: string,
         position: BABYLON.Vector3 = BABYLON.Vector3.Zero(),
         rotation: BABYLON.Vector3 = BABYLON.Vector3.Zero(),
         scaling: BABYLON.Vector3 = BABYLON.Vector3.One(),
         isPickable = true,
-        rootUrl = "",
         isEmissive = false,
     ) {
         const loadedList = await BABYLON.SceneLoader.ImportMeshAsync("", rootUrl, url, this.scene);
