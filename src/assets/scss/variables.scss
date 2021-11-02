@@ -58,7 +58,7 @@ $tag: (
 $text-color: (
     "primary": #644c1fff,
     "regular": map.get($colors, "black"),
-    "secondary": #196bffff,
+    // "secondary": #196bffff,
 );
 $scrollbar: (
     "background-color": var(--el-color-primary),

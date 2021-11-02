@@ -48,7 +48,7 @@ import apiProvider from "@/api/provider";
 import { Scheme } from "@/lib/scheme";
 import OfferItem from "./OfferItem.vue";
 import { Size3D } from "@/api/interface/common.interface";
-import { computePartArea } from "../helpers";
+import { makePartCompositions } from "../helpers";
 
 export default defineComponent({
     name: "OfferDlg",
@@ -72,13 +72,21 @@ export default defineComponent({
             type: Object as PropType<Scheme>,
             required: true,
         },
+        size: {
+            type: Object as PropType<Size3D>,
+            required: true,
+        },
     },
     setup(props) {
         const schemeOffer = ref<SchemeOffer>();
         return {
             // dlgTitle: computed(() => `${props.customerName}，您的${props.schemeName}报价`),
             schemeOffer,
-            itemList: computed(() => (schemeOffer.value ? schemeOffer.value.details : [])),
+            itemList: computed(() => {
+                if (!schemeOffer.value) return [];
+                const items = new Array(...schemeOffer.value.details);
+                return items.sort((a, b) => b.type - a.type);
+            }),
             offerPrice: computed(() => {
                 if (!schemeOffer.value) {
                     return {
@@ -104,18 +112,20 @@ export default defineComponent({
                     };
                 }
             }),
-            doOffer(size: Size3D) {
-                const compositions = props.scheme.getPartCounts();
+            doOffer() {
+                const partCounts = props.scheme.getPartCounts();
+
+                const compositions = makePartCompositions(partCounts, props.size);
                 return apiProvider.requestSchemeOffer(props.schemeId, compositions).then((res) => {
                     if (res.ok && res.data) {
                         schemeOffer.value = res.data;
-                        for (const item of schemeOffer.value.details) {
-                            const found = compositions.find((p) => p.partId === item.area); // TODO item.partid
-                            if (found) {
-                                item.count = found.count;
-                                item.area = computePartArea(found, size);
-                            }
-                        }
+                        // for (const item of schemeOffer.value.details) {
+                        // const found = compositions.find((p) => p.partId === item.area); // TODO item.partid
+                        // if (found) {
+                        //     item.count = found.count;
+                        //     item.area = computePartArea(found, props.size);
+                        // }
+                        // }
                     }
                 });
             },
