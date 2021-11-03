@@ -1378,7 +1378,7 @@ export default defineComponent({
                                                     case 1: // Horizontal stretch
                                                         break;
                                                     case 2: // Vertical stretch
-                                                        localOffset = new Vector3(0, areaHeight * 0.5, 0);
+                                                        localOffset = new Vector3(size.y * 0.5, areaHeight * 0.5, 0);
                                                         localScaling = new Vector3(areaHeight / size.x, 1, 1);
                                                         localRotation = new Vector3(0, 0, Math.PI * 0.5);
                                                         break;
@@ -1462,6 +1462,7 @@ export default defineComponent({
                                                     attachment,
                                                     location,
                                                 );
+
                                                 this.bizdata.addItem(newItem, cubeId);
                                             })
                                             .catch(() => {
