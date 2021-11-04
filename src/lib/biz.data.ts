@@ -20,7 +20,7 @@ export type CubeItem = {
 };
 
 export class BizData {
-    private scheme: Scheme;
+    public scheme: Scheme;
 
     // the default unit is 1 meter.
     public SceneUnit = 1;
@@ -296,6 +296,10 @@ export class BizData {
 
     findCubeById(id: string): Cube | undefined {
         return this.scheme.manifest.cubes.find((cube: { id: string }) => cube.id === id);
+    }
+
+    findCubeIndexById(id: string): number {
+        return this.scheme.manifest.cubes.findIndex((cube: { id: string }) => cube.id === id);
     }
 
     findCubeItemByItemId(itemId: string): CubeItem {

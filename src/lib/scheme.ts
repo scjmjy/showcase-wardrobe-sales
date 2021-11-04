@@ -152,7 +152,11 @@ export class Item extends SchemeObject {
     getBoundingBox(): Array<Vector3> {
         const startPt = new Vector3(0, 0, 0);
         const endPt = new Vector3(0, 0, 0);
-        if (this.location.rotation.x === 0 && this.location.rotation.y === 0 && this.location.rotation.z === Math.PI * 0.5) {
+        if (
+            this.location.rotation.x === 0 &&
+            this.location.rotation.y === 0 &&
+            this.location.rotation.z === Math.PI * 0.5
+        ) {
             const height = this.size.x * this.location.scaling.x;
             startPt.x = this.location.startPos.x;
             startPt.y = this.location.startPos.y - height * 0.5;

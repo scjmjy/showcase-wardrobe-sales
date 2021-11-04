@@ -1,6 +1,6 @@
 <template>
     <div>
-        <canvas id="canvas" :width="canvasWidth" :height="canvasHeight"></canvas>
+        <canvas id="canvas" :width="canvasWidth" :height="canvasHeight" ref="babylonRef"></canvas>
     </div>
 </template>
 
@@ -239,7 +239,7 @@ export default defineComponent({
         this.handleGraphicsEvent(this.graphics);
 
         // this.setupWallandFloor();
-        this.loadScheme(this.schemeType);
+        this.loadScheme(this.mode, this.schemeType);
     },
     methods: {
         /**
@@ -528,7 +528,7 @@ export default defineComponent({
          * 增加一组合页门或者滑门
          * @param newDoor 新增加的Door
          */
-        addDoorApi(newDoor: Door, isPickable = true, loadingSheme = false): void {
+        addDoorApi(newDoor: Door, loadingSheme = false, mode = 1): void {
             request({
                 url: this.baseOSSUrl + newDoor.manifest,
                 method: "GET",
@@ -568,10 +568,9 @@ export default defineComponent({
                                     modelPos,
                                     BABYLON.Vector3.Zero(),
                                     modelScaling,
-                                    isPickable,
                                 ).then((/*mesh*/) => {
                                     if (loadingSheme && ++this.loadedModelCount >= this.schemeModelCount)
-                                        this.loadSchemeCompleted();
+                                        this.loadSchemeCompleted(mode);
                                 });
                             });
 
@@ -718,7 +717,7 @@ export default defineComponent({
         clearSelectionApi(): void {
             this.graphics.removeCurrentHighlight();
 
-            this.gui.display(this.graphics, this.bizdata as BizData, null);
+            this.gui.display(this, null);
         },
 
         /**
@@ -950,7 +949,7 @@ export default defineComponent({
             });
         },
 
-        loadScheme(schemeType = 0) {
+        loadScheme(mode: number, schemeType = 0) {
             this.loadedModelCount = 0;
             this.schemeModelCount = 0;
             this.bizdata.totalWidth = 0;
@@ -1014,24 +1013,20 @@ export default defineComponent({
                             );
                             const modelScaling = new BABYLON.Vector3(model.scaling.x, model.scaling.y, model.scaling.z);
                             const cubeName = ObjectType.CUBE + "_" + cube.id;
-                            this.importMesh(
-                                model.url,
-                                cubeName,
-                                modelPos,
-                                BABYLON.Vector3.Zero(),
-                                modelScaling,
-                                false,
-                            ).then((mesh) => {
-                                if (schemeType === 1) {
-                                    const firstCubeName = ObjectType.CUBE + "_" + firstCubeId;
-                                    if (mesh !== null && mesh.name !== firstCubeName) {
-                                        mesh.getChildMeshes().forEach((childMesh) => {
-                                            childMesh.isVisible = false;
-                                        });
+                            this.importMesh(model.url, cubeName, modelPos, BABYLON.Vector3.Zero(), modelScaling).then(
+                                (mesh) => {
+                                    if (schemeType === 1) {
+                                        const firstCubeName = ObjectType.CUBE + "_" + firstCubeId;
+                                        if (mesh !== null && mesh.name !== firstCubeName) {
+                                            mesh.getChildMeshes().forEach((childMesh) => {
+                                                childMesh.isVisible = false;
+                                            });
+                                        }
                                     }
-                                }
-                                if (++this.loadedModelCount >= this.schemeModelCount) this.loadSchemeCompleted();
-                            });
+                                    if (++this.loadedModelCount >= this.schemeModelCount)
+                                        this.loadSchemeCompleted(mode);
+                                },
+                            );
                         });
 
                         cube.items.forEach((item: Item) => {
@@ -1076,14 +1071,13 @@ export default defineComponent({
 
                                                             let isEmissive = false;
                                                             if (item.catId === 25) isEmissive = true;
-
                                                             this.importMesh(
                                                                 model.url,
                                                                 itemName,
                                                                 modelPos,
                                                                 modelRotation,
                                                                 modelScaling,
-                                                                false,
+                                                                true,
                                                                 isEmissive,
                                                             ).then((mesh) => {
                                                                 if (schemeType === 1) {
@@ -1095,7 +1089,7 @@ export default defineComponent({
                                                                 }
 
                                                                 if (++this.loadedModelCount >= this.schemeModelCount)
-                                                                    this.loadSchemeCompleted();
+                                                                    this.loadSchemeCompleted(mode);
                                                             });
                                                         });
 
@@ -1126,14 +1120,14 @@ export default defineComponent({
             });
 
             this.scheme.manifest.doors.forEach((door: Door) => {
-                this.addDoorApi(door, false, true);
+                this.addDoorApi(door, true, mode);
             });
         },
 
         /**
          * product-detail.vue 从oss重新读取了scheme，此时scheme已经发生变化，需要reload
          */
-        reloadScheme() {
+        reloadScheme(mode = 3) {
             // Remove 3D reference ruler firstly.
             this.showReferenceRuler(false);
 
@@ -1143,13 +1137,15 @@ export default defineComponent({
             // Recreate the bizdata.
             this.bizdata = new BizData(this.scheme);
             // Reload the old scheme which is updated in product-detail.vue.
-            this.loadScheme();
+            this.loadScheme(mode);
 
             // Re-enable 3D reference ruler.
             this.showReferenceRuler(true);
         },
 
-        loadSchemeCompleted() {
+        loadSchemeCompleted(mode: number) {
+            this.setModeApi(mode);
+
             const e = new event.SchemeLoadCompletedEvent();
             this.eventEmit(e);
         },
@@ -1265,7 +1261,7 @@ export default defineComponent({
                                     max = scope.intervalsY[0].max;
                                 }
                             }
-                            this.gui.display(this.graphics, this.bizdata as BizData, rootMesh, min, max);
+                            this.gui.display(this, rootMesh, min, max);
 
                             if (objectType === "BackgroundArea") {
                                 // Hit the available area.
@@ -1474,7 +1470,7 @@ export default defineComponent({
 
                             this.clearAvailableAreas();
                         } else {
-                            this.gui.display(this.graphics, this.bizdata as BizData, null);
+                            this.gui.display(this, null);
                             this.clearAvailableAreas();
                         }
                         break;

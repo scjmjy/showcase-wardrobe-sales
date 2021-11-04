@@ -3,6 +3,10 @@ import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
 import { BizData, ObjectType } from "@/lib/biz.data";
+import { Cube } from "@/lib/scheme";
+
+import Babylon from "@/components/Babylon/Babylon.vue";
+type RefBabylon = InstanceType<typeof Babylon>;
 
 export class PopupGUI {
     public rulerDisplayed = false;
@@ -31,6 +35,10 @@ export class PopupGUI {
     private _rulerTextHeight!: GUI.TextBlock;
     private _rulerTextDepth!: GUI.TextBlock;
     private _rulerTextWidth!: GUI.TextBlock;
+
+    constructor() {
+        this._switchCubePanel = new Array<GUI.Rectangle>();
+    }
 
     public loading(graphics: Graphics) {
         // GUI
@@ -104,13 +112,7 @@ export class PopupGUI {
         }
     }
 
-    private displayPanel(
-        graphics: Graphics,
-        bizdata: BizData,
-        mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
-        min: number,
-        max: number,
-    ): void {
+    display(babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min = -1, max = -1): void {
         //  hide GUI when click empty area
         if (mesh == null) {
             if (this._deletePanel) {
@@ -123,14 +125,14 @@ export class PopupGUI {
             }
             if (this._switchCubePanel) {
                 for (let i = 0; i < this._switchCubePanel.length; i++) {
-                    this._switchCubePanel[i]!.dispose();
+                    this._switchCubePanel[i].dispose();
                 }
             }
             return;
         }
 
         if (this._popupUI == null) {
-            this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, graphics.scene);
+            this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, babylonRef.graphics.scene);
         }
 
         // clear previous silder panel to avoid adjust previous mesh
@@ -183,9 +185,9 @@ export class PopupGUI {
                     mesh.position.y = value;
                     const info = mesh.name.split("_");
                     const itemId = info[1];
-                    const item = bizdata.findItemById(itemId);
+                    const item = babylonRef.bizdata.findItemById(itemId);
                     if (item !== undefined) {
-                        bizdata.moveItem(item, value);
+                        babylonRef.bizdata.moveItem(item, value);
                     }
                 }
                 header.text = " " + value.toFixed(2) + " \u7c73";
@@ -223,7 +225,7 @@ export class PopupGUI {
             this._deleteButton.onPointerUpObservable.add(() => {
                 if (mesh != null) {
                     // hide the popup ui.
-                    this.displayPanel(graphics, bizdata, null, -1, -1);
+                    this.display(babylonRef, null, -1, -1);
                     this._deleteButton.isVisible = false;
 
                     const info = mesh.name.split("_");
@@ -232,81 +234,93 @@ export class PopupGUI {
                     mesh.dispose();
                     switch (objectType) {
                         case ObjectType.CUBE:
-                            bizdata.removeCube(objectID);
+                            babylonRef.bizdata.removeCube(objectID);
                             break;
                         case ObjectType.ITEM:
-                            bizdata.removeItem(objectID);
+                            babylonRef.bizdata.removeItem(objectID);
                             break;
                         case ObjectType.DOOR:
                             {
                                 const doorIndex = parseInt(info[2]);
-                                bizdata.removeDoor(objectID, doorIndex);
+                                babylonRef.bizdata.removeDoor(objectID, doorIndex);
                             }
                             break;
                     }
                     mesh = null;
-                    graphics.currentMesh = null;
+                    babylonRef.graphics.currentMesh = null;
                 }
             });
             this._deletePanel.linkWithMesh(mesh);
         }
 
-        // todo, use real cubes
-        const cubesTemp: BABYLON.Nullable<BABYLON.AbstractMesh>[] = [];
-        this.swtichCubePanel(mesh, cubesTemp);
+        this.showSwitchCubePanel(babylonRef, mesh);
     }
 
-    private swtichCubePanel(
-        mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
-        cubes: BABYLON.Nullable<BABYLON.AbstractMesh>[],
-    ) {
+    private showSwitchCubePanel(babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
         // clear previous switch cube panel first
         if (this._switchCubePanel) {
             for (let i = 0; i < this._switchCubePanel.length; i++) {
-                this._switchCubePanel[i]!.dispose();
+                this._switchCubePanel[i].dispose();
             }
-        }
-        // todo, use real cubes
-        // this.createSwtichCubePanel(mesh, cubes);
-        const cubesTemp: BABYLON.Nullable<BABYLON.AbstractMesh>[] = [];
-        cubesTemp.push(mesh);
-        this.createSwtichCubePanel(mesh, cubesTemp);
-    }
 
-    private createSwtichCubePanel(
-        mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
-        cubes: BABYLON.Nullable<BABYLON.AbstractMesh>[],
-        forceQuit = false,
-    ) {
-        if (mesh == null) return;
+            this._switchCubePanel = [];
+        }
+
+        if (mesh === null) return;
+
         const info = mesh.name.split("_");
         const objectType = info[0];
-        if (forceQuit) return;
-        for (let k = 0; k < cubes.length; k++) {
-            this._switchCubePanel = new Array<GUI.Rectangle>();
-            if (this._switchCubePanel[k] == null && ObjectType.CUBE == objectType) {
-                this._switchCubePanel[k] = new GUI.Rectangle();
-                this._switchCubePanel[k].width = "48px";
-                this._switchCubePanel[k].height = "48px";
-                this._switchCubePanel[k].horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-                this._switchCubePanel[k].cornerRadius = 5;
-                this._switchCubePanel[k].background = "white";
-                this._popupUI.addControl(this._switchCubePanel[k]);
-                const _switchCubeButtonLeft = GUI.Button.CreateImageOnlyButton(
+        if (objectType !== ObjectType.CUBE) return;
+
+        const bizdata = babylonRef.bizdata as BizData;
+        const graphics = babylonRef.graphics as Graphics;
+
+        bizdata.scheme.manifest.cubes.forEach((cube: Cube) => {
+            const meshName = ObjectType.CUBE + "_" + cube.id;
+            const cubeMesh = graphics.getMeshByName(meshName);
+            if (meshName !== mesh.name && cubeMesh !== null) {
+                const switchCube = new GUI.Rectangle();
+                switchCube.width = "48px";
+                switchCube.height = "48px";
+                switchCube.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+                switchCube.cornerRadius = 5;
+                switchCube.background = "white";
+                this._popupUI.addControl(switchCube);
+                const switchCubeButton = GUI.Button.CreateImageOnlyButton(
                     "switchCubeButton",
                     "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/res/3DGestureHint.png",
                 );
-                _switchCubeButtonLeft.width = "46px";
-                _switchCubeButtonLeft.height = "46px";
-                _switchCubeButtonLeft.thickness = 0;
-                this._switchCubePanel[k].addControl(_switchCubeButtonLeft);
-                _switchCubeButtonLeft.onPointerUpObservable.add(() => {});
-                // todo check cube self not shown the switch button
-                // if (cube.name != mesh.name)
-                this._switchCubePanel[k].linkWithMesh(cubes[k]);
-                this._switchCubePanel[k].linkOffsetY = -650;
+                switchCubeButton.width = "46px";
+                switchCubeButton.height = "46px";
+                switchCubeButton.thickness = 0;
+                switchCube.addControl(switchCubeButton);
+                switchCubeButton.onPointerUpObservable.add(() => {
+                    const selectedCubeId = info[1];
+                    const selectedCube = bizdata.findCubeById(selectedCubeId);
+                    if (selectedCube !== undefined) {
+                        const exchangedCubeIndex = bizdata.findCubeIndexById(cube.id);
+                        const selectedCubeIndex = bizdata.findCubeIndexById(selectedCubeId);
+
+                        // Add the selected cube to the index of exchanged cube.
+                        bizdata.scheme.manifest.cubes.splice(exchangedCubeIndex, 0, selectedCube);
+                        // Delete the exchanged cube.
+                        bizdata.scheme.manifest.cubes.splice(exchangedCubeIndex + 1, 1);
+
+                        // Add the selected cube to the index of exchanged cube.
+                        bizdata.scheme.manifest.cubes.splice(selectedCubeIndex, 0, cube);
+                        // Delete the exchanged cube.
+                        bizdata.scheme.manifest.cubes.splice(selectedCubeIndex + 1, 1);
+
+                        babylonRef.reloadScheme(1);
+                    }
+                });
+
+                switchCube.linkWithMesh(cubeMesh);
+                switchCube.linkOffsetY = 50;
+
+                this._switchCubePanel.push(switchCube);
             }
-        }
+        });
     }
 
     private drawRuler(
@@ -457,16 +471,6 @@ export class PopupGUI {
         frameRulerTop.material = frameRulerMat;
         frameRulerMiddle.material = frameRulerMat;
         frameRulerDown.material = frameRulerMat;
-    }
-
-    public display(
-        graphics: Graphics,
-        bizdata: BizData,
-        pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
-        min = -1,
-        max = -1,
-    ) {
-        this.displayPanel(graphics, bizdata, pickedMesh, min, max);
     }
 
     public showRuler(
