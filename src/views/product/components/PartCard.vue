@@ -60,8 +60,9 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+@use "sass:math";
 $margin: 3%;
-$width: (100% - $margin * 4) / 2;
+$width: math.div(100% - $margin * 4, 2);
 .part-card {
     display: inline-flex;
     flex-direction: column;

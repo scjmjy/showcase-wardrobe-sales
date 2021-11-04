@@ -152,7 +152,8 @@ export default defineComponent({
             // const el = elRow.value?.$el as HTMLElement;
             const el = refScroll.value as HTMLElement;
             pageScroll = new PageScroll(el, requestApi, loadState, parts);
-            pageScroll.doRequestPage();
+            // pageScroll.doRequestPage();
+            requestPartCatMeta();
         });
         function requestPartCatMeta() {
             const catId = selectedChildCatId.value || props.cat.id;
@@ -176,15 +177,15 @@ export default defineComponent({
                 });
         }
 
-        watch(
-            () => props.active,
-            (active) => {
-                if (active /*&& !catMeta.value*/) {
-                    requestPartCatMeta();
-                }
-            },
-            { immediate: true },
-        );
+        // watch(
+        //     () => props.active,
+        //     (active) => {
+        //         if (active /*&& !catMeta.value*/) {
+        //             requestPartCatMeta();
+        //         }
+        //     },
+        //     { immediate: true },
+        // );
         // watch(
         //     () => props.cat.id,
         //     () => {

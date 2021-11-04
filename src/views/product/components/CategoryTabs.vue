@@ -2,7 +2,7 @@
     <div class="category-tabs" :class="{ 'is-level-up': !!tabStack.length }">
         <i v-if="!!tabStack.length" class="category-tabs-levelup iconfont icon-level-up" @click="onUpLevelClick"></i>
         <el-tabs v-model="selectedTabName" class="category-tabs-cats" tab-position="left">
-            <el-tab-pane v-for="tab in activeTabs" :key="tab.name" :label="tab.label" :name="tab.name">
+            <el-tab-pane v-for="tab in activeTabs" :key="tab.name" :label="tab.label" :name="tab.name" lazy>
                 <slot name="content-header" />
                 <component
                     :is="tab.component"
@@ -139,6 +139,9 @@ export default defineComponent({
                     selectedTabName.value = "";
                 }
             },
+            {
+                immediate: true,
+            },
         );
 
         const activeTabs = computed(() => {
@@ -171,7 +174,9 @@ export default defineComponent({
                 selectedPartId.value = +partId;
                 for (const tab of activeTabs.value) {
                     if (tab.cat && tab.cat.id == catId) {
-                        selectedTabName.value = catId.toString();
+                        setTimeout(() => {
+                            selectedTabName.value = catId.toString();
+                        }, 400); // TODO hack
                         return;
                     }
                 }
@@ -181,7 +186,9 @@ export default defineComponent({
                 const siblings = findSiblingCats(catId, props.cats);
                 if (siblings) {
                     const tabs = cats2Tabs(siblings);
-                    selectedTabName.value = catId.toString();
+                    setTimeout(() => {
+                        selectedTabName.value = catId.toString();
+                    }, 400); // TODO hack
                     tabStack.value.push(tabs);
 
                     selectedCatId.value = +catId;

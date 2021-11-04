@@ -13,7 +13,13 @@
                 tab-position="left"
                 @tab-click="onCatChange"
             >
-                <el-tab-pane v-for="(tab, index) in activeTabs" :key="tab.name" :label="tab.label" :name="tab.name">
+                <el-tab-pane
+                    v-for="(tab, index) in activeTabs"
+                    :key="tab.name"
+                    :label="tab.label"
+                    :name="tab.name"
+                    lazy
+                >
                     <template v-if="index === 0 && type === 'out'" #label>
                         <div class="parts-menu__tab-bgLabel">{{ tab.label }}</div>
                     </template>

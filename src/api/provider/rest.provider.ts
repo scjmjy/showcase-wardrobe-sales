@@ -126,16 +126,16 @@ export default class RestProvider extends LocalProvider {
             })
                 .then((res) => {
                     // TODO
-                    const data: PartAttachmentList = res.data || [];
-                    for (const item of data) {
-                        for (const item2 of item.attachmentsList) {
-                            item2.ptcid = 15;
-                        }
-                    }
+                    // const data: PartAttachmentList = res.data || [];
+                    // for (const item of data) {
+                    //     for (const item2 of item.attachmentsList) {
+                    //         item2.ptcid = 15;
+                    //     }
+                    // }
                     resolve({
                         ok: true,
                         status: res.status,
-                        data,
+                        data: res.data || [],
                     });
                 })
                 .catch(() => {
