@@ -23,14 +23,27 @@ export class GeneralAreaDivider implements IAreaDivider {
     divide(area: Area, item: Item): Array<Area> {
         const areaStartPoint = area.startPoint;
         const areaEndPoint = area.endPoint;
-        const pivot = item.location.startPos;
+        const pivot = item.location.startPos; 
         const itemSize = item.size;
+        const partType = item.partType;
 
-        const area1StartPoint = new Vector3(areaStartPoint.x, areaStartPoint.y, areaStartPoint.z);
-        const area1EndPoint = new Vector3(areaEndPoint.x, pivot.y, areaEndPoint.z);
-
-        const area2EndPoint = new Vector3(areaEndPoint.x, areaEndPoint.y, areaEndPoint.z);
-        const area2StartPoint = new Vector3(areaStartPoint.x, pivot.y + itemSize.y, areaStartPoint.z);
+        let area1StartPoint, area1EndPoint, area2StartPoint, area2EndPoint;
+        //if (partType == PartType.T_FRAME) {
+        if (item.getBoundingBox()[0].x - item.getBoundingBox()[1].x < item.getBoundingBox()[1].y - item.getBoundingBox()[0].y) {
+            area1StartPoint = new Vector3(areaStartPoint.x, areaStartPoint.y, areaStartPoint.z);
+            area1EndPoint = new Vector3(item.getBoundingBox()[0].x, areaEndPoint.y, areaEndPoint.z);
+    
+            area2EndPoint = new Vector3(areaEndPoint.x, areaEndPoint.y, areaEndPoint.z);
+            area2StartPoint = new Vector3(item.getBoundingBox()[1].x, areaStartPoint.y, areaStartPoint.z);
+        }
+        else
+        {
+            area1StartPoint = new Vector3(areaStartPoint.x, areaStartPoint.y, areaStartPoint.z);
+            area1EndPoint = new Vector3(areaEndPoint.x, pivot.y, areaEndPoint.z);
+    
+            area2EndPoint = new Vector3(areaEndPoint.x, areaEndPoint.y, areaEndPoint.z);
+            area2StartPoint = new Vector3(areaStartPoint.x, pivot.y + itemSize.y, areaStartPoint.z);
+        }
 
         const newArea1 = new Area(area.cubeId, area1StartPoint, area1EndPoint);
         const newArea2 = new Area(area.cubeId, area2StartPoint, area2EndPoint);

@@ -97,7 +97,7 @@ export class GeneralStl implements IStl {
         // if the part type is light, item is install under the relative item,
         // so the default position is different from general item
         if (partType == PartType.LIGHTSTRIP) return new Vector3(0, area.endPoint.y - partSize.y, 0);
-        else return new Vector3(0, area.startPoint.y, 0);
+        else return new Vector3((area.startPoint.x + area.endPoint.x)/2, area.startPoint.y, 0);
     }
 
     private calculateScope(area: Area, partType: number, partSize: Vector3): Scope {
@@ -238,14 +238,23 @@ export class GeneralStl implements IStl {
         if (item.partType == PartType.LIGHTSTRIP) return false;
         const areaStartPoint = area.startPoint;
         const areaEndPoint = area.endPoint;
-        const itemBtmY = item.location.startPos.y;
-        const itemTopY = itemBtmY + item.size.y;
+        let itemLeftX = item.getBoundingBox()[0].x;
+        let itemRightX = item.getBoundingBox()[1].x;
+        let itemBtmY = item.getBoundingBox()[0].y;
+        let itemTopY = item.getBoundingBox()[1].y;
 
-        return (
-            (itemBtmY > areaStartPoint.y && itemBtmY < areaEndPoint.y) ||
-            (itemTopY > areaStartPoint.y && itemTopY < areaEndPoint.y) ||
-            (areaStartPoint.y > itemBtmY && areaStartPoint.y < itemTopY) ||
-            (areaEndPoint.y > itemBtmY && areaEndPoint.y < itemTopY)
+        let bias_x: number = 0.0055
+
+        // if(item.partType == PartType.T_FRAME)
+        if (itemLeftX - itemRightX < itemTopY - itemBtmY )
+            return (areaStartPoint.x > itemLeftX && areaEndPoint.x < itemRightX) &&
+                (itemBtmY >= areaStartPoint.y && itemTopY <= areaEndPoint.y);
+        else
+            return (Math.abs(areaStartPoint.x - itemLeftX) < bias_x && Math.abs(itemRightX - areaEndPoint.x)< bias_x) &&
+                ((itemBtmY > areaStartPoint.y && itemBtmY < areaEndPoint.y) ||
+                (itemTopY > areaStartPoint.y && itemTopY < areaEndPoint.y) ||
+                (areaStartPoint.y > itemBtmY && areaStartPoint.y < itemTopY) ||
+                (areaEndPoint.y > itemBtmY && areaEndPoint.y < itemTopY)
         );
     }
 }
