@@ -82,6 +82,7 @@
             :schemeName="product.product"
             :customerName="customerName"
             :scheme="scheme"
+            :size="customizeSize"
             @closed="onOfferDlgClosed"
         />
         <metals-dlg v-model="showMetalsDlg" :scheme3d="scheme" :part="selectedMetalPart" @change-part="onChangePart" />
@@ -110,7 +111,7 @@ import * as util from "@/lib/scheme.util";
 import GooeyMenu from "@/components/GooeyMenu.vue";
 import { MenuItem } from "@/components/GooeyMenu.helper";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
-import { Scheme as Scheme3D, Part as Part3D } from "@/lib/scheme";
+import { Scheme as Scheme3D, Part as Part3D, PartType } from "@/lib/scheme";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
@@ -368,7 +369,7 @@ export default defineComponent({
                         await captureSchemeScreenshot();
                         if (nonCustom) {
                             if (refOfferDlg.value) {
-                                refOfferDlg.value.doOffer(customizeSize.value);
+                                refOfferDlg.value.doOffer();
                             }
                         } else {
                             gotoEditScheme();
@@ -395,7 +396,7 @@ export default defineComponent({
             captureSchemeScreenshot();
             const scheme2d = product.value as Scheme;
             if (scheme2d.offer && refOfferDlg.value) {
-                await refOfferDlg.value.doOffer(customizeSize.value);
+                await refOfferDlg.value.doOffer();
             }
             if (scheme.value !== undefined) scheme.value.dirty = false;
             schemeDetailDirty.value = true;
@@ -695,6 +696,30 @@ export default defineComponent({
                     attachments.push(...attachmentItem.attachmentsList);
                 }
 
+                let partType = PartType.UNKNOWN;
+                switch (cat.id) {
+                    case 2:
+                        partType = PartType.SLIDE_DOOR;
+                        break;
+                    case 3:
+                        partType = PartType.HINGE_DOOR;
+                        break;
+                    case 20:
+                        partType = PartType.CUBE;
+                        break;
+                    case 24:
+                        partType = PartType.SPOT_LIGHT;
+                        break;
+                    case 25:
+                        partType = PartType.STRIP_LIGHT;
+                        break;
+                    default:
+                        partType = PartType.GENERAL;
+                        break;
+                }
+
+                if (part.id === 101) partType = PartType.VERTICAL_SCALE;
+
                 selectedPart.value = {
                     id: +part.id,
                     name: part.name,
@@ -703,6 +728,7 @@ export default defineComponent({
                     depth: part.depth,
                     manifest: marnifestUrl,
                     catId: +cat.id,
+                    partType: partType,
                     attachments,
                 };
             },

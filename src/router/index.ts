@@ -56,9 +56,9 @@ function isInWhiteList(path: string) {
 }
 
 router.beforeEach(async (to, from, next) => {
-    // if (whiteList.includes(to.path)) {
     if (isInWhiteList(to.path)) {
         next();
+        return;
     }
     const isLoggedIn = store.getters.isLoggedIn;
     if (!isLoggedIn) {

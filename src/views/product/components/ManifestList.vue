@@ -39,19 +39,14 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const store = useStore<StateType>();
         const boardList = computed(() => {
-            return props.list.filter((item) => {
-                return store.state.globalCfg?.partsCatBoard.includes(item.catid);
-            });
+            return props.list.filter((item) => item.type === "board");
         });
         const partList = computed(() => {
-            return props.list.filter(
-                (item) => item.type === "3d" && !store.state.globalCfg?.partsCatBoard.includes(item.catid),
-            );
+            return props.list.filter((item) => item.type === "part");
         });
         const attachmentList = computed(() => {
-            return props.list.filter((item) => item.type === "2d");
+            return props.list.filter((item) => item.type === "attachment");
         });
         return {
             boardList,

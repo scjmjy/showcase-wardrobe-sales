@@ -1,5 +1,5 @@
 import { IStl } from "./stl.api";
-import { Cube, Item, Manifest, PartType, Position, Size, SizeConfig } from "./scheme";
+import { Cube, Item, Manifest, PartType, Vector3, SizeConfig } from "./scheme";
 import { Area, AreaHints, CubeAreaHint } from "./model/hint";
 import { IAreaDivider, IAreaFilter } from "./spi/spi";
 import { CompositeFilter } from "./spi/filters";
@@ -38,7 +38,7 @@ export class GeneralStl implements IStl {
 
     computeMovementScope(cube: Cube, item: Item): Scope {
         // if the item type is light strip, no need to computer movement scope
-        if (item.partType == PartType.LIGHTSTRIP) {
+        if (item.partType == PartType.STRIP_LIGHT) {
             const invertalX = new Array<Interval>();
             const invertalY = new Array<Interval>();
             const invertalZ = new Array<Interval>();
@@ -87,20 +87,20 @@ export class GeneralStl implements IStl {
         //throw new Error("Error occurs!");
     }
 
-    computeAnchorMeta(area: Area, partType: number, partSize: Size): AnchorMeta {
+    computeAnchorMeta(area: Area, partType: number, partSize: Vector3): AnchorMeta {
         const pivot = this.calculateAnchor(area, partType, partSize);
         const scope = this.calculateScope(area, partType, partSize);
         return new AnchorMeta(pivot, scope);
     }
 
-    private calculateAnchor(area: Area, partType: number, partSize: Size): Position {
+    private calculateAnchor(area: Area, partType: number, partSize: Vector3): Vector3 {
         // if the part type is light, item is install under the relative item,
         // so the default position is different from general item
-        if (partType != PartType.LIGHTSTRIP) return new Position(0, area.endPoint.y - partSize.y, 0);
-        else return new Position(0, area.startPoint.y, 0);
+        if (partType == PartType.STRIP_LIGHT) return new Vector3(0, area.endPoint.y - partSize.y, 0);
+        else return new Vector3((area.startPoint.x + area.endPoint.x) / 2, area.startPoint.y, 0);
     }
 
-    private calculateScope(area: Area, partType: number, partSize: Size): Scope {
+    private calculateScope(area: Area, partType: number, partSize: Vector3): Scope {
         const invertalX = new Array<Interval>();
         const invertalY = new Array<Interval>();
         const invertalZ = new Array<Interval>();
@@ -120,7 +120,7 @@ export class GeneralStl implements IStl {
         return new Scope(invertalX, invertalY, invertalZ);
     }
 
-    computeAreaHints(manifest: Manifest, partType: number, partSize: Size): AreaHints {
+    computeAreaHints(manifest: Manifest, partType: number, partSize: Vector3): AreaHints {
         const cubeHintArray: Array<CubeAreaHint> = [];
         let total = 0;
         for (const cube of manifest.cubes) {
@@ -135,11 +135,11 @@ export class GeneralStl implements IStl {
         }
     }
 
-    private computeCubeAreaHint(cube: Cube, partType: PartType, partSize: Size): CubeAreaHint {
+    private computeCubeAreaHint(cube: Cube, partType: PartType, partSize: Vector3): CubeAreaHint {
         const hintAreas: Array<Area> = [];
         let areas: Array<Area> = [];
         // different logic for light strip area cube
-        if (partType == PartType.LIGHTSTRIP) {
+        if (partType == PartType.STRIP_LIGHT) {
             areas = this.fetchDividedLightAreas(cube, cube.items);
             for (const area of areas) {
                 if (this.computerLightArea(area, cube, partType, partSize)) hintAreas.push(area);
@@ -176,8 +176,8 @@ export class GeneralStl implements IStl {
         const config = this.config.sizeConfig;
         const cubeArea: Area = new Area(
             cube.id,
-            new Position(cube.size.x / 2 - config.cube_thick_left, config.cube_thick_bottom, cube.size.z / 2),
-            new Position(
+            new Vector3(cube.size.x / 2 - config.cube_thick_left, config.cube_thick_bottom, cube.size.z / 2),
+            new Vector3(
                 -cube.size.x / 2 + config.cube_thick_right,
                 cube.size.y - config.cube_thick_top,
                 -cube.size.z / 2 + config.cube_thick_back,
@@ -210,7 +210,7 @@ export class GeneralStl implements IStl {
         return areas;
     }
 
-    private computerLightArea(area: Area, cube: Cube, partType: PartType, partSize: Size): boolean {
+    private computerLightArea(area: Area, cube: Cube, partType: PartType, partSize: Vector3): boolean {
         // recored all shelf of frame with lights installed
         const shelfHasLights = [];
         const items = cube.items;
@@ -235,17 +235,32 @@ export class GeneralStl implements IStl {
 
     private checkItemIntersected(area: Area, item: Item): boolean {
         // no need to check light type item
-        if (item.partType == PartType.LIGHTSTRIP) return false;
+        if (item.partType == PartType.STRIP_LIGHT) return false;
         const areaStartPoint = area.startPoint;
         const areaEndPoint = area.endPoint;
-        const itemBtmY = item.location.startPos.y;
-        const itemTopY = itemBtmY + item.size.y;
+        const itemLeftX = item.getBoundingBox()[0].x;
+        const itemRightX = item.getBoundingBox()[1].x;
+        const itemBtmY = item.getBoundingBox()[0].y;
+        const itemTopY = item.getBoundingBox()[1].y;
 
-        return (
-            (itemBtmY > areaStartPoint.y && itemBtmY < areaEndPoint.y) ||
-            (itemTopY > areaStartPoint.y && itemTopY < areaEndPoint.y) ||
-            (areaStartPoint.y > itemBtmY && areaStartPoint.y < itemTopY) ||
-            (areaEndPoint.y > itemBtmY && areaEndPoint.y < itemTopY)
-        );
+        const bias_x = 0.0055;
+
+        // if(item.partType == PartType.T_FRAME)
+        if (itemLeftX - itemRightX < itemTopY - itemBtmY)
+            return (
+                areaStartPoint.x > itemLeftX &&
+                areaEndPoint.x < itemRightX &&
+                itemBtmY >= areaStartPoint.y &&
+                itemTopY <= areaEndPoint.y
+            );
+        else
+            return (
+                Math.abs(areaStartPoint.x - itemLeftX) < bias_x &&
+                Math.abs(itemRightX - areaEndPoint.x) < bias_x &&
+                ((itemBtmY > areaStartPoint.y && itemBtmY < areaEndPoint.y) ||
+                    (itemTopY > areaStartPoint.y && itemTopY < areaEndPoint.y) ||
+                    (areaStartPoint.y > itemBtmY && areaStartPoint.y < itemTopY) ||
+                    (areaEndPoint.y > itemBtmY && areaEndPoint.y < itemTopY))
+            );
     }
 }

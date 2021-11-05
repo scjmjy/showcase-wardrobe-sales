@@ -243,6 +243,7 @@ export interface PartOffer {
     area?: number;
     price: string;
     pic: string;
+    type: number;
 }
 
 export interface SchemeOffer {
@@ -262,11 +263,15 @@ export interface ManifestPart {
     pic: string;
     catid: number;
     partid: number;
-    type: "3d" | "2d"; // 配件类型（1 for 3d; 2 for 2d）
+    type: "part" | "attachment" | "board"; // 配件类型（1 for part配件; 2 for attachment附件, 3 for board板材）
 }
 
 export type SchemeManifest = ManifestPart[];
 
+export interface RequestPartId extends Partial<Size3D> {
+    pid: number;
+    count: number;
+}
 export interface VisitorRecordItem {
     no: string;
     customerName: string;
@@ -396,9 +401,9 @@ export default interface ApiProvider {
     requestScreenshotSignedUrl(schemeId: number | string): Promise<AjaxResponse<OssSignature>>;
     updateScreenshotState(schemeId: string | number, url: string): Promise<AjaxResponse<boolean>>;
 
-    requestSchemeOffer(schemeId: number | string, compositions: Array<PartCount>): Promise<AjaxResponse<SchemeOffer>>;
+    requestSchemeOffer(schemeId: number | string, compositions: RequestPartId[]): Promise<AjaxResponse<SchemeOffer>>;
     requestSchemeManifest(schemeId: number | string): Promise<AjaxResponse<SchemeManifest>>;
-    requestSchemeManifestV2(partIds: number[]): Promise<AjaxResponse<SchemeManifest>>;
+    requestSchemeManifestV2(partIds: RequestPartId[]): Promise<AjaxResponse<SchemeManifest>>;
 
     requestVisitorRecordList(
         eid: number | string,

@@ -5,31 +5,18 @@ import store from "@/store";
 export enum PartType {
     UNKNOWN = 0,
     GENERAL = 1,
-    T_FRAME = 2,
-    LIGHTSTRIP = 3,
+    HORIZONTAL_SCALE = 2,
+    VERTICAL_SCALE = 3,
+    CUBE = 4,
+    HINGE_DOOR = 5,
+    SLIDE_DOOR = 6,
+    SPOT_LIGHT = 7,
+    STRIP_LIGHT = 8,
+    T_FRAME = 9,
 }
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
-export class Position {
-    @JsonProperty({ value: "x" })
-    @JsonClassType({ type: () => [Number] })
-    x: number;
-    @JsonProperty({ value: "y" })
-    @JsonClassType({ type: () => [Number] })
-    y: number;
-    @JsonProperty({ value: "z" })
-    @JsonClassType({ type: () => [Number] })
-    z: number;
-
-    constructor(x: number, y: number, z: number) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-}
-
-@JsonInclude({ value: JsonIncludeType.NON_NULL })
-export class Size {
+export class Vector3 {
     @JsonProperty({ value: "x" })
     @JsonClassType({ type: () => [Number] })
     x: number;
@@ -56,10 +43,10 @@ export class RelativeItem {
     @JsonClassType({ type: () => [Number] })
     relativeType: number; // 1-上面 2-下面 3-里面 4-外面
     @JsonProperty({ value: "relativePosition" })
-    @JsonClassType({ type: () => [Position] })
-    relativePosition: Position; // 相对于参考基准面的中心点的位置
+    @JsonClassType({ type: () => [Vector3] })
+    relativePosition: Vector3; // 相对于参考基准面的中心点的位置
 
-    constructor(relativeItemId: string, relativeType: number, relativePosition: Position) {
+    constructor(relativeItemId: string, relativeType: number, relativePosition: Vector3) {
         this.relativeItemId = relativeItemId;
         this.relativeType = relativeType;
         this.relativePosition = relativePosition;
@@ -68,7 +55,7 @@ export class RelativeItem {
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Location {
-    static DEFAULT_LOCATION = new Location(1, new Position(0, 0, 0), null);
+    static DEFAULT_LOCATION = new Location(1, new Vector3(0, 0, 0), null);
 
     // 1 - 中间位置（抽屉、隔板、挂衣杆等）
     // 2 - 两侧位置（镜子）
@@ -82,17 +69,33 @@ export class Location {
     // locationType=4，世界坐标系的位置
 
     @JsonProperty({ value: "startPos" })
-    @JsonClassType({ type: () => [Position] })
-    startPos: Position;
+    @JsonClassType({ type: () => [Vector3] })
+    startPos: Vector3;
+
+    @JsonProperty({ value: "rotation" })
+    @JsonClassType({ type: () => [Vector3] })
+    rotation: Vector3;
+
+    @JsonProperty({ value: "scaling" })
+    @JsonClassType({ type: () => [Vector3] })
+    scaling: Vector3;
 
     // locationType=3, 相对于哪个item
     @JsonProperty({ value: "relativeItem" })
     @JsonClassType({ type: () => [RelativeItem] })
     relativeItem: RelativeItem | null;
 
-    constructor(locationType: number, startPos: Position, relativeItem: RelativeItem | null) {
+    constructor(
+        locationType: number,
+        startPos: Vector3,
+        relativeItem: RelativeItem | null,
+        rotation: Vector3 = new Vector3(0, 0, 0),
+        scaling: Vector3 = new Vector3(1, 1, 1),
+    ) {
         this.locationType = locationType;
         this.startPos = startPos;
+        this.rotation = rotation;
+        this.scaling = scaling;
         this.relativeItem = relativeItem;
     }
 }
@@ -123,8 +126,8 @@ export class SchemeObject {
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Item extends SchemeObject {
     @JsonProperty({ value: "size" })
-    @JsonClassType({ type: () => [Size] })
-    size: Size;
+    @JsonClassType({ type: () => [Vector3] })
+    size: Vector3;
     @JsonProperty({ value: "attachment" })
     @JsonClassType({ type: () => [Array, [PartCount]] })
     attachment: Array<PartCount>;
@@ -140,7 +143,7 @@ export class Item extends SchemeObject {
         partId: number,
         manifest: string,
         catId: number,
-        size: Size,
+        size: Vector3,
         attachment: Array<PartCount>,
         location: Location = Location.DEFAULT_LOCATION,
         partType: PartType = PartType.GENERAL,
@@ -151,18 +154,47 @@ export class Item extends SchemeObject {
         this.location = location;
         this.partType = partType;
     }
+
+    getBoundingBox(): Array<Vector3> {
+        const startPt = new Vector3(0, 0, 0);
+        const endPt = new Vector3(0, 0, 0);
+        if (
+            this.location.rotation.x === 0 &&
+            this.location.rotation.y === 0 &&
+            this.location.rotation.z === Math.PI * 0.5
+        ) {
+            const height = this.size.x * this.location.scaling.x;
+            startPt.x = this.location.startPos.x;
+            startPt.y = this.location.startPos.y - height * 0.5;
+            startPt.z = this.location.startPos.z + this.size.z * 0.5;
+
+            endPt.x = this.location.startPos.x - this.size.y;
+            endPt.y = this.location.startPos.y + height * 0.5;
+            endPt.z = this.location.startPos.z - this.size.z * 0.5;
+        } else {
+            startPt.x = this.location.startPos.x + this.size.x * 0.5;
+            startPt.y = this.location.startPos.y;
+            startPt.z = this.location.startPos.z + this.size.z * 0.5;
+
+            endPt.x = this.location.startPos.x - this.size.x * 0.5;
+            endPt.y = this.location.startPos.y + this.size.y;
+            endPt.z = this.location.startPos.z - this.size.z * 0.5;
+        }
+
+        return [startPt, endPt];
+    }
 }
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Cube extends SchemeObject {
     @JsonProperty({ value: "size" })
-    @JsonClassType({ type: () => [Size] })
-    size: Size;
+    @JsonClassType({ type: () => [Vector3] })
+    size: Vector3;
     @JsonProperty({ value: "items" })
     @JsonClassType({ type: () => [Array, [Item]] })
     items: Array<Item>;
 
-    constructor(id: string, partId: number, manifest: string, catId: number, size: Size, items: Array<Item> = []) {
+    constructor(id: string, partId: number, manifest: string, catId: number, size: Vector3, items: Array<Item> = []) {
         super(id, partId, manifest, catId);
         this.size = size;
         this.items = items;
@@ -187,8 +219,8 @@ export class DoorLocation {
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
 export class Door extends SchemeObject {
     @JsonProperty({ value: "size" })
-    @JsonClassType({ type: () => [Size] })
-    size: Size;
+    @JsonClassType({ type: () => [Vector3] })
+    size: Vector3;
     @JsonProperty({ value: "attachment" })
     @JsonClassType({ type: () => [Array, [PartCount]] })
     attachment: Array<PartCount>;
@@ -207,7 +239,7 @@ export class Door extends SchemeObject {
         partId: number,
         manifest: string,
         catId: number,
-        size: Size,
+        size: Vector3,
         attachment: Array<PartCount>,
         doorType: number,
         locations: Array<DoorLocation> = [],
@@ -254,10 +286,10 @@ export class PartCount {
     count: number;
 
     @JsonProperty({ value: "sizeRatio" })
-    @JsonClassType({ type: () => [Size] })
-    sizeRatio: Size | null;
+    @JsonClassType({ type: () => [Vector3] })
+    sizeRatio: Vector3 | null;
 
-    constructor(catId: number, partId: number, count: number, sizeRatio: Size | null = null) {
+    constructor(catId: number, partId: number, count: number, sizeRatio: Vector3 | null = null) {
         this.catId = catId;
         this.partId = partId;
         this.count = count;
@@ -298,7 +330,7 @@ export class Scheme {
         catId: number,
         partId: number,
         count: number,
-        sizeRatio: Size | null = null,
+        sizeRatio: Vector3 | null = null,
     ): void {
         const part = parts.find((part: { partId: number }) => part.partId === partId);
         if (part !== undefined) {
@@ -323,10 +355,10 @@ export class Scheme {
 
         // Add cube, item partCount.
         this.manifest.cubes.forEach((cube) => {
-            let sizeRatio = new Size(cube.size.x / totalWidth, cube.size.y / totalHeight, cube.size.z / totalDepth);
+            let sizeRatio = new Vector3(cube.size.x / totalWidth, cube.size.y / totalHeight, cube.size.z / totalDepth);
             this.addPart(parts, cube.catId || 0, cube.partId, 1, sizeRatio);
             cube.items.forEach((item) => {
-                sizeRatio = new Size(item.size.x / totalWidth, item.size.y / totalHeight, item.size.z / totalDepth);
+                sizeRatio = new Vector3(item.size.x / totalWidth, item.size.y / totalHeight, item.size.z / totalDepth);
                 this.addPart(parts, item.catId || 0, item.partId, 1, sizeRatio);
             });
         });
@@ -337,7 +369,11 @@ export class Scheme {
             for (let i = 0; i < door.locations.length; i++) {
                 doorNum += door.locations[i].index.length;
             }
-            const sizeRatio = new Size(door.size.x / totalWidth, door.size.y / totalHeight, door.size.z / totalDepth);
+            const sizeRatio = new Vector3(
+                door.size.x / totalWidth,
+                door.size.y / totalHeight,
+                door.size.z / totalDepth,
+            );
             this.addPart(parts, door.catId || 0, door.partId, doorNum, sizeRatio);
         });
 
@@ -415,10 +451,10 @@ export class StandardCube {
     @JsonClassType({ type: () => [Number] })
     catId: number;
     @JsonProperty({ value: "size" })
-    @JsonClassType({ type: () => [Size] })
-    size: Size;
+    @JsonClassType({ type: () => [Vector3] })
+    size: Vector3;
 
-    constructor(partId: number, manifest: string, catId: number, size: Size) {
+    constructor(partId: number, manifest: string, catId: number, size: Vector3) {
         this.partId = partId;
         this.manifest = manifest;
         this.catId = catId;
@@ -450,15 +486,16 @@ export interface Part {
     depth: number;
     manifest: string;
     catId: number;
+    partType: PartType;
     attachments: PartAttachment[];
 }
 
 export class Area {
     cubeId: string; // 单元柜uuid
-    startPoint: Position; // 开始坐标
-    endPoint: Position; // 结束坐标
+    startPoint: Vector3; // 开始坐标
+    endPoint: Vector3; // 结束坐标
 
-    constructor(cubeId: string, startPoint: Position, endPoint: Position) {
+    constructor(cubeId: string, startPoint: Vector3, endPoint: Vector3) {
         this.cubeId = cubeId;
         this.startPoint = startPoint;
         this.endPoint = endPoint;

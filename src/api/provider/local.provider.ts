@@ -16,6 +16,7 @@ import ApiProvider, {
     PartCategoryMeta,
     Product,
     ProductCategory,
+    RequestPartId,
     Scheme,
     SchemeManifest,
     SchemeOffer,
@@ -26,16 +27,16 @@ import ApiProvider, {
 
 const localVisitorRecordList: VisitorRecordItem[] = [];
 export default class LocalProvider implements ApiProvider {
-    changeSchemeSize(sid: number, size: Size3D): Promise<AjaxResponse<void>> {
+    changeSchemeSize(_sid: number, _size: Size3D): Promise<AjaxResponse<void>> {
         throw new Error("Method not implemented.");
     }
     request3DModels(): Promise<AjaxResponse<Model3DFile[]>> {
         throw new Error("Method not implemented.");
     }
-    updateScreenshotState(schemeId: string | number, url: string): Promise<AjaxResponse<boolean>> {
+    updateScreenshotState(_schemeId: string | number, _url: string): Promise<AjaxResponse<boolean>> {
         throw new Error("Method not implemented.");
     }
-    requestScreenshotSignedUrl(schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
+    requestScreenshotSignedUrl(_schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
         throw new Error("Method not implemented.");
     }
     requestPartAttachments(): Promise<AjaxResponse<PartAttachmentList>> {
@@ -44,7 +45,7 @@ export default class LocalProvider implements ApiProvider {
     login(
         username: string,
         passwd: string,
-        storeId: string | number,
+        _storeId: string | number,
         code?: string,
         uuid?: string,
     ): Promise<AjaxResponse<LoginResult>> {
@@ -278,11 +279,11 @@ export default class LocalProvider implements ApiProvider {
             ],
         });
     }
-    requestProducts(cid: string | number, page = 1, pageSize = 20): Promise<AjaxResponse<Product[]>> {
+    requestProducts(cid: string | number, _page = 1, _pageSize = 20): Promise<AjaxResponse<Product[]>> {
         return Promise.resolve({
             status: 200,
             ok: true,
-            data: new Array(10).fill(0).map((val, index) => {
+            data: new Array(10).fill(0).map((_val, index) => {
                 return {
                     id: index,
                     name: cid + "-商品-" + index,
@@ -330,25 +331,25 @@ export default class LocalProvider implements ApiProvider {
         });
     }
 
-    createCustomer(name: string, phone?: string): Promise<AjaxResponse<string>> {
+    createCustomer(_name: string, _phone?: string): Promise<AjaxResponse<string>> {
         throw new Error("Method not implemented.");
     }
-    requestCustomerList(eid: string | number, page?: number, pageSize?: number): Promise<AjaxResponse<Customer[]>> {
+    requestCustomerList(_eid: string | number, _page?: number, _pageSize?: number): Promise<AjaxResponse<Customer[]>> {
         throw new Error("Method not implemented.");
     }
-    createNewService(eid: string | number, cid: string | number): Promise<AjaxResponse<Service>> {
+    createNewService(_eid: string | number, _cid: string | number): Promise<AjaxResponse<Service>> {
         throw new Error("Method not implemented.");
     }
-    requestServices(cid: string | number, page: number, pageSize: number): Promise<AjaxResponse<Service[]>> {
+    requestServices(_cid: string | number, _page: number, _pageSize: number): Promise<AjaxResponse<Service[]>> {
         throw new Error("Method not implemented.");
     }
-    requestSchemes(svcid: number, page = 1, pageSize = 1): Promise<AjaxResponse<Scheme[]>> {
+    requestSchemes(svcid: number, _page = 1, _pageSize = 1): Promise<AjaxResponse<Scheme[]>> {
         const mockDate = ["2021-08-10 14:00:00", "2021-08-11 14:00:00", "2021-08-12 14:00:00"];
         const mockOffer = ["13999", "", "1500", "", "14000"];
         return Promise.resolve({
             status: 200,
             ok: true,
-            data: new Array(10).fill(0).map((val, index) => {
+            data: new Array(10).fill(0).map((_val, index) => {
                 return {
                     id: index,
                     name: svcid + "-方案-" + index,
@@ -415,51 +416,51 @@ export default class LocalProvider implements ApiProvider {
         });
     }
     createNewScheme(
-        name: string,
-        svcid: number | undefined,
-        eid: string | number,
-        cid: string | number,
-        pid?: string | number,
-        sid?: string | number,
+        _name: string,
+        _svcid: number | undefined,
+        _eid: string | number,
+        _cid: string | number,
+        _pid?: string | number,
+        _sid?: string | number,
     ): Promise<AjaxResponse<CreateSchemeResult>> {
         throw new Error("Method not implemented.");
     }
     requestPartCategories(): Promise<AjaxResponse<PartCategory[]>> {
         throw new Error("Method not implemented.");
     }
-    requestPartCatMeta(cid: string | number): Promise<AjaxResponse<PartCategoryMeta>> {
+    requestPartCatMeta(_cid: string | number): Promise<AjaxResponse<PartCategoryMeta>> {
         throw new Error("Method not implemented.");
     }
     requestParts(
-        ptcid: string | number,
-        page: number,
-        pageSize: number,
-        ptbid?: string | number,
-        cid?: string | number,
-        mid?: string | number,
+        _ptcid: string | number,
+        _page: number,
+        _pageSize: number,
+        _ptbid?: string | number,
+        _cid?: string | number,
+        _mid?: string | number,
     ): Promise<AjaxResponse<Part[]>> {
         throw new Error("Method not implemented.");
     }
-    requestBackgrounds(btype: BackgroundType, page: number, pageSize: number): Promise<AjaxResponse<Background[]>> {
+    requestBackgrounds(_btype: BackgroundType, _page: number, _pageSize: number): Promise<AjaxResponse<Background[]>> {
         throw new Error("Method not implemented.");
     }
-    requestSignedUrl(schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
+    requestSignedUrl(_schemeId: string | number): Promise<AjaxResponse<OssSignature>> {
         throw new Error("Method not implemented.");
     }
-    updateSchemeState(schemeId: string | number): Promise<AjaxResponse<boolean>> {
+    updateSchemeState(_schemeId: string | number): Promise<AjaxResponse<boolean>> {
         throw new Error("Method not implemented.");
     }
-    requestSchemeOffer(schemeId: string | number, compositions: Array<PartCount>): Promise<AjaxResponse<SchemeOffer>> {
+    requestSchemeOffer(_schemeId: string | number, _compositions: RequestPartId[]): Promise<AjaxResponse<SchemeOffer>> {
         throw new Error("Method not implemented.");
     }
-    requestSchemeManifest(schemeId: string | number): Promise<AjaxResponse<SchemeManifest>> {
+    requestSchemeManifest(_schemeId: string | number): Promise<AjaxResponse<SchemeManifest>> {
         throw new Error("Method not implemented.");
     }
-    requestSchemeManifestV2(partIds: number[]): Promise<AjaxResponse<SchemeManifest>> {
+    requestSchemeManifestV2(_partIds: RequestPartId[]): Promise<AjaxResponse<SchemeManifest>> {
         throw new Error("Method not implemented.");
     }
     requestVisitorRecordList(
-        eid: string | number,
+        _eid: string | number,
         pageNum: number,
         pageSize: number,
     ): Promise<AjaxResponse<VisitorRecordItem[]>> {
@@ -518,7 +519,7 @@ export default class LocalProvider implements ApiProvider {
         return Promise.resolve({
             ok: true,
             status: 200,
-            data: new Array(10).fill(0).map((val, index) => ({
+            data: new Array(10).fill(0).map((_val, index) => ({
                 id: index,
                 name: "门店-" + index,
             })),

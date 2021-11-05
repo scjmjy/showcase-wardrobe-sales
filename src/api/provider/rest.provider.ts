@@ -16,6 +16,7 @@ import {
     PartCategoryMeta,
     Product,
     ProductCategory,
+    RequestPartId,
     Scheme,
     SchemeManifest,
     SchemeOffer,
@@ -125,16 +126,16 @@ export default class RestProvider extends LocalProvider {
             })
                 .then((res) => {
                     // TODO
-                    const data: PartAttachmentList = res.data || [];
-                    for (const item of data) {
-                        for (const item2 of item.attachmentsList) {
-                            item2.ptcid = 15;
-                        }
-                    }
+                    // const data: PartAttachmentList = res.data || [];
+                    // for (const item of data) {
+                    //     for (const item2 of item.attachmentsList) {
+                    //         item2.ptcid = 15;
+                    //     }
+                    // }
                     resolve({
                         ok: true,
                         status: res.status,
-                        data,
+                        data: res.data || [],
                     });
                 })
                 .catch(() => {
@@ -709,18 +710,14 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
-    requestSchemeOffer(schemeId: string | number, compositions: Array<PartCount>): Promise<AjaxResponse<SchemeOffer>> {
-        const c = compositions.map((part) => ({
-            pid: part.partId,
-            count: part.count,
-        }));
+    requestSchemeOffer(schemeId: string | number, compositions: RequestPartId[]): Promise<AjaxResponse<SchemeOffer>> {
         return new Promise((resolve) => {
             request({
                 method: "POST",
                 url: `/api/v1/biz/scheme/offer`,
                 data: {
                     sid: schemeId,
-                    compositions: c,
+                    compositions,
                 },
             })
                 .then((res) => {
@@ -749,7 +746,7 @@ export default class RestProvider extends LocalProvider {
                 .then((res) => {
                     const data = res.data || [];
                     for (const item of data) {
-                        item.type = item.type === 2 ? "2d" : "3d";
+                        item.type = item.type === 2 ? "attachment" : "part";
                         item.count = +item.count || 0;
                     }
                     resolve({
@@ -768,7 +765,7 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
-    requestSchemeManifestV2(partIds: number[]): Promise<AjaxResponse<SchemeManifest>> {
+    requestSchemeManifestV2(partIds: RequestPartId[]): Promise<AjaxResponse<SchemeManifest>> {
         return new Promise((resolve) => {
             request({
                 method: "POST",
@@ -780,7 +777,20 @@ export default class RestProvider extends LocalProvider {
                 .then((res) => {
                     const data = res.data || [];
                     for (const item of data) {
-                        item.type = item.type === 2 ? "2d" : "3d";
+                        switch (item.type) {
+                            case 1:
+                                item.type = "part";
+                                break;
+                            case 2:
+                                item.type = "attachment";
+                                break;
+                            case 3:
+                                item.type = "board";
+                                break;
+
+                            default:
+                                break;
+                        }
                         item.count = +item.count || 0;
                     }
                     resolve({
@@ -802,7 +812,7 @@ export default class RestProvider extends LocalProvider {
     requestVisitorRecordList(
         eid: string | number,
         pageNum: number,
-        pageSize: number,
+        _pageSize: number,
     ): Promise<AjaxResponse<VisitorRecordItem[]>> {
         return new Promise((resolve) => {
             request({

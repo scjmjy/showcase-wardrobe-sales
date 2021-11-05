@@ -3,11 +3,15 @@ import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
 import { BizData, ObjectType } from "@/lib/biz.data";
+import { Cube } from "@/lib/scheme";
+
+import Babylon from "@/components/Babylon/Babylon.vue";
+type RefBabylon = InstanceType<typeof Babylon>;
 
 export class PopupGUI {
     public rulerDisplayed = false;
     private _popupUI!: GUI.AdvancedDynamicTexture;
-    private _popupPanel!: GUI.Container;
+    private _switchCubePanel!: GUI.Rectangle[];
     private _deletePanel: BABYLON.Nullable<GUI.Rectangle> = null;
     private _deleteButton!: GUI.Button;
 
@@ -31,6 +35,10 @@ export class PopupGUI {
     private _rulerTextHeight!: GUI.TextBlock;
     private _rulerTextDepth!: GUI.TextBlock;
     private _rulerTextWidth!: GUI.TextBlock;
+
+    constructor() {
+        this._switchCubePanel = new Array<GUI.Rectangle>();
+    }
 
     public loading(graphics: Graphics) {
         // GUI
@@ -104,13 +112,7 @@ export class PopupGUI {
         }
     }
 
-    private displayPanel(
-        graphics: Graphics,
-        bizdata: BizData,
-        mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
-        min: number,
-        max: number,
-    ): void {
+    display(babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min = -1, max = -1): void {
         //  hide GUI when click empty area
         if (mesh == null) {
             if (this._deletePanel) {
@@ -121,11 +123,16 @@ export class PopupGUI {
                 this._sliderPanel.dispose();
                 this._sliderPanel = null;
             }
+            if (this._switchCubePanel) {
+                for (let i = 0; i < this._switchCubePanel.length; i++) {
+                    this._switchCubePanel[i].dispose();
+                }
+            }
             return;
         }
 
         if (this._popupUI == null) {
-            this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, graphics.scene);
+            this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, babylonRef.graphics.scene);
         }
 
         // clear previous silder panel to avoid adjust previous mesh
@@ -178,9 +185,9 @@ export class PopupGUI {
                     mesh.position.y = value;
                     const info = mesh.name.split("_");
                     const itemId = info[1];
-                    const item = bizdata.findItemById(itemId);
+                    const item = babylonRef.bizdata.findItemById(itemId);
                     if (item !== undefined) {
-                        bizdata.moveItem(item, value);
+                        babylonRef.bizdata.moveItem(item, value);
                     }
                 }
                 header.text = " " + value.toFixed(2) + " \u7c73";
@@ -218,7 +225,7 @@ export class PopupGUI {
             this._deleteButton.onPointerUpObservable.add(() => {
                 if (mesh != null) {
                     // hide the popup ui.
-                    this.displayPanel(graphics, bizdata, null, -1, -1);
+                    this.display(babylonRef, null, -1, -1);
                     this._deleteButton.isVisible = false;
 
                     const info = mesh.name.split("_");
@@ -227,24 +234,93 @@ export class PopupGUI {
                     mesh.dispose();
                     switch (objectType) {
                         case ObjectType.CUBE:
-                            bizdata.removeCube(objectID);
+                            babylonRef.bizdata.removeCube(objectID);
                             break;
                         case ObjectType.ITEM:
-                            bizdata.removeItem(objectID);
+                            babylonRef.bizdata.removeItem(objectID);
                             break;
                         case ObjectType.DOOR:
                             {
                                 const doorIndex = parseInt(info[2]);
-                                bizdata.removeDoor(objectID, doorIndex);
+                                babylonRef.bizdata.removeDoor(objectID, doorIndex);
                             }
                             break;
                     }
                     mesh = null;
-                    graphics.currentMesh = null;
+                    babylonRef.graphics.currentMesh = null;
                 }
             });
             this._deletePanel.linkWithMesh(mesh);
         }
+
+        this.showSwitchCubePanel(babylonRef, mesh);
+    }
+
+    private showSwitchCubePanel(babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
+        // clear previous switch cube panel first
+        if (this._switchCubePanel) {
+            for (let i = 0; i < this._switchCubePanel.length; i++) {
+                this._switchCubePanel[i].dispose();
+            }
+
+            this._switchCubePanel = [];
+        }
+
+        if (mesh === null) return;
+
+        const info = mesh.name.split("_");
+        const objectType = info[0];
+        if (objectType !== ObjectType.CUBE) return;
+
+        const bizdata = babylonRef.bizdata as BizData;
+        const graphics = babylonRef.graphics as Graphics;
+
+        bizdata.scheme.manifest.cubes.forEach((cube: Cube) => {
+            const meshName = ObjectType.CUBE + "_" + cube.id;
+            const cubeMesh = graphics.getMeshByName(meshName);
+            if (meshName !== mesh.name && cubeMesh !== null) {
+                const switchCube = new GUI.Rectangle();
+                switchCube.width = "48px";
+                switchCube.height = "48px";
+                switchCube.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+                switchCube.cornerRadius = 5;
+                switchCube.background = "white";
+                this._popupUI.addControl(switchCube);
+                const switchCubeButton = GUI.Button.CreateImageOnlyButton(
+                    "switchCubeButton",
+                    "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/res/3DGestureHint.png",
+                );
+                switchCubeButton.width = "46px";
+                switchCubeButton.height = "46px";
+                switchCubeButton.thickness = 0;
+                switchCube.addControl(switchCubeButton);
+                switchCubeButton.onPointerUpObservable.add(() => {
+                    const selectedCubeId = info[1];
+                    const selectedCube = bizdata.findCubeById(selectedCubeId);
+                    if (selectedCube !== undefined) {
+                        const exchangedCubeIndex = bizdata.findCubeIndexById(cube.id);
+                        const selectedCubeIndex = bizdata.findCubeIndexById(selectedCubeId);
+
+                        // Add the selected cube to the index of exchanged cube.
+                        bizdata.scheme.manifest.cubes.splice(exchangedCubeIndex, 0, selectedCube);
+                        // Delete the exchanged cube.
+                        bizdata.scheme.manifest.cubes.splice(exchangedCubeIndex + 1, 1);
+
+                        // Add the selected cube to the index of exchanged cube.
+                        bizdata.scheme.manifest.cubes.splice(selectedCubeIndex, 0, cube);
+                        // Delete the exchanged cube.
+                        bizdata.scheme.manifest.cubes.splice(selectedCubeIndex + 1, 1);
+
+                        babylonRef.reloadScheme(1);
+                    }
+                });
+
+                switchCube.linkWithMesh(cubeMesh);
+                switchCube.linkOffsetY = 50;
+
+                this._switchCubePanel.push(switchCube);
+            }
+        });
     }
 
     private drawRuler(
@@ -253,14 +329,13 @@ export class PopupGUI {
         center: BABYLON.Vector3,
         direction: BABYLON.Vector3,
         title = "",
-        size: number = 0,
+        size = 0,
     ): void {
         const distance = 0.1;
         const heightValue = 1 * 0.054;
         const halfHeightValue = heightValue * 0.15;
         const widthValue = 0.2 * 0.054;
         const endPointLength = 0.5 * 0.054;
-
         const frameRulerTop = BABYLON.MeshBuilder.CreateCylinder(
             "cylinder_up",
             { diameterTop: 0, height: heightValue, diameterBottom: endPointLength, tessellation: 16 },
@@ -398,23 +473,13 @@ export class PopupGUI {
         frameRulerDown.material = frameRulerMat;
     }
 
-    public display(
-        graphics: Graphics,
-        bizdata: BizData,
-        pickedMesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
-        min: number = -1,
-        max: number = -1,
-    ) {
-        this.displayPanel(graphics, bizdata, pickedMesh, min, max);
-    }
-
     public showRuler(
         graphics: Graphics,
         bizdata: BizData,
         isDisplay: boolean,
-        sizeHeight: number = 0,
-        sizeWidth: number = 0,
-        sizeDepth: number = 0,
+        sizeHeight = 0,
+        sizeWidth = 0,
+        sizeDepth = 0,
     ) {
         this.rulerDisplayed = isDisplay;
 

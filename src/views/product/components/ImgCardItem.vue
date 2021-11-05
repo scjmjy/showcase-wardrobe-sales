@@ -41,15 +41,19 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+@use "sass:math";
+$margin: 3%;
+$width: math.div(100% - $margin * 4, 2);
 .img-card-item {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     vertical-align: top;
-    margin: 10px;
+    margin: $margin;
+    width: $width;
     &__img {
-        width: 80px;
-        height: 80px;
+        width: 100%;
+        height: 100%;
         box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
         border-radius: 10px;
         overflow: hidden;
