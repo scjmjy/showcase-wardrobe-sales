@@ -78,7 +78,7 @@ export default defineComponent({
     &__name {
         font-size: 18px;
         font-weight: bold;
-        color: #196bffff;
+        color: var(--el-text-color-secondary);
     }
     &__count {
         font-size: 16px;
@@ -94,7 +94,7 @@ export default defineComponent({
             cursor: pointer;
             border-radius: 50%;
             padding: 5px;
-            background-color: #196bffff;
+            background-color: var(--el-text-color-secondary);
             color: white;
             font-weight: bolder;
         }
