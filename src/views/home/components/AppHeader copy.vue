@@ -1,35 +1,32 @@
 <template>
     <div class="app-header" :style="headerStyle">
-        <el-button
-            v-if="back"
-            class="app-header__left app-header__back"
-            type="text"
-            icon="el-icon-arrow-left"
-            round
-            @click="doBack"
-            >{{ back }}</el-button
-        >
-        <div v-if="!back" class="app-header__middle">
+        <div class="app-header__left">
             <template v-if="customer && currentCustomer.customerId">
                 <i class="app-header__icon iconfont icon-customer" />
                 <span class="app-header__serving"
-                    >正在接待 <strong>{{ currentCustomer.customerName }}</strong>
-                </span>
-                <el-button v-if="stop" class="app-header__stop" type="danger" size="small" round @click="stopServe"
-                    >结束接待</el-button
+                    >正在为 <strong>{{ currentCustomer.customerName }}</strong> 服务</span
                 >
+                <!-- <el-tag class="app-header__stop" type="error" color="#BB4050">结束服务</el-tag> -->
+                <el-button v-if="stop" class="app-header__stop" type="danger" size="small" round @click="stopServe"
+                    >结束服务</el-button
+                >
+                <el-button v-if="back" class="app-header__back" type="warning" size="small" round @click="doBack">{{
+                    back
+                }}</el-button>
             </template>
             <template v-else>
-                <i v-if="titleIcon" class="app-header__icon iconfont" :class="titleIcon" />
-                <span class="app-header__label">{{ title }}</span>
-                <span v-if="subTitle" class="app-header__subLabel">{{ subTitle }}</span>
+                <i class="app-header__icon iconfont icon-wardrobe" />
+                <span class="app-header__label">弘木橱柜定制系统</span>
+                <el-button v-if="back" class="app-header__back" type="danger" size="small" round @click="doBack">{{
+                    back
+                }}</el-button>
             </template>
         </div>
         <div class="app-header__right">
-            <!-- <el-image class="app-header__avatar u-circle" src="https://picsum.photos/200" circle fit="contain" /> -->
-            <span class="app-header__username" @click="onUsernameClick"> {{ user.userName }} </span>
-            <!-- <el-tag class="app-header__job" type="primary" color="#D6CCBA">{{ user.rank }}</el-tag> -->
-            <el-divider direction="vertical" style="margin-left: 2px"></el-divider>
+            <el-image class="app-header__avatar u-circle" src="https://picsum.photos/200" circle fit="contain" />
+            <span class="app-header__username"> {{ user.userName }} </span>
+            <el-tag class="app-header__job" type="primary" color="#5EB6B366">店长助理</el-tag>
+            <el-divider direction="vertical"></el-divider>
             <el-button class="app-header__logout" type="text" @click="logout"> 退出 </el-button>
         </div>
     </div>
@@ -58,44 +55,23 @@ export default defineComponent({
         },
         back: {
             type: String,
-            default: "返回", //
-        },
-        icon: {
-            type: String,
-            default: "wardrobe",
-        },
-        title: {
-            type: String,
-            default: "弘木橱柜定制系统",
-        },
-        subTitle: {
-            type: String,
-            default: "",
+            default: "", // dark
         },
     },
     setup(props) {
         const store = useStore();
         const router = useRouter();
         const headerStyle = computed(() => ({
-            color: props.type === "light" ? variables.colorBgDark : "white",
-            "background-color": props.type === "light" ? "#ffffffbd" : variables.colorBgDark,
+            color: props.type === "light" ? variables.colorPrimary : "white",
+            "background-color": props.type === "light" ? "#ffffffbd" : variables.colorPrimary,
         }));
         return {
             user: computed(() => store.state.user),
             currentCustomer: computed(() => store.state.currentCustomer),
             headerStyle,
-            titleIcon: computed(() => (props.icon ? "icon-" + props.icon : "")),
             stopServe() {
                 store.commit("SWITCH-CUSTOMER", undefined);
                 router.push("/");
-            },
-            onUsernameClick() {
-                router.push({
-                    path: "/",
-                    query: {
-                        tab: "my",
-                    },
-                });
             },
             logout() {
                 store.dispatch("logout").then(() => {
@@ -116,30 +92,15 @@ export default defineComponent({
     display: flex;
     justify-content: space-between;
     align-items: center;
-    z-index: 100;
+
     width: 100%;
     height: 70px;
-    padding: 0px 40px 0px 20px;
+    padding: 0 40px;
     position: absolute;
     top: 0;
     left: 0;
 
-    &__left,
-    &__right,
-    &__middle {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    &__left {
-        margin-right: 100px;
-    }
-
-    &__back {
-        font-size: 26px;
-        color: inherit !important;
-        padding-left: 0px !important;
-    }
+    // background-color: #ffffffbd;
 
     &__icon {
         font-size: 34px;
@@ -149,13 +110,17 @@ export default defineComponent({
         margin-left: 12px;
         font-size: 26px;
         strong {
-            // font-size: 30px;
+            font-size: 30px;
             font-weight: bold;
         }
     }
     &__stop {
-        margin-left: 20px;
+        margin-left: 30px;
         width: 118px !important;
+    }
+    &__back {
+        margin-left: 30px;
+        min-width: 118px !important;
     }
     &__label {
         margin-left: 12px;
@@ -163,8 +128,12 @@ export default defineComponent({
         font-size: 26px;
         font-weight: bold;
     }
-    &__subLabel {
-        font-size: 24px;
+
+    &__left,
+    &__right {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     &__avatar {
@@ -172,27 +141,18 @@ export default defineComponent({
         height: 40px;
     }
     &__username {
-        cursor: pointer;
-        padding: 0 7px;
-        font-size: 26px;
-        color: white;
-        border-radius: 6px;
-        &:hover {
-            background-color: var(--el-color-primary-light-2);
-        }
+        margin-left: 7px;
+        font-size: 22px;
+        color: #222222;
     }
     &__job {
         margin-left: 11px;
         margin-right: 14px;
         color: inherit !important;
-        border-radius: 5px;
     }
     &__logout {
-        // margin-left: 14px;
-        // color: inherit !important;
-        // color: white !important;
-        font-size: 26px;
-        line-height: unset;
+        margin-left: 14px;
+        color: inherit !important;
     }
 }
 </style>
