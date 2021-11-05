@@ -111,7 +111,7 @@ import * as util from "@/lib/scheme.util";
 import GooeyMenu from "@/components/GooeyMenu.vue";
 import { MenuItem } from "@/components/GooeyMenu.helper";
 import { Event, EventType, ObjectSelectedEvent, ObjectUnselectedEvent } from "@/lib/biz.event";
-import { Scheme as Scheme3D, Part as Part3D } from "@/lib/scheme";
+import { Scheme as Scheme3D, Part as Part3D, PartType } from "@/lib/scheme";
 import CustomizeDlg from "./components/CustomizeDlg.vue";
 import OfferDlg from "./components/OfferDlg.vue";
 import MetalsDlg from "./components/MetalsDlg.vue";
@@ -695,6 +695,28 @@ export default defineComponent({
                     attachments.push(...attachmentItem.attachmentsList);
                 }
 
+                let partType = PartType.UNKNOWN;
+                switch (cat.id) {
+                    case 2:
+                        partType = PartType.SLIDE_DOOR;
+                        break;
+                    case 3:
+                        partType = PartType.HINGE_DOOR;
+                        break;
+                    case 20:
+                        partType = PartType.CUBE;
+                        break;
+                    case 24:
+                        partType = PartType.SPOT_LIGHT;
+                        break;
+                    case 25:
+                        partType = PartType.STRIP_LIGHT;
+                        break;
+                    default:
+                        partType = PartType.GENERAL;
+                        break;
+                }
+
                 selectedPart.value = {
                     id: +part.id,
                     name: part.name,
@@ -703,6 +725,7 @@ export default defineComponent({
                     depth: part.depth,
                     manifest: marnifestUrl,
                     catId: +cat.id,
+                    partType: partType,
                     attachments,
                 };
             },

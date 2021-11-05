@@ -8,7 +8,7 @@
 import { defineComponent, PropType } from "vue";
 import * as BABYLON from "babylonjs";
 import { Graphics, GraphicsEvent } from "@/lib/graphics";
-import { Scheme, Cube, Item, Door, Part, PartCount, Location, Vector3, SizeConfig } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, Part, PartType, PartCount, Location, Vector3, SizeConfig } from "@/lib/scheme";
 import { BizData, ObjectType } from "@/lib/biz.data";
 import { v4 as uuidv4 } from "uuid";
 import request from "@/utils/request";
@@ -118,10 +118,12 @@ export default defineComponent({
                         switch (objectType) {
                             case ObjectType.CUBE:
                                 {
-                                    // TODO: remove the hardcode of adjusting whether it is a cube or door.
-                                    if (newPart.catId === 20) {
+                                    if (newPart.partType === PartType.CUBE) {
                                         this.changeCubeApi(objectId, newPart);
-                                    } else if (newPart.catId === 2 || newPart.catId === 3) {
+                                    } else if (
+                                        newPart.partType === PartType.HINGE_DOOR ||
+                                        newPart.partType === PartType.SLIDE_DOOR
+                                    ) {
                                         const doors = this.bizdata.findDoorsByCubeId(objectId);
                                         doors.forEach((door) => {
                                             this.removeDoorApi(door);
@@ -131,7 +133,7 @@ export default defineComponent({
                                         const doorId = uuidv4();
                                         const size = new Vector3(newPart.width, newPart.height, newPart.depth);
                                         let doorType = 1;
-                                        if (newPart.catId === 2) doorType = 2;
+                                        if (newPart.partType === PartType.SLIDE_DOOR) doorType = 2;
 
                                         const cube = this.bizdata.findCubeById(objectId);
                                         if (cube !== undefined) {
@@ -187,13 +189,15 @@ export default defineComponent({
                                 break;
                         }
                     } else {
-                        // TODO: remove the hardcode of adjusting whether it is a cube or door.
-                        if (newPart.catId === 20) {
+                        if (newPart.partType === PartType.CUBE) {
                             // TODO: remove the function of adding new cube.
                             // this.ShowCubeAddArea(newPart);
                             // Change all cubes if no cube is selected.
                             this.changeAllCubes(newPart);
-                        } else if (newPart.catId === 2 || newPart.catId === 3) {
+                        } else if (
+                            newPart.partType === PartType.HINGE_DOOR ||
+                            newPart.partType === PartType.SLIDE_DOOR
+                        ) {
                             this.changeAllDoors(newPart);
                         } else {
                             this.areaHints = this.stl.computeAreaHints(
@@ -1070,7 +1074,8 @@ export default defineComponent({
                                                             const itemName = ObjectType.ITEM + "_" + item.id;
 
                                                             let isEmissive = false;
-                                                            if (item.catId === 25) isEmissive = true;
+                                                            if (item.partType === PartType.STRIP_LIGHT)
+                                                                isEmissive = true;
                                                             this.importMesh(
                                                                 model.url,
                                                                 itemName,
@@ -1093,7 +1098,7 @@ export default defineComponent({
                                                             });
                                                         });
 
-                                                        if (item.catId === 24) {
+                                                        if (item.partType === PartType.SPOT_LIGHT) {
                                                             const info = item.id.split("_");
                                                             this.addSpotlight(info[1], item.size.x, itemOrigin);
                                                         }
@@ -1358,9 +1363,8 @@ export default defineComponent({
                                                     size,
                                                 );
 
-                                                const catId = this.newPart.catId;
                                                 let isEmissive = false;
-                                                if (catId === 25) isEmissive = true;
+                                                if (this.newPart.partType === PartType.STRIP_LIGHT) isEmissive = true;
 
                                                 const itemName = ObjectType.ITEM + "_" + itemId;
 
@@ -1432,7 +1436,7 @@ export default defineComponent({
                                                 });
 
                                                 // Add spot light.
-                                                if (catId === 24) {
+                                                if (this.newPart.partType === PartType.SPOT_LIGHT) {
                                                     itemId += "_" + this.newPart.name;
                                                     this.addSpotlight(
                                                         this.newPart.name,
@@ -1453,10 +1457,11 @@ export default defineComponent({
                                                     itemId,
                                                     partId,
                                                     manifest,
-                                                    catId,
+                                                    this.newPart.catId,
                                                     size,
                                                     attachment,
                                                     location,
+                                                    this.newPart.partType,
                                                 );
 
                                                 this.bizdata.addItem(newItem, cubeId);

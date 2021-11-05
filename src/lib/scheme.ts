@@ -5,8 +5,14 @@ import store from "@/store";
 export enum PartType {
     UNKNOWN = 0,
     GENERAL = 1,
-    T_FRAME = 2,
-    LIGHTSTRIP = 3,
+    HORIZONTAL_SCALE = 2,
+    VERTICAL_SCALE = 3,
+    CUBE = 4,
+    HINGE_DOOR = 5,
+    SLIDE_DOOR = 6,
+    SPOT_LIGHT = 7,
+    STRIP_LIGHT = 8,
+    T_FRAME = 9,
 }
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })
@@ -480,6 +486,7 @@ export interface Part {
     depth: number;
     manifest: string;
     catId: number;
+    partType: PartType;
     attachments: PartAttachment[];
 }
 
