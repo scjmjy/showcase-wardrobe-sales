@@ -2,7 +2,7 @@
     <div
         v-if="product"
         class="product-detail"
-        :class="{ 'slide-left-3d': showMenu || (mode === 'view' && !collapseInfoMenu) }"
+        :class="{ 'slide-left-3d': showMenu || (mode === 'view' && !collapseInfoMenu), 'slide-right-3d': openTreeList }"
     >
         <transition name="el-zoom-in-top">
             <app-header v-if="mode === 'view'" type="dark" :stop="false" icon="" />
@@ -21,11 +21,23 @@
             :schemeType="scheme3DType"
             :baseOSSUrl="baseUrl"
         />
+        <template v-if="mode === 'edit'">
+            <hamburger v-model="openTreeList" class="product-detail__back" />
+            <div class="product-detail__action-left state-icon-group-h">
+                <state-icon v-model="stateInOut" :states="inOutStates" @change="onInOutChange"></state-icon>
+            </div>
+            <gooey-menu v-model="gooeyMenuOpened" class="product-detail__gooeyMenu" :items="gooeyMenuItems" />
+        </template>
+        <part-tree-view
+            v-if="mode === 'edit'"
+            class="product-detail__tree"
+            :class="{ 'left-collapse': !openTreeList }"
+        />
         <product-info-menu
             v-if="mode === 'view'"
             v-model:collapse="collapseInfoMenu"
             class="product-detail__info"
-            :class="{ collapse: collapseInfoMenu }"
+            :class="{ 'right-collapse': collapseInfoMenu }"
             :product="product"
             :creatingScheme="creatingScheme"
             :prepareContinue="prepareContinue"
@@ -39,28 +51,18 @@
             @offer="onPartsMenuAction('offer')"
             @order="orderNonCustomProduct"
         />
-        <template v-if="mode === 'edit'">
-            <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
-                >返回</el-button
-            >
-            <div class="product-detail__action-left state-icon-group-h">
-                <state-icon v-model="stateInOut" :states="inOutStates" @change="onInOutChange"></state-icon>
-            </div>
-            <gooey-menu v-model="gooeyMenuOpened" class="product-detail__gooeyMenu" :items="gooeyMenuItems" />
-
-            <parts-menu
-                ref="refPartsMenu"
-                v-show="mode === 'edit'"
-                v-model:opened="showMenu"
-                class="product-detail__menu2d"
-                :class="{ collapse: !showMenu }"
-                :type="stateInOut"
-                :completeDisabled="completeDisabled"
-                @action="onPartsMenuAction"
-                @part="onPartSelect"
-                @attachment-replacement="onAttachmentChange"
-            ></parts-menu>
-        </template>
+        <parts-menu
+            ref="refPartsMenu"
+            v-if="mode === 'edit'"
+            v-model:opened="showMenu"
+            class="product-detail__menu2d"
+            :class="{ 'right-collapse': !showMenu }"
+            :type="stateInOut"
+            :completeDisabled="completeDisabled"
+            @action="onPartsMenuAction"
+            @part="onPartSelect"
+            @attachment-replacement="onAttachmentChange"
+        ></parts-menu>
         <template v-if="mode === 'view'">
             <div class="product-detail__action-left state-icon-group-h">
                 <state-icon v-model="stateOpenClose" :states="openCloseStates" @change="onOpenCloseChange"></state-icon>
@@ -129,6 +131,8 @@ import {
     OpenCloseState,
 } from "./helpers";
 import { Size3D } from "@/api/interface/common.interface";
+import Hamburger from "@/components/Hamburger.vue";
+import PartTreeView from "./components/PartTreeView.vue";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -140,7 +144,9 @@ export default defineComponent({
         Babylon,
         PartsMenu,
         GooeyMenu,
+        PartTreeView,
         ProductInfoMenu,
+        Hamburger,
     },
     setup() {
         const route = useRoute();
@@ -149,6 +155,7 @@ export default defineComponent({
 
         const ready = ref(false);
         const mode = ref<"view" | "edit" | "">("view");
+        const openTreeList = ref(false);
         let svcId = +(route.query.svc || 0);
 
         const productDetailData = store.state.pageChannel.productDetailData;
@@ -497,6 +504,7 @@ export default defineComponent({
             }
         }
         return {
+            openTreeList,
             ready,
             gooeyMenuItems,
             gooeyMenuOpened,
@@ -739,6 +747,8 @@ export default defineComponent({
 
 <style scoped lang="scss">
 $menu-width: 25%;
+$left-action: 60px;
+$left-gooey: 140px;
 .product-detail {
     position: relative;
     display: flex;
@@ -747,6 +757,7 @@ $menu-width: 25%;
     width: 100%;
     height: 100%;
     overflow: hidden;
+    transition: left 0.3s ease-in-out;
     &__3d {
         flex: 1;
         height: 100%;
@@ -761,6 +772,7 @@ $menu-width: 25%;
         top: 10px;
         font-size: 26px;
         color: black !important;
+        transition: left 0.3s ease;
     }
     &__menu2d {
         position: absolute;
@@ -769,6 +781,17 @@ $menu-width: 25%;
         right: 0;
         white-space: nowrap;
         transition: right 0.3s ease;
+        width: $menu-width;
+    }
+    &__tree {
+        transition: left 0.3s ease;
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        white-space: nowrap;
+        background-color: white;
+
         width: $menu-width;
     }
     &__info {
@@ -784,39 +807,59 @@ $menu-width: 25%;
     }
     &__action-left {
         position: absolute;
-        left: 60px;
+        left: $left-action;
         bottom: 30px;
+        transition: left 0.3s ease;
     }
     &__gooeyMenu {
         position: absolute;
-        left: 140px;
+        left: $left-gooey;
         bottom: 68px;
+        transition: left 0.3s ease;
     }
-    &__action-test {
-        position: absolute;
-        left: 120px;
-        top: 10px;
-    }
-    &__action-right {
-        position: absolute;
-        right: 60px;
-        bottom: 20px;
-    }
-    &__action-top {
-        position: absolute;
-        top: 90px;
-        right: 60px;
-        transition: right 0.3s ease-in-out;
-    }
+    // &__action-test {
+    //     position: absolute;
+    //     left: 120px;
+    //     top: 10px;
+    // }
+    // &__action-right {
+    //     position: absolute;
+    //     right: 60px;
+    //     bottom: 20px;
+    // }
+    // &__action-top {
+    //     position: absolute;
+    //     top: 90px;
+    //     right: 60px;
+    //     transition: right 0.3s ease-in-out;
+    // }
     &.slide-left-3d &__3d {
         left: calc(-#{$menu-width} / 2);
+    }
+    &.slide-right-3d {
+        .product-detail__gooeyMenu {
+            left: calc(#{$left-gooey} + #{$menu-width});
+        }
+        .product-detail__back {
+            left: $menu-width;
+        }
+        .product-detail__action-left {
+            left: calc(#{$left-action} + #{$menu-width});
+        }
+    }
+    &.slide-right-3d &__3d {
+        left: calc(#{$menu-width} / 4);
     }
     &.menu-opened &__menu2d {
         right: 0px;
     }
 }
 
-.collapse {
+.left-collapse {
+    left: -#{$menu-width};
+}
+
+.right-collapse {
     right: calc(-#{$menu-width} + 80px);
 }
 </style>

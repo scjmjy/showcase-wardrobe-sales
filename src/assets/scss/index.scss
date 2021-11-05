@@ -5,3 +5,5 @@
 @use "./utils.scss";
 @use "./component.scss";
 @use "./scrollbar.scss";
+$hamburger-types: (arrow);
+@use "~hamburgers/_sass/hamburgers/hamburgers.scss";
