@@ -4,7 +4,7 @@
             <el-button class="new-scheme-card__add" type="text" icon="el-icon-plus" @click="doNew"></el-button>
         </vue-fixed-ratio>
         <el-button class="new-scheme-card__btn" type="primary" size="small" round @click="doNew">
-            创建定制方案
+            新设计方案
         </el-button>
     </div>
 </template>

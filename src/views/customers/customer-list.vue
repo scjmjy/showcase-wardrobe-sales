@@ -1,15 +1,12 @@
 <template>
     <div class="customer-list">
-        <app-header class="customer-list__header" type="dark" customer :back="menu ? '返回' : ''" />
+        <app-header class="customer-list__header" type="dark" :back="menu ? '返回' : ''" />
         <customer-menu v-if="menu" ref="refMenu" class="customer-list__menu" @select="onCustomerSelect" />
         <div ref="refSchemeList" class="customer-list__schemes" v-loading="loadingSchemeList">
-            <div class="customer-list__info">
+            <!-- <div class="customer-list__info">
                 <strong class="customer-list__info-label">{{ customerName }}</strong>
                 <el-button v-if="showServeBtn" size="small" type="danger" round @click="serve">为此客户服务</el-button>
-                <!-- <el-button v-else-if="serveBtnPosition === 'inner'" size="small" type="primary" round @click="newServe"
-                    >开始新服务</el-button
-                > -->
-            </div>
+            </div> -->
             <div v-if="services.length === 0" class="customer-list__empty">
                 <el-empty description="暂无服务"></el-empty>
             </div>
@@ -20,9 +17,9 @@
                         <template #title>
                             <div class="service" :class="{ 'is-in-service': isInService(svc) }">
                                 <span class="service__no u-line-1">
-                                    服务单号：<span>{{ svc.no }}</span>
+                                    设计号：<span>{{ svc.no }}</span>
                                 </span>
-                                <span v-if="isInService(svc)" class="service__serving">正在服务中</span>
+                                <span v-if="isInService(svc)" class="service__serving">正在设计中</span>
                                 <el-button
                                     v-else-if="!showServeBtn"
                                     class="service__serveBtn"
@@ -31,7 +28,7 @@
                                     round
                                     @click.stop="continueThisService(svc)"
                                 >
-                                    继续此服务
+                                    继续此设计
                                 </el-button>
                                 <span class="service__time u-line-1">
                                     创建时间：<span>{{ svc.ctime }}</span>
@@ -51,7 +48,7 @@
             </div>
         </div>
 
-        <el-tooltip v-if="!showServeBtn" class="item" effect="dark" content="开始新服务" placement="left">
+        <el-tooltip class="item" effect="dark" content="开始新设计" placement="left">
             <el-button
                 class="customer-list__add"
                 type="primary"
@@ -97,9 +94,10 @@ export default defineComponent({
         const services = ref<Service[]>([]);
         const customerId = ref("");
         const loadingSchemeList = ref(false);
-        const showServeBtn = computed(
-            () => store.state.currentCustomer.customerId.toString() !== customerId.value.toString(),
-        );
+        const showServeBtn = ref(false);
+        // const showServeBtn = computed(
+        //     () => store.state.currentCustomer.customerId.toString() !== customerId.value.toString(),
+        // );
         function isInService(svc: Service) {
             const { currentSvcId } = store.state.currentCustomer;
             return svc.id == currentSvcId;

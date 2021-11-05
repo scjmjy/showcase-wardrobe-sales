@@ -9,8 +9,8 @@
             @click="doBack"
             >{{ back }}</el-button
         >
-        <div v-if="!back" class="app-header__middle">
-            <template v-if="customer && currentCustomer.customerId">
+        <div v-else class="app-header__middle">
+            <!-- <template v-if="customer && currentCustomer.customerId">
                 <i class="app-header__icon iconfont icon-customer" />
                 <span class="app-header__serving"
                     >正在接待 <strong>{{ currentCustomer.customerName }}</strong>
@@ -18,12 +18,10 @@
                 <el-button v-if="stop" class="app-header__stop" type="danger" size="small" round @click="stopServe"
                     >结束接待</el-button
                 >
-            </template>
-            <template v-else>
-                <i v-if="titleIcon" class="app-header__icon iconfont" :class="titleIcon" />
-                <span class="app-header__label">{{ title }}</span>
-                <span v-if="subTitle" class="app-header__subLabel">{{ subTitle }}</span>
-            </template>
+            </template> -->
+            <i v-if="titleIcon" class="app-header__icon iconfont" :class="titleIcon" />
+            <span class="app-header__label">{{ title }}</span>
+            <span v-if="subTitle" class="app-header__subLabel">{{ subTitle }}</span>
         </div>
         <div class="app-header__right">
             <!-- <el-image class="app-header__avatar u-circle" src="https://picsum.photos/200" circle fit="contain" /> -->
@@ -66,7 +64,7 @@ export default defineComponent({
         },
         title: {
             type: String,
-            default: "弘木橱柜定制系统",
+            default: "弘木橱柜设计系统",
         },
         subTitle: {
             type: String,
