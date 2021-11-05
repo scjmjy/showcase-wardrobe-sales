@@ -10,9 +10,9 @@
             :checked="modelValue"
         />
         <label class="menu-open-button" @click="onLabelClick">
-            <span class="gooey-hamburger gooey-hamburger-1"></span>
-            <span class="gooey-hamburger gooey-hamburger-2"></span>
-            <span class="gooey-hamburger gooey-hamburger-3"></span>
+            <span class="hamburger hamburger-1"></span>
+            <span class="hamburger hamburger-2"></span>
+            <span class="hamburger hamburger-3"></span>
         </label>
 
         <span
@@ -153,7 +153,7 @@ $ballSize: 56px;
         color: inherit;
     }
 }
-.gooey-hamburger {
+.hamburger {
     $width: 25px;
     $height: 3px;
     width: $width;
@@ -168,23 +168,23 @@ $ballSize: 56px;
     transition: transform 200ms;
 }
 $hamburger-spacing: 8px;
-.gooey-hamburger-1 {
+.hamburger-1 {
     transform: translate3d(0, -$hamburger-spacing, 0);
 }
-.gooey-hamburger-2 {
+.hamburger-2 {
     transform: translate3d(0, 0, 0);
 }
-.gooey-hamburger-3 {
+.hamburger-3 {
     transform: translate3d(0, $hamburger-spacing, 0);
 }
 .menu-open:checked + .menu-open-button {
-    .gooey-hamburger-1 {
+    .hamburger-1 {
         transform: translate3d(0, 0, 0) rotate(45deg);
     }
-    .gooey-hamburger-2 {
+    .hamburger-2 {
         transform: translate3d(0, 0, 0) scale(0.1, 1);
     }
-    .gooey-hamburger-3 {
+    .hamburger-3 {
         transform: translate3d(0, 0, 0) rotate(-45deg);
     }
 }

@@ -15,7 +15,6 @@ import router from "./router";
 
 import ElCollapseTransitionH from "@/components/ElCollapseTransitionH.vue";
 import StateIcon from "@/components/StateIcon.vue";
-import Hamburger from "@/components/Hamburger.vue";
 
 // for dev
 // import "@/assets/scss/dev.scss";
@@ -23,8 +22,7 @@ import Hamburger from "@/components/Hamburger.vue";
 const app = createApp(App);
 app.component(ElCollapseTransitionH.name, ElCollapseTransitionH)
     .component(StateIcon.name, StateIcon)
-    .component("vue3-autocounter", Vue3Autocounter)
-    .component(Hamburger.name, Hamburger);
+    .component("vue3-autocounter", Vue3Autocounter);
 
 app.use(router).use(store).use(ElementPlus).mount("#app");
 
