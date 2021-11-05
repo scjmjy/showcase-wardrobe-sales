@@ -88,7 +88,6 @@ export default defineComponent({
             loadedModelCount: 0,
             stl: {} as GeneralStl,
             areaHints: {} as AreaHints,
-            defaultPartType: 1,
             indexDb: {} as IndexDb,
         };
     },
@@ -201,7 +200,7 @@ export default defineComponent({
                         } else {
                             this.areaHints = this.stl.computeAreaHints(
                                 this.scheme.manifest,
-                                this.defaultPartType,
+                                newPart.partType,
                                 new Vector3(newPart.width, newPart.height, newPart.depth),
                             );
 
@@ -1358,7 +1357,7 @@ export default defineComponent({
                                                 const areaIdx = parseInt(info[3]);
                                                 const anchorMeta: AnchorMeta = this.stl.computeAnchorMeta(
                                                     this.areaHints.cubeHints[cubeHintIdx].areas[areaIdx],
-                                                    this.defaultPartType,
+                                                    this.newPart.partType,
                                                     size,
                                                 );
 
