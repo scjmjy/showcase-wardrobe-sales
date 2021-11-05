@@ -8,6 +8,8 @@ export class CompositeAreaDivider implements IAreaDivider {
     constructor() {
         this.dividerMap = new Map<PartType, IAreaDivider>();
         this.dividerMap.set(PartType.GENERAL, new GeneralAreaDivider());
+        this.dividerMap.set(PartType.HORIZONTAL_SCALE, new GeneralAreaDivider());
+        this.dividerMap.set(PartType.VERTICAL_SCALE, new GeneralAreaDivider());
     }
 
     divide(area: Area, item: Item): Array<Area> {
@@ -23,24 +25,19 @@ export class GeneralAreaDivider implements IAreaDivider {
     divide(area: Area, item: Item): Array<Area> {
         const areaStartPoint = area.startPoint;
         const areaEndPoint = area.endPoint;
-        const pivot = item.location.startPos; 
+        const pivot = item.location.startPos;
         const itemSize = item.size;
         const partType = item.partType;
 
         let area1StartPoint, area1EndPoint, area2StartPoint, area2EndPoint;
-        //if (partType == PartType.T_FRAME) {
-        if (item.getBoundingBox()[0].x - item.getBoundingBox()[1].x < item.getBoundingBox()[1].y - item.getBoundingBox()[0].y) {
+        if (partType == PartType.VERTICAL_SCALE) {
             area1StartPoint = new Vector3(areaStartPoint.x, areaStartPoint.y, areaStartPoint.z);
             area1EndPoint = new Vector3(item.getBoundingBox()[0].x, areaEndPoint.y, areaEndPoint.z);
-    
             area2EndPoint = new Vector3(areaEndPoint.x, areaEndPoint.y, areaEndPoint.z);
             area2StartPoint = new Vector3(item.getBoundingBox()[1].x, areaStartPoint.y, areaStartPoint.z);
-        }
-        else
-        {
+        } else {
             area1StartPoint = new Vector3(areaStartPoint.x, areaStartPoint.y, areaStartPoint.z);
             area1EndPoint = new Vector3(areaEndPoint.x, pivot.y, areaEndPoint.z);
-    
             area2EndPoint = new Vector3(areaEndPoint.x, areaEndPoint.y, areaEndPoint.z);
             area2StartPoint = new Vector3(areaStartPoint.x, pivot.y + itemSize.y, areaStartPoint.z);
         }
