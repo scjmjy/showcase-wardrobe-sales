@@ -1041,7 +1041,7 @@ export default defineComponent({
                                             const startPos = item.location.startPos;
                                             if (startPos !== null) {
                                                 const itemOrigin = new BABYLON.Vector3(
-                                                    cubeOrigin.x - startPos.x,
+                                                    cubeOrigin.x + startPos.x,
                                                     cubeOrigin.y + startPos.y,
                                                     cubeOrigin.z + startPos.z,
                                                 );
