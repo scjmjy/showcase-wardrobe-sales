@@ -717,6 +717,8 @@ export default defineComponent({
                         break;
                 }
 
+                if (part.id === 101) partType = PartType.VERTICAL_SCALE;
+
                 selectedPart.value = {
                     id: +part.id,
                     name: part.name,

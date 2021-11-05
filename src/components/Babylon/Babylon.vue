@@ -90,7 +90,6 @@ export default defineComponent({
             areaHints: {} as AreaHints,
             defaultPartType: 1,
             indexDb: {} as IndexDb,
-            placeMode: 0,
         };
     },
     computed: {
@@ -1374,14 +1373,10 @@ export default defineComponent({
                                                 let localOffset = new Vector3(0, 0, 0);
                                                 let localRotation = new Vector3(0, 0, 0);
                                                 let localScaling = new Vector3(1, 1, 1);
-                                                switch (this.placeMode) {
-                                                    case 1: // Horizontal stretch
-                                                        break;
-                                                    case 2: // Vertical stretch
-                                                        localOffset = new Vector3(size.y * 0.5, areaHeight * 0.5, 0);
-                                                        localScaling = new Vector3(areaHeight / size.x, 1, 1);
-                                                        localRotation = new Vector3(0, 0, Math.PI * 0.5);
-                                                        break;
+                                                if (this.newPart.partType === PartType.VERTICAL_SCALE) {
+                                                    localOffset = new Vector3(size.y * 0.5, areaHeight * 0.5, 0);
+                                                    localScaling = new Vector3(areaHeight / size.x, 1, 1);
+                                                    localRotation = new Vector3(0, 0, Math.PI * 0.5);
                                                 }
 
                                                 const localPosition = new Vector3(
@@ -1497,8 +1492,6 @@ export default defineComponent({
                                 this.adjustCamera();
                                 break;
                             case "7":
-                                if (this.placeMode === 0) this.placeMode = 2;
-                                else this.placeMode = 0;
                                 break;
                         }
                         break;
