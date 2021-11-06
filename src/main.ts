@@ -13,7 +13,6 @@ import App from "./App.vue";
 import store from "./store";
 import router from "./router";
 
-import SvgIcon from "@/assets/icons";
 import ElCollapseTransitionH from "@/components/ElCollapseTransitionH.vue";
 import StateIcon from "@/components/StateIcon.vue";
 
@@ -25,6 +24,6 @@ app.component(ElCollapseTransitionH.name, ElCollapseTransitionH)
     .component(StateIcon.name, StateIcon)
     .component("vue3-autocounter", Vue3Autocounter);
 
-app.use(router).use(store).use(ElementPlus).use(SvgIcon).mount("#app");
+app.use(router).use(store).use(ElementPlus).mount("#app");
 
 export default app;

@@ -10,6 +10,8 @@ export class CompositeFilter implements IAreaFilter {
         const generalAreaFilter = new GeneralAreaFilter(bias_x, bias_y, bias_z);
         const bottomAreaFilter = new BottomAreaFilter();
         this.filterMap.set(PartType.GENERAL, [generalAreaFilter]);
+        this.filterMap.set(PartType.VERTICAL_SCALE, [generalAreaFilter]);
+        this.filterMap.set(PartType.HORIZONTAL_SCALE, [generalAreaFilter]);
         this.filterMap.set(PartType.T_FRAME, [generalAreaFilter, bottomAreaFilter]);
     }
 
@@ -42,6 +44,8 @@ export class GeneralAreaFilter implements IAreaFilter {
     }
 
     doFilter(area: Area, partType: PartType, partSize: Vector3): boolean {
+        if (partType == PartType.VERTICAL_SCALE) return true;
+        this.bias_x = 0.05;
         const x_area = Math.abs(area.startPoint.x - area.endPoint.x);
         const y_area = Math.abs(area.startPoint.y - area.endPoint.y);
         const z_area = Math.abs(area.startPoint.z - area.endPoint.z);

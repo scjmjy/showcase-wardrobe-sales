@@ -38,7 +38,7 @@ export class GeneralStl implements IStl {
 
     computeMovementScope(cube: Cube, item: Item): Scope {
         // if the item type is light strip, no need to computer movement scope
-        if (item.partType == PartType.STRIP_LIGHT) {
+        if (item.partType == PartType.STRIP_LIGHT || item.partType == PartType.SPOT_LIGHT) {
             const invertalX = new Array<Interval>();
             const invertalY = new Array<Interval>();
             const invertalZ = new Array<Interval>();
@@ -96,7 +96,8 @@ export class GeneralStl implements IStl {
     private calculateAnchor(area: Area, partType: number, partSize: Vector3): Vector3 {
         // if the part type is light, item is install under the relative item,
         // so the default position is different from general item
-        if (partType == PartType.STRIP_LIGHT) return new Vector3(0, area.endPoint.y - partSize.y, 0);
+        if (partType == PartType.STRIP_LIGHT || partType == PartType.SPOT_LIGHT)
+            return new Vector3((area.startPoint.x + area.endPoint.x) / 2, area.endPoint.y - partSize.y, 0);
         else return new Vector3((area.startPoint.x + area.endPoint.x) / 2, area.startPoint.y, 0);
     }
 
@@ -104,7 +105,7 @@ export class GeneralStl implements IStl {
         const invertalX = new Array<Interval>();
         const invertalY = new Array<Interval>();
         const invertalZ = new Array<Interval>();
-        if (PartType.GENERAL == partType) {
+        if (PartType.VERTICAL_SCALE != partType) {
             const minY = area.startPoint.y;
             const maxY = area.endPoint.y - partSize.y;
             invertalY.push(new Interval(minY, maxY));
@@ -139,7 +140,7 @@ export class GeneralStl implements IStl {
         const hintAreas: Array<Area> = [];
         let areas: Array<Area> = [];
         // different logic for light strip area cube
-        if (partType == PartType.STRIP_LIGHT) {
+        if (partType == PartType.STRIP_LIGHT || partType == PartType.SPOT_LIGHT) {
             areas = this.fetchDividedLightAreas(cube, cube.items);
             for (const area of areas) {
                 if (this.computerLightArea(area, cube, partType, partSize)) hintAreas.push(area);
@@ -159,13 +160,13 @@ export class GeneralStl implements IStl {
         // recored all shelf of frame with lights installed
         const shelfHasLights = [];
         for (let i = 0; i < items.length; i++) {
-            if (items[i].partId == 87 || items[i].partId == 38 || items[i].partId == 37 || items[i].partId == 88)
+            if (items[i].partType == PartType.HORIZONTAL_SCALE)
                 shelfHasLights.push(items[i].location.relativeItem?.relativeItemId);
         }
         // recored all shelf of frame
         const shelfs = [];
         for (let i = 0; i < items.length; i++) {
-            if (items[i].partId == 68 || items[i].partId == 67 || items[i].partId == 75 || items[i].partId == 74) {
+            if (items[i].partType == PartType.HORIZONTAL_SCALE || items[i].partType == PartType.VERTICAL_SCALE) {
                 if (!shelfHasLights.includes(items[i].id)) shelfs.push(items[i]);
             }
         }
@@ -215,8 +216,7 @@ export class GeneralStl implements IStl {
         const shelfHasLights = [];
         const items = cube.items;
         for (let i = 0; i < items.length; i++) {
-            if (items[i].partId == 87 || items[i].partId == 38 || items[i].partId == 37 || items[i].partId == 88)
-                shelfHasLights.push(items[i].location.relativeItem?.relativeItemId);
+            if (items[i].partType == PartType.CUBE) shelfHasLights.push(items[i].location.relativeItem?.relativeItemId);
         }
         // resize light area
         area.startPoint.y = area.endPoint.y - partSize.y;
@@ -235,7 +235,7 @@ export class GeneralStl implements IStl {
 
     private checkItemIntersected(area: Area, item: Item): boolean {
         // no need to check light type item
-        if (item.partType == PartType.STRIP_LIGHT) return false;
+        if (item.partType == PartType.STRIP_LIGHT || item.partType == PartType.SPOT_LIGHT) return false;
         const areaStartPoint = area.startPoint;
         const areaEndPoint = area.endPoint;
         const itemLeftX = item.getBoundingBox()[0].x;
@@ -243,16 +243,15 @@ export class GeneralStl implements IStl {
         const itemBtmY = item.getBoundingBox()[0].y;
         const itemTopY = item.getBoundingBox()[1].y;
 
-        const bias_x = 0.0055;
+        const bias_x = 0.05;
 
-        // if(item.partType == PartType.T_FRAME)
-        if (itemLeftX - itemRightX < itemTopY - itemBtmY)
+        if (item.partType == PartType.VERTICAL_SCALE)
             return (
                 areaStartPoint.x > itemLeftX &&
                 areaEndPoint.x < itemRightX &&
-                itemBtmY >= areaStartPoint.y &&
-                itemTopY <= areaEndPoint.y
-            );
+                Math.abs(itemBtmY - areaStartPoint.y) < bias_x &&
+                Math.abs(itemTopY - areaEndPoint.y) < bias_x
+                );
         else
             return (
                 Math.abs(areaStartPoint.x - itemLeftX) < bias_x &&
