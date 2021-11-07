@@ -105,7 +105,7 @@ export class GeneralStl implements IStl {
         const invertalX = new Array<Interval>();
         const invertalY = new Array<Interval>();
         const invertalZ = new Array<Interval>();
-        if (PartType.GENERAL == partType) {
+        if (PartType.VERTICAL_SCALE != partType) {
             const minY = area.startPoint.y;
             const maxY = area.endPoint.y - partSize.y;
             invertalY.push(new Interval(minY, maxY));

@@ -124,7 +124,7 @@ a {
     color: inherit;
 }
 %goo {
-    filter: url("#shadowed-goo");
+    // filter: url("#shadowed-goo"); // not work on ipad
     // debug
     //background:rgba(255,0,0,0.2);
 }
@@ -141,7 +141,8 @@ $ballSize: 56px;
     text-align: center;
     line-height: $ballSize;
     transform: translate3d(0, 0, 0);
-    transition: transform ease-out 200ms;
+    left: 0;
+    transition: transform, left ease-out 200ms;
 }
 .menu-open {
     display: none;
@@ -250,7 +251,8 @@ $hamburger-spacing: 8px;
     @for $i from 1 through $menu-items {
         &:nth-child(#{$i + 2}) {
             transition-duration: 90ms+ (100ms * $i);
-            transform: translate3d(80px * $i, 0, 0);
+            // transform: translate3d(80px * $i, 0, 0);
+            left: 80px * $i;
         }
     }
 }
