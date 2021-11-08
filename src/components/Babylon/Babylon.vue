@@ -22,6 +22,7 @@ import { AnchorMeta } from "@/lib/model/pscope";
 
 import { IndexDb, DBValue } from "@/lib/indexdb";
 import { Size3D } from "@/api/interface/common.interface";
+import { ImgCardItemType } from "@/views/product/components/ImgCardItem.vue";
 
 export default defineComponent({
     name: "Babylon",
@@ -247,10 +248,11 @@ export default defineComponent({
         /**
          * 修改墙面
          */
-        changeWallApi(part: Part): void {
+        changeWallApi(wall: ImgCardItemType): void {
             const wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
             wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            const url = this.baseOSSUrl + part.manifest;
+            // const url = this.baseOSSUrl + wall.url;
+            const url = wall.url;
             const texture = new BABYLON.Texture(url, this.graphics.scene as BABYLON.Scene);
             texture.uScale = 1;
             texture.vScale = 1;
@@ -261,10 +263,11 @@ export default defineComponent({
         /**
          * 修改地板
          */
-        changeFloorApi(part: Part): void {
+        changeFloorApi(floor: ImgCardItemType): void {
             const floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            const url = this.baseOSSUrl + part.manifest;
+            // const url = this.baseOSSUrl + floor.url;
+            const url = floor.url;
             const texture = new BABYLON.Texture(url, this.graphics.scene as BABYLON.Scene);
             texture.uScale = 2;
             texture.vScale = 2;

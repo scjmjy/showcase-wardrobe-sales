@@ -14,8 +14,6 @@
             :scheme="scheme"
             :size="customizeSize"
             :selectedPart="selectedPart"
-            :selectedWallId="selectedWallId"
-            :selectedFloorId="selectedFloorId"
             :eventEmit="eventHandle"
             :mode="mode3D"
             :schemeType="scheme3DType"
@@ -59,6 +57,7 @@
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
                 @attachment-replacement="onAttachmentChange"
+                @bg="onBgChange"
             ></parts-menu>
         </template>
         <template v-if="mode === 'view'">
@@ -104,6 +103,7 @@ import {
     Scheme,
     isProduct,
     ManifestPart,
+    BackgroundType,
 } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
@@ -129,6 +129,7 @@ import {
     OpenCloseState,
 } from "./helpers";
 import { Size3D } from "@/api/interface/common.interface";
+import { ImgCardItemType } from "./components/ImgCardItem.vue";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -211,9 +212,6 @@ export default defineComponent({
         const refPartsMenu = ref<InstanceType<typeof PartsMenu>>();
         const selectedPart = ref<Part3D>();
         const selectedMetalPart = ref<Part>();
-        let selectedPartId = ref(0);
-        let selectedFloorId = ref(0);
-        let selectedWallId = ref(0);
 
         function showReferenceRuler(show: boolean) {
             refBabylon.value?.showReferenceRuler(show);
@@ -536,9 +534,6 @@ export default defineComponent({
             }),
             selectedPart,
             selectedMetalPart,
-            selectedPartId,
-            selectedWallId,
-            selectedFloorId,
             baseUrl,
             mode3D: computed(() => {
                 if (mode.value === "view") {
@@ -633,6 +628,13 @@ export default defineComponent({
             onPartsMenuAction,
             onAttachmentChange(newAttachment: ManifestPart, oldAttachment: ManifestPart) {
                 refBabylon.value?.changeAttachments(oldAttachment.partid, newAttachment.partid, newAttachment.catid);
+            },
+            onBgChange(bg: ImgCardItemType, bgType: BackgroundType) {
+                if (bgType === BackgroundType.WALL) {
+                    refBabylon.value?.changeWallApi(bg);
+                } else {
+                    refBabylon.value?.changeFloorApi(bg);
+                }
             },
             async gotoBack() {
                 if (scheme.value?.dirty) {
