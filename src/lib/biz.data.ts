@@ -5,6 +5,7 @@ export const ObjectType = {
     CUBE: "Cube",
     ITEM: "Item",
     DOOR: "Door",
+    LIGHT: "Light",
 };
 
 export type CubeData = {

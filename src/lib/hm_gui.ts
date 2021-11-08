@@ -230,7 +230,7 @@ export class PopupGUI {
 
                     const info = mesh.name.split("_");
                     const objectType = info[0];
-                    const objectID = info[1];
+                    let objectID = info[1];
                     mesh.dispose();
                     switch (objectType) {
                         case ObjectType.CUBE:
@@ -243,6 +243,35 @@ export class PopupGUI {
                             {
                                 const doorIndex = parseInt(info[2]);
                                 babylonRef.bizdata.removeDoor(objectID, doorIndex);
+                            }
+                            break;
+                        case ObjectType.LIGHT:
+                            {
+                                const map = babylonRef.spotLightMap as Map<string, BABYLON.SpotLight>;
+                                let key = objectID;
+                                let light = map.get(key);
+                                if (light !== undefined) {
+                                    light.dispose();
+                                    map.delete(key);
+                                } else {
+                                    key = objectID + "_1";
+                                    light = map.get(key);
+                                    if (light !== undefined) {
+                                        light.dispose();
+                                        map.delete(key);
+                                    }
+
+                                    key = objectID + "_2";
+                                    light = map.get(key);
+                                    if (light !== undefined) {
+                                        light.dispose();
+                                        map.delete(key);
+                                    }
+                                }
+
+                                // if having attached information, add to objectId.
+                                if (info.length > 2) objectID += "_" + info[2];
+                                babylonRef.bizdata.removeItem(objectID);
                             }
                             break;
                     }
