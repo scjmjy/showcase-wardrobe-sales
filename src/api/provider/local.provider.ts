@@ -525,4 +525,20 @@ export default class LocalProvider implements ApiProvider {
             })),
         });
     }
+    discounts = new Map<number, number>();
+    requestSchemeDiscount(schemeId: number): Promise<AjaxResponse<number>> {
+        const val = this.discounts.get(schemeId) || 0;
+        return Promise.resolve({
+            ok: val ? true : false,
+            status: 200,
+            data: val,
+        });
+    }
+    updateSchemeDiscount(schemeId: number, discount: number): Promise<AjaxResponse<void>> {
+        this.discounts.set(schemeId, discount);
+        return Promise.resolve({
+            ok: true,
+            status: 200,
+        });
+    }
 }

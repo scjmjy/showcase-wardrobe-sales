@@ -54,6 +54,7 @@
                 :class="{ collapse: !showMenu }"
                 :type="stateInOut"
                 :completeDisabled="completeDisabled"
+                :schemeId="product.id"
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
                 @attachment-replacement="onAttachmentChange"

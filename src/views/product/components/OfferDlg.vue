@@ -11,31 +11,23 @@
         <div class="offer-dlg__list">
             <offer-item v-for="(item, index) of itemList" :key="index" :item="item"></offer-item>
         </div>
-        <!-- <div v-else class="offer-dlg__area">
-            <div class="offer-dlg__area-item">
-                <span>单价：</span>
-                <span>
-                    <strong>{{ offerInfo.areaUnitPrice }} </strong>元/㎡
-                </span>
+        <div class="offer-dlg__price">
+            <div :class="{ 'is-disabled': discountPrice }">
+                <span class="offer-dlg__price-label">合计：</span>
+                <div class="offer-dlg__price-value">
+                    <span class="offer-dlg__price-symbol"> ￥ </span>
+                    <span class="offer-dlg__price-offer">{{ offerPrice.integer }}</span>
+                    <span class="offer-dlg__price-symbol">.{{ offerPrice.decimal }} </span>
+                </div>
             </div>
-            <div class="offer-dlg__area-item">
-                <span>投影面积：</span>
-                <span>
-                    <strong>{{ offerInfo.area }} </strong>㎡
-                </span>
+            <div v-if="discountPrice">
+                <span class="offer-dlg__price-label">折扣价格：</span>
+                <div class="offer-dlg__price-value">
+                    <span class="offer-dlg__price-symbol"> ￥ </span>
+                    <span class="offer-dlg__price-offer">{{ discountPrice.integer }}</span>
+                    <span class="offer-dlg__price-symbol">.{{ discountPrice.decimal }} </span>
+                </div>
             </div>
-            <div class="offer-dlg__area-item">
-                <span>税率：</span>
-                <span>
-                    <strong>{{ offerInfo.taxrate }} </strong>
-                </span>
-            </div>
-        </div> -->
-        <div class="offer-dlg__price" :class="{ 'is-area': offerInfo.otype === 'area' }">
-            <span class="offer-dlg__price-label">合计：</span>
-            <span class="offer-dlg__price-symbol"> ￥ </span>
-            <span class="offer-dlg__price-offer">{{ offerPrice.integer }}</span>
-            <span class="offer-dlg__price-symbol">.{{ offerPrice.decimal }} </span>
         </div>
     </el-dialog>
 </template>
@@ -65,8 +57,8 @@ export default defineComponent({
             default: "",
         },
         schemeId: {
-            type: [Number, String],
-            default: "",
+            type: Number,
+            default: 0,
         },
         scheme: {
             type: Object as PropType<Scheme>,
@@ -78,9 +70,10 @@ export default defineComponent({
         },
     },
     setup(props) {
+        const discount = ref(1);
         const schemeOffer = ref<SchemeOffer>();
         return {
-            // dlgTitle: computed(() => `${props.customerName}，您的${props.schemeName}报价`),
+            discount,
             schemeOffer,
             itemList: computed(() => {
                 if (!schemeOffer.value) return [];
@@ -97,37 +90,25 @@ export default defineComponent({
                     return splitPrice(+schemeOffer.value.offer);
                 }
             }),
-            offerInfo: computed(() => {
-                if (!schemeOffer.value) {
-                    return {
-                        otype: "part",
-                    };
+            discountPrice: computed(() => {
+                if (!schemeOffer.value || discount.value == 1) {
+                    return undefined;
                 } else {
-                    const { otype, price, area, taxrate } = schemeOffer.value;
-                    return {
-                        otype: otype === 1 ? "part" : "area",
-                        area: area,
-                        areaUnitPrice: price,
-                        taxrate: taxrate,
-                    };
+                    const price = +schemeOffer.value.offer * discount.value;
+                    return splitPrice(price);
                 }
             }),
-            doOffer() {
+            async doOffer() {
                 const partCounts = props.scheme.getPartCounts();
-
                 const compositions = makePartCompositions(partCounts, props.size);
-                return apiProvider.requestSchemeOffer(props.schemeId, compositions).then((res) => {
-                    if (res.ok && res.data) {
-                        schemeOffer.value = res.data;
-                        // for (const item of schemeOffer.value.details) {
-                        // const found = compositions.find((p) => p.partId === item.area); // TODO item.partid
-                        // if (found) {
-                        //     item.count = found.count;
-                        //     item.area = computePartArea(found, props.size);
-                        // }
-                        // }
-                    }
-                });
+                const resDiscount = await apiProvider.requestSchemeDiscount(props.schemeId);
+                if (resDiscount.ok) {
+                    discount.value = resDiscount.data || 1;
+                }
+                const resOffer = await apiProvider.requestSchemeOffer(props.schemeId, compositions);
+                if (resOffer.ok && resOffer.data) {
+                    schemeOffer.value = resOffer.data;
+                }
             },
         };
     },
@@ -158,9 +139,7 @@ export default defineComponent({
         }
     }
     &__price {
-        &:not(.is-area) {
-            margin-top: 30px;
-        }
+        margin-top: 30px;
         padding-top: 10px;
         padding-right: 30px;
         border-top: 1px solid var(--el-color-info);
@@ -169,12 +148,27 @@ export default defineComponent({
         &-label {
             font-size: 26px;
         }
+        &-value {
+            color: var(--el-color-danger);
+            display: inline-block;
+            .is-disabled & {
+                color: var(--el-text-color-secondary);
+                position: relative;
+                &::after {
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    top: 50%;
+                    height: 3px;
+                    background-color: var(--el-color-danger);
+                }
+            }
+        }
         &-symbol {
-            color: #bb4050;
             font-size: 19px;
         }
         &-offer {
-            color: #bb4050;
             font-size: 41px;
         }
     }

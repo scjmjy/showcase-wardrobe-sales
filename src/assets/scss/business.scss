@@ -1,0 +1,5 @@
+@use "sass:math";
+
+$menu-header-height: 56px;
+$card-margin: 3%;
+$card-width: math.div(100% - $card-margin * 4, 2);
