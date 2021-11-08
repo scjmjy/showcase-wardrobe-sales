@@ -720,6 +720,9 @@ export default defineComponent({
                 }
 
                 if (part.id === 101) partType = PartType.VERTICAL_SCALE;
+                if (part.id === 64) partType = PartType.HORIZONTAL_SCALE;
+                if (part.id === 72) partType = PartType.HORIZONTAL_SCALE;
+                if (part.id === 102) partType = PartType.HORIZONTAL_SCALE;
 
                 selectedPart.value = {
                     id: +part.id,
