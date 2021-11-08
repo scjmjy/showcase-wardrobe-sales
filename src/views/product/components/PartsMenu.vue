@@ -493,9 +493,6 @@ export default defineComponent({
                 flex: 2;
                 text-align: center;
             }
-            &-offer {
-                // height: 100%;
-            }
             &-back {
                 padding-left: 5px;
                 line-height: normal;
@@ -505,6 +502,7 @@ export default defineComponent({
         }
         &-manifest {
             flex: 1;
+            overflow: hidden;
         }
     }
 }

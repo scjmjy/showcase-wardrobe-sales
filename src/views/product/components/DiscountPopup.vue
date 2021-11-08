@@ -13,7 +13,12 @@
                     @click="toggleTrigger"
                 ></el-button>
             </div>
-            <el-select v-model="currentDiscount" :popper-append-to-body="false" @change="onDiscountChange">
+            <el-select
+                class="button-shadow"
+                v-model="currentDiscount"
+                :popper-append-to-body="false"
+                @change="onDiscountChange"
+            >
                 <el-option
                     v-for="(opt, index) of discounts"
                     :key="index"
