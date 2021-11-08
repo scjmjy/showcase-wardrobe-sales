@@ -252,15 +252,7 @@ export default defineComponent({
          * 修改墙面
          */
         changeWallApi(wall: ImgCardItemType): void {
-            const wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
-            wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            // const url = this.baseOSSUrl + wall.url;
-            const url = wall.url;
-            const texture = new BABYLON.Texture(url, this.graphics.scene as BABYLON.Scene);
-            texture.uScale = 1;
-            texture.vScale = 1;
-            wall_material.diffuseTexture = texture;
-            this.wall.material = wall_material;
+            this.graphics.setBackgroundColor(BABYLON.Color4.FromHexString(wall.label.substr( wall.label.indexOf("#"), 9)));
         },
 
         /**

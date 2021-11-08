@@ -23,6 +23,17 @@ export class PopupGUI {
     private _loadingSlider: BABYLON.Nullable<GUI.Slider> = null;
     private _loadingHintInfo: BABYLON.Nullable<GUI.TextBlock> = null;
 
+    private referenceRulerUpTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private referenceRulerUpMiddle: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private referenceRulerUpEnd: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    
+    private _referenceRulerTextUp!: GUI.TextBlock;
+    private _referenceRulerTextDown!: GUI.TextBlock;
+
+    private referenceRulerDownTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private referenceRulerDownMiddle: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private referenceRulerDownEnd: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+
     private rulerHeightTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
     private rulerWidthTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
     private rulerDepthTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
@@ -128,6 +139,14 @@ export class PopupGUI {
                     this._switchCubePanel[i].dispose();
                 }
             }
+            if (this.referenceRulerDownEnd) this.referenceRulerDownEnd.dispose();
+            if (this.referenceRulerDownMiddle) this.referenceRulerDownMiddle.dispose();
+            if (this.referenceRulerDownTop) this.referenceRulerDownTop.dispose();
+            if (this.referenceRulerUpEnd) this.referenceRulerUpEnd.dispose();
+            if (this.referenceRulerUpMiddle) this.referenceRulerUpMiddle.dispose();
+            if (this.referenceRulerUpTop) this.referenceRulerUpTop.dispose();
+            if (this._referenceRulerTextDown) this._referenceRulerTextDown.dispose();
+            if (this._referenceRulerTextUp) this._referenceRulerTextUp.dispose();
             return;
         }
 
@@ -140,8 +159,38 @@ export class PopupGUI {
             this._sliderPanel.dispose();
             this._sliderPanel = null;
         }
+
+        this.createSilderPanel( babylonRef, mesh, min, max );
+        this.createDeletePanel( babylonRef, mesh );
+        this.showSwitchCubePanel(babylonRef, mesh);
+
+
         const info = mesh.name.split("_");
-        const objectType = info[0];
+        const itemId = info[1];
+        const item = babylonRef.bizdata.findItemById(itemId);
+        if (item == null)
+            return;
+
+        let upCenter = new BABYLON.Vector3(0, 0, 0);
+        upCenter.x = mesh.position.x;
+        upCenter.y = mesh.position.y + (max - mesh.position.y)/2 + item.size.y;
+        upCenter.z = mesh.position.z;
+        let downCenter = new BABYLON.Vector3(0, 0, 0);
+        downCenter.x = mesh.position.x;
+        downCenter.y = mesh.position.y - (mesh.position.y - min)/2
+        downCenter.z = mesh.position.z;
+
+        if ((max - mesh.position.y)/2 > 0)
+            this.drawRuler( babylonRef.graphics, (max - mesh.position.y), upCenter, new BABYLON.Vector3(0, 1, 0), "referenceRulerUp ", (max - mesh.position.y) );
+        if (downCenter.y - min > 0)
+            this.drawRuler( babylonRef.graphics, (mesh.position.y - min), downCenter, new BABYLON.Vector3(0, 1, 0), "referenceRulerDown ", (mesh.position.y - min) );
+    }
+
+    private createSilderPanel (babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min = -1, max = -1) {
+        if(mesh == null)
+            return;
+        const info = mesh.name.split("_");
+        const objectType = info[0];    
 
         if (this._sliderPanel == null && ObjectType.ITEM == objectType && min != 0 && max != 0) {
             this._grid = new GUI.Grid();
@@ -182,10 +231,25 @@ export class PopupGUI {
 
             slider.onValueChangedObservable.add((value: number) => {
                 if (mesh) {
-                    mesh.position.y = value;
                     const info = mesh.name.split("_");
                     const itemId = info[1];
                     const item = babylonRef.bizdata.findItemById(itemId);
+                    if (item == null)
+                        return;
+                    let upCenter = new BABYLON.Vector3(0, 0, 0);
+                    upCenter.x = mesh.position.x;
+                    upCenter.y = mesh.position.y + (max - mesh.position.y)/2 + item.size.y;
+                    upCenter.z = mesh.position.z;
+                    let downCenter = new BABYLON.Vector3(0, 0, 0);
+                    downCenter.x = mesh.position.x;
+                    downCenter.y = mesh.position.y - (mesh.position.y - min)/2
+                    downCenter.z = mesh.position.z;
+            
+                    if ((max - mesh.position.y)/2 > 0)
+                        this.drawRuler( babylonRef.graphics, (max - mesh.position.y), upCenter, new BABYLON.Vector3(0, 1, 0), "referenceRulerUp ", (max - mesh.position.y) );
+                    if (downCenter.y - min > 0)
+                        this.drawRuler( babylonRef.graphics, (mesh.position.y - min), downCenter, new BABYLON.Vector3(0, 1, 0), "referenceRulerDown ", (mesh.position.y - min) );
+                    mesh.position.y = value;
                     if (item !== undefined) {
                         babylonRef.bizdata.moveItem(item, value);
                     }
@@ -196,6 +260,13 @@ export class PopupGUI {
             slider.value = mesh.position.y;
             this._sliderPanel.addControl(slider);
         }
+    }
+
+    private createDeletePanel (babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
+        if(mesh == null)
+            return;
+        const info = mesh.name.split("_");
+        const objectType = info[0];
 
         // clear previous delete panel to avoid delete previous mesh
         if (this._deletePanel != null) {
@@ -218,7 +289,6 @@ export class PopupGUI {
             );
             this._deleteButton.width = "46px";
             this._deleteButton.height = "46px";
-
             this._deleteButton.thickness = 0;
             this._deletePanel.addControl(this._deleteButton);
 
@@ -279,10 +349,9 @@ export class PopupGUI {
                     babylonRef.graphics.currentMesh = null;
                 }
             });
+            this._deletePanel.linkOffsetYInPixels = 150
             this._deletePanel.linkWithMesh(mesh);
         }
-
-        this.showSwitchCubePanel(babylonRef, mesh);
     }
 
     private showSwitchCubePanel(babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
@@ -404,13 +473,34 @@ export class PopupGUI {
 
         this._popupUI.addControl(lengthText);
         lengthText.linkWithMesh(frameRulerMiddle);
-        lengthText.linkOffsetYInPixels = -20;
-        if (!title.startsWith("width")) {
+        if (!title.startsWith("referenceRuler"))
+            lengthText.linkOffsetYInPixels = -20;
+        if (!title.startsWith("width") && !title.startsWith("referenceRuler")) {
             lengthText.linkOffsetXInPixels = 35;
             lengthText.linkOffsetYInPixels = -35;
         }
         lengthText.isVisible = true;
 
+        if (title.startsWith("referenceRulerUp")) {
+            if (this.referenceRulerUpTop) this.referenceRulerUpTop.dispose();
+            this.referenceRulerUpTop = frameRulerTop;
+            if (this.referenceRulerUpMiddle) this.referenceRulerUpMiddle.dispose();
+            this.referenceRulerUpMiddle = frameRulerMiddle;
+            if (this.referenceRulerUpEnd) this.referenceRulerUpEnd.dispose();
+            this.referenceRulerUpEnd = frameRulerDown;
+            if (this._referenceRulerTextUp) this._referenceRulerTextUp.dispose();
+            this._referenceRulerTextUp = lengthText;
+        }
+        if (title.startsWith("referenceRulerDown")) {
+            if (this.referenceRulerDownTop) this.referenceRulerDownTop.dispose();
+            this.referenceRulerDownTop = frameRulerTop;
+            if (this.referenceRulerDownMiddle) this.referenceRulerDownMiddle.dispose();
+            this.referenceRulerDownMiddle = frameRulerMiddle;
+            if (this.referenceRulerDownEnd) this.referenceRulerDownEnd.dispose();
+            this.referenceRulerDownEnd = frameRulerDown;
+            if (this._referenceRulerTextDown) this._referenceRulerTextDown.dispose();
+            this._referenceRulerTextDown = lengthText;
+        }
         if (title.startsWith("height")) {
             if (this.rulerHeightTop) this.rulerHeightTop.dispose();
             this.rulerHeightTop = frameRulerTop;
