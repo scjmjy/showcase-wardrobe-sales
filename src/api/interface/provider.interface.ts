@@ -414,6 +414,6 @@ export default interface ApiProvider {
     requestStoreList(): Promise<AjaxResponse<Store[]>>;
     request3DModels(): Promise<AjaxResponse<Model3DFile[]>>;
 
-    requestSchemeDiscount(schemeId: number): Promise<AjaxResponse<number>>;
+    requestSchemeDiscount(schemeId: number): Promise<AjaxResponse<LabelValue>>;
     updateSchemeDiscount(schemeId: number, discount: number): Promise<AjaxResponse<void>>;
 }

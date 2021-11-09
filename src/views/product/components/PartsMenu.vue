@@ -25,9 +25,8 @@
                     </template>
                     <div class="parts-menu__left-cats-header">
                         <el-button
-                            class="button-shadow"
+                            class="button-shadow iconfont iconfont--gap icon-manifest"
                             type="black"
-                            icon="el-iconfont icon-manifest"
                             size="small"
                             @click="$emit('action', 'manifest')"
                             >清单</el-button
@@ -40,7 +39,7 @@
                             :disabled="false"
                             @click="$emit('action', 'complete')"
                             >完成
-                            <i class="el-icon-right"></i>
+                            <i class="iconfont icon-arrow-right"></i>
                         </el-button>
                     </div>
                     <component
@@ -56,15 +55,13 @@
         <div v-show="opened" class="parts-menu__right" :class="{ 'slide-to-left': slideLeft }">
             <div class="parts-menu__right-header">
                 <el-button
-                    class="parts-menu__right-header-back"
-                    icon="el-icon-arrow-left"
+                    class="parts-menu__right-header-back iconfont icon-left"
                     type="text"
                     @click="onClickBack"
                 ></el-button>
                 <span class="parts-menu__right-header-title"> 明细清单 </span>
                 <el-button
-                    class="parts-menu__right-header-offer button-shadow"
-                    icon="el-iconfont icon-offer"
+                    class="parts-menu__right-header-offer iconfont iconfont--gap icon-offer button-shadow"
                     type="success"
                     size="small"
                     round
@@ -81,10 +78,10 @@
             </div>
         </div>
         <i
-            class="collapse-trigger"
+            class="collapse-trigger iconfont"
             :class="{
-                'el-icon-arrow-left': !opened,
-                'el-icon-arrow-right': opened,
+                'icon-left': !opened,
+                'icon-right': opened,
             }"
             type="text"
             @click="$emit('update:opened', !opened)"

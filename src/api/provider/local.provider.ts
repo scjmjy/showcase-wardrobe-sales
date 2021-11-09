@@ -1,5 +1,5 @@
 import { PartCount } from "@/lib/scheme";
-import { Size3D } from "../interface/common.interface";
+import { LabelValue, Size3D } from "../interface/common.interface";
 import ApiProvider, {
     AjaxResponse,
     Background,
@@ -525,9 +525,9 @@ export default class LocalProvider implements ApiProvider {
             })),
         });
     }
-    discounts = new Map<number, number>();
-    requestSchemeDiscount(schemeId: number): Promise<AjaxResponse<number>> {
-        const val = this.discounts.get(schemeId) || 0;
+    discounts = new Map<number, LabelValue>();
+    requestSchemeDiscount(schemeId: number): Promise<AjaxResponse<LabelValue>> {
+        const val = this.discounts.get(schemeId);
         return Promise.resolve({
             ok: val ? true : false,
             status: 200,
@@ -535,7 +535,25 @@ export default class LocalProvider implements ApiProvider {
         });
     }
     updateSchemeDiscount(schemeId: number, discount: number): Promise<AjaxResponse<void>> {
-        this.discounts.set(schemeId, discount);
+        const all = [
+            {
+                label: "无折扣",
+                value: 1,
+            },
+            {
+                label: "九八折",
+                value: 0.98,
+            },
+            {
+                label: "九五折",
+                value: 0.95,
+            },
+            {
+                label: "九三折",
+                value: 0.93,
+            },
+        ];
+        this.discounts.set(schemeId, all.find((item) => item.value === discount)!);
         return Promise.resolve({
             ok: true,
             status: 200,

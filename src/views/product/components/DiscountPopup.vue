@@ -5,17 +5,16 @@
             <div class="discount-popup__content-header">
                 <span class="discount-popup__content-title">折扣选择</span>
                 <el-button
-                    class="discount-popup__content-trigger"
+                    class="discount-popup__content-trigger iconfont icon-down"
                     type="warning"
                     circle
-                    icon="el-icon-arrow-down"
                     size="small"
                     @click="toggleTrigger"
                 ></el-button>
             </div>
             <el-select
                 class="button-shadow"
-                v-model="currentDiscount"
+                v-model="currentDiscount.value"
                 :popper-append-to-body="false"
                 @change="onDiscountChange"
             >
@@ -36,6 +35,7 @@ import { StateType } from "@/store";
 import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
 import apiProvider from "@/api/provider";
+import { LabelValue } from "@/api/interface/common.interface";
 
 export default defineComponent({
     name: "DiscountPopup",
@@ -49,10 +49,10 @@ export default defineComponent({
     setup(props, ctx) {
         const store = useStore<StateType>();
         const discounts = computed(() => store.state.globalCfg?.discounts || []);
-        const currentDiscount = ref(1);
+        const currentDiscount = ref<LabelValue>({ label: "无折扣", value: 1 });
         apiProvider.requestSchemeDiscount(props.schemeId).then((res) => {
             if (res.ok) {
-                currentDiscount.value = res.data || 1;
+                currentDiscount.value = res.data || { label: "无折扣", value: 1 };
             }
         });
         return {

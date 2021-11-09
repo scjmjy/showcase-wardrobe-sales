@@ -116,7 +116,7 @@ $colorText: white;
 $pi: 3.14;
 
 //config
-$menu-items: 4;
+$menu-items: 8;
 $open-distance: 105px;
 $opening-angle: $pi * 2;
 

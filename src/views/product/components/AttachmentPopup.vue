@@ -10,10 +10,9 @@
                         <attachment-item :item="attachmentItem" column />
                         <!-- <i class="attachment-popup__content-trigger el-icon-arrow-down" @click="toggleTrigger"></i> -->
                         <el-button
-                            class="attachment-popup__content-trigger"
+                            class="attachment-popup__content-trigger iconfont icon-down"
                             type="warning"
                             circle
-                            icon="el-icon-arrow-down"
                             size="small"
                             @click="toggleTrigger"
                         ></el-button>

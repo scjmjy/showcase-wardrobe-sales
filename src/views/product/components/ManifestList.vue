@@ -19,9 +19,8 @@
             ></attachment-item>
         </div>
         <el-button
-            class="manifest-list__discount"
+            class="manifest-list__discount iconfont icon-discount"
             type="text"
-            icon="el-iconfont icon-discount"
             @click="onDiscountBtnClick"
         ></el-button>
 

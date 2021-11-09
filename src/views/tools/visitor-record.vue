@@ -15,7 +15,6 @@
                         type="date"
                         placeholder="选择到访日期"
                         format="YYYY-MM-DD"
-                        prefix-icon="el-icon-edit"
                         @change="onItemChange(scope.$index, scope.row)"
                     >
                     </el-date-picker>
@@ -50,12 +49,13 @@
             <el-table-column label="操作" width="120" align="center">
                 <template #default="scope">
                     <el-button
-                        icon="el-icon-delete"
+                        class="iconfont icon-delete"
                         size="mini"
                         type="danger"
                         circle
                         @click="handleDelete(scope.$index, scope.row)"
-                    ></el-button>
+                    >
+                    </el-button>
                 </template>
             </el-table-column>
             <template #empty>

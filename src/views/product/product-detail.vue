@@ -38,9 +38,7 @@
             @order="orderNonCustomProduct"
         />
         <template v-if="mode === 'edit'">
-            <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
-                >返回</el-button
-            >
+            <el-button class="product-detail__back iconfont iconfont--gap icon-left" type="text" @click="gotoBack">返回</el-button>
             <div class="product-detail__action-left state-icon-group-h">
                 <state-icon v-model="stateInOut" :states="inOutStates" @change="onInOutChange"></state-icon>
             </div>
