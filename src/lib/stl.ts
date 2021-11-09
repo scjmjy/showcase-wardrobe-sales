@@ -38,7 +38,7 @@ export class GeneralStl implements IStl {
 
     computeMovementScope(cube: Cube, item: Item): Scope {
         // if the item type is light strip, no need to computer movement scope
-        if (item.partType == PartType.STRIP_LIGHT || item.partType == PartType.SPOT_LIGHT) {
+        if (item.partType == PartType.STRIP_LIGHT || item.partType == PartType.SPOT_LIGHT || item.partType == PartType.VERTICAL_SCALE) {
             const invertalX = new Array<Interval>();
             const invertalY = new Array<Interval>();
             const invertalZ = new Array<Interval>();

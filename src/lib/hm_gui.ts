@@ -3,7 +3,7 @@ import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
 import { BizData, ObjectType } from "@/lib/biz.data";
-import { Cube } from "@/lib/scheme";
+import { Cube, PartType } from "@/lib/scheme";
 
 import Babylon from "@/components/Babylon/Babylon.vue";
 type RefBabylon = InstanceType<typeof Babylon>;
@@ -16,7 +16,7 @@ export class PopupGUI {
     private _deleteButton!: GUI.Button;
 
     private _sliderPanel: BABYLON.Nullable<GUI.StackPanel> = null;
-    private _grid: BABYLON.Nullable<GUI.Grid> = null;
+    private _grid_silder: BABYLON.Nullable<GUI.Grid> = null;
 
     private _loadingPanel: BABYLON.Nullable<GUI.Rectangle> = null;
     private _loadingInfo: BABYLON.Nullable<GUI.TextBlock> = null;
@@ -26,7 +26,6 @@ export class PopupGUI {
     private referenceRulerUpTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
     private referenceRulerUpMiddle: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
     private referenceRulerUpEnd: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
-    
     private _referenceRulerTextUp!: GUI.TextBlock;
     private _referenceRulerTextDown!: GUI.TextBlock;
 
@@ -160,57 +159,69 @@ export class PopupGUI {
             this._sliderPanel = null;
         }
 
-        this.createSilderPanel( babylonRef, mesh, min, max );
-        this.createDeletePanel( babylonRef, mesh );
+        this.createSilderPanel(babylonRef, mesh, min, max);
+        this.createDeletePanel(babylonRef, mesh);
         this.showSwitchCubePanel(babylonRef, mesh);
-
 
         const info = mesh.name.split("_");
         const itemId = info[1];
         const item = babylonRef.bizdata.findItemById(itemId);
-        if (item == null)
-            return;
+        if (item == null) return;
 
-        let upCenter = new BABYLON.Vector3(0, 0, 0);
+        const upCenter = new BABYLON.Vector3(0, 0, 0);
         upCenter.x = mesh.position.x;
-        upCenter.y = mesh.position.y + (max - mesh.position.y)/2 + item.size.y;
+        upCenter.y = mesh.position.y + (max - mesh.position.y) / 2 + item.size.y;
         upCenter.z = mesh.position.z;
-        let downCenter = new BABYLON.Vector3(0, 0, 0);
+        const downCenter = new BABYLON.Vector3(0, 0, 0);
         downCenter.x = mesh.position.x;
-        downCenter.y = mesh.position.y - (mesh.position.y - min)/2
+        downCenter.y = mesh.position.y - (mesh.position.y - min) / 2;
         downCenter.z = mesh.position.z;
 
-        if ((max - mesh.position.y)/2 > 0)
-            this.drawRuler( babylonRef.graphics, (max - mesh.position.y), upCenter, new BABYLON.Vector3(0, 1, 0), "referenceRulerUp ", (max - mesh.position.y) );
-        if (downCenter.y - min > 0)
-            this.drawRuler( babylonRef.graphics, (mesh.position.y - min), downCenter, new BABYLON.Vector3(0, 1, 0), "referenceRulerDown ", (mesh.position.y - min) );
+        if ((max - mesh.position.y) / 2 > 0 && item.partType != PartType.VERTICAL_SCALE)
+            this.drawRuler(
+                babylonRef.graphics,
+                max - mesh.position.y,
+                upCenter,
+                new BABYLON.Vector3(0, 1, 0),
+                "referenceRulerUp ",
+                max - mesh.position.y,
+            );
+        if (downCenter.y - min > 0 && item.partType != PartType.VERTICAL_SCALE)
+            this.drawRuler(
+                babylonRef.graphics,
+                mesh.position.y - min,
+                downCenter,
+                new BABYLON.Vector3(0, 1, 0),
+                "referenceRulerDown ",
+                mesh.position.y - min,
+            );
     }
 
-    private createSilderPanel (babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>, min = -1, max = -1) {
-        if(mesh == null)
-            return;
+    private createSilderPanel(
+        babylonRef: RefBabylon,
+        mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
+        min = -1,
+        max = -1,
+    ) {
+        if (mesh == null) return;
         const info = mesh.name.split("_");
-        const objectType = info[0];    
+        const objectType = info[0];
 
         if (this._sliderPanel == null && ObjectType.ITEM == objectType && min != 0 && max != 0) {
-            this._grid = new GUI.Grid();
-            this._popupUI.addControl(this._grid);
+            this._grid_silder = new GUI.Grid();
+            this._popupUI.addControl(this._grid_silder);
 
             // TO DO : silder position code
-            this._grid.addColumnDefinition(0.95);
-            this._grid.addColumnDefinition(0.05);
-            this._grid.addRowDefinition(0.8);
-            this._grid.addRowDefinition(0.2);
+            this._grid_silder.addColumnDefinition(0.95);
+            this._grid_silder.addColumnDefinition(0.05);
+            this._grid_silder.addRowDefinition(0.95);
+            this._grid_silder.addRowDefinition(0.05);
 
             this._sliderPanel = new GUI.StackPanel();
+            this._sliderPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            this._sliderPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
             this._sliderPanel.width = "320px";
-            this._grid.addControl(this._sliderPanel, 1, 0);
-
-            const header = new GUI.TextBlock();
-            header.text = "调整物体位置";
-            header.height = "30px";
-            header.color = "#C1B399FF";
-            this._sliderPanel.addControl(header);
+            this._grid_silder.addControl(this._sliderPanel, 0, 0);
 
             const slider = new GUI.ImageBasedSlider();
             slider.minimum = min;
@@ -219,7 +230,7 @@ export class PopupGUI {
             slider.isThumbClamped = true;
             slider.displayThumb = true;
             slider.width = "22px";
-            slider.height = "150px";
+            slider.height = "360px";
             slider.backgroundImage = new GUI.Image(
                 "back",
                 "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/backgroundImage-vertical.png",
@@ -234,27 +245,38 @@ export class PopupGUI {
                     const info = mesh.name.split("_");
                     const itemId = info[1];
                     const item = babylonRef.bizdata.findItemById(itemId);
-                    if (item == null)
-                        return;
-                    let upCenter = new BABYLON.Vector3(0, 0, 0);
+                    if (item == null) return;
+                    const upCenter = new BABYLON.Vector3(0, 0, 0);
                     upCenter.x = mesh.position.x;
-                    upCenter.y = mesh.position.y + (max - mesh.position.y)/2 + item.size.y;
+                    upCenter.y = mesh.position.y + (max - mesh.position.y) / 2 + item.size.y;
                     upCenter.z = mesh.position.z;
-                    let downCenter = new BABYLON.Vector3(0, 0, 0);
+                    const downCenter = new BABYLON.Vector3(0, 0, 0);
                     downCenter.x = mesh.position.x;
-                    downCenter.y = mesh.position.y - (mesh.position.y - min)/2
+                    downCenter.y = mesh.position.y - (mesh.position.y - min) / 2;
                     downCenter.z = mesh.position.z;
-            
-                    if ((max - mesh.position.y)/2 > 0)
-                        this.drawRuler( babylonRef.graphics, (max - mesh.position.y), upCenter, new BABYLON.Vector3(0, 1, 0), "referenceRulerUp ", (max - mesh.position.y) );
+                    if ((max - mesh.position.y) / 2 > 0)
+                        this.drawRuler(
+                            babylonRef.graphics,
+                            max - mesh.position.y,
+                            upCenter,
+                            new BABYLON.Vector3(0, 1, 0),
+                            "referenceRulerUp ",
+                            max - mesh.position.y,
+                        );
                     if (downCenter.y - min > 0)
-                        this.drawRuler( babylonRef.graphics, (mesh.position.y - min), downCenter, new BABYLON.Vector3(0, 1, 0), "referenceRulerDown ", (mesh.position.y - min) );
+                        this.drawRuler(
+                            babylonRef.graphics,
+                            mesh.position.y - min,
+                            downCenter,
+                            new BABYLON.Vector3(0, 1, 0),
+                            "referenceRulerDown ",
+                            mesh.position.y - min,
+                        );
                     mesh.position.y = value;
                     if (item !== undefined) {
                         babylonRef.bizdata.moveItem(item, value);
                     }
                 }
-                header.text = " " + value.toFixed(2) + " \u7c73";
             });
 
             slider.value = mesh.position.y;
@@ -262,9 +284,8 @@ export class PopupGUI {
         }
     }
 
-    private createDeletePanel (babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
-        if(mesh == null)
-            return;
+    private createDeletePanel(babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
+        if (mesh == null) return;
         const info = mesh.name.split("_");
         const objectType = info[0];
 
@@ -278,7 +299,8 @@ export class PopupGUI {
             this._deletePanel = new GUI.Rectangle();
             this._deletePanel.width = "48px";
             this._deletePanel.height = "48px";
-            this._deletePanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            this._deletePanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+            this._deletePanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
             this._deletePanel.cornerRadius = 5;
             this._deletePanel.background = "white";
             this._popupUI.addControl(this._deletePanel);
@@ -349,7 +371,7 @@ export class PopupGUI {
                     babylonRef.graphics.currentMesh = null;
                 }
             });
-            this._deletePanel.linkOffsetYInPixels = 150
+            this._deletePanel.linkOffsetYInPixels = 50;
             this._deletePanel.linkWithMesh(mesh);
         }
     }
@@ -473,8 +495,7 @@ export class PopupGUI {
 
         this._popupUI.addControl(lengthText);
         lengthText.linkWithMesh(frameRulerMiddle);
-        if (!title.startsWith("referenceRuler"))
-            lengthText.linkOffsetYInPixels = -20;
+        if (!title.startsWith("referenceRuler")) lengthText.linkOffsetYInPixels = -20;
         if (!title.startsWith("width") && !title.startsWith("referenceRuler")) {
             lengthText.linkOffsetXInPixels = 35;
             lengthText.linkOffsetYInPixels = -35;
