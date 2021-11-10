@@ -5,23 +5,24 @@
             <div class="login-left"></div>
             <div class="login-form">
                 <div class="login-form__title">欢迎登录</div>
-                <el-input
-                    v-model="username"
-                    class="login-form__input"
-                    prefix-icon="iconfont icon-username-2"
-                    placeholder="请输入手机号码/工号"
-                >
+                <el-input v-model="username" class="login-form__input" placeholder="请输入手机号码/工号">
+                    <template #prefix>
+                        <i class="el-input__icon iconfont iconfont--primary icon-username-2" />
+                    </template>
                 </el-input>
                 <el-input
                     v-model="passwd"
                     class="login-form__input"
                     auto-complete="off"
-                    prefix-icon="iconfont icon-passwd-2"
                     placeholder="请输入密码"
                     type="password"
                     show-password
                     @keyup.enter="login"
-                />
+                >
+                    <template #prefix>
+                        <i class="el-input__icon iconfont iconfont--primary icon-passwd-2" />
+                    </template>
+                </el-input>
                 <!-- <div class="u-clearfix">
                     <el-link class="login-form__forgot" type="primary" @click.prevent="onForgotClick">忘记密码</el-link>
                 </div> -->

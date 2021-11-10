@@ -102,10 +102,25 @@ export default class RestProvider extends LocalProvider {
                         data: {
                             partsCatExterior: res.data.parts_category_exterior,
                             partsCatInterior: res.data.parts_category_interior,
-                            partsCatBoard: [9, 20],
-                            partsCatCube: [20],
-                            partsCatPartition: [9],
                             baseUrl: res.data.baseUrl,
+                            discounts: [
+                                {
+                                    label: "无折扣",
+                                    value: 1,
+                                },
+                                {
+                                    label: "九八折",
+                                    value: 0.98,
+                                },
+                                {
+                                    label: "九五折",
+                                    value: 0.95,
+                                },
+                                {
+                                    label: "九三折",
+                                    value: 0.93,
+                                },
+                            ],
                         },
                     });
                 })

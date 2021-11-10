@@ -53,10 +53,9 @@
 
         <el-tooltip v-if="!showServeBtn" class="item" effect="dark" content="开始新服务" placement="left">
             <el-button
-                class="customer-list__add"
+                class="customer-list__add iconfont icon-scheme-new"
                 type="primary"
                 circle
-                icon="iconfont icon-scheme-new"
                 @click="newServe"
             ></el-button>
         </el-tooltip>
@@ -336,12 +335,21 @@ $paddingX: 20px;
     }
 }
 .service {
-    // display: flex;
-    // justify-content: space-between;
-    // align-items: center;
     padding-left: 10px;
     flex: 1;
     margin-right: 30px;
+    &.is-in-service {
+        position: relative;
+        color: var(--el-color-danger);
+        &::before {
+            font-family: "iconfont" !important;
+            font-size: 22px;
+            content: "";
+            position: absolute;
+            left: -13px;
+            top: 2px;
+        }
+    }
     &__no,
     &__time {
         vertical-align: middle;
@@ -351,24 +359,13 @@ $paddingX: 20px;
             font-weight: 400;
         }
     }
-    &.is-in-service {
-        .service__no {
-            position: relative;
-            color: var(--el-color-danger);
-            &::before {
-                font-family: "element-icons" !important;
-                content: "\e797";
-                position: absolute;
-                left: -23px;
-            }
-        }
-    }
+
     &__time {
         color: #7c7c7cff;
     }
     &__serveBtn {
         margin-left: 40px;
-        padding: 0 20px;
+        padding: 0 20px !important;
         min-height: unset;
         height: 30px;
     }

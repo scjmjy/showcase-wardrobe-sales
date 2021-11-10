@@ -25,9 +25,8 @@
                     </template>
                     <div class="parts-menu__left-cats-header">
                         <el-button
-                            class="button-shadow"
+                            class="button-shadow iconfont iconfont--gap icon-manifest"
                             type="black"
-                            icon="el-iconfont icon-manifest"
                             size="small"
                             @click="$emit('action', 'manifest')"
                             >清单</el-button
@@ -40,7 +39,7 @@
                             :disabled="false"
                             @click="$emit('action', 'complete')"
                             >完成
-                            <i class="el-icon-right"></i>
+                            <i class="iconfont icon-arrow-right"></i>
                         </el-button>
                     </div>
                     <component
@@ -56,15 +55,13 @@
         <div v-show="opened" class="parts-menu__right" :class="{ 'slide-to-left': slideLeft }">
             <div class="parts-menu__right-header">
                 <el-button
-                    class="parts-menu__right-header-back"
-                    icon="el-icon-arrow-left"
+                    class="parts-menu__right-header-back iconfont icon-left"
                     type="text"
                     @click="onClickBack"
                 ></el-button>
                 <span class="parts-menu__right-header-title"> 明细清单 </span>
                 <el-button
-                    class="parts-menu__right-header-offer button-shadow"
-                    icon="el-iconfont icon-offer"
+                    class="parts-menu__right-header-offer iconfont iconfont--gap icon-offer button-shadow"
                     type="success"
                     size="small"
                     round
@@ -72,43 +69,23 @@
                     >报价</el-button
                 >
             </div>
-            <div
-                v-if="schemeManifest"
-                class="parts-menu__right-manifest"
-                :class="{ 'is-blur': selectedAttachmentItem }"
-            >
+            <div v-if="schemeManifest" class="parts-menu__right-manifest">
                 <manifest-list
                     :list="schemeManifest"
-                    :selectedItem="selectedAttachmentItem"
-                    @select="onAttachmentItemSelect"
+                    :schemeId="$attrs.schemeId"
+                    @attachment-replacement="$attrs.onAttachmentReplacement"
                 />
             </div>
-            <!-- <div v-if="schemeManifest" class="parts-menu__right-price">
-                <span class="price__label">合计：</span>
-                <span class="price__symbol"> ￥ </span>
-                <span class="price__offer">{{ offerPrice.integer }}</span>
-                <span class="price__symbol">.{{ offerPrice.decimal }} </span>
-            </div> -->
         </div>
         <i
-            class="collapse-trigger"
+            class="collapse-trigger iconfont"
             :class="{
-                'el-icon-arrow-left': !opened,
-                'el-icon-arrow-right': opened,
+                'icon-left': !opened,
+                'icon-right': opened,
             }"
             type="text"
             @click="$emit('update:opened', !opened)"
         ></i>
-
-        <transition name="el-zoom-in-bottom">
-            <attachment-popup
-                v-if="selectedAttachmentItem"
-                class="parts-menu__attachmenPopup"
-                :item="selectedAttachmentItem"
-                @change="onAttachmentChange"
-                @hide="onAttachmentPopupHide"
-            ></attachment-popup>
-        </transition>
     </div>
 </template>
 
@@ -119,7 +96,6 @@ import { StateType } from "@/store";
 import {
     BackgroundType,
     findSiblingCats,
-    ManifestPart,
     Part,
     PartCategory,
     PartCategoryMeta,
@@ -133,7 +109,6 @@ import PartBgTab from "./PartBgTab.vue";
 import CatsList from "./CatsList.vue";
 import type { ImgCardItemType } from "./ImgCardItem.vue";
 import ManifestList from "./ManifestList.vue";
-import AttachmentPopup from "./AttachmentPopup.vue";
 import { Size3D } from "@/api/interface/common.interface";
 import { makePartCompositions } from "../helpers";
 
@@ -169,15 +144,13 @@ export default defineComponent({
         PartBgTab,
         CatsList,
         ManifestList,
-        AttachmentPopup,
     },
-    emits: ["update:opened", "part", "action", "bg", "attachment-replacement"],
+    emits: ["update:opened", "part", "action", "bg"],
     setup(props, ctx) {
         const store = useStore<StateType>();
         const cats = computed<PartCategory[]>(() => store.getters.partCats);
         const catMeta = ref<PartCategoryMeta>();
         const selectedTabName = ref<string>();
-        const selectedAttachmentItem = ref<ManifestPart>();
         const schemeManifest = ref<SchemeManifest>();
         const slideLeft = ref(false);
         const inCats = computed<PartCategory[]>(() => {
@@ -210,12 +183,6 @@ export default defineComponent({
         function onUpLevelClick() {
             tabStack.value.pop();
             const tabs = tabStack.value[tabStack.value.length - 1] || topLevelTabs.value;
-            // if (tabs.length >= 2) {
-            //     selectedTabName.value = tabs[1].name;
-            // } else {
-            //     selectedTabName.value = "bg";
-            // }
-
             if (props.type === "in") {
                 selectedTabName.value = tabs[0].name;
             } else if (tabs.length >= 2) {
@@ -317,42 +284,14 @@ export default defineComponent({
             tabStack,
             catMeta,
             selectedTabName,
-            selectedAttachmentItem,
             schemeManifest,
             slideLeft,
             slide,
             onClickBack() {
                 slide("right");
-                selectedAttachmentItem.value = undefined;
             },
-            onCatChange(_tab: any) {
-                // console.log("tab", tab.instance);
-                // const catId = tab.props.name;
-                // selectedCatId.value = catId;
-                // requestPartCatMeta();
-            },
+            onCatChange(_tab: any) {},
             onUpLevelClick,
-            onAttachmentItemSelect(item: ManifestPart) {
-                selectedAttachmentItem.value = item;
-            },
-            onAttachmentChange(part: Part, _cat: PartCategory) {
-                if (selectedAttachmentItem.value) {
-                    const oldAttachment = Object.assign({}, selectedAttachmentItem.value);
-                    const newAttachment = Object.assign({}, oldAttachment, {
-                        pname: part.name,
-                        pic: part.pic,
-                        partid: +part.id,
-                    });
-                    ctx.emit("attachment-replacement", newAttachment, oldAttachment);
-
-                    Object.assign(selectedAttachmentItem.value, newAttachment);
-
-                    selectedAttachmentItem.value = undefined;
-                }
-            },
-            onAttachmentPopupHide() {
-                selectedAttachmentItem.value = undefined;
-            },
             selectPart(catId: string | number, partId: string | number) {
                 slide("right");
                 selectedPartId.value = +partId;
@@ -368,8 +307,6 @@ export default defineComponent({
                 const siblings = findSiblingCats(catId, activeCats.value);
                 if (siblings) {
                     const tabs = cats2Tabs(siblings);
-                    // const activeTab = tabs.find((t) => t.cat.id.toString() === catId.toString());
-                    // selectedTabName.value = activeTab.name;
                     selectedTabName.value = catId.toString();
                     if (props.type === "out") {
                         tabs.unshift(bgTab);
@@ -399,31 +336,13 @@ export default defineComponent({
                     }
                 });
             },
-            // showManifest(shcemeId: number | string, offer: boolean) {
-            //     slide("left");
-            //     return apiProvider.requestSchemeManifest(shcemeId).then((res) => {
-            //         if (res.ok && res.data) {
-            //             schemeManifest.value = res.data;
-            //         }
-            //     });
-            // },
-            // offerPrice: computed(() => {
-            //     if (!schemeManifest.value) {
-            //         return {
-            //             integer: "",
-            //             decimal: "",
-            //         };
-            //     } else {
-            //         return splitPrice(+schemeManifest.value.offer);
-            //     }
-            // }),
         };
     },
 });
 </script>
 
 <style scoped lang="scss">
-$header-height: 56px;
+@use "~@/assets/scss/business.scss" as *;
 
 .parts-menu {
     position: relative;
@@ -455,7 +374,7 @@ $header-height: 56px;
         }
         &.is-level-up {
             :deep(.el-tabs__header) {
-                padding-top: $header-height;
+                padding-top: $menu-header-height;
             }
         }
         &-cats {
@@ -519,7 +438,7 @@ $header-height: 56px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                height: $header-height;
+                height: $menu-header-height;
                 padding: 5px 0px 8px 0px;
                 margin-bottom: 5px;
                 border-bottom: 1px solid var(--el-color-info);
@@ -561,7 +480,7 @@ $header-height: 56px;
             justify-content: space-between;
             align-items: center;
             padding: 0px 10px 0px 10px;
-            height: $header-height;
+            height: $menu-header-height;
             box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.16);
             &-title {
                 padding-left: 8px;
@@ -570,9 +489,6 @@ $header-height: 56px;
                 font-size: 26px;
                 flex: 2;
                 text-align: center;
-            }
-            &-offer {
-                // height: 100%;
             }
             &-back {
                 padding-left: 5px;
@@ -583,17 +499,8 @@ $header-height: 56px;
         }
         &-manifest {
             flex: 1;
-            overflow-y: auto;
-            padding: 0px 30px;
-            margin-bottom: 70px;
-
-            &.is-blur {
-                filter: blur(2px);
-            }
+            overflow: hidden;
         }
-    }
-    &__attachmenPopup {
-        top: $header-height;
     }
 }
 </style>

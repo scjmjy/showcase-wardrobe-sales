@@ -44,7 +44,7 @@ export class GeneralAreaFilter implements IAreaFilter {
     }
 
     doFilter(area: Area, partType: PartType, partSize: Vector3): boolean {
-        if (partType == PartType.VERTICAL_SCALE) return true;
+        if (partType == PartType.VERTICAL_SCALE && area.endPoint.y - area.startPoint.y > 0.02) return true;
         this.bias_x = 0.05;
         const x_area = Math.abs(area.startPoint.x - area.endPoint.x);
         const y_area = Math.abs(area.startPoint.y - area.endPoint.y);

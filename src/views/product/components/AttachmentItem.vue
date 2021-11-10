@@ -11,7 +11,7 @@
                 </span>
                 <i
                     v-if="!column"
-                    class="attachment-item__count-trigger u-trigger el-icon-arrow-down"
+                    class="attachment-item__count-trigger u-trigger iconfont icon-down"
                     :class="{ 'u-trigger--180': triggered }"
                     @click="toggleTrigger"
                 ></i>

@@ -84,22 +84,14 @@
                         @click="$emit('copyScheme')"
                         >由此方案定制</el-button
                     >
-                    <!-- <el-button
-                        v-if="isSelf && offerPrice && !offerPrice.integer"
-                        type="dark"
-                        round
-                        size="small"
-                        @click="$emit('offer')"
-                        >报价</el-button
-                    > -->
                 </template>
             </div>
         </template>
         <i
-            class="collapse-trigger"
+            class="collapse-trigger iconfont"
             :class="{
-                'el-icon-arrow-left': collapse,
-                'el-icon-arrow-right': !collapse,
+                'icon-left': collapse,
+                'icon-right': !collapse,
             }"
             type="text"
             @click="$emit('update:collapse', !collapse)"

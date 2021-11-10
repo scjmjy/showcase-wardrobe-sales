@@ -38,7 +38,7 @@ export class GeneralStl implements IStl {
 
     computeMovementScope(cube: Cube, item: Item): Scope {
         // if the item type is light strip, no need to computer movement scope
-        if (item.partType == PartType.STRIP_LIGHT || item.partType == PartType.SPOT_LIGHT) {
+        if (item.partType == PartType.STRIP_LIGHT || item.partType == PartType.SPOT_LIGHT || item.partType == PartType.VERTICAL_SCALE) {
             const invertalX = new Array<Interval>();
             const invertalY = new Array<Interval>();
             const invertalZ = new Array<Interval>();
@@ -96,7 +96,7 @@ export class GeneralStl implements IStl {
     private calculateAnchor(area: Area, partType: number, partSize: Vector3): Vector3 {
         // if the part type is light, item is install under the relative item,
         // so the default position is different from general item
-        if (partType == PartType.STRIP_LIGHT || partType == PartType.SPOT_LIGHT)
+        if (partType == PartType.STRIP_LIGHT || partType == PartType.SPOT_LIGHT || partType == PartType.HORIZONTAL_SCALE)
             return new Vector3((area.startPoint.x + area.endPoint.x) / 2, area.endPoint.y - partSize.y, 0);
         else return new Vector3((area.startPoint.x + area.endPoint.x) / 2, area.startPoint.y, 0);
     }

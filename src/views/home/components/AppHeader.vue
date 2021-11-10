@@ -2,9 +2,8 @@
     <div class="app-header" :style="headerStyle">
         <el-button
             v-if="back"
-            class="app-header__left app-header__back"
+            class="app-header__left app-header__back iconfont iconfont--gap icon-left"
             type="text"
-            icon="el-icon-arrow-left"
             round
             @click="doBack"
             >{{ back }}</el-button

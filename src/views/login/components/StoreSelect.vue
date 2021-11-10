@@ -1,5 +1,5 @@
 <template>
-    <el-select v-bind="$attrs" placeholder="请选择门店">
+    <el-select v-bind="$attrs" placeholder="请选择门店" :popper-append-to-body="false">
         <el-option v-for="store of storeList" :key="store.id" :label="store.name" :value="store.id"></el-option>
     </el-select>
 </template>

@@ -210,11 +210,8 @@ export interface GlobalCfg {
     partsCatInterior: IdList;
     // 外观配件分类ID列表
     partsCatExterior: IdList;
-    // 板材配件分类ID列表
-    partsCatBoard: IdList;
-    partsCatCube: IdList;
-    partsCatPartition: IdList;
     baseUrl: string;
+    discounts: LabelValue[];
 }
 
 export enum BackgroundType {
@@ -416,4 +413,7 @@ export default interface ApiProvider {
 
     requestStoreList(): Promise<AjaxResponse<Store[]>>;
     request3DModels(): Promise<AjaxResponse<Model3DFile[]>>;
+
+    requestSchemeDiscount(schemeId: number): Promise<AjaxResponse<LabelValue>>;
+    updateSchemeDiscount(schemeId: number, discount: number): Promise<AjaxResponse<void>>;
 }
