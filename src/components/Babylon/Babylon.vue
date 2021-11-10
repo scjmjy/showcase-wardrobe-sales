@@ -746,7 +746,9 @@ export default defineComponent({
                         this.graphics.scene.rootNodes.forEach((rootNode) => {
                             const rootMesh = rootNode as BABYLON.AbstractMesh;
                             if (rootMesh !== undefined) {
-                                const isItem = rootMesh.name.startsWith(ObjectType.ITEM);
+                                const isItem =
+                                    rootMesh.name.startsWith(ObjectType.ITEM) ||
+                                    rootMesh.name.startsWith(ObjectType.LIGHT);
 
                                 rootMesh.isVisible = true;
                                 rootMesh.getChildMeshes().forEach((childMesh) => {
@@ -772,7 +774,9 @@ export default defineComponent({
                             if (rootMesh !== undefined) {
                                 const isCube = rootMesh.name.startsWith(ObjectType.CUBE);
                                 const isDoor = rootMesh.name.startsWith(ObjectType.DOOR);
-                                const isItem = rootMesh.name.startsWith(ObjectType.ITEM);
+                                const isItem =
+                                    rootMesh.name.startsWith(ObjectType.ITEM) ||
+                                    rootMesh.name.startsWith(ObjectType.LIGHT);
 
                                 rootMesh.isVisible = !isDoor;
                                 rootMesh.getChildMeshes().forEach((childMesh) => {
