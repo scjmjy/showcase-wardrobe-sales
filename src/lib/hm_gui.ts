@@ -212,14 +212,14 @@ export class PopupGUI {
             this._popupUI.addControl(this._grid_silder);
 
             // TO DO : silder position code
-            this._grid_silder.addColumnDefinition(0.95);
-            this._grid_silder.addColumnDefinition(0.05);
+            this._grid_silder.addColumnDefinition(0.9);
+            this._grid_silder.addColumnDefinition(0.1);
             this._grid_silder.addRowDefinition(0.95);
             this._grid_silder.addRowDefinition(0.05);
 
             this._sliderPanel = new GUI.StackPanel();
             this._sliderPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-            this._sliderPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            this._sliderPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
             this._sliderPanel.width = "320px";
             this._grid_silder.addControl(this._sliderPanel, 0, 0);
 
@@ -230,7 +230,7 @@ export class PopupGUI {
             slider.isThumbClamped = true;
             slider.displayThumb = true;
             slider.width = "22px";
-            slider.height = "360px";
+            slider.height = "400px";
             slider.backgroundImage = new GUI.Image(
                 "back",
                 "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/backgroundImage-vertical.png",
