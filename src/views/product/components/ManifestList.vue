@@ -33,7 +33,12 @@
             ></attachment-popup>
         </transition>
         <transition name="el-zoom-in-bottom">
-            <discount-popup v-if="showDicountPage" :schemeId="$attrs.schemeId" @hide="onDiscountPopupHide" />
+            <discount-popup
+                v-if="showDicountPage"
+                :discountId="$attrs.discountId"
+                :schemeId="$attrs.schemeId"
+                @hide="onDiscountPopupHide"
+            />
         </transition>
     </div>
 </template>

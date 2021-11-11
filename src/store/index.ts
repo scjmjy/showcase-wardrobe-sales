@@ -119,7 +119,13 @@ export default createStore({
 
         async config({ state, commit, dispatch }) {
             try {
-                const cfg = (await apiProvider.requestGlobalCfg()).data;
+                const cfg = (await apiProvider.requestGlobalCfg()).data!;
+                try {
+                    const discounts = (await apiProvider.requestDiscounts()).data || [];
+                    cfg.discounts = discounts;
+                } catch (error) {
+                    //
+                }
                 commit("SET-GLOBAL-CONFIG", cfg);
                 const attachments = (await apiProvider.requestPartAttachments()).data;
                 commit("SET-PART-ATTACHMENTS", attachments);

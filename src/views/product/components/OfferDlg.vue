@@ -66,10 +66,6 @@ export default defineComponent({
             type: Object as PropType<Scheme>,
             required: true,
         },
-        size: {
-            type: Object as PropType<Size3D>,
-            required: true,
-        },
     },
     setup(props) {
         const discount = ref<LabelValue>({
@@ -88,10 +84,10 @@ export default defineComponent({
             }
         });
         const discountPrice = computed(() => {
-            if (!schemeOffer.value || discount.value.value == 1) {
+            if (!schemeOffer.value || schemeOffer.value.offer === schemeOffer.value.total) {
                 return undefined;
             } else {
-                const price = +schemeOffer.value.offer * (discount.value.value as number);
+                const price = +schemeOffer.value.total;
                 return splitPrice(price);
             }
         });
@@ -111,12 +107,16 @@ export default defineComponent({
             summaryText,
             async doOffer() {
                 const partCounts = props.scheme.getPartCounts();
-                const compositions = makePartCompositions(partCounts, props.size);
+                const compositions = makePartCompositions(partCounts);
                 const resDiscount = await apiProvider.requestSchemeDiscount(props.schemeId);
-                if (resDiscount.ok) {
-                    discount.value = resDiscount.data || { label: "无折扣", value: 1 };
+                if (resDiscount.ok && resDiscount.data) {
+                    discount.value = resDiscount.data;
                 }
-                const resOffer = await apiProvider.requestSchemeOffer(props.schemeId, compositions);
+                const resOffer = await apiProvider.requestSchemeOffer(
+                    props.schemeId,
+                    +discount.value.value,
+                    compositions,
+                );
                 if (resOffer.ok && resOffer.data) {
                     schemeOffer.value = resOffer.data;
                 }

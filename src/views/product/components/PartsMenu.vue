@@ -73,6 +73,7 @@
                 <manifest-list
                     :list="schemeManifest"
                     :schemeId="$attrs.schemeId"
+                    :discountId="$attrs.discountId"
                     @attachment-replacement="$attrs.onAttachmentReplacement"
                 />
             </div>
@@ -109,7 +110,6 @@ import PartBgTab from "./PartBgTab.vue";
 import CatsList from "./CatsList.vue";
 import type { ImgCardItemType } from "./ImgCardItem.vue";
 import ManifestList from "./ManifestList.vue";
-import { Size3D } from "@/api/interface/common.interface";
 import { makePartCompositions } from "../helpers";
 
 interface TabType {
@@ -320,10 +320,10 @@ export default defineComponent({
                 selectedPartId.value = 0;
                 selectedCatId.value = 0;
             },
-            showManifest(parts: PartCount[], size: Size3D) {
+            showManifest(sid: number, parts: PartCount[]) {
                 slide("left");
-                const partIds = makePartCompositions(parts, size);
-                return apiProvider.requestSchemeManifestV2(partIds).then((res) => {
+                const partIds = makePartCompositions(parts);
+                return apiProvider.requestSchemeManifestV2(sid, partIds).then((res) => {
                     if (res.ok && res.data) {
                         schemeManifest.value = res.data || [];
                         for (const item of schemeManifest.value) {

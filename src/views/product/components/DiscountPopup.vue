@@ -14,7 +14,7 @@
             </div>
             <el-select
                 class="button-shadow"
-                v-model="currentDiscount.value"
+                v-model="currentDiscount"
                 :popper-append-to-body="false"
                 @change="onDiscountChange"
             >
@@ -45,14 +45,18 @@ export default defineComponent({
             type: Number,
             default: 0,
         },
+        discountId: {
+            type: Number,
+            default: 1, // TODO: backend sql column id 1 for no discount
+        },
     },
     setup(props, ctx) {
         const store = useStore<StateType>();
         const discounts = computed(() => store.state.globalCfg?.discounts || []);
-        const currentDiscount = ref<LabelValue>({ label: "无折扣", value: 1 });
+        const currentDiscount = ref(props.discountId || 1);
         apiProvider.requestSchemeDiscount(props.schemeId).then((res) => {
-            if (res.ok) {
-                currentDiscount.value = res.data || { label: "无折扣", value: 1 };
+            if (res.ok && res.data) {
+                currentDiscount.value = res.data.value as number;
             }
         });
         return {

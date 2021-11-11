@@ -153,13 +153,13 @@ export default defineComponent({
                 if (!p || isProduct(p)) {
                     return undefined;
                 }
-                if (!p.offer) {
+                if (!p.total) {
                     return {
                         integer: "",
                         decimal: "",
                     };
                 } else {
-                    return splitPrice(+p.offer);
+                    return splitPrice(+p.total);
                 }
             }),
             titles: computed(() => {

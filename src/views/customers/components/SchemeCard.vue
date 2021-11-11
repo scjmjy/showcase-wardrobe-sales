@@ -45,10 +45,10 @@ export default defineComponent({
     },
     emits: ["detail"],
     setup(props, context) {
-        const noOffer = computed(() => !Number(props.scheme.offer));
+        const noOffer = computed(() => !Number(props.scheme.total));
         return {
             noOffer,
-            offerText: computed(() => (noOffer.value ? "待报价" : `￥${(+props.scheme.offer).toFixed(2)}`)),
+            offerText: computed(() => (noOffer.value ? "待报价" : `￥${(+props.scheme.total).toFixed(2)}`)),
             onBtnClick() {
                 context.emit("detail", props.scheme);
             },

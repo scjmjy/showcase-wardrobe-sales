@@ -53,6 +53,7 @@
                 :type="stateInOut"
                 :completeDisabled="completeDisabled"
                 :schemeId="product.id"
+                :discountId="product.did"
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
                 @attachment-replacement="onAttachmentChange"
@@ -80,7 +81,6 @@
             :schemeName="product.product"
             :customerName="customerName"
             :scheme="scheme"
-            :size="customizeSize"
             @closed="onOfferDlgClosed"
         />
         <metals-dlg v-model="showMetalsDlg" :scheme3d="scheme" :part="selectedMetalPart" @change-part="onChangePart" />
@@ -422,7 +422,7 @@ export default defineComponent({
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
-                    await refPartsMenu.value?.showManifest(scheme.value!.getPartCounts(), customizeSize.value);
+                    await refPartsMenu.value?.showManifest(scheme2d.id, scheme.value!.getPartCounts());
                     break;
                 case "offer":
                     if (scheme.value?.dirty) {

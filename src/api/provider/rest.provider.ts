@@ -27,7 +27,7 @@ import {
 import LocalProvider from "./local.provider";
 import emitter from "@/event";
 import { PartCount } from "@/lib/scheme";
-import { Size3D } from "../interface/common.interface";
+import { LabelValue, Size3D } from "../interface/common.interface";
 
 export default class RestProvider extends LocalProvider {
     login(
@@ -103,24 +103,7 @@ export default class RestProvider extends LocalProvider {
                             partsCatExterior: res.data.parts_category_exterior,
                             partsCatInterior: res.data.parts_category_interior,
                             baseUrl: res.data.baseUrl,
-                            discounts: [
-                                {
-                                    label: "无折扣",
-                                    value: 1,
-                                },
-                                {
-                                    label: "九八折",
-                                    value: 0.98,
-                                },
-                                {
-                                    label: "九五折",
-                                    value: 0.95,
-                                },
-                                {
-                                    label: "九三折",
-                                    value: 0.93,
-                                },
-                            ],
+                            discounts: [],
                         },
                     });
                 })
@@ -140,13 +123,6 @@ export default class RestProvider extends LocalProvider {
                 url: "/api/v1/biz/parts/attachments",
             })
                 .then((res) => {
-                    // TODO
-                    // const data: PartAttachmentList = res.data || [];
-                    // for (const item of data) {
-                    //     for (const item2 of item.attachmentsList) {
-                    //         item2.ptcid = 15;
-                    //     }
-                    // }
                     resolve({
                         ok: true,
                         status: res.status,
@@ -725,13 +701,18 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
-    requestSchemeOffer(schemeId: string | number, compositions: RequestPartId[]): Promise<AjaxResponse<SchemeOffer>> {
+    requestSchemeOffer(
+        schemeId: string | number,
+        discountId: number,
+        compositions: RequestPartId[],
+    ): Promise<AjaxResponse<SchemeOffer>> {
         return new Promise((resolve) => {
             request({
                 method: "POST",
                 url: `/api/v1/biz/scheme/offer`,
                 data: {
                     sid: schemeId,
+                    did: discountId,
                     compositions,
                 },
             })
@@ -780,13 +761,14 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
-    requestSchemeManifestV2(partIds: RequestPartId[]): Promise<AjaxResponse<SchemeManifest>> {
+    requestSchemeManifestV2(sid: number, partIds: RequestPartId[]): Promise<AjaxResponse<SchemeManifest>> {
         return new Promise((resolve) => {
             request({
                 method: "POST",
                 url: `/api/v1/biz/scheme/checklist`,
                 data: {
-                    partIds: partIds,
+                    partIds,
+                    sid,
                 },
             })
                 .then((res) => {
@@ -971,6 +953,34 @@ export default class RestProvider extends LocalProvider {
                         status: 500,
                         show: "error",
                         msg: "获取3D模型文件列表失败",
+                    });
+                });
+        });
+    }
+
+    requestDiscounts(): Promise<AjaxResponse<LabelValue[]>> {
+        return new Promise((resolve, reject) => {
+            request({
+                method: "GET",
+                url: "/api/v1/biz/discounts",
+            })
+                .then((res) => {
+                    const discounts: LabelValue[] = (res.data || []).map((item: any) => ({
+                        label: item.display,
+                        value: item.id,
+                    }));
+                    resolve({
+                        ok: true,
+                        status: res.status,
+                        data: discounts,
+                    });
+                })
+                .catch(() => {
+                    resolve({
+                        ok: false,
+                        status: 500,
+                        show: "error",
+                        msg: "获取方案折扣列表失败",
                     });
                 });
         });

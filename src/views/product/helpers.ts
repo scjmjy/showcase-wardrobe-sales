@@ -100,8 +100,7 @@ export function useStateIcons() {
     };
 }
 
-export function makePartCompositions(partCounts: PartCount[], wardrobeSize: Size3D) {
-    const { width, height, depth } = wardrobeSize;
+export function makePartCompositions(partCounts: PartCount[]) {
     return partCounts
         .filter((p) => p.count > 0)
         .map((p) => {
@@ -112,9 +111,9 @@ export function makePartCompositions(partCounts: PartCount[], wardrobeSize: Size
             if (p.sizeRatio) {
                 const { x, y, z } = p.sizeRatio;
                 Object.assign(requestPartId, {
-                    width: x * width,
-                    height: y * height,
-                    depth: z * depth,
+                    width: x,
+                    height: y,
+                    depth: z,
                 });
             }
             return requestPartId;
