@@ -233,11 +233,11 @@ export class PopupGUI {
             slider.height = "400px";
             slider.backgroundImage = new GUI.Image(
                 "back",
-                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/backgroundImage-vertical.png",
+                "/3d/res/backgroundImage-vertical.png",
             );
             slider.thumbImage = new GUI.Image(
                 "thumb",
-                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png",
+                "/3d/res/thumb.png",
             );
 
             slider.onValueChangedObservable.add((value: number) => {
@@ -307,7 +307,7 @@ export class PopupGUI {
 
             this._deleteButton = GUI.Button.CreateImageOnlyButton(
                 "deleteButton",
-                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/res/deleteButton.png",
+                "/3d/res/deleteButton.png",
             );
             this._deleteButton.width = "46px";
             this._deleteButton.height = "46px";
@@ -408,7 +408,7 @@ export class PopupGUI {
                 this._popupUI.addControl(switchCube);
                 const switchCubeButton = GUI.Button.CreateImageOnlyButton(
                     "switchCubeButton",
-                    "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/res/3DGestureHint.png",
+                    "/3d/res/3DGestureHint.png",
                 );
                 switchCubeButton.width = "46px";
                 switchCubeButton.height = "46px";
