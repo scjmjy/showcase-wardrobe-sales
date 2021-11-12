@@ -177,7 +177,7 @@ export class PopupGUI {
         downCenter.y = mesh.position.y - (mesh.position.y - min) / 2;
         downCenter.z = mesh.position.z;
 
-        if ((max - mesh.position.y) / 2 > 0 && item.partType != PartType.VERTICAL_SCALE)
+        if ((max - mesh.position.y) / 2 > 0 && max >= 0 && item.partType != PartType.VERTICAL_SCALE)
             this.drawRuler(
                 babylonRef.graphics,
                 max - mesh.position.y,
@@ -186,7 +186,7 @@ export class PopupGUI {
                 "referenceRulerUp ",
                 max - mesh.position.y,
             );
-        if (downCenter.y - min > 0 && item.partType != PartType.VERTICAL_SCALE)
+        if (downCenter.y - min > 0 && min >= 0 && item.partType != PartType.VERTICAL_SCALE)
             this.drawRuler(
                 babylonRef.graphics,
                 mesh.position.y - min,
@@ -372,6 +372,7 @@ export class PopupGUI {
                 }
             });
             this._deletePanel.linkOffsetYInPixels = 50;
+            this._deletePanel.linkOffsetXInPixels = 100;
             this._deletePanel.linkWithMesh(mesh);
         }
     }
