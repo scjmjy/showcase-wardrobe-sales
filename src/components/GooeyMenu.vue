@@ -10,9 +10,9 @@
             :checked="modelValue"
         />
         <label class="menu-open-button" @click="onLabelClick">
-            <span class="hamburger hamburger-1"></span>
-            <span class="hamburger hamburger-2"></span>
-            <span class="hamburger hamburger-3"></span>
+            <span class="gooey-hamburger gooey-hamburger-1"></span>
+            <span class="gooey-hamburger gooey-hamburger-2"></span>
+            <span class="gooey-hamburger gooey-hamburger-3"></span>
         </label>
 
         <span
@@ -63,7 +63,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from "vue";
+import { defineComponent, getCurrentInstance, PropType, ref } from "vue";
 import { MenuItem } from "./GooeyMenu.helper";
 
 export default defineComponent({
@@ -80,19 +80,22 @@ export default defineComponent({
     },
     emits: ["update:modelValue", "click"],
     setup(props, ctx) {
+        const $this = getCurrentInstance();
         const refInput = ref<HTMLInputElement>();
+        function toggleActive(item: MenuItem) {
+            item.active = !item.active;
+            $this?.proxy?.$forceUpdate();
+        }
         return {
             refInput,
             onItemClick(item: MenuItem) {
-                item.active = !item.active;
                 ctx.emit("click", item);
                 !item.noClose && ctx.emit("update:modelValue", false);
                 if (item.type === "button") {
                     item.onClick && item.onClick();
-                } else if (item.active) {
-                    item.onActive && item.onActive();
                 } else {
-                    item.onUnactive && item.onUnactive();
+                    toggleActive(item);
+                    item.active ? item.onActive && item.onActive() : item.onUnactive && item.onUnactive();
                 }
             },
             onLabelClick() {
@@ -154,7 +157,7 @@ $ballSize: 56px;
         color: inherit;
     }
 }
-.hamburger {
+.gooey-hamburger {
     $width: 25px;
     $height: 3px;
     width: $width;
@@ -169,29 +172,28 @@ $ballSize: 56px;
     transition: transform 200ms;
 }
 $hamburger-spacing: 8px;
-.hamburger-1 {
+.gooey-hamburger-1 {
     transform: translate3d(0, -$hamburger-spacing, 0);
 }
-.hamburger-2 {
+.gooey-hamburger-2 {
     transform: translate3d(0, 0, 0);
 }
-.hamburger-3 {
+.gooey-hamburger-3 {
     transform: translate3d(0, $hamburger-spacing, 0);
 }
 .menu-open:checked + .menu-open-button {
-    .hamburger-1 {
+    .gooey-hamburger-1 {
         transform: translate3d(0, 0, 0) rotate(45deg);
     }
-    .hamburger-2 {
+    .gooey-hamburger-2 {
         transform: translate3d(0, 0, 0) scale(0.1, 1);
     }
-    .hamburger-3 {
+    .gooey-hamburger-3 {
         transform: translate3d(0, 0, 0) rotate(-45deg);
     }
 }
 .menu {
     @extend %goo;
-    // width: ;
     height: $ballSize;
     box-sizing: border-box;
     font-size: 20px;
