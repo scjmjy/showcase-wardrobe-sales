@@ -106,7 +106,7 @@ export class Graphics {
             skyboxSize: size * 2.1,
             // groundTexture: "/3d/res/backgroundGround.png",
             // skyboxTexture: "/3d/res/backgroundSkybox.dds",
-            environmentTexture: "/3d/res/studio-old.env",
+            environmentTexture: process.env.BASE_URL + "3d/res/studio-old.env",
             groundColor: new BABYLON.Color3(0.9, 0.9, 1),
             enableGroundShadow: false,
             groundShadowLevel: 0.72,
