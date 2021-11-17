@@ -231,14 +231,8 @@ export class PopupGUI {
             slider.displayThumb = true;
             slider.width = "22px";
             slider.height = "400px";
-            slider.backgroundImage = new GUI.Image(
-                "back",
-                "/3d/res/backgroundImage-vertical.png",
-            );
-            slider.thumbImage = new GUI.Image(
-                "thumb",
-                "/3d/res/thumb.png",
-            );
+            slider.backgroundImage = new GUI.Image("back", "/3d/res/backgroundImage-vertical.png");
+            slider.thumbImage = new GUI.Image("thumb", "/3d/res/thumb.png");
 
             slider.onValueChangedObservable.add((value: number) => {
                 if (mesh) {
@@ -305,10 +299,7 @@ export class PopupGUI {
             this._deletePanel.background = "white";
             this._popupUI.addControl(this._deletePanel);
 
-            this._deleteButton = GUI.Button.CreateImageOnlyButton(
-                "deleteButton",
-                "/3d/res/deleteButton.png",
-            );
+            this._deleteButton = GUI.Button.CreateImageOnlyButton("deleteButton", "/3d/res/deleteButton.png");
             this._deleteButton.width = "46px";
             this._deleteButton.height = "46px";
             this._deleteButton.thickness = 0;
@@ -480,6 +471,7 @@ export class PopupGUI {
         // length of the ruler on upside
         const lengthText = new GUI.TextBlock();
         lengthText.height = "28px";
+        lengthText.width = "60px";
         lengthText.color = "#000000FF";
         lengthText.fontSize = 18;
         if (size == 0) lengthText.text = length.toFixed(2) + " \u7c73";
