@@ -1705,12 +1705,14 @@ export default defineComponent({
                 );
                 spotLight1.diffuse = BABYLON.Color3.FromHexString(lightColor);
                 spotLight1.intensity = lightIntensity;
+                spotLight1.setEnabled(false);
                 this.spotLightMap.set(key1, spotLight1);
 
                 const spotLight2 = spotLight1.clone("SpotLight") as BABYLON.SpotLight;
                 const key2 = partId + "_2";
                 spotLight2.name = key2;
                 spotLight2.position = new BABYLON.Vector3(pivot.x - 0.265, pivot.y + offsetY, pivot.z);
+                spotLight2.setEnabled(false);
                 this.spotLightMap.set(key2, spotLight2);
             } else {
                 const key = partId;
@@ -1724,6 +1726,7 @@ export default defineComponent({
                 );
                 spotLight.diffuse = BABYLON.Color3.FromHexString(lightColor);
                 spotLight.intensity = lightIntensity;
+                spotLight.setEnabled(false);
                 this.spotLightMap.set(key, spotLight);
             }
         },
