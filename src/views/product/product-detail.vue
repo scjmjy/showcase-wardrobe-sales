@@ -793,7 +793,7 @@ $menu-width: 25%;
     &__gooeyMenu {
         position: absolute;
         left: 140px;
-        bottom: 68px;
+        bottom: 70px;
     }
     &__action-test {
         position: absolute;
