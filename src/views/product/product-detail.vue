@@ -742,6 +742,9 @@ export default defineComponent({
 
 <style scoped lang="scss">
 $menu-width: 25%;
+$left-back: 30px;
+$left-action: 30px;
+$left-gooey: 110px;
 .product-detail {
     position: relative;
     display: flex;
@@ -760,7 +763,7 @@ $menu-width: 25%;
     }
     &__back {
         position: absolute;
-        left: 30px;
+        left: $left-back;
         top: 10px;
         font-size: 26px;
         color: black !important;
@@ -787,13 +790,13 @@ $menu-width: 25%;
     }
     &__action-left {
         position: absolute;
-        left: 60px;
+        left: $left-action;
         bottom: 30px;
     }
     &__gooeyMenu {
         position: absolute;
-        left: 140px;
-        bottom: 68px;
+        left: $left-gooey;
+        bottom: 72px;
     }
     &__action-test {
         position: absolute;
