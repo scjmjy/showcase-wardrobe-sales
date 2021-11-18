@@ -82,7 +82,6 @@ $border-radius: (
     $scrollbar: $scrollbar,
     $table: $table,
     $border-radius: $border-radius,
-    $font-path: '~element-plus/theme-chalk/fonts',
 );
 
 $color-bg: map.get($colors, "bg", "base");

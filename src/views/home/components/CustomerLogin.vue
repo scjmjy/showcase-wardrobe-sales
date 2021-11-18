@@ -9,13 +9,16 @@
                 <el-input
                     v-model="formData.customerName"
                     class="customer-login-form__input"
-                    prefix-icon="iconfont icon-username-2"
                     placeholder="请输入客户名称"
                 >
+                    <template #prefix>
+                        <i class="el-input__icon iconfont iconfont--primary icon-username-2" />
+                    </template>
                     <template #suffix>
-                        <i class="el-input__icon iconfont icon-btn icon-random-2" @click="onRandomClick"></i>
-
-                        <!-- <el-button icon="iconfont icon-random" circle></el-button> -->
+                        <i
+                            class="el-input__icon iconfont iconfont--primary iconfont--btn icon-random-2"
+                            @click="onRandomClick"
+                        ></i>
                     </template>
                 </el-input>
                 <el-input
@@ -23,11 +26,14 @@
                     class="customer-login-form__input"
                     :class="{ 'input-invalid': invalidPhone }"
                     auto-complete="off"
-                    prefix-icon="iconfont icon-phone-3"
                     placeholder="请输入客户手机号码（选填）"
                     @input="onPhoneNumberInput"
                     @keyup.enter="startService"
-                />
+                >
+                    <template #prefix>
+                        <i class="el-input__icon iconfont iconfont--primary icon-phone-3" />
+                    </template>
+                </el-input>
                 <el-radio-group class="customer-login-form__gender" v-model="formData.gender">
                     <el-radio label="male">先生</el-radio>
                     <el-radio label="female">女士</el-radio>

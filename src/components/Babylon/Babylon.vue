@@ -22,6 +22,7 @@ import { AnchorMeta } from "@/lib/model/pscope";
 
 import { IndexDb, DBValue } from "@/lib/indexdb";
 import { Size3D } from "@/api/interface/common.interface";
+import { ImgCardItemType } from "@/views/product/components/ImgCardItem.vue";
 
 export default defineComponent({
     name: "Babylon",
@@ -89,6 +90,8 @@ export default defineComponent({
             stl: {} as GeneralStl,
             areaHints: {} as AreaHints,
             indexDb: {} as IndexDb,
+            spotLightMap: {} as Map<string, BABYLON.SpotLight>,
+            lightEnabled: true,
         };
     },
     computed: {
@@ -229,6 +232,7 @@ export default defineComponent({
         this.stl = new GeneralStl(new StlConfig(0.1, 0, 0.1, sizeConfig));
         this.bizdata = new BizData(this.scheme);
         this.indexDb = new IndexDb();
+        this.spotLightMap = new Map<string, BABYLON.SpotLight>();
 
         // set the scene size as 7.5m.
         this.graphics.init(7.5 * this.bizdata.SceneUnit);
@@ -247,24 +251,20 @@ export default defineComponent({
         /**
          * 修改墙面
          */
-        changeWallApi(part: Part): void {
-            const wall_material = new BABYLON.StandardMaterial("WallMaterial", this.graphics.scene as BABYLON.Scene);
-            wall_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            const url = this.baseOSSUrl + part.manifest;
-            const texture = new BABYLON.Texture(url, this.graphics.scene as BABYLON.Scene);
-            texture.uScale = 1;
-            texture.vScale = 1;
-            wall_material.diffuseTexture = texture;
-            this.wall.material = wall_material;
+        changeWallApi(wall: ImgCardItemType): void {
+            this.graphics.setBackgroundColor(
+                BABYLON.Color4.FromHexString(wall.label.substr(wall.label.indexOf("#"), 9)),
+            );
         },
 
         /**
          * 修改地板
          */
-        changeFloorApi(part: Part): void {
+        changeFloorApi(floor: ImgCardItemType): void {
             const floor_material = new BABYLON.StandardMaterial("floorMaterial", this.graphics.scene as BABYLON.Scene);
             floor_material.emissiveColor = new BABYLON.Color3(255 / 255, 255 / 255, 255 / 255);
-            const url = this.baseOSSUrl + part.manifest;
+            // const url = this.baseOSSUrl + floor.url;
+            const url = floor.url;
             const texture = new BABYLON.Texture(url, this.graphics.scene as BABYLON.Scene);
             texture.uScale = 2;
             texture.vScale = 2;
@@ -743,7 +743,9 @@ export default defineComponent({
                         this.graphics.scene.rootNodes.forEach((rootNode) => {
                             const rootMesh = rootNode as BABYLON.AbstractMesh;
                             if (rootMesh !== undefined) {
-                                const isItem = rootMesh.name.startsWith(ObjectType.ITEM);
+                                const isItem =
+                                    rootMesh.name.startsWith(ObjectType.ITEM) ||
+                                    rootMesh.name.startsWith(ObjectType.LIGHT);
 
                                 rootMesh.isVisible = true;
                                 rootMesh.getChildMeshes().forEach((childMesh) => {
@@ -769,7 +771,9 @@ export default defineComponent({
                             if (rootMesh !== undefined) {
                                 const isCube = rootMesh.name.startsWith(ObjectType.CUBE);
                                 const isDoor = rootMesh.name.startsWith(ObjectType.DOOR);
-                                const isItem = rootMesh.name.startsWith(ObjectType.ITEM);
+                                const isItem =
+                                    rootMesh.name.startsWith(ObjectType.ITEM) ||
+                                    rootMesh.name.startsWith(ObjectType.LIGHT);
 
                                 rootMesh.isVisible = !isDoor;
                                 rootMesh.getChildMeshes().forEach((childMesh) => {
@@ -1069,11 +1073,30 @@ export default defineComponent({
                                                                 model.scaling.y * item.location.scaling.y,
                                                                 model.scaling.z * item.location.scaling.z,
                                                             );
-                                                            const itemName = ObjectType.ITEM + "_" + item.id;
 
-                                                            let isEmissive = false;
-                                                            if (item.partType === PartType.STRIP_LIGHT)
-                                                                isEmissive = true;
+                                                            let objectType = ObjectType.ITEM;
+                                                            if (item.partType === PartType.STRIP_LIGHT) {
+                                                                objectType = ObjectType.LIGHT;
+                                                                this.addSpotlight(
+                                                                    item.id,
+                                                                    "",
+                                                                    item.size.x,
+                                                                    itemOrigin,
+                                                                    true,
+                                                                );
+                                                            } else if (item.partType === PartType.SPOT_LIGHT) {
+                                                                objectType = ObjectType.LIGHT;
+                                                                const info = item.id.split("_");
+                                                                this.addSpotlight(
+                                                                    info[0],
+                                                                    info[1],
+                                                                    item.size.x,
+                                                                    itemOrigin,
+                                                                    false,
+                                                                );
+                                                            }
+
+                                                            const itemName = objectType + "_" + item.id;
                                                             this.importMesh(
                                                                 model.url,
                                                                 itemName,
@@ -1081,7 +1104,6 @@ export default defineComponent({
                                                                 modelRotation,
                                                                 modelScaling,
                                                                 true,
-                                                                isEmissive,
                                                             ).then((mesh) => {
                                                                 if (schemeType === 1) {
                                                                     if (mesh !== null && cube.id !== firstCubeId) {
@@ -1095,11 +1117,6 @@ export default defineComponent({
                                                                     this.loadSchemeCompleted(mode);
                                                             });
                                                         });
-
-                                                        if (item.partType === PartType.SPOT_LIGHT) {
-                                                            const info = item.id.split("_");
-                                                            this.addSpotlight(info[1], item.size.x, itemOrigin);
-                                                        }
                                                     })
                                                     .catch((err) => {
                                                         throw Error(`Load part manifest by error: ${err}`);
@@ -1361,14 +1378,10 @@ export default defineComponent({
                                                     size,
                                                 );
 
-                                                let isEmissive = false;
-                                                if (this.newPart.partType === PartType.STRIP_LIGHT) isEmissive = true;
-
-                                                const itemName = ObjectType.ITEM + "_" + itemId;
-
                                                 // const areaWidth = parseFloat(info[4]);
                                                 const areaHeight = parseFloat(info[5]);
                                                 // const areaDepth = parseFloat(info[6]);
+
                                                 let localOffset = new Vector3(0, 0, 0);
                                                 let localRotation = new Vector3(0, 0, 0);
                                                 let localScaling = new Vector3(1, 1, 1);
@@ -1389,6 +1402,24 @@ export default defineComponent({
                                                     cubeData.origin.z + localPosition.z,
                                                 );
 
+                                                let objectType = ObjectType.ITEM;
+                                                // Add spot light.
+                                                if (this.newPart.partType === PartType.STRIP_LIGHT) {
+                                                    objectType = ObjectType.LIGHT;
+                                                    this.addSpotlight(itemId, "", this.newPart.width, itemOrigin, true);
+                                                } else if (this.newPart.partType === PartType.SPOT_LIGHT) {
+                                                    objectType = ObjectType.LIGHT;
+                                                    this.addSpotlight(
+                                                        itemId,
+                                                        this.newPart.name,
+                                                        this.newPart.width,
+                                                        itemOrigin,
+                                                        false,
+                                                    );
+                                                    itemId += "_" + this.newPart.name;
+                                                }
+
+                                                const itemName = objectType + "_" + itemId;
                                                 // TODO: create a parent mesh to contain all import meshes.
                                                 itemMf.models.forEach(async (model: any) => {
                                                     const modelPos = new BABYLON.Vector3(
@@ -1414,7 +1445,6 @@ export default defineComponent({
                                                         modelRotation,
                                                         modelScaling,
                                                         true,
-                                                        isEmissive,
                                                     );
                                                 });
 
@@ -1428,16 +1458,6 @@ export default defineComponent({
                                                     );
                                                     attachment.push(partCount);
                                                 });
-
-                                                // Add spot light.
-                                                if (this.newPart.partType === PartType.SPOT_LIGHT) {
-                                                    itemId += "_" + this.newPart.name;
-                                                    this.addSpotlight(
-                                                        this.newPart.name,
-                                                        this.newPart.width,
-                                                        itemOrigin,
-                                                    );
-                                                }
 
                                                 // TODO: only handle the case of locationType==1.
                                                 const location = new Location(
@@ -1491,6 +1511,8 @@ export default defineComponent({
                                 this.adjustCamera();
                                 break;
                             case "7":
+                                this.lightEnabled = !this.lightEnabled;
+                                this.openLights(this.lightEnabled);
                                 break;
                         }
                         break;
@@ -1650,7 +1672,13 @@ export default defineComponent({
             this.bizdata.changeAttachments(oldPartId, newPartId, newPartCatId);
         },
 
-        addSpotlight(partName: string, partWidth: number, pivot: BABYLON.Vector3) {
+        addSpotlight(
+            partId: string,
+            partName: string,
+            partWidth: number,
+            pivot: BABYLON.Vector3,
+            isStripLight = false,
+        ) {
             let lightColor = "#ffff66";
             let lightIntensity = 20;
             if (partName.startsWith("暖色")) {
@@ -1664,10 +1692,14 @@ export default defineComponent({
                 else if (partName.includes("50")) lightIntensity = 25;
             }
 
+            let offsetY = 0;
+            if (isStripLight) offsetY = 0.4;
+
             if (partWidth > 0.6) {
+                const key1 = partId + "_1";
                 const spotLight1 = new BABYLON.SpotLight(
-                    "SpotLight",
-                    new BABYLON.Vector3(pivot.x + 0.265, pivot.y, pivot.z),
+                    key1,
+                    new BABYLON.Vector3(pivot.x + 0.265, pivot.y + offsetY, pivot.z),
                     new BABYLON.Vector3(0, -1, 0),
                     Math.PI / 1.2,
                     1000,
@@ -1675,13 +1707,20 @@ export default defineComponent({
                 );
                 spotLight1.diffuse = BABYLON.Color3.FromHexString(lightColor);
                 spotLight1.intensity = lightIntensity;
+                spotLight1.setEnabled(false);
+                this.spotLightMap.set(key1, spotLight1);
 
                 const spotLight2 = spotLight1.clone("SpotLight") as BABYLON.SpotLight;
-                spotLight2.position = new BABYLON.Vector3(pivot.x - 0.265, pivot.y, pivot.z);
+                const key2 = partId + "_2";
+                spotLight2.name = key2;
+                spotLight2.position = new BABYLON.Vector3(pivot.x - 0.265, pivot.y + offsetY, pivot.z);
+                spotLight2.setEnabled(false);
+                this.spotLightMap.set(key2, spotLight2);
             } else {
+                const key = partId;
                 const spotLight = new BABYLON.SpotLight(
-                    "SpotLight",
-                    pivot,
+                    key,
+                    new BABYLON.Vector3(pivot.x, pivot.y + offsetY, pivot.z),
                     new BABYLON.Vector3(0, -1, 0),
                     Math.PI / 1.2,
                     1000,
@@ -1689,6 +1728,14 @@ export default defineComponent({
                 );
                 spotLight.diffuse = BABYLON.Color3.FromHexString(lightColor);
                 spotLight.intensity = lightIntensity;
+                spotLight.setEnabled(false);
+                this.spotLightMap.set(key, spotLight);
+            }
+        },
+
+        openLights(value: boolean): void {
+            for (const [key, spotLight] of this.spotLightMap) {
+                if (spotLight) spotLight.setEnabled(value);
             }
         },
     },

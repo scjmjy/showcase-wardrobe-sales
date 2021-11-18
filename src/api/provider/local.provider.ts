@@ -1,5 +1,4 @@
-import { PartCount } from "@/lib/scheme";
-import { Size3D } from "../interface/common.interface";
+import { LabelValue, Size3D } from "../interface/common.interface";
 import ApiProvider, {
     AjaxResponse,
     Background,
@@ -24,6 +23,8 @@ import ApiProvider, {
     Store,
     VisitorRecordItem,
 } from "../interface/provider.interface";
+
+import store from "@/store";
 
 const localVisitorRecordList: VisitorRecordItem[] = [];
 export default class LocalProvider implements ApiProvider {
@@ -360,6 +361,8 @@ export default class LocalProvider implements ApiProvider {
                     manifest: "manifest",
                     composition: "composition",
                     offer: mockOffer[index % mockOffer.length],
+                    total: mockOffer[index % mockOffer.length],
+                    discount: 1,
                     ptime: mockDate[index % mockDate.length],
                     pic: "",
                     cover: [
@@ -395,6 +398,8 @@ export default class LocalProvider implements ApiProvider {
                 manifest: "manifest",
                 composition: "composition",
                 offer: +sid % 2 === 0 ? "10000" : "0",
+                total: "111",
+                discount: 1,
                 ptime: Date.now() + "",
                 pic: "",
                 cover: [
@@ -450,13 +455,17 @@ export default class LocalProvider implements ApiProvider {
     updateSchemeState(_schemeId: string | number): Promise<AjaxResponse<boolean>> {
         throw new Error("Method not implemented.");
     }
-    requestSchemeOffer(_schemeId: string | number, _compositions: RequestPartId[]): Promise<AjaxResponse<SchemeOffer>> {
+    requestSchemeOffer(
+        _schemeId: string | number,
+        _discountId: number,
+        _compositions: RequestPartId[],
+    ): Promise<AjaxResponse<SchemeOffer>> {
         throw new Error("Method not implemented.");
     }
     requestSchemeManifest(_schemeId: string | number): Promise<AjaxResponse<SchemeManifest>> {
         throw new Error("Method not implemented.");
     }
-    requestSchemeManifestV2(_partIds: RequestPartId[]): Promise<AjaxResponse<SchemeManifest>> {
+    requestSchemeManifestV2(_sid: number, _partIds: RequestPartId[]): Promise<AjaxResponse<SchemeManifest>> {
         throw new Error("Method not implemented.");
     }
     requestVisitorRecordList(
@@ -523,6 +532,26 @@ export default class LocalProvider implements ApiProvider {
                 id: index,
                 name: "门店-" + index,
             })),
+        });
+    }
+    discounts = new Map<number, LabelValue>();
+    requestDiscounts(): Promise<AjaxResponse<LabelValue[]>> {
+        throw new Error("Method not implemented.");
+    }
+    requestSchemeDiscount(schemeId: number): Promise<AjaxResponse<LabelValue>> {
+        const val = this.discounts.get(schemeId);
+        return Promise.resolve({
+            ok: val ? true : false,
+            status: 200,
+            data: val,
+        });
+    }
+    updateSchemeDiscount(schemeId: number, did: number): Promise<AjaxResponse<void>> {
+        const discounts = store.state.globalCfg?.discounts || [];
+        this.discounts.set(schemeId, discounts.find((item) => item.value === did)!);
+        return Promise.resolve({
+            ok: true,
+            status: 200,
         });
     }
 }

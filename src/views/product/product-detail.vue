@@ -14,8 +14,6 @@
             :scheme="scheme"
             :size="customizeSize"
             :selectedPart="selectedPart"
-            :selectedWallId="selectedWallId"
-            :selectedFloorId="selectedFloorId"
             :eventEmit="eventHandle"
             :mode="mode3D"
             :schemeType="scheme3DType"
@@ -40,9 +38,7 @@
             @order="orderNonCustomProduct"
         />
         <template v-if="mode === 'edit'">
-            <el-button class="product-detail__back" icon="el-icon-arrow-left" type="text" @click="gotoBack"
-                >返回</el-button
-            >
+            <el-button class="product-detail__back iconfont iconfont--gap icon-left" type="text" @click="gotoBack">返回</el-button>
             <div class="product-detail__action-left state-icon-group-h">
                 <state-icon v-model="stateInOut" :states="inOutStates" @change="onInOutChange"></state-icon>
             </div>
@@ -56,9 +52,12 @@
                 :class="{ collapse: !showMenu }"
                 :type="stateInOut"
                 :completeDisabled="completeDisabled"
+                :schemeId="product.id"
+                :discountId="product.did"
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
                 @attachment-replacement="onAttachmentChange"
+                @bg="onBgChange"
             ></parts-menu>
         </template>
         <template v-if="mode === 'view'">
@@ -82,7 +81,6 @@
             :schemeName="product.product"
             :customerName="customerName"
             :scheme="scheme"
-            :size="customizeSize"
             @closed="onOfferDlgClosed"
         />
         <metals-dlg v-model="showMetalsDlg" :scheme3d="scheme" :part="selectedMetalPart" @change-part="onChangePart" />
@@ -104,6 +102,7 @@ import {
     Scheme,
     isProduct,
     ManifestPart,
+    BackgroundType,
 } from "@/api/interface/provider.interface";
 import apiProvider from "@/api/provider";
 import AppHeader from "@/views/home/components/AppHeader.vue";
@@ -129,6 +128,7 @@ import {
     OpenCloseState,
 } from "./helpers";
 import { Size3D } from "@/api/interface/common.interface";
+import { ImgCardItemType } from "./components/ImgCardItem.vue";
 
 export default defineComponent({
     name: "ProductDetail",
@@ -211,9 +211,6 @@ export default defineComponent({
         const refPartsMenu = ref<InstanceType<typeof PartsMenu>>();
         const selectedPart = ref<Part3D>();
         const selectedMetalPart = ref<Part>();
-        let selectedPartId = ref(0);
-        let selectedFloorId = ref(0);
-        let selectedWallId = ref(0);
 
         function showReferenceRuler(show: boolean) {
             refBabylon.value?.showReferenceRuler(show);
@@ -425,7 +422,7 @@ export default defineComponent({
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
-                    await refPartsMenu.value?.showManifest(scheme.value!.getPartCounts(), customizeSize.value);
+                    await refPartsMenu.value?.showManifest(scheme2d.id, scheme.value!.getPartCounts());
                     break;
                 case "offer":
                     if (scheme.value?.dirty) {
@@ -536,9 +533,6 @@ export default defineComponent({
             }),
             selectedPart,
             selectedMetalPart,
-            selectedPartId,
-            selectedWallId,
-            selectedFloorId,
             baseUrl,
             mode3D: computed(() => {
                 if (mode.value === "view") {
@@ -634,6 +628,13 @@ export default defineComponent({
             onAttachmentChange(newAttachment: ManifestPart, oldAttachment: ManifestPart) {
                 refBabylon.value?.changeAttachments(oldAttachment.partid, newAttachment.partid, newAttachment.catid);
             },
+            onBgChange(bg: ImgCardItemType, bgType: BackgroundType) {
+                if (bgType === BackgroundType.WALL) {
+                    refBabylon.value?.changeWallApi(bg);
+                } else {
+                    refBabylon.value?.changeFloorApi(bg);
+                }
+            },
             async gotoBack() {
                 if (scheme.value?.dirty) {
                     try {
@@ -718,6 +719,9 @@ export default defineComponent({
                 }
 
                 if (part.id === 101) partType = PartType.VERTICAL_SCALE;
+                if (part.id === 64) partType = PartType.HORIZONTAL_SCALE;
+                if (part.id === 72) partType = PartType.HORIZONTAL_SCALE;
+                if (part.id === 102) partType = PartType.HORIZONTAL_SCALE;
 
                 selectedPart.value = {
                     id: +part.id,

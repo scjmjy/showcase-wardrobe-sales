@@ -60,16 +60,14 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@use "sass:math";
-$margin: 3%;
-$width: math.div(100% - $margin * 4, 2);
+@use "~@/assets/scss/business.scss" as *;
 .part-card {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     vertical-align: top;
-    margin: $margin;
-    width: $width;
+    margin: $card-margin;
+    width: $card-width;
     &__img {
         width: 100%;
         height: 100%;

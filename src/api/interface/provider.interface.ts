@@ -109,6 +109,8 @@ export interface Scheme extends BaseProduct {
     product: string;
     pid: number;
     offer: string;
+    total: string; // 总价
+    discount: number; // 折扣id
     ptime: string;
     cover: string[];
     pdepthmax: number;
@@ -210,11 +212,8 @@ export interface GlobalCfg {
     partsCatInterior: IdList;
     // 外观配件分类ID列表
     partsCatExterior: IdList;
-    // 板材配件分类ID列表
-    partsCatBoard: IdList;
-    partsCatCube: IdList;
-    partsCatPartition: IdList;
     baseUrl: string;
+    discounts: LabelValue[];
 }
 
 export enum BackgroundType {
@@ -247,7 +246,9 @@ export interface PartOffer {
 }
 
 export interface SchemeOffer {
-    offer: string;
+    total: string; // 总价
+    offer: string; // 折扣价
+    discount: number; // 折扣id
     ptime: string;
     details: PartOffer[];
     price: string; // 单价（元/㎡）
@@ -401,9 +402,13 @@ export default interface ApiProvider {
     requestScreenshotSignedUrl(schemeId: number | string): Promise<AjaxResponse<OssSignature>>;
     updateScreenshotState(schemeId: string | number, url: string): Promise<AjaxResponse<boolean>>;
 
-    requestSchemeOffer(schemeId: number | string, compositions: RequestPartId[]): Promise<AjaxResponse<SchemeOffer>>;
+    requestSchemeOffer(
+        schemeId: number | string,
+        discountId: number,
+        compositions: RequestPartId[],
+    ): Promise<AjaxResponse<SchemeOffer>>;
     requestSchemeManifest(schemeId: number | string): Promise<AjaxResponse<SchemeManifest>>;
-    requestSchemeManifestV2(partIds: RequestPartId[]): Promise<AjaxResponse<SchemeManifest>>;
+    requestSchemeManifestV2(sid: number, partIds: RequestPartId[]): Promise<AjaxResponse<SchemeManifest>>;
 
     requestVisitorRecordList(
         eid: number | string,
@@ -416,4 +421,8 @@ export default interface ApiProvider {
 
     requestStoreList(): Promise<AjaxResponse<Store[]>>;
     request3DModels(): Promise<AjaxResponse<Model3DFile[]>>;
+
+    requestDiscounts(): Promise<AjaxResponse<LabelValue[]>>;
+    requestSchemeDiscount(schemeId: number): Promise<AjaxResponse<LabelValue>>;
+    updateSchemeDiscount(schemeId: number, discount: number): Promise<AjaxResponse<void>>;
 }

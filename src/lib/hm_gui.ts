@@ -3,7 +3,7 @@ import * as GUI from "babylonjs-gui";
 
 import { Graphics } from "@/lib/graphics";
 import { BizData, ObjectType } from "@/lib/biz.data";
-import { Cube } from "@/lib/scheme";
+import { Cube, PartType } from "@/lib/scheme";
 
 import Babylon from "@/components/Babylon/Babylon.vue";
 type RefBabylon = InstanceType<typeof Babylon>;
@@ -16,12 +16,22 @@ export class PopupGUI {
     private _deleteButton!: GUI.Button;
 
     private _sliderPanel: BABYLON.Nullable<GUI.StackPanel> = null;
-    private _grid: BABYLON.Nullable<GUI.Grid> = null;
+    private _grid_silder: BABYLON.Nullable<GUI.Grid> = null;
 
     private _loadingPanel: BABYLON.Nullable<GUI.Rectangle> = null;
     private _loadingInfo: BABYLON.Nullable<GUI.TextBlock> = null;
     private _loadingSlider: BABYLON.Nullable<GUI.Slider> = null;
     private _loadingHintInfo: BABYLON.Nullable<GUI.TextBlock> = null;
+
+    private referenceRulerUpTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private referenceRulerUpMiddle: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private referenceRulerUpEnd: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private _referenceRulerTextUp!: GUI.TextBlock;
+    private _referenceRulerTextDown!: GUI.TextBlock;
+
+    private referenceRulerDownTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private referenceRulerDownMiddle: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
+    private referenceRulerDownEnd: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
 
     private rulerHeightTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
     private rulerWidthTop: BABYLON.Nullable<BABYLON.AbstractMesh> = null;
@@ -128,6 +138,14 @@ export class PopupGUI {
                     this._switchCubePanel[i].dispose();
                 }
             }
+            if (this.referenceRulerDownEnd) this.referenceRulerDownEnd.dispose();
+            if (this.referenceRulerDownMiddle) this.referenceRulerDownMiddle.dispose();
+            if (this.referenceRulerDownTop) this.referenceRulerDownTop.dispose();
+            if (this.referenceRulerUpEnd) this.referenceRulerUpEnd.dispose();
+            if (this.referenceRulerUpMiddle) this.referenceRulerUpMiddle.dispose();
+            if (this.referenceRulerUpTop) this.referenceRulerUpTop.dispose();
+            if (this._referenceRulerTextDown) this._referenceRulerTextDown.dispose();
+            if (this._referenceRulerTextUp) this._referenceRulerTextUp.dispose();
             return;
         }
 
@@ -140,28 +158,70 @@ export class PopupGUI {
             this._sliderPanel.dispose();
             this._sliderPanel = null;
         }
+
+        this.createSilderPanel(babylonRef, mesh, min, max);
+        this.createDeletePanel(babylonRef, mesh);
+        this.showSwitchCubePanel(babylonRef, mesh);
+
+        const info = mesh.name.split("_");
+        const itemId = info[1];
+        const item = babylonRef.bizdata.findItemById(itemId);
+        if (item == null) return;
+
+        const upCenter = new BABYLON.Vector3(0, 0, 0);
+        upCenter.x = mesh.position.x;
+        upCenter.y = mesh.position.y + (max - mesh.position.y) / 2 + item.size.y;
+        upCenter.z = mesh.position.z;
+        const downCenter = new BABYLON.Vector3(0, 0, 0);
+        downCenter.x = mesh.position.x;
+        downCenter.y = mesh.position.y - (mesh.position.y - min) / 2;
+        downCenter.z = mesh.position.z;
+
+        if ((max - mesh.position.y) / 2 > 0 && max >= 0 && item.partType != PartType.VERTICAL_SCALE)
+            this.drawRuler(
+                babylonRef.graphics,
+                max - mesh.position.y,
+                upCenter,
+                new BABYLON.Vector3(0, 1, 0),
+                "referenceRulerUp ",
+                max - mesh.position.y,
+            );
+        if (downCenter.y - min > 0 && min >= 0 && item.partType != PartType.VERTICAL_SCALE)
+            this.drawRuler(
+                babylonRef.graphics,
+                mesh.position.y - min,
+                downCenter,
+                new BABYLON.Vector3(0, 1, 0),
+                "referenceRulerDown ",
+                mesh.position.y - min,
+            );
+    }
+
+    private createSilderPanel(
+        babylonRef: RefBabylon,
+        mesh: BABYLON.Nullable<BABYLON.AbstractMesh>,
+        min = -1,
+        max = -1,
+    ) {
+        if (mesh == null) return;
         const info = mesh.name.split("_");
         const objectType = info[0];
 
         if (this._sliderPanel == null && ObjectType.ITEM == objectType && min != 0 && max != 0) {
-            this._grid = new GUI.Grid();
-            this._popupUI.addControl(this._grid);
+            this._grid_silder = new GUI.Grid();
+            this._popupUI.addControl(this._grid_silder);
 
             // TO DO : silder position code
-            this._grid.addColumnDefinition(0.95);
-            this._grid.addColumnDefinition(0.05);
-            this._grid.addRowDefinition(0.8);
-            this._grid.addRowDefinition(0.2);
+            this._grid_silder.addColumnDefinition(0.9);
+            this._grid_silder.addColumnDefinition(0.1);
+            this._grid_silder.addRowDefinition(0.95);
+            this._grid_silder.addRowDefinition(0.05);
 
             this._sliderPanel = new GUI.StackPanel();
+            this._sliderPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            this._sliderPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
             this._sliderPanel.width = "320px";
-            this._grid.addControl(this._sliderPanel, 1, 0);
-
-            const header = new GUI.TextBlock();
-            header.text = "调整物体位置";
-            header.height = "30px";
-            header.color = "#C1B399FF";
-            this._sliderPanel.addControl(header);
+            this._grid_silder.addControl(this._sliderPanel, 0, 0);
 
             const slider = new GUI.ImageBasedSlider();
             slider.minimum = min;
@@ -170,32 +230,58 @@ export class PopupGUI {
             slider.isThumbClamped = true;
             slider.displayThumb = true;
             slider.width = "22px";
-            slider.height = "150px";
-            slider.backgroundImage = new GUI.Image(
-                "back",
-                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/backgroundImage-vertical.png",
-            );
-            slider.thumbImage = new GUI.Image(
-                "thumb",
-                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/img/img/thumb.png",
-            );
+            slider.height = "400px";
+            slider.backgroundImage = new GUI.Image("back", "/3d/res/backgroundImage-vertical.png");
+            slider.thumbImage = new GUI.Image("thumb", "/3d/res/thumb.png");
 
             slider.onValueChangedObservable.add((value: number) => {
                 if (mesh) {
-                    mesh.position.y = value;
                     const info = mesh.name.split("_");
                     const itemId = info[1];
                     const item = babylonRef.bizdata.findItemById(itemId);
+                    if (item == null) return;
+                    const upCenter = new BABYLON.Vector3(0, 0, 0);
+                    upCenter.x = mesh.position.x;
+                    upCenter.y = mesh.position.y + (max - mesh.position.y) / 2 + item.size.y;
+                    upCenter.z = mesh.position.z;
+                    const downCenter = new BABYLON.Vector3(0, 0, 0);
+                    downCenter.x = mesh.position.x;
+                    downCenter.y = mesh.position.y - (mesh.position.y - min) / 2;
+                    downCenter.z = mesh.position.z;
+                    if ((max - mesh.position.y) / 2 > 0)
+                        this.drawRuler(
+                            babylonRef.graphics,
+                            max - mesh.position.y,
+                            upCenter,
+                            new BABYLON.Vector3(0, 1, 0),
+                            "referenceRulerUp ",
+                            max - mesh.position.y,
+                        );
+                    if (downCenter.y - min > 0)
+                        this.drawRuler(
+                            babylonRef.graphics,
+                            mesh.position.y - min,
+                            downCenter,
+                            new BABYLON.Vector3(0, 1, 0),
+                            "referenceRulerDown ",
+                            mesh.position.y - min,
+                        );
+                    mesh.position.y = value;
                     if (item !== undefined) {
                         babylonRef.bizdata.moveItem(item, value);
                     }
                 }
-                header.text = " " + value.toFixed(2) + " \u7c73";
             });
 
             slider.value = mesh.position.y;
             this._sliderPanel.addControl(slider);
         }
+    }
+
+    private createDeletePanel(babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
+        if (mesh == null) return;
+        const info = mesh.name.split("_");
+        const objectType = info[0];
 
         // clear previous delete panel to avoid delete previous mesh
         if (this._deletePanel != null) {
@@ -207,18 +293,15 @@ export class PopupGUI {
             this._deletePanel = new GUI.Rectangle();
             this._deletePanel.width = "48px";
             this._deletePanel.height = "48px";
-            this._deletePanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            this._deletePanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+            this._deletePanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
             this._deletePanel.cornerRadius = 5;
             this._deletePanel.background = "white";
             this._popupUI.addControl(this._deletePanel);
 
-            this._deleteButton = GUI.Button.CreateImageOnlyButton(
-                "deleteButton",
-                "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/res/deleteButton.png",
-            );
+            this._deleteButton = GUI.Button.CreateImageOnlyButton("deleteButton", "/3d/res/deleteButton.png");
             this._deleteButton.width = "46px";
             this._deleteButton.height = "46px";
-
             this._deleteButton.thickness = 0;
             this._deletePanel.addControl(this._deleteButton);
 
@@ -230,7 +313,7 @@ export class PopupGUI {
 
                     const info = mesh.name.split("_");
                     const objectType = info[0];
-                    const objectID = info[1];
+                    let objectID = info[1];
                     mesh.dispose();
                     switch (objectType) {
                         case ObjectType.CUBE:
@@ -245,15 +328,44 @@ export class PopupGUI {
                                 babylonRef.bizdata.removeDoor(objectID, doorIndex);
                             }
                             break;
+                        case ObjectType.LIGHT:
+                            {
+                                const map = babylonRef.spotLightMap as Map<string, BABYLON.SpotLight>;
+                                let key = objectID;
+                                let light = map.get(key);
+                                if (light !== undefined) {
+                                    light.dispose();
+                                    map.delete(key);
+                                } else {
+                                    key = objectID + "_1";
+                                    light = map.get(key);
+                                    if (light !== undefined) {
+                                        light.dispose();
+                                        map.delete(key);
+                                    }
+
+                                    key = objectID + "_2";
+                                    light = map.get(key);
+                                    if (light !== undefined) {
+                                        light.dispose();
+                                        map.delete(key);
+                                    }
+                                }
+
+                                // if having attached information, add to objectId.
+                                if (info.length > 2) objectID += "_" + info[2];
+                                babylonRef.bizdata.removeItem(objectID);
+                            }
+                            break;
                     }
                     mesh = null;
                     babylonRef.graphics.currentMesh = null;
                 }
             });
+            this._deletePanel.linkOffsetYInPixels = 50;
+            this._deletePanel.linkOffsetXInPixels = 100;
             this._deletePanel.linkWithMesh(mesh);
         }
-
-        this.showSwitchCubePanel(babylonRef, mesh);
     }
 
     private showSwitchCubePanel(babylonRef: RefBabylon, mesh: BABYLON.Nullable<BABYLON.AbstractMesh>) {
@@ -288,7 +400,7 @@ export class PopupGUI {
                 this._popupUI.addControl(switchCube);
                 const switchCubeButton = GUI.Button.CreateImageOnlyButton(
                     "switchCubeButton",
-                    "https://dev-salestool.oss-cn-shanghai.aliyuncs.com/salestool/res/3DGestureHint.png",
+                    "/3d/res/3DGestureHint.png",
                 );
                 switchCubeButton.width = "46px";
                 switchCubeButton.height = "46px";
@@ -359,6 +471,7 @@ export class PopupGUI {
         // length of the ruler on upside
         const lengthText = new GUI.TextBlock();
         lengthText.height = "28px";
+        lengthText.width = "60px";
         lengthText.color = "#000000FF";
         lengthText.fontSize = 18;
         if (size == 0) lengthText.text = length.toFixed(2) + " \u7c73";
@@ -375,13 +488,33 @@ export class PopupGUI {
 
         this._popupUI.addControl(lengthText);
         lengthText.linkWithMesh(frameRulerMiddle);
-        lengthText.linkOffsetYInPixels = -20;
-        if (!title.startsWith("width")) {
+        if (!title.startsWith("referenceRuler")) lengthText.linkOffsetYInPixels = -20;
+        if (!title.startsWith("width") && !title.startsWith("referenceRuler")) {
             lengthText.linkOffsetXInPixels = 35;
             lengthText.linkOffsetYInPixels = -35;
         }
         lengthText.isVisible = true;
 
+        if (title.startsWith("referenceRulerUp")) {
+            if (this.referenceRulerUpTop) this.referenceRulerUpTop.dispose();
+            this.referenceRulerUpTop = frameRulerTop;
+            if (this.referenceRulerUpMiddle) this.referenceRulerUpMiddle.dispose();
+            this.referenceRulerUpMiddle = frameRulerMiddle;
+            if (this.referenceRulerUpEnd) this.referenceRulerUpEnd.dispose();
+            this.referenceRulerUpEnd = frameRulerDown;
+            if (this._referenceRulerTextUp) this._referenceRulerTextUp.dispose();
+            this._referenceRulerTextUp = lengthText;
+        }
+        if (title.startsWith("referenceRulerDown")) {
+            if (this.referenceRulerDownTop) this.referenceRulerDownTop.dispose();
+            this.referenceRulerDownTop = frameRulerTop;
+            if (this.referenceRulerDownMiddle) this.referenceRulerDownMiddle.dispose();
+            this.referenceRulerDownMiddle = frameRulerMiddle;
+            if (this.referenceRulerDownEnd) this.referenceRulerDownEnd.dispose();
+            this.referenceRulerDownEnd = frameRulerDown;
+            if (this._referenceRulerTextDown) this._referenceRulerTextDown.dispose();
+            this._referenceRulerTextDown = lengthText;
+        }
         if (title.startsWith("height")) {
             if (this.rulerHeightTop) this.rulerHeightTop.dispose();
             this.rulerHeightTop = frameRulerTop;

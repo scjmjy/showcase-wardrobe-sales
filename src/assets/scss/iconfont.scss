@@ -9,52 +9,76 @@
 
 .iconfont {
     font-family: "iconfont" !important;
-    // font-size: 16px;
-    // color: var(--el-color-primary);
-    // color: var(--el-color-primary-new);
-    color: #c1b399;
-    // color: inherit;
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
 
-.icon-btn {
-    @extend .iconfont;
-    cursor: pointer;
-    color: var(--el-color-info);
-    &:hover {
-        // color: map.get($--colors, "primary", "light-4");
-        color: var(--el-color-primary-light-4);
-    }
-    &:active {
+    &--primary {
         color: var(--el-color-primary);
     }
+    &--gap {
+        &::before {
+            margin-right: 4px;
+        }
+    }
+    &--btn {
+        cursor: pointer;
+        color: var(--el-color-info);
+        &:hover {
+            color: var(--el-color-primary-light-4);
+        }
+        &:active {
+            color: var(--el-color-primary);
+        }
+    }
 }
-.el-iconfont {
-    @extend .iconfont;
-    color: inherit;
-    padding: 4px;
+
+.icon-down:before {
+  content: "\e69b";
+}
+
+.icon-add-2:before {
+  content: "\e86b";
+}
+
+.icon-right:before {
+  content: "\e65f";
+}
+
+.icon-left:before {
+  content: "\e660";
+}
+
+.icon-arrow-right:before {
+  content: "\e624";
+}
+
+.icon-star-fill:before {
+    content: "\e86a";
+}
+
+.icon-discount:before {
+    content: "\e752";
 }
 
 .icon-manifest:before {
-  content: "\e60c";
+    content: "\e60c";
 }
 
 .icon-door-close:before {
-  content: "\e7b1";
+    content: "\e7b1";
 }
 
 .icon-door-open:before {
-  content: "\e7b2";
+    content: "\e7b2";
 }
 
 .icon-store:before {
-  content: "\e7b3";
+    content: "\e7b3";
 }
 
 .icon-customer-info:before {
-  content: "\e7b4";
+    content: "\e7b4";
 }
 
 .icon-scheme-new:before {
