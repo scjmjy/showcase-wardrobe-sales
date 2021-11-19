@@ -221,6 +221,7 @@ export default defineComponent({
                 {
                     value: "d3",
                     icon: "d3",
+                    type: "button",
                     noClose: true,
                     onActive() {
                         refBabylon.value?.setCameraAlpha(Math.PI / 3);
@@ -250,11 +251,25 @@ export default defineComponent({
                         showCustomizeDlg.value = true;
                     },
                 },
+                {
+                    value: "bulb-fill",
+                    icon: "bulb-fill",
+                    unactiveIcon: "bulb",
+                    active: false,
+                    noClose: true,
+                    onActive() {
+                        refBabylon.value?.openLights(true);
+                    },
+                    onUnactive() {
+                        refBabylon.value?.openLights(false);
+                    },
+                },
             ];
             if (stateInOut.value === InOutState.out) {
                 items.push({
-                    value: "parts-outdoor",
-                    icon: "parts-outdoor",
+                    value: "door-open-2",
+                    icon: "door-open-2",
+                    unactiveIcon: "door-close-2",
                     noClose: true,
                     onActive() {
                         if (scheme3DType.value === 0) {
@@ -742,6 +757,9 @@ export default defineComponent({
 
 <style scoped lang="scss">
 $menu-width: 25%;
+$left-back: 30px;
+$left-action: 30px;
+$left-gooey: 110px;
 .product-detail {
     position: relative;
     display: flex;
@@ -760,7 +778,7 @@ $menu-width: 25%;
     }
     &__back {
         position: absolute;
-        left: 30px;
+        left: $left-back;
         top: 10px;
         font-size: 26px;
         color: black !important;
@@ -787,12 +805,12 @@ $menu-width: 25%;
     }
     &__action-left {
         position: absolute;
-        left: 60px;
+        left: $left-action;
         bottom: 30px;
     }
     &__gooeyMenu {
         position: absolute;
-        left: 140px;
+        left: $left-gooey;
         bottom: 70px;
     }
     &__action-test {

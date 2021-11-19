@@ -233,12 +233,9 @@ export class PopupGUI {
             slider.height = "400px";
             slider.backgroundImage = new GUI.Image(
                 "back",
-                "/3d/res/backgroundImage-vertical.png",
+                process.env.BASE_URL + "/3d/res/backgroundImage-vertical.png",
             );
-            slider.thumbImage = new GUI.Image(
-                "thumb",
-                "/3d/res/thumb.png",
-            );
+            slider.thumbImage = new GUI.Image("thumb", process.env.BASE_URL + "/3d/res/thumb.png");
 
             slider.onValueChangedObservable.add((value: number) => {
                 if (mesh) {
@@ -307,7 +304,7 @@ export class PopupGUI {
 
             this._deleteButton = GUI.Button.CreateImageOnlyButton(
                 "deleteButton",
-                "/3d/res/deleteButton.png",
+                process.env.BASE_URL + "/3d/res/deleteButton.png",
             );
             this._deleteButton.width = "46px";
             this._deleteButton.height = "46px";
@@ -409,7 +406,7 @@ export class PopupGUI {
                 this._popupUI.addControl(switchCube);
                 const switchCubeButton = GUI.Button.CreateImageOnlyButton(
                     "switchCubeButton",
-                    "/3d/res/3DGestureHint.png",
+                    process.env.BASE_URL + "/3d/res/3DGestureHint.png",
                 );
                 switchCubeButton.width = "46px";
                 switchCubeButton.height = "46px";
@@ -480,6 +477,7 @@ export class PopupGUI {
         // length of the ruler on upside
         const lengthText = new GUI.TextBlock();
         lengthText.height = "28px";
+        lengthText.width = "60px";
         lengthText.color = "#000000FF";
         lengthText.fontSize = 18;
         if (size == 0) lengthText.text = length.toFixed(2) + " \u7c73";
