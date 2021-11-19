@@ -1,4 +1,4 @@
-import { Scheme, Cube, Item, Door, PartCount, Part, Vector3, DoorLocation } from "@/lib/scheme";
+import { Scheme, Cube, Item, Door, PartCount, Part, Vector3, DoorLocation, SchemeObject } from "@/lib/scheme";
 import { v4 as uuidv4 } from "uuid";
 
 export const ObjectType = {
@@ -36,6 +36,20 @@ export class BizData {
     constructor(scheme: Scheme) {
         this.scheme = scheme;
         this.cubeMap = new Map<string, CubeData>();
+    }
+
+    // mode: 0 - change color; 1: change picture; 2: change models
+    changeBackground(value: string, mode = 0): void {
+        if (mode === 0) {
+            let bkObj = this.scheme.manifest.background[0];
+            if (bkObj) {
+                bkObj.partId = -1;
+                bkObj.manifest = value;
+            } else {
+                bkObj = new SchemeObject(uuidv4(), -1, value);
+                this.scheme.manifest.background.push(bkObj);
+            }
+        }
     }
 
     addCube(newCube: Cube, addToLeft = false): void {
