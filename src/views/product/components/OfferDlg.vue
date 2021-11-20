@@ -96,11 +96,11 @@ export default defineComponent({
             }
         });
         const discountPrice = computed(() => {
-            if (!schemeOffer.value || schemeOffer.value.offer === schemeOffer.value.total) {
-                return undefined;
-            } else {
+            if (schemeOffer.value && schemeOffer.value.total) {
                 const price = +schemeOffer.value.total;
                 return splitPrice(price);
+            } else {
+                return undefined;
             }
         });
         const summaryText = computed(() => {
