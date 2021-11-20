@@ -72,8 +72,9 @@
             <div v-if="schemeManifest" class="parts-menu__right-manifest">
                 <manifest-list
                     :list="schemeManifest"
-                    :schemeId="$attrs.schemeId"
+                    :discountKey="$attrs.discountKey"
                     :discountId="$attrs.discountId"
+                    @discountChange="$attrs.onDiscountChange"
                     @attachment-replacement="$attrs.onAttachmentReplacement"
                 />
             </div>
@@ -85,7 +86,7 @@
                 'icon-right': opened,
             }"
             type="text"
-            @click="$emit('update:opened', !opened)"
+            @click="toggleOpen"
         ></i>
     </div>
 </template>
@@ -148,7 +149,8 @@ export default defineComponent({
     emits: ["update:opened", "part", "action", "bg"],
     setup(props, ctx) {
         const store = useStore<StateType>();
-        const cats = computed<PartCategory[]>(() => store.getters.partCats);
+        const cats = computed<PartCategory[]>(() => store.getters.partCats || []);
+        // const cats = ref<PartCategory[]>(store.getters.partCats || []);
         const catMeta = ref<PartCategoryMeta>();
         const selectedTabName = ref<string>();
         const schemeManifest = ref<SchemeManifest>();
@@ -335,6 +337,13 @@ export default defineComponent({
                         }
                     }
                 });
+            },
+            toggleOpen() {
+                const opened = !props.opened;
+                ctx.emit("update:opened", opened);
+                if (opened) {
+                    store.dispatch("updatePartCategories");
+                }
             },
         };
     },

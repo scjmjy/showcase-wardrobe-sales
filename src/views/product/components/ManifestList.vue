@@ -1,15 +1,15 @@
 <template>
     <div class="manifest-list">
         <div class="manifest-list__wrap" :class="{ 'is-blur': selectedAttachmentItem || showDicountPage }">
-            <el-divider>板材清单</el-divider>
+            <el-divider v-if="boardList.length">柜体报价</el-divider>
             <div class="manifest-list__parts">
                 <manifest-item v-for="(item, index) of boardList" :key="index" :item="item"></manifest-item>
             </div>
-            <el-divider>配件清单</el-divider>
+            <el-divider v-if="partList.length">门板报价</el-divider>
             <div class="manifest-list__parts">
                 <manifest-item v-for="(item, index) of partList" :key="index" :item="item"></manifest-item>
             </div>
-            <el-divider v-if="attachmentList.length" style="margin-top: 30px">附件清单</el-divider>
+            <el-divider v-if="attachmentList.length" style="margin-top: 30px">配件报价</el-divider>
             <attachment-item
                 v-for="(item, index) of attachmentList"
                 :key="index"
@@ -36,8 +36,9 @@
             <discount-popup
                 v-if="showDicountPage"
                 :discountId="$attrs.discountId"
-                :schemeId="$attrs.schemeId"
+                :discountKey="$attrs.discountKey"
                 @hide="onDiscountPopupHide"
+                @change="$attrs.onDiscountChange"
             />
         </transition>
     </div>

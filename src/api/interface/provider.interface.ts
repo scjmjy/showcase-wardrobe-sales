@@ -40,9 +40,10 @@ export interface BaseProduct {
     width: number;
     height: number;
     customized: number; // 0:非定制商品， 1:定制商品
+    description?: string;
 }
 export interface Product extends BaseProduct {
-    description: string;
+    // description: string;
     depthmax: number;
     depthmin: number;
     widthmax: number;
@@ -104,13 +105,14 @@ export interface Customer {
 }
 
 export interface Scheme extends BaseProduct {
-    cid: string;
+    // cid: string;
     customer: string;
     product: string;
     pid: number;
-    offer: string;
-    total: string; // 总价
-    discount: number; // 折扣id
+    offer: string; // 总价
+    total: string; // 折扣价
+    discount: number; // 折扣
+    did: number; // 折扣id
     ptime: string;
     cover: string[];
     pdepthmax: number;
@@ -246,8 +248,8 @@ export interface PartOffer {
 }
 
 export interface SchemeOffer {
-    total: string; // 总价
-    offer: string; // 折扣价
+    total: string; // 折扣价
+    offer: string; // 总价
     discount: number; // 折扣id
     ptime: string;
     details: PartOffer[];

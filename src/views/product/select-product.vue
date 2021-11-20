@@ -104,13 +104,13 @@ export default defineComponent({
                 pageScroll?.reload(300);
             },
             onProductClick(product: Product) {
-                store.commit("SET-PAGE-CHANNEL", {
-                    key: "productDetailData",
-                    value: product,
-                });
                 router.push({
                     path: "/product-detail",
-                    query: route.query,
+                    query: {
+                        pid: product.id,
+                        customized: product.customized,
+                        ...route.query,
+                    },
                 });
             },
             onProdFilter(filters: any) {

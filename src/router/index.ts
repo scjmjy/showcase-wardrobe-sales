@@ -6,7 +6,6 @@ import Login from "@/views/login.vue";
 import Home from "@/views/home/home.vue";
 import SelectProduct from "@/views/product/select-product.vue";
 import ProductDetail from "@/views/product/product-detail.vue";
-import SchemeDetail from "@/views/product/scheme-detail.vue";
 import CustomerList from "@/views/customers/customer-list.vue";
 import VisitorRecord from "@/views/tools/visitor-record.vue";
 import DemoModel from "@/views/demo/demo-model.vue";
@@ -43,11 +42,6 @@ const routes: Array<RouteRecordRaw> = [
         path: "/product-detail",
         name: "ProductDetail",
         component: ProductDetail,
-    },
-    {
-        path: "/scheme-detail",
-        name: "SchemeDetail",
-        component: SchemeDetail,
     },
     {
         path: "/customers",

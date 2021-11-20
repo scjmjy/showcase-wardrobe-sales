@@ -1,90 +1,107 @@
 <template>
     <div class="product-info-menu">
         <template v-if="!collapse">
-            <div class="product-info-menu__text">
-                <div class="product-info-menu__text-title">
-                    <div v-if="!isNew">{{ titles.ownerName }}</div>
-                    <div>{{ titles.productName }}</div>
-                </div>
-                <div v-if="nonCustom && isNew" class="product-info-menu__text-unitPrice">
-                    <span class="unit-price__symbol">￥</span>
-                    <span class="unit-price__value">{{ unitPrice }}</span>
-                    <span class="unit-price__unit">元/平米</span>
-                </div>
-                <div
-                    v-else-if="!isNew && offerPrice && offerPrice.integer"
-                    class="product-info-menu__text-item product-info-menu__offer"
-                >
-                    <span class="text-label">{{ nonCustom ? "总价" : "报价" }}：</span>
-                    <span class="product-info-menu__offer-symbol"> ￥ </span>
-                    <span class="product-info-menu__offer-offer">{{ offerPrice.integer }}</span>
-                    <span class="product-info-menu__offer-symbol">.{{ offerPrice.decimal }} </span>
-                </div>
-                <div v-if="nonCustom" class="product-info-menu__text-state" style="visibility: hidden">
-                    <span class="sale-state__1">在售</span>
-                    <span class="sale-state__2">（现货）</span>
-                </div>
-                <div class="product-info-menu__text-size">
-                    <div class="size-item" v-for="(item, index) of sizeList" :key="index">
-                        <span class="size-item__label">{{ item.label }}</span>
-                        <span class="size-item__value">{{ item.value }}</span>
+            <div class="product-info-menu__wrapper" :class="{ 'is-blur': showDicountPage }">
+                <div class="product-info-menu__text">
+                    <div class="product-info-menu__text-title">
+                        <div v-if="!isNew">{{ titles.ownerName }}</div>
+                        <div>{{ titles.productName }}</div>
                     </div>
+                    <div v-if="nonCustom && isNew && !discountPrice" class="product-info-menu__text-unitPrice">
+                        <span class="unit-price__symbol">￥</span>
+                        <span class="unit-price__value">{{ unitPrice }}</span>
+                        <span class="unit-price__unit">元/平米</span>
+                    </div>
+                    <div v-else class="product-info-menu__text-item product-info-menu__offer">
+                        <div
+                            v-if="offerPrice && offerPrice.integer"
+                            class="offerPriceItem"
+                            :class="{ 'is-disabled': discountPrice }"
+                        >
+                            <div class="offerPriceItem-label">{{ offerLabel }}</div>
+                            <div class="offerPriceItem-value">
+                                <span class="offerPriceItem-symbol"> ￥ </span>
+                                <span class="offerPriceItem-offer">{{ offerPrice.integer }}</span>
+                                <span class="offerPriceItem-decimal">.{{ offerPrice.decimal }} </span>
+                            </div>
+                        </div>
+                        <div v-if="discountPrice" class="offerPriceItem">
+                            <div class="offerPriceItem-label">折扣价：</div>
+                            <div class="offerPriceItem-value">
+                                <span class="offerPriceItem-symbol"> ￥ </span>
+                                <span class="offerPriceItem-offer">{{ discountPrice.integer }}</span>
+                                <span class="offerPriceItem-decimal" :data-discount="`(${discount.label})`"
+                                    >.{{ discountPrice.decimal }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="nonCustom" class="product-info-menu__text-state" style="visibility: hidden">
+                        <span class="sale-state__1">在售</span>
+                        <span class="sale-state__2">（现货）</span>
+                    </div>
+                    <div class="product-info-menu__text-size">
+                        <div class="size-item" v-for="(item, index) of sizeList" :key="index">
+                            <span class="size-item__label">{{ item.label }}</span>
+                            <span class="size-item__value">{{ item.value }}</span>
+                        </div>
+                    </div>
+                    <div class="product-info-menu__text-description">
+                        <div class="description__label">商品描述</div>
+                        <div class="description__value">{{ description }}</div>
+                    </div>
+                    <el-rate
+                        class="product-info-menu__text-rate"
+                        v-model="rate"
+                        :colors="['#FD7F23FF', '#FD7F23FF', '#FD7F23FF']"
+                        :texts="rateTexts"
+                        show-text
+                        disabled
+                        style="visibility: hidden"
+                    ></el-rate>
                 </div>
-                <div class="product-info-menu__text-description">
-                    <div class="description__label">商品描述</div>
-                    <div class="description__value">{{ description }}</div>
+                <div class="product-info-menu__action">
+                    <template v-if="nonCustom">
+                        <el-button
+                            v-if="isNew"
+                            class="button-shadow"
+                            type="black"
+                            :loading="creatingScheme"
+                            size="small"
+                            @click="$emit('order', discount.value)"
+                            >下单</el-button
+                        >
+                    </template>
+                    <template v-else>
+                        <el-button
+                            v-if="isNew"
+                            class="button-shadow"
+                            type="black"
+                            :loading="creatingScheme"
+                            size="small"
+                            @click="$emit('newScheme')"
+                            >开始定制</el-button
+                        >
+                        <el-button
+                            v-if="isSelf"
+                            class="button-shadow"
+                            type="black"
+                            :loading="prepareContinue"
+                            size="small"
+                            @click="$emit('continueScheme')"
+                            >继续定制</el-button
+                        >
+                        <el-button
+                            v-if="isSelf || isOther"
+                            class="button-shadow"
+                            type="primary"
+                            :loading="creatingScheme"
+                            size="small"
+                            @click="$emit('copyScheme')"
+                            >由此方案定制</el-button
+                        >
+                    </template>
                 </div>
-                <el-rate
-                    class="product-info-menu__text-rate"
-                    v-model="rate"
-                    :colors="['#FD7F23FF', '#FD7F23FF', '#FD7F23FF']"
-                    :texts="rateTexts"
-                    show-text
-                    disabled
-                    style="visibility: hidden"
-                ></el-rate>
-            </div>
-            <div class="product-info-menu__action">
-                <template v-if="nonCustom">
-                    <el-button
-                        v-if="isNew"
-                        class="button-shadow"
-                        type="black"
-                        :loading="creatingScheme"
-                        size="small"
-                        @click="$emit('order')"
-                        >下单</el-button
-                    >
-                </template>
-                <template v-else>
-                    <el-button
-                        v-if="isNew"
-                        class="button-shadow"
-                        type="black"
-                        :loading="creatingScheme"
-                        size="small"
-                        @click="$emit('newScheme')"
-                        >开始定制</el-button
-                    >
-                    <el-button
-                        v-if="isSelf"
-                        class="button-shadow"
-                        type="black"
-                        :loading="prepareContinue"
-                        size="small"
-                        @click="$emit('continueScheme')"
-                        >继续定制</el-button
-                    >
-                    <el-button
-                        v-if="isSelf || isOther"
-                        class="button-shadow"
-                        type="primary"
-                        :loading="creatingScheme"
-                        size="small"
-                        @click="$emit('copyScheme')"
-                        >由此方案定制</el-button
-                    >
-                </template>
             </div>
         </template>
         <i
@@ -96,20 +113,43 @@
             type="text"
             @click="$emit('update:collapse', !collapse)"
         ></i>
+        <el-button
+            v-if="isNew && nonCustom"
+            class="product-info-menu__discount iconfont icon-discount"
+            type="text"
+            @click="onDiscountBtnClick"
+        ></el-button>
+        <transition name="el-zoom-in-bottom">
+            <discount-popup
+                v-if="isNew && showDicountPage"
+                :discountId="discount.value"
+                :discountKey="product.id"
+                @change="onDiscountChange"
+                @hide="onDiscountPopupHide"
+            />
+        </transition>
     </div>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, ref, PropType } from "vue";
+import { useStore } from "vuex";
 import { splitPrice } from "@/utils/currency";
 import { Product, Scheme, isProduct } from "@/api/interface/provider.interface";
+import DiscountPopup from "./DiscountPopup.vue";
+import apiProvider from "@/api/provider";
+import { StateType } from "@/store";
+import { LabelValue } from "@/api/interface/common.interface";
 
 export default defineComponent({
     name: "ProductInfoMenu",
+    components: {
+        DiscountPopup,
+    },
     props: {
         product: {
             type: Object as PropType<Product | Scheme>,
-            default: () => undefined,
+            required: true,
         },
         collapse: {
             type: Boolean,
@@ -141,31 +181,83 @@ export default defineComponent({
         },
     },
     setup(props) {
-        return {
-            offerPrice: computed(() => {
-                const p = props.product;
-                // if (props.nonCustom) {
-                //     return {
-                //         integer: 3000,
-                //         decimal: "00",
-                //     };
-                // }
-                if (!p || isProduct(p)) {
-                    return undefined;
-                }
-                if (!p.total) {
-                    return {
-                        integer: "",
-                        decimal: "",
-                    };
-                } else {
+        function findDiscount(did: number) {
+            return (store.state.globalCfg?.discounts || []).find((item) => item.value === did);
+        }
+        const store = useStore<StateType>();
+
+        // const resDiscount = await apiProvider.requestSchemeDiscount(props.product.id);
+        const newDidscount = ref<LabelValue>({
+            label: "",
+            value: undefined,
+        });
+        const discount = computed<LabelValue>(() => {
+            const p = props.product;
+            if (isProduct(p)) {
+                return newDidscount.value;
+            } else {
+                const foundDiscount = findDiscount(p.did);
+                return foundDiscount || { label: "?", value: p.did };
+            }
+        });
+        const showDicountPage = ref(false);
+        const offerPrice = computed(() => {
+            const p = props.product;
+            if (props.isNew && props.nonCustom) {
+                const price = 800 * p.width * p.depth;
+                return splitPrice(price);
+            } else if (isProduct(p) || !p.total) {
+                return {
+                    integer: "",
+                    decimal: "",
+                };
+            } else {
+                return splitPrice(+p.offer);
+            }
+        });
+        const discountPrice = computed(() => {
+            const p = props.product;
+            const did = discount.value.value;
+            if (did && did !== 1) {
+                if (props.isNew && props.nonCustom) {
+                    // const price = 800 * p.width * p.depth * +discount.value.value;
+                    const price = 800 * p.width * p.depth * 0.95;
+                    return splitPrice(price);
+                } else if (!isProduct(p)) {
                     return splitPrice(+p.total);
                 }
-            }),
-            titles: computed(() => {
-                if (!props.product) {
-                    return undefined;
+            }
+            return undefined;
+        });
+        return {
+            showDicountPage,
+            discount,
+            onDiscountBtnClick() {
+                showDicountPage.value = true;
+            },
+            onDiscountPopupHide() {
+                showDicountPage.value = false;
+            },
+            onDiscountChange(did: number) {
+                if (did === 1) {
+                    newDidscount.value = {
+                        label: "",
+                        value: undefined,
+                    };
+                } else {
+                    newDidscount.value = findDiscount(did)!;
                 }
+            },
+            offerLabel: computed(() => {
+                if (props.nonCustom || discountPrice.value) {
+                    return "原价";
+                } else {
+                    return "报价：";
+                }
+            }),
+            offerPrice,
+            discountPrice,
+            titles: computed(() => {
                 let productName = "";
                 const p = props.product;
                 if (isProduct(p)) {
@@ -209,12 +301,7 @@ export default defineComponent({
             //     return `${p.height} × ${p.depth} × ${p.width} (m)`;
             // }),
             description: computed(() => {
-                const p = props.product;
-                if (!p) {
-                    return "暂无描述";
-                }
-                return "关于新中式商品的一段描述，文字对齐的方式需要注意。关于新中式商品的一段描述，文字对齐的方式需要注意。关于新中式商品的一段描述，文字对齐的方式需要注意。";
-                // return p.description;
+                return props.product.description || "暂无描述";
             }),
             unitPrice: computed(() => {
                 const p = props.product;
@@ -232,10 +319,12 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .product-info-menu {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     padding: 15px 3%;
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
     &__text {
         width: 100%;
         &-title {
@@ -323,19 +412,6 @@ export default defineComponent({
         }
     }
 
-    &__offer {
-        margin-top: 17px;
-        font-weight: bold;
-        &-symbol {
-            color: #bb4050;
-            font-size: 15px;
-        }
-        &-offer {
-            color: #bb4050;
-            font-size: 24px;
-        }
-    }
-
     &__action {
         margin-top: 30px;
         width: 100%;
@@ -347,6 +423,69 @@ export default defineComponent({
             width: 100%;
             margin-left: 0 !important;
             margin-bottom: 17px;
+        }
+    }
+    &__discount {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        font-size: 30px;
+    }
+
+    &__offer {
+        margin-top: 10px;
+    }
+}
+
+.offerPriceItem {
+    // padding-top: 10px;
+    font-weight: bold;
+    font-size: 22px;
+    &-label {
+        display: inline-block;
+        font-size: 1em;
+        width: 30%;
+        margin-right: 5px;
+        color: var(--el-color-black);
+    }
+    &-value {
+        display: inline-block;
+        color: var(--el-color-danger);
+        display: inline-block;
+        font-size: 1.2em;
+        .is-disabled & {
+            color: var(--el-text-color-secondary);
+            position: relative;
+            font-size: 0.8em;
+            &::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: 50%;
+                height: 3px;
+                background-color: var(--el-color-danger);
+            }
+        }
+    }
+    &-symbol {
+        font-size: 0.5em;
+    }
+    &-offer {
+        font-size: 1em;
+    }
+    &-decimal {
+        font-size: 0.5em;
+        &[data-discount] {
+            position: relative;
+            &::after {
+                position: absolute;
+                content: attr(data-discount);
+                bottom: 0px;
+                color: var(--el-color-primary);
+                font-size: 0.8em;
+                white-space: nowrap;
+            }
         }
     }
 }

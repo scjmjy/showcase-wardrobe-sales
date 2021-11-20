@@ -1,5 +1,5 @@
 import { PartAttachment } from "@/api/interface/provider.interface";
-import { JsonClassType, JsonInclude, JsonIncludeType, JsonProperty } from "jackson-js";
+import { JsonClassType, JsonInclude, JsonIncludeType, JsonIgnore, JsonProperty } from "jackson-js";
 import store from "@/store";
 
 export enum PartType {

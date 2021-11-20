@@ -37,12 +37,14 @@
 <script lang="ts">
 import { SchemeOffer } from "@/api/interface/provider.interface";
 import { computed, defineComponent, PropType, reactive, ref } from "vue";
+import { useStore } from "vuex";
 import { splitPrice } from "@/utils/currency";
 import apiProvider from "@/api/provider";
 import { Scheme } from "@/lib/scheme";
 import OfferItem from "./OfferItem.vue";
 import { LabelValue, Size3D } from "@/api/interface/common.interface";
 import { makePartCompositions } from "../helpers";
+import { StateType } from "@/store";
 
 export default defineComponent({
     name: "OfferDlg",
@@ -66,11 +68,21 @@ export default defineComponent({
             type: Object as PropType<Scheme>,
             required: true,
         },
+        discountId: {
+            type: Number,
+            default: 1, // TODO: backend sql column id 1 for no discount
+        },
     },
     setup(props) {
-        const discount = ref<LabelValue>({
-            label: "无折扣",
-            value: 1,
+        const store = useStore<StateType>();
+        const discount = computed<LabelValue>(() => {
+            const foundDiscount = (store.state.globalCfg?.discounts || []).find(
+                (item) => item.value === props.discountId,
+            );
+            return {
+                label: foundDiscount ? foundDiscount.label : "?",
+                value: props.discountId,
+            };
         });
         const schemeOffer = ref<SchemeOffer>();
         const offerPrice = computed(() => {
@@ -84,11 +96,11 @@ export default defineComponent({
             }
         });
         const discountPrice = computed(() => {
-            if (!schemeOffer.value || schemeOffer.value.offer === schemeOffer.value.total) {
-                return undefined;
-            } else {
+            if (schemeOffer.value && schemeOffer.value.total && schemeOffer.value.total !== schemeOffer.value.offer) {
                 const price = +schemeOffer.value.total;
                 return splitPrice(price);
+            } else {
+                return undefined;
             }
         });
         const summaryText = computed(() => {
@@ -108,13 +120,13 @@ export default defineComponent({
             async doOffer() {
                 const partCounts = props.scheme.getPartCounts();
                 const compositions = makePartCompositions(partCounts);
-                const resDiscount = await apiProvider.requestSchemeDiscount(props.schemeId);
-                if (resDiscount.ok && resDiscount.data) {
-                    discount.value = resDiscount.data;
-                }
+                // const resDiscount = await apiProvider.requestSchemeDiscount(props.schemeId);
+                // if (resDiscount.ok && resDiscount.data) {
+                //     discount.value = resDiscount.data;
+                // }
                 const resOffer = await apiProvider.requestSchemeOffer(
                     props.schemeId,
-                    +discount.value.value,
+                    +discount.value.value!,
                     compositions,
                 );
                 if (resOffer.ok && resOffer.data) {

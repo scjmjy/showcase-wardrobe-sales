@@ -22,7 +22,10 @@
             :class="{ 'is-active': item.active, 'is-button': item.type === 'button' }"
             @click="onItemClick(item)"
         >
-            <i class="iconfont" :class="'icon-' + item.icon"></i>
+            <i
+                class="iconfont"
+                :class="'icon-' + (!item.active && item.unactiveIcon ? item.unactiveIcon : item.icon)"
+            ></i>
         </span>
 
         <!-- filters -->

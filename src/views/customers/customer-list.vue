@@ -231,15 +231,13 @@ export default defineComponent({
             },
             gotoDetail(svc: Service, scheme: Scheme) {
                 const { currentSvcId } = store.state.currentCustomer;
-                scheme.cid = customerId.value;
-                store.commit("SET-PAGE-CHANNEL", {
-                    key: "productDetailData",
-                    value: scheme,
-                });
                 router.push({
                     path: "/product-detail",
                     query: {
                         svc: currentSvcId,
+                        sid: scheme.id,
+                        cid: customerId.value,
+                        customized: scheme.customized,
                     },
                 });
             },

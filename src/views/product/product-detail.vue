@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="product"
+        v-if="product && scheme"
         class="product-detail"
         :class="{ 'slide-left-3d': showMenu || (mode === 'view' && !collapseInfoMenu) }"
     >
@@ -8,7 +8,6 @@
             <app-header v-if="mode === 'view'" type="dark" :stop="false" icon="" />
         </transition>
         <Babylon
-            v-if="scheme"
             ref="refBabylon"
             class="product-detail__3d"
             :scheme="scheme"
@@ -30,7 +29,9 @@
             :isNew="isNew"
             :isSelf="isSelf"
             :isOther="isOther"
-            :nonCustom="!product.customized"
+            :nonCustom="gCustomized == 0"
+            :discountKey="gSid || gPid"
+            :discountId="product.did"
             @newScheme="newScheme"
             @continueScheme="continueEditScheme"
             @copyScheme="copyScheme"
@@ -38,7 +39,9 @@
             @order="orderNonCustomProduct"
         />
         <template v-if="mode === 'edit'">
-            <el-button class="product-detail__back iconfont iconfont--gap icon-left" type="text" @click="gotoBack">返回</el-button>
+            <el-button class="product-detail__back iconfont iconfont--gap icon-left" type="text" @click="gotoBack"
+                >返回</el-button
+            >
             <div class="product-detail__action-left state-icon-group-h">
                 <state-icon v-model="stateInOut" :states="inOutStates" @change="onInOutChange"></state-icon>
             </div>
@@ -52,12 +55,13 @@
                 :class="{ collapse: !showMenu }"
                 :type="stateInOut"
                 :completeDisabled="completeDisabled"
-                :schemeId="product.id"
-                :discountId="product.did"
+                :discountKey="gSid"
+                :discountId="currentDiscountId"
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
                 @attachment-replacement="onAttachmentChange"
                 @bg="onBgChange"
+                @discountChange="onDiscountChange"
             ></parts-menu>
         </template>
         <template v-if="mode === 'view'">
@@ -71,13 +75,15 @@
             :size="customizeSize"
             :minMax="customizeMinMax"
             :unit-price="testUnitPrice"
+            :discountId="currentDiscountId"
             @confirm="onCustomizeConfirm"
             @cancel="onCustomizeCancel"
         />
         <offer-dlg
             ref="refOfferDlg"
             v-model="showOfferDlg"
-            :schemeId="product.id"
+            :schemeId="gSid"
+            :discountId="currentDiscountId"
             :schemeName="product.product"
             :customerName="customerName"
             :scheme="scheme"
@@ -127,7 +133,7 @@ import {
     InOutState,
     OpenCloseState,
 } from "./helpers";
-import { Size3D } from "@/api/interface/common.interface";
+import { LabelValue, Size3D } from "@/api/interface/common.interface";
 import { ImgCardItemType } from "./components/ImgCardItem.vue";
 
 export default defineComponent({
@@ -147,16 +153,21 @@ export default defineComponent({
         const router = useRouter();
         const store = useStore<StateType>();
 
-        const ready = ref(false);
         const mode = ref<"view" | "edit" | "">("view");
         let svcId = +(route.query.svc || 0);
+        const gPid = ref(+(route.query.pid || 0)); // product id
+        const gSid = ref(+(route.query.sid || 0)); // scheme id
+        const gCid = ref(+(route.query.cid || 0)); // customer id who the scheme belongs to
+        const gCustomized = ref(+(route.query.customized || 1)); // 是否是定制商品
 
-        const productDetailData = store.state.pageChannel.productDetailData;
-        // store.commit("SET-PAGE-CHANNEL", { key: "productDetailData", value: undefined });
+        const currentDiscountId = ref(0);
 
-        const product = ref(productDetailData as Product | Scheme);
+        const product = ref<Product | Scheme>();
 
         const customizeSize = computed<Size3D>(() => {
+            if (!product.value) {
+                return {} as Size3D;
+            }
             const { width, height, depth } = product.value;
             return {
                 width: width,
@@ -166,16 +177,23 @@ export default defineComponent({
         });
 
         const scheme3DType = computed(() => {
+            if (!product.value) {
+                return 0;
+            }
             // 0 - 定制商品
             // 1 - 非定制商品
-            return product.value.customized === 1 ? 0 : 1;
+            // return product.value.customized === 0 ? 1 : 0;
+            return gCustomized.value === 0 ? 1 : 0;
         });
         const schemeMode = computed<SchemeMode>(() => {
             const p = product.value;
+            if (!p) {
+                return "scheme-new";
+            }
             if (isProduct(p)) {
                 return "scheme-new";
             }
-            return p.cid.toString() === store.state.currentCustomer.customerId.toString() + ""
+            return gCid.value.toString() === store.state.currentCustomer.customerId.toString() + ""
                 ? "scheme-self"
                 : "scheme-other";
         });
@@ -221,6 +239,7 @@ export default defineComponent({
                 {
                     value: "d3",
                     icon: "d3",
+                    // type: "button",
                     noClose: true,
                     onActive() {
                         refBabylon.value?.setCameraAlpha(Math.PI / 3);
@@ -250,11 +269,25 @@ export default defineComponent({
                         showCustomizeDlg.value = true;
                     },
                 },
+                {
+                    value: "bulb-fill",
+                    icon: "bulb-fill",
+                    unactiveIcon: "bulb",
+                    active: false,
+                    noClose: true,
+                    onActive() {
+                        refBabylon.value?.openLights(true);
+                    },
+                    onUnactive() {
+                        refBabylon.value?.openLights(false);
+                    },
+                },
             ];
             if (stateInOut.value === InOutState.out) {
                 items.push({
-                    value: "parts-outdoor",
-                    icon: "parts-outdoor",
+                    value: "door-open-2",
+                    icon: "door-open-2",
+                    unactiveIcon: "door-close-2",
                     noClose: true,
                     onActive() {
                         if (scheme3DType.value === 0) {
@@ -274,6 +307,9 @@ export default defineComponent({
         const scheme = ref<Scheme3D>();
         const schemeDetailDirty = ref(false);
         async function requestScheme3D() {
+            if (!product.value) {
+                return Promise.reject();
+            }
             await util.importSchemeJson(product.value.manifest).then((s) => {
                 if (scheme.value) {
                     scheme.value = s;
@@ -289,15 +325,13 @@ export default defineComponent({
                 }
             });
         }
-        requestScheme3D();
-
         onMounted(async () => {
-            if (schemeMode.value !== "scheme-new") {
+            if (gSid.value) {
                 await requestSchemeDetail();
             } else {
                 await requestProductDetail();
             }
-            ready.value = true;
+            requestScheme3D();
             showReferenceRuler(true);
         });
         function eventHandle(event: Event) {
@@ -324,6 +358,9 @@ export default defineComponent({
             }
         }
         async function createNewScheme(nonCustom = false, size?: Size3D) {
+            if (!product.value) {
+                return Promise.reject();
+            }
             const { customerId, currentSvcId } = store.state.currentCustomer;
             const cid = customerId.toString();
             const eid = store.state.user.eid;
@@ -352,18 +389,19 @@ export default defineComponent({
             if (res.ok && res.data) {
                 store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
 
+                const newSchemeId = res.data.id;
+                gSid.value = newSchemeId;
                 if (size) {
-                    const newSchemeId = res.data.id;
                     await apiProvider.changeSchemeSize(newSchemeId, size);
                 }
 
                 return apiProvider.requestSchemeDetail(res.data.id).then(async (res) => {
                     if (res.ok && res.data) {
                         product.value = res.data;
-                        product.value.cid = cid;
 
                         await captureSchemeScreenshot();
                         if (nonCustom) {
+                            await nextTick();
                             if (refOfferDlg.value) {
                                 refOfferDlg.value.doOffer();
                             }
@@ -388,6 +426,9 @@ export default defineComponent({
         const refOfferDlg = ref<InstanceType<typeof OfferDlg>>();
 
         async function saveScheme() {
+            if (!product.value) {
+                return Promise.reject();
+            }
             await util.saveSchemeAsync(product.value.id, scheme.value!);
             captureSchemeScreenshot();
             const scheme2d = product.value as Scheme;
@@ -400,25 +441,31 @@ export default defineComponent({
 
         async function captureSchemeScreenshot() {
             const base64 = await refBabylon.value!.screenshotApi();
-            await util.uploadSchemeScreenshot(product.value.id, base64);
+            await util.uploadSchemeScreenshot(product.value!.id, base64);
         }
 
         async function requestProductDetail() {
-            const id = product.value.id;
+            const id = product.value?.id || gPid.value;
             const res = await apiProvider.requestProductDetail(id);
             if (res.ok && res.data) {
                 res.data.id = id;
-                Object.assign(product.value, res.data);
+                product.value = res.data;
             }
         }
 
         async function requestSchemeDetail() {
-            const res = await apiProvider.requestSchemeDetail(product.value.id);
-            Object.assign(product.value, res.data);
-            schemeDetailDirty.value = false;
+            const res = await apiProvider.requestSchemeDetail(product.value?.id || gSid.value);
+            if (res.ok && res.data) {
+                product.value = res.data;
+                currentDiscountId.value = res.data.did;
+                schemeDetailDirty.value = false;
+            }
         }
 
         async function onPartsMenuAction(action: ActionType) {
+            if (!product.value) {
+                return Promise.reject();
+            }
             const scheme2d = product.value as Scheme;
             switch (action) {
                 case "manifest":
@@ -441,7 +488,7 @@ export default defineComponent({
                         // }
                     }
                     showOfferDlg.value = true;
-                    store.commit("SET-DIRTY-SCHEME", { cid: scheme2d.cid, dirty: true });
+                    store.commit("SET-DIRTY-SCHEME", { cid: gCid.value, dirty: true });
                     break;
                 case "save":
                     {
@@ -493,12 +540,14 @@ export default defineComponent({
             }
         }
         return {
-            ready,
             gooeyMenuItems,
             gooeyMenuOpened,
             refBabylon,
             refPartsMenu,
             refOfferDlg,
+            gSid,
+            gPid,
+            gCustomized,
             scheme,
             setSchemeDirty,
             schemeDetailDirty,
@@ -506,6 +555,9 @@ export default defineComponent({
             customizeSize,
             customizeMinMax: computed<CustomizeMinMax | undefined>(() => {
                 const p = product.value;
+                if (!p) {
+                    return undefined;
+                }
                 if (isProduct(p)) {
                     return {
                         depthMax: p.depthmax,
@@ -563,7 +615,12 @@ export default defineComponent({
             prepareContinue,
             customerName,
             testUnitPrice,
-            orderNonCustomProduct() {
+            currentDiscountId,
+            onDiscountChange(did: number) {
+                currentDiscountId.value = did;
+            },
+            orderNonCustomProduct(did: number) {
+                currentDiscountId.value = did;
                 // TODO backend should give us this vlue
                 customizeMode.value = "new-non-custom";
                 testUnitPrice.value = 800;
@@ -796,7 +853,7 @@ $left-gooey: 110px;
     &__gooeyMenu {
         position: absolute;
         left: $left-gooey;
-        bottom: 72px;
+        bottom: 70px;
     }
     &__action-test {
         position: absolute;
