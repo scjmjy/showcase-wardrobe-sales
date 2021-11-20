@@ -963,7 +963,11 @@ export default defineComponent({
             this.schemeModelCount = 0;
             this.bizdata.totalWidth = 0;
 
-            // TODO: load background.
+            // set background.
+            const bkObj = this.scheme.manifest.background[0];
+            if (bkObj && bkObj.partId === -1 && bkObj.manifest.startsWith("#")) {
+                this.graphics.setBackgroundColor(BABYLON.Color4.FromHexString(bkObj.manifest));
+            }
 
             let firstCubeId = "";
             switch (schemeType) {
