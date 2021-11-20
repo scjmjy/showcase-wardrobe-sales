@@ -111,7 +111,8 @@ export interface Scheme extends BaseProduct {
     pid: number;
     offer: string; // 总价
     total: string; // 折扣价
-    discount: number; // 折扣id
+    discount: number; // 折扣
+    did: number; // 折扣id
     ptime: string;
     cover: string[];
     pdepthmax: number;

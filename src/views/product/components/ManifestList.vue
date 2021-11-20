@@ -38,6 +38,7 @@
                 :discountId="$attrs.discountId"
                 :discountKey="$attrs.discountKey"
                 @hide="onDiscountPopupHide"
+                @change="$attrs.onDiscountChange"
             />
         </transition>
     </div>

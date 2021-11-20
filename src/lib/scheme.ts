@@ -194,11 +194,6 @@ export class Cube extends SchemeObject {
     @JsonClassType({ type: () => [Array, [Item]] })
     items: Array<Item>;
 
-    @JsonProperty({ value: "glbUrls" })
-    @JsonClassType({ type: () => [Array, [String]] })
-    @JsonIgnore()
-    glbUrls: Array<string> = []; // TODO store model glb urls
-
     constructor(id: string, partId: number, manifest: string, catId: number, size: Vector3, items: Array<Item> = []) {
         super(id, partId, manifest, catId);
         this.size = size;

@@ -74,6 +74,7 @@
                     :list="schemeManifest"
                     :discountKey="$attrs.discountKey"
                     :discountId="$attrs.discountId"
+                    @discountChange="$attrs.onDiscountChange"
                     @attachment-replacement="$attrs.onAttachmentReplacement"
                 />
             </div>

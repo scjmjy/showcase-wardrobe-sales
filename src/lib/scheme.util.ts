@@ -25,7 +25,13 @@ import { base64toBlob } from "@/utils/base64";
 //     return require("@/assets/" + url);
 // }
 
-const objectMapper = new ObjectMapper();
+const objectMapper = new ObjectMapper(undefined, {
+    features: {
+        deserialization: {
+            FAIL_ON_UNKNOWN_PROPERTIES: false,
+        },
+    },
+});
 export function importSchemeJson(url: string): Promise<Scheme> {
     return new Promise((resolve, reject) => {
         request({

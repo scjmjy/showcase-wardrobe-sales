@@ -56,11 +56,12 @@
                 :type="stateInOut"
                 :completeDisabled="completeDisabled"
                 :discountKey="gSid"
-                :discountId="product.did"
+                :discountId="currentDiscountId"
                 @action="onPartsMenuAction"
                 @part="onPartSelect"
                 @attachment-replacement="onAttachmentChange"
                 @bg="onBgChange"
+                @discountChange="onDiscountChange"
             ></parts-menu>
         </template>
         <template v-if="mode === 'view'">
@@ -74,6 +75,7 @@
             :size="customizeSize"
             :minMax="customizeMinMax"
             :unit-price="testUnitPrice"
+            :discountId="currentDiscountId"
             @confirm="onCustomizeConfirm"
             @cancel="onCustomizeCancel"
         />
@@ -81,7 +83,7 @@
             ref="refOfferDlg"
             v-model="showOfferDlg"
             :schemeId="gSid"
-            :discountId="product.did"
+            :discountId="currentDiscountId"
             :schemeName="product.product"
             :customerName="customerName"
             :scheme="scheme"
@@ -131,7 +133,7 @@ import {
     InOutState,
     OpenCloseState,
 } from "./helpers";
-import { Size3D } from "@/api/interface/common.interface";
+import { LabelValue, Size3D } from "@/api/interface/common.interface";
 import { ImgCardItemType } from "./components/ImgCardItem.vue";
 
 export default defineComponent({
@@ -153,10 +155,12 @@ export default defineComponent({
 
         const mode = ref<"view" | "edit" | "">("view");
         let svcId = +(route.query.svc || 0);
-        const gPid = +(route.query.pid || 0);
-        const gSid = +(route.query.sid || 0);
-        const gCid = +(route.query.cid || 0);
-        const gCustomized = +(route.query.customized || 1);
+        const gPid = ref(+(route.query.pid || 0)); // product id
+        const gSid = ref(+(route.query.sid || 0)); // scheme id
+        const gCid = ref(+(route.query.cid || 0)); // customer id who the scheme belongs to
+        const gCustomized = ref(+(route.query.customized || 1)); // 是否是定制商品
+
+        const currentDiscountId = ref(0);
 
         const product = ref<Product | Scheme>();
 
@@ -179,7 +183,7 @@ export default defineComponent({
             // 0 - 定制商品
             // 1 - 非定制商品
             // return product.value.customized === 0 ? 1 : 0;
-            return gCustomized === 0 ? 1 : 0;
+            return gCustomized.value === 0 ? 1 : 0;
         });
         const schemeMode = computed<SchemeMode>(() => {
             const p = product.value;
@@ -189,7 +193,7 @@ export default defineComponent({
             if (isProduct(p)) {
                 return "scheme-new";
             }
-            return gCid.toString() === store.state.currentCustomer.customerId.toString() + ""
+            return gCid.value.toString() === store.state.currentCustomer.customerId.toString() + ""
                 ? "scheme-self"
                 : "scheme-other";
         });
@@ -235,7 +239,7 @@ export default defineComponent({
                 {
                     value: "d3",
                     icon: "d3",
-                    type: "button",
+                    // type: "button",
                     noClose: true,
                     onActive() {
                         refBabylon.value?.setCameraAlpha(Math.PI / 3);
@@ -322,7 +326,7 @@ export default defineComponent({
             });
         }
         onMounted(async () => {
-            if (gSid) {
+            if (gSid.value) {
                 await requestSchemeDetail();
             } else {
                 await requestProductDetail();
@@ -385,8 +389,9 @@ export default defineComponent({
             if (res.ok && res.data) {
                 store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
 
+                const newSchemeId = res.data.id;
+                gSid.value = newSchemeId;
                 if (size) {
-                    const newSchemeId = res.data.id;
                     await apiProvider.changeSchemeSize(newSchemeId, size);
                 }
 
@@ -396,6 +401,7 @@ export default defineComponent({
 
                         await captureSchemeScreenshot();
                         if (nonCustom) {
+                            await nextTick();
                             if (refOfferDlg.value) {
                                 refOfferDlg.value.doOffer();
                             }
@@ -439,7 +445,7 @@ export default defineComponent({
         }
 
         async function requestProductDetail() {
-            const id = product.value?.id || gPid;
+            const id = product.value?.id || gPid.value;
             const res = await apiProvider.requestProductDetail(id);
             if (res.ok && res.data) {
                 res.data.id = id;
@@ -448,9 +454,12 @@ export default defineComponent({
         }
 
         async function requestSchemeDetail() {
-            const res = await apiProvider.requestSchemeDetail(product.value?.id || gSid);
-            product.value = res.data;
-            schemeDetailDirty.value = false;
+            const res = await apiProvider.requestSchemeDetail(product.value?.id || gSid.value);
+            if (res.ok && res.data) {
+                product.value = res.data;
+                currentDiscountId.value = res.data.did;
+                schemeDetailDirty.value = false;
+            }
         }
 
         async function onPartsMenuAction(action: ActionType) {
@@ -479,7 +488,7 @@ export default defineComponent({
                         // }
                     }
                     showOfferDlg.value = true;
-                    store.commit("SET-DIRTY-SCHEME", { cid: gCid, dirty: true });
+                    store.commit("SET-DIRTY-SCHEME", { cid: gCid.value, dirty: true });
                     break;
                 case "save":
                     {
@@ -606,7 +615,12 @@ export default defineComponent({
             prepareContinue,
             customerName,
             testUnitPrice,
-            orderNonCustomProduct() {
+            currentDiscountId,
+            onDiscountChange(did: number) {
+                currentDiscountId.value = did;
+            },
+            orderNonCustomProduct(did: number) {
+                currentDiscountId.value = did;
                 // TODO backend should give us this vlue
                 customizeMode.value = "new-non-custom";
                 testUnitPrice.value = 800;

@@ -55,23 +55,20 @@ export default defineComponent({
         const discounts = computed(() => store.state.globalCfg?.discounts || []);
         store.dispatch("updateDiscounts");
         const currentDiscount = ref(props.discountId || 1);
-        apiProvider.requestSchemeDiscount(props.discountKey).then((res) => {
-            if (res.ok && res.data) {
-                currentDiscount.value = res.data.value as number;
-            }
-        });
+        // apiProvider.requestSchemeDiscount(props.discountKey).then((res) => {
+        //     if (res.ok && res.data) {
+        //         currentDiscount.value = res.data.value as number;
+        //     }
+        // });
         return {
             discounts,
             currentDiscount,
             toggleTrigger() {
-                ctx.emit("hide");
+                ctx.emit("hide", currentDiscount.value);
             },
             onDiscountChange(val: number) {
-                apiProvider.updateSchemeDiscount(props.discountKey, val).then(() => {});
-                ctx.emit(
-                    "change",
-                    discounts.value.find((item) => item.value === val),
-                );
+                // apiProvider.updateSchemeDiscount(props.discountKey, val).then(() => {});
+                ctx.emit("change", val);
             },
         };
     },

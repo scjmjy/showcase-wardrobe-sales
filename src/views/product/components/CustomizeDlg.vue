@@ -106,6 +106,10 @@ export default defineComponent({
             type: Number,
             default: undefined,
         },
+        discountId: {
+            type: Number,
+            default: 1, // TODO: backend sql column id 1 for no discount
+        },
     },
     setup(props, ctx) {
         const elForm = ref<InstanceType<typeof ElForm>>();
@@ -149,11 +153,11 @@ export default defineComponent({
         const lastValue = ref(0);
         const totalPrice = computed(() => {
             const { unitPrice } = props;
-            if (unitPrice === undefined) {
-                return undefined;
-            } else {
-                return formData.height * formData.width * unitPrice;
+            if (unitPrice) {
+                const discount = props.discountId === 1 ? 1 : 0.95;
+                return formData.depth * formData.width * unitPrice * discount;
             }
+            return undefined;
         });
         return {
             elForm,

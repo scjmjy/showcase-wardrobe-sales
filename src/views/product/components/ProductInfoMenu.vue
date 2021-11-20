@@ -7,29 +7,25 @@
                         <div v-if="!isNew">{{ titles.ownerName }}</div>
                         <div>{{ titles.productName }}</div>
                     </div>
-                    <div v-if="nonCustom && isNew" class="product-info-menu__text-unitPrice">
+                    <div v-if="nonCustom && isNew && !discountPrice" class="product-info-menu__text-unitPrice">
                         <span class="unit-price__symbol">￥</span>
                         <span class="unit-price__value">{{ unitPrice }}</span>
                         <span class="unit-price__unit">元/平米</span>
                     </div>
-                    <div class="product-info-menu__text-item product-info-menu__offer">
-                        <!-- <span class="text-label">{{ nonCustom ? "总价" : "报价" }}：</span>
-                        <span class="product-info-menu__offer-symbol"> ￥ </span>
-                        <span class="product-info-menu__offer-offer">{{ offerPrice.integer }}</span>
-                        <span class="product-info-menu__offer-symbol">.{{ offerPrice.decimal }} </span> -->
+                    <div v-else class="product-info-menu__text-item product-info-menu__offer">
                         <div
                             v-if="offerPrice && offerPrice.integer"
                             class="offerPriceItem"
                             :class="{ 'is-disabled': discountPrice }"
                         >
-                            <div class="offerPriceItem-label">{{ summaryText }}</div>
+                            <div class="offerPriceItem-label">{{ offerLabel }}</div>
                             <div class="offerPriceItem-value">
                                 <span class="offerPriceItem-symbol"> ￥ </span>
                                 <span class="offerPriceItem-offer">{{ offerPrice.integer }}</span>
                                 <span class="offerPriceItem-decimal">.{{ offerPrice.decimal }} </span>
                             </div>
                         </div>
-                        <div v-else-if="discountPrice" class="offerPriceItem">
+                        <div v-if="discountPrice" class="offerPriceItem">
                             <div class="offerPriceItem-label">折扣价：</div>
                             <div class="offerPriceItem-value">
                                 <span class="offerPriceItem-symbol"> ￥ </span>
@@ -72,7 +68,7 @@
                             type="black"
                             :loading="creatingScheme"
                             size="small"
-                            @click="$emit('order')"
+                            @click="$emit('order', discount.value)"
                             >下单</el-button
                         >
                     </template>
@@ -185,6 +181,9 @@ export default defineComponent({
         },
     },
     setup(props) {
+        function findDiscount(did: number) {
+            return (store.state.globalCfg?.discounts || []).find((item) => item.value === did);
+        }
         const store = useStore<StateType>();
 
         // const resDiscount = await apiProvider.requestSchemeDiscount(props.product.id);
@@ -197,40 +196,35 @@ export default defineComponent({
             if (isProduct(p)) {
                 return newDidscount.value;
             } else {
-                const foundDiscount = (store.state.globalCfg?.discounts || []).find(
-                    (item) => item.value === p.discount,
-                );
-                return {
-                    label: foundDiscount ? foundDiscount.label : "?",
-                    value: p.id,
-                };
+                const foundDiscount = findDiscount(p.did);
+                return foundDiscount || { label: "?", value: p.did };
             }
         });
         const showDicountPage = ref(false);
         const offerPrice = computed(() => {
             const p = props.product;
             if (props.isNew && props.nonCustom) {
-                return {
-                    integer: "",
-                    decimal: "",
-                };
+                const price = 800 * p.width * p.depth;
+                return splitPrice(price);
             } else if (isProduct(p) || !p.total) {
                 return {
                     integer: "",
                     decimal: "",
                 };
             } else {
-                return splitPrice(+p.total);
+                return splitPrice(+p.offer);
             }
         });
         const discountPrice = computed(() => {
             const p = props.product;
-            if (discount.value.value) {
+            const did = discount.value.value;
+            if (did && did !== 1) {
                 if (props.isNew && props.nonCustom) {
-                    const price = 800 * 20 * +discount.value.value;
+                    // const price = 800 * p.width * p.depth * +discount.value.value;
+                    const price = 800 * p.width * p.depth * 0.95;
                     return splitPrice(price);
                 } else if (!isProduct(p)) {
-                    return splitPrice(+p.offer);
+                    return splitPrice(+p.total);
                 }
             }
             return undefined;
@@ -244,9 +238,23 @@ export default defineComponent({
             onDiscountPopupHide() {
                 showDicountPage.value = false;
             },
-            onDiscountChange(d: LabelValue) {
-                newDidscount.value = d;
+            onDiscountChange(did: number) {
+                if (did === 1) {
+                    newDidscount.value = {
+                        label: "",
+                        value: undefined,
+                    };
+                } else {
+                    newDidscount.value = findDiscount(did)!;
+                }
             },
+            offerLabel: computed(() => {
+                if (props.nonCustom || discountPrice.value) {
+                    return "原价";
+                } else {
+                    return "报价：";
+                }
+            }),
             offerPrice,
             discountPrice,
             titles: computed(() => {
@@ -404,19 +412,6 @@ export default defineComponent({
         }
     }
 
-    &__offer {
-        margin-top: 17px;
-        font-weight: bold;
-        &-symbol {
-            color: #bb4050;
-            font-size: 15px;
-        }
-        &-offer {
-            color: #bb4050;
-            font-size: 24px;
-        }
-    }
-
     &__action {
         margin-top: 30px;
         width: 100%;
@@ -436,29 +431,32 @@ export default defineComponent({
         right: 10px;
         font-size: 30px;
     }
+
+    &__offer {
+        margin-top: 10px;
+    }
 }
+
 .offerPriceItem {
-    margin-top: 30px;
-    padding-top: 10px;
-    border-top: 1px solid var(--el-color-info);
+    // padding-top: 10px;
     font-weight: bold;
-    // display: flex;
-    // align-items: flex-end;
+    font-size: 22px;
     &-label {
         display: inline-block;
-        font-size: 26px;
-        width: 60%;
-        text-align: right;
+        font-size: 1em;
+        width: 30%;
+        margin-right: 5px;
+        color: var(--el-color-black);
     }
     &-value {
         display: inline-block;
         color: var(--el-color-danger);
         display: inline-block;
-        font-size: 40px;
+        font-size: 1.2em;
         .is-disabled & {
             color: var(--el-text-color-secondary);
             position: relative;
-            font-size: 25px;
+            font-size: 0.8em;
             &::after {
                 content: "";
                 position: absolute;
@@ -483,7 +481,7 @@ export default defineComponent({
             &::after {
                 position: absolute;
                 content: attr(data-discount);
-                bottom: 3px;
+                bottom: 0px;
                 color: var(--el-color-primary);
                 font-size: 0.8em;
                 white-space: nowrap;

@@ -75,10 +75,14 @@ export default defineComponent({
     },
     setup(props) {
         const store = useStore<StateType>();
-        const foundDiscount = (store.state.globalCfg?.discounts || []).find((item) => item.value === props.discountId);
-        const discount = ref<LabelValue>({
-            label: foundDiscount ? foundDiscount.label : "?",
-            value: props.discountId,
+        const discount = computed<LabelValue>(() => {
+            const foundDiscount = (store.state.globalCfg?.discounts || []).find(
+                (item) => item.value === props.discountId,
+            );
+            return {
+                label: foundDiscount ? foundDiscount.label : "?",
+                value: props.discountId,
+            };
         });
         const schemeOffer = ref<SchemeOffer>();
         const offerPrice = computed(() => {
@@ -116,10 +120,10 @@ export default defineComponent({
             async doOffer() {
                 const partCounts = props.scheme.getPartCounts();
                 const compositions = makePartCompositions(partCounts);
-                const resDiscount = await apiProvider.requestSchemeDiscount(props.schemeId);
-                if (resDiscount.ok && resDiscount.data) {
-                    discount.value = resDiscount.data;
-                }
+                // const resDiscount = await apiProvider.requestSchemeDiscount(props.schemeId);
+                // if (resDiscount.ok && resDiscount.data) {
+                //     discount.value = resDiscount.data;
+                // }
                 const resOffer = await apiProvider.requestSchemeOffer(
                     props.schemeId,
                     +discount.value.value!,

@@ -363,6 +363,7 @@ export default class LocalProvider implements ApiProvider {
                     offer: mockOffer[index % mockOffer.length],
                     total: mockOffer[index % mockOffer.length],
                     discount: 1,
+                    did: 1,
                     ptime: mockDate[index % mockDate.length],
                     pic: "",
                     cover: [
@@ -400,6 +401,7 @@ export default class LocalProvider implements ApiProvider {
                 offer: +sid % 2 === 0 ? "10000" : "0",
                 total: "111",
                 discount: 1,
+                did: 1,
                 ptime: Date.now() + "",
                 pic: "",
                 cover: [
