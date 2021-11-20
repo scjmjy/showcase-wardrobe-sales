@@ -1,4 +1,5 @@
 import { createStore } from "vuex";
+import deepEqual from "fast-deep-equal";
 import apiProvider from "@/api/provider";
 import {
     GlobalCfg,
@@ -78,7 +79,9 @@ export default createStore({
             state.attachments = attachments;
         },
         "SET-PART-CATEGORIES"(state, cats: PartCategory[]) {
-            state.cats = cats;
+            if (!deepEqual(state.cats, cats)) {
+                state.cats = cats;
+            }
         },
         "SET-DIRTY-CUSTOMER"(state, dirty: boolean) {
             state.dirty.customerList = dirty;
@@ -124,9 +127,9 @@ export default createStore({
                     //
                 }
                 commit("SET-GLOBAL-CONFIG", cfg);
-                const attachments = (await apiProvider.requestPartAttachments()).data;
+                const attachments = (await apiProvider.requestPartAttachments()).data || [];
                 commit("SET-PART-ATTACHMENTS", attachments);
-                const cats = (await apiProvider.requestPartCategories()).data;
+                const cats = (await apiProvider.requestPartCategories()).data || [];
                 commit("SET-PART-CATEGORIES", cats);
                 emitter.emit("logged-in", "");
                 return cfg;
@@ -138,6 +141,10 @@ export default createStore({
         async updateDiscounts({ commit }) {
             const discounts = (await apiProvider.requestDiscounts()).data || [];
             commit("SET-CONFIG-DISCOUNTS", discounts);
+        },
+        async updatePartCategories({ commit }) {
+            const cats = (await apiProvider.requestPartCategories()).data || [];
+            commit("SET-PART-CATEGORIES", cats);
         },
         logout({ commit }) {
             return apiProvider.logout().then(() => {

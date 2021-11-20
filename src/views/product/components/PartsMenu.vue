@@ -149,8 +149,8 @@ export default defineComponent({
     emits: ["update:opened", "part", "action", "bg"],
     setup(props, ctx) {
         const store = useStore<StateType>();
-        // const cats = computed<PartCategory[]>(() => store.getters.partCats);
-        const cats = ref<PartCategory[]>(store.getters.partCats || []);
+        const cats = computed<PartCategory[]>(() => store.getters.partCats || []);
+        // const cats = ref<PartCategory[]>(store.getters.partCats || []);
         const catMeta = ref<PartCategoryMeta>();
         const selectedTabName = ref<string>();
         const schemeManifest = ref<SchemeManifest>();
@@ -342,11 +342,7 @@ export default defineComponent({
                 const opened = !props.opened;
                 ctx.emit("update:opened", opened);
                 if (opened) {
-                    apiProvider.requestPartCategories().then((res) => {
-                        if (res.ok && res.data) {
-                            cats.value = res.data;
-                        }
-                    });
+                    store.dispatch("updatePartCategories");
                 }
             },
         };
