@@ -96,7 +96,7 @@ export default defineComponent({
             }
         });
         const discountPrice = computed(() => {
-            if (schemeOffer.value && schemeOffer.value.total) {
+            if (schemeOffer.value && schemeOffer.value.total && schemeOffer.value.total !== schemeOffer.value.offer) {
                 const price = +schemeOffer.value.total;
                 return splitPrice(price);
             } else {

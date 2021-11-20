@@ -248,8 +248,8 @@ export interface PartOffer {
 }
 
 export interface SchemeOffer {
-    total: string; // 总价
-    offer: string; // 折扣价
+    total: string; // 折扣价
+    offer: string; // 总价
     discount: number; // 折扣id
     ptime: string;
     details: PartOffer[];
