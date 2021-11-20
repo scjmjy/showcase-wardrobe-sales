@@ -538,17 +538,17 @@ export default class LocalProvider implements ApiProvider {
     requestDiscounts(): Promise<AjaxResponse<LabelValue[]>> {
         throw new Error("Method not implemented.");
     }
-    requestSchemeDiscount(schemeId: number): Promise<AjaxResponse<LabelValue>> {
-        const val = this.discounts.get(schemeId);
+    requestSchemeDiscount(key: number): Promise<AjaxResponse<LabelValue>> {
+        const val = this.discounts.get(key);
         return Promise.resolve({
             ok: val ? true : false,
             status: 200,
             data: val,
         });
     }
-    updateSchemeDiscount(schemeId: number, did: number): Promise<AjaxResponse<void>> {
+    updateSchemeDiscount(key: number, did: number): Promise<AjaxResponse<void>> {
         const discounts = store.state.globalCfg?.discounts || [];
-        this.discounts.set(schemeId, discounts.find((item) => item.value === did)!);
+        this.discounts.set(key, discounts.find((item) => item.value === did)!);
         return Promise.resolve({
             ok: true,
             status: 200,

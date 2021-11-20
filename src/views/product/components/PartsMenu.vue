@@ -72,7 +72,7 @@
             <div v-if="schemeManifest" class="parts-menu__right-manifest">
                 <manifest-list
                     :list="schemeManifest"
-                    :schemeId="$attrs.schemeId"
+                    :discountKey="$attrs.discountKey"
                     :discountId="$attrs.discountId"
                     @attachment-replacement="$attrs.onAttachmentReplacement"
                 />

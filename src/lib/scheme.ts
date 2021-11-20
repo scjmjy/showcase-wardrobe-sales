@@ -1,5 +1,5 @@
 import { PartAttachment } from "@/api/interface/provider.interface";
-import { JsonClassType, JsonInclude, JsonIncludeType, JsonProperty } from "jackson-js";
+import { JsonClassType, JsonInclude, JsonIncludeType, JsonIgnore, JsonProperty } from "jackson-js";
 import store from "@/store";
 
 export enum PartType {
@@ -193,6 +193,11 @@ export class Cube extends SchemeObject {
     @JsonProperty({ value: "items" })
     @JsonClassType({ type: () => [Array, [Item]] })
     items: Array<Item>;
+
+    @JsonProperty({ value: "glbUrls" })
+    @JsonClassType({ type: () => [Array, [String]] })
+    @JsonIgnore()
+    glbUrls: Array<string> = []; // TODO store model glb urls
 
     constructor(id: string, partId: number, manifest: string, catId: number, size: Vector3, items: Array<Item> = []) {
         super(id, partId, manifest, catId);

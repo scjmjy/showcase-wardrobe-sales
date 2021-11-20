@@ -11,15 +11,13 @@ import {
 } from "@/api/interface/provider.interface";
 import { Customer, User, Model3D } from "@/api/dto/user";
 import emitter from "@/event";
+import { LabelValue } from "@/api/interface/common.interface";
 
 const state = {
     user: User.load(),
     currentCustomer: Customer.load(),
     models3DFiles: Model3D.load(),
     // currentSvcId: 0,
-    pageChannel: {
-        productDetailData: undefined as undefined | Product | Scheme,
-    },
     globalCfg: undefined as GlobalCfg | undefined,
     attachments: [] as PartAttachmentList,
     cats: [] as PartCategory[],
@@ -70,12 +68,11 @@ export default createStore({
             }
             state.user.save();
         },
-        "SET-PAGE-CHANNEL"(state, { key, value }) {
-            // @ts-ignore
-            state.pageChannel[key] = value;
-        },
         "SET-GLOBAL-CONFIG"(state, cfg?: GlobalCfg) {
             state.globalCfg = cfg;
+        },
+        "SET-CONFIG-DISCOUNTS"(state, val: LabelValue[]) {
+            if (state.globalCfg) state.globalCfg.discounts = val;
         },
         "SET-PART-ATTACHMENTS"(state, attachments: PartAttachmentList) {
             state.attachments = attachments;
@@ -137,6 +134,10 @@ export default createStore({
                 await dispatch("logout");
                 return Promise.reject(error);
             }
+        },
+        async updateDiscounts({ commit }) {
+            const discounts = (await apiProvider.requestDiscounts()).data || [];
+            commit("SET-CONFIG-DISCOUNTS", discounts);
         },
         logout({ commit }) {
             return apiProvider.logout().then(() => {

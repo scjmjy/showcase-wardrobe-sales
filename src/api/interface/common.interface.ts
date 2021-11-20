@@ -1,6 +1,6 @@
 export interface LabelValue {
     label: string | number;
-    value: string | number;
+    value?: string | number;
     disabled?: boolean;
     default?: boolean;
     selected?: boolean;

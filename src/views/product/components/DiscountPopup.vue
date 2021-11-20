@@ -41,7 +41,7 @@ export default defineComponent({
     name: "DiscountPopup",
     components: {},
     props: {
-        schemeId: {
+        discountKey: {
             type: Number,
             default: 0,
         },
@@ -53,8 +53,9 @@ export default defineComponent({
     setup(props, ctx) {
         const store = useStore<StateType>();
         const discounts = computed(() => store.state.globalCfg?.discounts || []);
+        store.dispatch("updateDiscounts");
         const currentDiscount = ref(props.discountId || 1);
-        apiProvider.requestSchemeDiscount(props.schemeId).then((res) => {
+        apiProvider.requestSchemeDiscount(props.discountKey).then((res) => {
             if (res.ok && res.data) {
                 currentDiscount.value = res.data.value as number;
             }
@@ -66,7 +67,11 @@ export default defineComponent({
                 ctx.emit("hide");
             },
             onDiscountChange(val: number) {
-                apiProvider.updateSchemeDiscount(props.schemeId, val).then(() => {});
+                apiProvider.updateSchemeDiscount(props.discountKey, val).then(() => {});
+                ctx.emit(
+                    "change",
+                    discounts.value.find((item) => item.value === val),
+                );
             },
         };
     },

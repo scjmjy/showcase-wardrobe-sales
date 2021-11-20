@@ -36,7 +36,7 @@
             <discount-popup
                 v-if="showDicountPage"
                 :discountId="$attrs.discountId"
-                :schemeId="$attrs.schemeId"
+                :discountKey="$attrs.discountKey"
                 @hide="onDiscountPopupHide"
             />
         </transition>
