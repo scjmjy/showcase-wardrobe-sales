@@ -3,44 +3,45 @@ import { IIndexDb, Nullable } from "./indexdb.api";
 import { Resource } from "./model/resource";
 
 export type DBValue = {
-    utime: string;
-    file: File;
+    etag: string;
+    file: Blob;
 };
 
 export class IndexDb implements IIndexDb {
     async cache(resources: Array<Resource>): Promise<void> {
         for (const resource of resources) {
-            const key = resource.name;
-            const ut = resource.utime;
+            await this.get(resource);
+        }
+    }
 
-            const value: Nullable<DBValue>  = await localforage.getItem(key);
-            if (value == null || value.file == null || value.utime != ut) {
-                const data = this.retry(async () => {
-                    return await (await fetch(resource.url)).blob();
-                }, 3);
+    async get(resource: Resource): Promise<Nullable<Blob>> {
+        const key = resource.name;
+        const value: Nullable<DBValue> = await localforage.getItem(key);
+        const options = {
+            headers: {
+                "If-None-Match": value != null ? value.etag : "",
+            },
+        };
 
-                if (data == null) {
-                    continue;
+        const f = await fetch(resource.url, options)
+            .then(async function (response) {
+                const status = response.status;
+                if (status == 200) {
+                    const etag = response.headers.get("etag");
+                    const blob = await response.blob();
+                    localforage.setItem(key, { etag: etag, file: blob });
+                    return blob;
+                } else if (status == 304 && value != null) {
+                    return value.file;
+                } else {
+                    return null;
                 }
-
-                await localforage.setItem(key, { utime: ut, file: await data });
-            }
-        }
-    }
-
-    async get<DBValue>(key: string): Promise<Nullable<DBValue>> {
-        return await localforage.getItem(key);
-    }
-
-    private retry<T>(func: () => T, times: number): Nullable<T> {
-        try {
-            return func();
-        } catch {
-            if (times > 0) {
-                return this.retry(func, times--);
-            } else {
+            })
+            .catch(function (error) {
+                console.error(error);
                 return null;
-            }
-        }
+            });
+
+        return f;
     }
 }
