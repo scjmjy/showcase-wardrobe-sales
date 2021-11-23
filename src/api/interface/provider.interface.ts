@@ -205,6 +205,7 @@ export interface Part {
     price: string;
     unit: string;
     mutime?: string;
+    mbtype?: number; // PartType
 }
 
 export type IdList = (string | number)[];

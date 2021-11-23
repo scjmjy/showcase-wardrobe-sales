@@ -753,32 +753,35 @@ export default defineComponent({
                     attachments.push(...attachmentItem.attachmentsList);
                 }
 
-                let partType = PartType.UNKNOWN;
-                switch (cat.id) {
-                    case 2:
-                        partType = PartType.SLIDE_DOOR;
-                        break;
-                    case 3:
-                        partType = PartType.HINGE_DOOR;
-                        break;
-                    case 20:
-                        partType = PartType.CUBE;
-                        break;
-                    case 24:
-                        partType = PartType.SPOT_LIGHT;
-                        break;
-                    case 25:
-                        partType = PartType.STRIP_LIGHT;
-                        break;
-                    default:
-                        partType = PartType.GENERAL;
-                        break;
-                }
+                let partType = part.mbtype;
+                if (!partType) {
+                    // fallback
+                    switch (cat.id) {
+                        case 2:
+                            partType = PartType.SLIDE_DOOR;
+                            break;
+                        case 3:
+                            partType = PartType.HINGE_DOOR;
+                            break;
+                        case 20:
+                            partType = PartType.CUBE;
+                            break;
+                        case 24:
+                            partType = PartType.SPOT_LIGHT;
+                            break;
+                        case 25:
+                            partType = PartType.STRIP_LIGHT;
+                            break;
+                        default:
+                            partType = PartType.GENERAL;
+                            break;
+                    }
 
-                if (part.id === 101) partType = PartType.VERTICAL_SCALE;
-                if (part.id === 64) partType = PartType.HORIZONTAL_SCALE;
-                if (part.id === 72) partType = PartType.HORIZONTAL_SCALE;
-                if (part.id === 102) partType = PartType.HORIZONTAL_SCALE;
+                    if (part.id === 101) partType = PartType.VERTICAL_SCALE;
+                    if (part.id === 64) partType = PartType.HORIZONTAL_SCALE;
+                    if (part.id === 72) partType = PartType.HORIZONTAL_SCALE;
+                    if (part.id === 102) partType = PartType.HORIZONTAL_SCALE;
+                }
 
                 selectedPart.value = {
                     id: +part.id,
