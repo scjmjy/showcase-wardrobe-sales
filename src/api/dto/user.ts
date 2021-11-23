@@ -63,7 +63,7 @@ export class Model3D {
     static save(models: Model3DFile[]) {
         const resources: Array<Resource> = [];
         for (const model of models) {
-            const resource = new Resource(model.name, model.url, model.utime);
+            const resource = new Resource(model.name, model.url);
             resources.push(resource);
         }
 

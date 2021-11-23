@@ -20,7 +20,8 @@ import { GeneralStl, StlConfig } from "@/lib/stl";
 import { AreaHints } from "@/lib/model/hint";
 import { AnchorMeta } from "@/lib/model/pscope";
 
-import { IndexDb, DBValue } from "@/lib/indexdb";
+import { IndexDb } from "@/lib/indexdb";
+import { Resource } from "@/lib/model/resource";
 import { Size3D } from "@/api/interface/common.interface";
 import { ImgCardItemType } from "@/views/product/components/ImgCardItem.vue";
 
@@ -253,10 +254,7 @@ export default defineComponent({
          */
         changeWallApi(wall: ImgCardItemType): void {
             const hexColor = wall.label.substr(wall.label.indexOf("#"), 9);
-            this.graphics.setBackgroundColor(
-                BABYLON.Color4.FromHexString(hexColor),
-            );
-
+            this.graphics.setBackgroundColor(BABYLON.Color4.FromHexString(hexColor));
             this.bizdata.changeBackground(hexColor);
         },
 
@@ -1591,11 +1589,13 @@ export default defineComponent({
             return ret;
         },
 
-        async loadModelFromDB(key: string): Promise<File | null> {
-            const value = await this.indexDb.get<DBValue>(key);
-            if (value != null && value.file != null) {
-                BABYLON.FilesInputStore.FilesToLoad[key] = value.file as File;
-                return value.file;
+        async loadModelFromDB(name: string, url: string): Promise<File | null> {
+            const resource = new Resource(name, url);
+            const blob = await this.indexDb.get(resource);
+            const file = blob as File;
+            if (file) {
+                BABYLON.FilesInputStore.FilesToLoad[name] = file;
+                return file;
             } else {
                 return null;
             }
@@ -1612,22 +1612,23 @@ export default defineComponent({
             isEmissive = false,
         ) {
             let rootUrl = "file:///";
-            let modelUrl = url;
-            const modelFile = await this.loadModelFromDB(modelUrl);
-            if (modelFile === null) {
-                rootUrl = "";
-                modelUrl = this.baseOSSUrl + url;
+            let relativePath = url;
+            let modelUrl = this.baseOSSUrl + url;
+            const modelFile = await this.loadModelFromDB(relativePath, modelUrl);
+            if (modelFile !== null) {
+                return this.graphics.importMesh(
+                    rootUrl,
+                    url,
+                    name,
+                    position,
+                    rotation,
+                    scaling,
+                    isPickable,
+                    isEmissive,
+                );
+            } else {
+                return null;
             }
-            return this.graphics.importMesh(
-                rootUrl,
-                modelUrl,
-                name,
-                position,
-                rotation,
-                scaling,
-                isPickable,
-                isEmissive,
-            );
         },
 
         showDoors(isVisible: boolean): void {
