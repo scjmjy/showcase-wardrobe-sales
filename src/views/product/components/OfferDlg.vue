@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import { SchemeOffer } from "@/api/interface/provider.interface";
+import { NoDiscountItem, SchemeOffer } from "@/api/interface/provider.interface";
 import { computed, defineComponent, PropType, reactive, ref } from "vue";
 import { useStore } from "vuex";
 import { splitPrice } from "@/utils/currency";
@@ -43,7 +43,7 @@ import apiProvider from "@/api/provider";
 import { Scheme } from "@/lib/scheme";
 import OfferItem from "./OfferItem.vue";
 import { LabelValue, Size3D } from "@/api/interface/common.interface";
-import { makePartCompositions } from "../helpers";
+import { makePartCompositions, useDiscount } from "../helpers";
 import { StateType } from "@/store";
 
 export default defineComponent({
@@ -74,16 +74,7 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const store = useStore<StateType>();
-        const discount = computed<LabelValue>(() => {
-            const foundDiscount = (store.state.globalCfg?.discounts || []).find(
-                (item) => item.value === props.discountId,
-            );
-            return {
-                label: foundDiscount ? foundDiscount.label : "?",
-                value: props.discountId,
-            };
-        });
+        const { hasDiscount, discount } = useDiscount(props);
         const schemeOffer = ref<SchemeOffer>();
         const offerPrice = computed(() => {
             if (!schemeOffer.value) {
@@ -96,12 +87,12 @@ export default defineComponent({
             }
         });
         const discountPrice = computed(() => {
-            if (schemeOffer.value && schemeOffer.value.total && schemeOffer.value.total !== schemeOffer.value.offer) {
-                const price = +schemeOffer.value.total;
-                return splitPrice(price);
-            } else {
+            if (!hasDiscount.value || !schemeOffer.value || !schemeOffer.value.total) {
                 return undefined;
             }
+
+            const price = +schemeOffer.value.total;
+            return splitPrice(price);
         });
         const summaryText = computed(() => {
             return discountPrice.value ? "原价：" : "合计：";
@@ -120,13 +111,9 @@ export default defineComponent({
             async doOffer() {
                 const partCounts = props.scheme.getPartCounts();
                 const compositions = makePartCompositions(partCounts);
-                // const resDiscount = await apiProvider.requestSchemeDiscount(props.schemeId);
-                // if (resDiscount.ok && resDiscount.data) {
-                //     discount.value = resDiscount.data;
-                // }
                 const resOffer = await apiProvider.requestSchemeOffer(
                     props.schemeId,
-                    +discount.value.value!,
+                    discount.value?.value || NoDiscountItem.value,
                     compositions,
                 );
                 if (resOffer.ok && resOffer.data) {

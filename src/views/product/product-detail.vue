@@ -1,13 +1,13 @@
 <template>
     <div
-        v-if="product && scheme"
+        v-if="product"
         class="product-detail"
         :class="{ 'slide-left-3d': showMenu || (mode === 'view' && !collapseInfoMenu) }"
     >
         <transition name="el-zoom-in-top">
             <app-header v-if="mode === 'view'" type="dark" :stop="false" icon="" />
         </transition>
-        <Babylon
+        <!-- <Babylon
             ref="refBabylon"
             class="product-detail__3d"
             :scheme="scheme"
@@ -17,7 +17,7 @@
             :mode="mode3D"
             :schemeType="scheme3DType"
             :baseOSSUrl="baseUrl"
-        />
+        /> -->
         <product-info-menu
             v-if="mode === 'view'"
             v-model:collapse="collapseInfoMenu"
@@ -74,7 +74,7 @@
             :mode="customizeMode"
             :size="customizeSize"
             :minMax="customizeMinMax"
-            :unit-price="testUnitPrice"
+            :unit-price="product.price"
             :discountId="currentDiscountId"
             @confirm="onCustomizeConfirm"
             @cancel="onCustomizeCancel"
@@ -203,7 +203,6 @@ export default defineComponent({
         const showMetalsDlg = ref(false);
         const creatingScheme = ref(false);
         const prepareContinue = ref(false);
-        const testUnitPrice = ref(0);
 
         async function gotoEditScheme() {
             mode.value = "edit";
@@ -614,7 +613,6 @@ export default defineComponent({
             creatingScheme,
             prepareContinue,
             customerName,
-            testUnitPrice,
             currentDiscountId,
             onDiscountChange(did: number) {
                 currentDiscountId.value = did;
@@ -623,7 +621,6 @@ export default defineComponent({
                 currentDiscountId.value = did;
                 // TODO backend should give us this vlue
                 customizeMode.value = "new-non-custom";
-                testUnitPrice.value = 800;
                 showCustomizeDlg.value = true;
             },
             newScheme() {

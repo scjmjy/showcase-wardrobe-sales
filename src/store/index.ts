@@ -2,6 +2,7 @@ import { createStore } from "vuex";
 import deepEqual from "fast-deep-equal";
 import apiProvider from "@/api/provider";
 import {
+    DiscountItem,
     GlobalCfg,
     LoginResult,
     Model3DFile,
@@ -64,6 +65,7 @@ export default createStore({
                 state.user.organization = payload.organization;
                 state.user.rank = payload.rank;
                 state.user.storeId = payload.storeId || 0;
+                state.user.photo = payload.photo || require("@/assets/img/avatar.png");
             } else {
                 state.user = new User();
             }
@@ -72,7 +74,7 @@ export default createStore({
         "SET-GLOBAL-CONFIG"(state, cfg?: GlobalCfg) {
             state.globalCfg = cfg;
         },
-        "SET-CONFIG-DISCOUNTS"(state, val: LabelValue[]) {
+        "SET-CONFIG-DISCOUNTS"(state, val: DiscountItem[]) {
             if (state.globalCfg) state.globalCfg.discounts = val;
         },
         "SET-PART-ATTACHMENTS"(state, attachments: PartAttachmentList) {

@@ -19,6 +19,7 @@ export interface LoginResult {
     rank: string;
     accountName?: string;
     storeId?: number;
+    photo?: string;
 }
 // export interface CaptchaResult {
 //     uuid: number;
@@ -41,6 +42,7 @@ export interface BaseProduct {
     height: number;
     customized: number; // 0:非定制商品， 1:定制商品
     description?: string;
+    price?: number; // 单价
 }
 export interface Product extends BaseProduct {
     // description: string;
@@ -80,6 +82,18 @@ export interface ProductCategory {
     leaf?: boolean;
     children?: ProductCategory[];
 }
+
+export interface DiscountItem {
+    label: string;
+    value: number;
+    discount: number;
+}
+
+export const NoDiscountItem: DiscountItem = {
+    label: "不打折",
+    value: 1,
+    discount: 1,
+};
 
 function findDefaultActive(cat: ProductCategory): string {
     if (!cat.children || cat.children.length === 0) {
@@ -216,7 +230,7 @@ export interface GlobalCfg {
     // 外观配件分类ID列表
     partsCatExterior: IdList;
     baseUrl: string;
-    discounts: LabelValue[];
+    discounts: DiscountItem[];
 }
 
 export enum BackgroundType {
@@ -425,7 +439,5 @@ export default interface ApiProvider {
     requestStoreList(): Promise<AjaxResponse<Store[]>>;
     request3DModels(): Promise<AjaxResponse<Model3DFile[]>>;
 
-    requestDiscounts(): Promise<AjaxResponse<LabelValue[]>>;
-    requestSchemeDiscount(schemeId: number): Promise<AjaxResponse<LabelValue>>;
-    updateSchemeDiscount(schemeId: number, discount: number): Promise<AjaxResponse<void>>;
+    requestDiscounts(): Promise<AjaxResponse<DiscountItem[]>>;
 }

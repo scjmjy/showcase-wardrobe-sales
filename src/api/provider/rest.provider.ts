@@ -6,6 +6,7 @@ import {
     BackgroundType,
     CreateSchemeResult,
     Customer,
+    DiscountItem,
     GlobalCfg,
     LoginResult,
     Model3DFile,
@@ -958,16 +959,17 @@ export default class RestProvider extends LocalProvider {
         });
     }
 
-    requestDiscounts(): Promise<AjaxResponse<LabelValue[]>> {
+    requestDiscounts(): Promise<AjaxResponse<DiscountItem[]>> {
         return new Promise((resolve, reject) => {
             request({
                 method: "GET",
                 url: "/api/v1/biz/discounts",
             })
                 .then((res) => {
-                    const discounts: LabelValue[] = (res.data || []).map((item: any) => ({
+                    const discounts: DiscountItem[] = (res.data || []).map((item: any) => ({
                         label: item.display,
                         value: item.id,
+                        discount: item.value,
                     }));
                     resolve({
                         ok: true,

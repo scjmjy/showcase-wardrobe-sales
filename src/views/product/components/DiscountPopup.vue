@@ -31,11 +31,10 @@
 </template>
 
 <script lang="ts">
+import { NoDiscountItem } from "@/api/interface/provider.interface";
 import { StateType } from "@/store";
 import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
-import apiProvider from "@/api/provider";
-import { LabelValue } from "@/api/interface/common.interface";
 
 export default defineComponent({
     name: "DiscountPopup",
@@ -47,19 +46,14 @@ export default defineComponent({
         },
         discountId: {
             type: Number,
-            default: 1, // TODO: backend sql column id 1 for no discount
+            default: NoDiscountItem.value, // TODO: backend sql column id 1 for no discount
         },
     },
     setup(props, ctx) {
         const store = useStore<StateType>();
         const discounts = computed(() => store.state.globalCfg?.discounts || []);
         store.dispatch("updateDiscounts");
-        const currentDiscount = ref(props.discountId || 1);
-        // apiProvider.requestSchemeDiscount(props.discountKey).then((res) => {
-        //     if (res.ok && res.data) {
-        //         currentDiscount.value = res.data.value as number;
-        //     }
-        // });
+        const currentDiscount = ref(props.discountId || NoDiscountItem.value);
         return {
             discounts,
             currentDiscount,
@@ -67,7 +61,6 @@ export default defineComponent({
                 ctx.emit("hide", currentDiscount.value);
             },
             onDiscountChange(val: number) {
-                // apiProvider.updateSchemeDiscount(props.discountKey, val).then(() => {});
                 ctx.emit("change", val);
             },
         };

@@ -5,6 +5,7 @@ import ApiProvider, {
     BackgroundType,
     CreateSchemeResult,
     Customer,
+    DiscountItem,
     GlobalCfg,
     LoginResult,
     Model3DFile,
@@ -537,23 +538,7 @@ export default class LocalProvider implements ApiProvider {
         });
     }
     discounts = new Map<number, LabelValue>();
-    requestDiscounts(): Promise<AjaxResponse<LabelValue[]>> {
+    requestDiscounts(): Promise<AjaxResponse<DiscountItem[]>> {
         throw new Error("Method not implemented.");
-    }
-    requestSchemeDiscount(key: number): Promise<AjaxResponse<LabelValue>> {
-        const val = this.discounts.get(key);
-        return Promise.resolve({
-            ok: val ? true : false,
-            status: 200,
-            data: val,
-        });
-    }
-    updateSchemeDiscount(key: number, did: number): Promise<AjaxResponse<void>> {
-        const discounts = store.state.globalCfg?.discounts || [];
-        this.discounts.set(key, discounts.find((item) => item.value === did)!);
-        return Promise.resolve({
-            ok: true,
-            status: 200,
-        });
     }
 }

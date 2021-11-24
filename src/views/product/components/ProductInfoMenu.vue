@@ -135,11 +135,12 @@
 import { computed, defineComponent, ref, PropType } from "vue";
 import { useStore } from "vuex";
 import { splitPrice } from "@/utils/currency";
-import { Product, Scheme, isProduct } from "@/api/interface/provider.interface";
+import { Product, Scheme, isProduct, DiscountItem, NoDiscountItem } from "@/api/interface/provider.interface";
 import DiscountPopup from "./DiscountPopup.vue";
 import apiProvider from "@/api/provider";
 import { StateType } from "@/store";
 import { LabelValue } from "@/api/interface/common.interface";
+import { findDiscount, hasNoDiscount } from "../helpers";
 
 export default defineComponent({
     name: "ProductInfoMenu",
@@ -181,30 +182,21 @@ export default defineComponent({
         },
     },
     setup(props) {
-        function findDiscount(did: number) {
-            return (store.state.globalCfg?.discounts || []).find((item) => item.value === did);
-        }
-        const store = useStore<StateType>();
-
-        // const resDiscount = await apiProvider.requestSchemeDiscount(props.product.id);
-        const newDidscount = ref<LabelValue>({
-            label: "",
-            value: undefined,
-        });
-        const discount = computed<LabelValue>(() => {
+        const newDidscount = ref<DiscountItem>(NoDiscountItem);
+        const discount = computed<DiscountItem>(() => {
             const p = props.product;
             if (isProduct(p)) {
                 return newDidscount.value;
             } else {
                 const foundDiscount = findDiscount(p.did);
-                return foundDiscount || { label: "?", value: p.did };
+                return foundDiscount || { label: "?", value: p.did, discount: p.discount };
             }
         });
         const showDicountPage = ref(false);
         const offerPrice = computed(() => {
             const p = props.product;
             if (props.isNew && props.nonCustom) {
-                const price = 800 * p.width * p.depth;
+                const price = (props.product.price || 0) * p.width * p.depth;
                 return splitPrice(price);
             } else if (isProduct(p) || !p.total) {
                 return {
@@ -218,10 +210,9 @@ export default defineComponent({
         const discountPrice = computed(() => {
             const p = props.product;
             const did = discount.value.value;
-            if (did && did !== 1) {
+            if (!hasNoDiscount(did)) {
                 if (props.isNew && props.nonCustom) {
-                    // const price = 800 * p.width * p.depth * +discount.value.value;
-                    const price = 800 * p.width * p.depth * 0.95;
+                    const price = (props.product.price || 0) * p.width * p.depth * discount.value.discount;
                     return splitPrice(price);
                 } else if (!isProduct(p)) {
                     return splitPrice(+p.total);
@@ -239,14 +230,7 @@ export default defineComponent({
                 showDicountPage.value = false;
             },
             onDiscountChange(did: number) {
-                if (did === 1) {
-                    newDidscount.value = {
-                        label: "",
-                        value: undefined,
-                    };
-                } else {
-                    newDidscount.value = findDiscount(did)!;
-                }
+                newDidscount.value = findDiscount(did) || NoDiscountItem;
             },
             offerLabel: computed(() => {
                 if (props.nonCustom || discountPrice.value) {
@@ -293,13 +277,6 @@ export default defineComponent({
                     },
                 ];
             }),
-            // sizeText: computed(() => {
-            //     const p = props.product;
-            //     if (!p) {
-            //         return undefined;
-            //     }
-            //     return `${p.height} × ${p.depth} × ${p.width} (m)`;
-            // }),
             description: computed(() => {
                 return props.product.description || "暂无描述";
             }),
@@ -308,7 +285,7 @@ export default defineComponent({
                 if (!p) {
                     return "暂无单价";
                 }
-                return "800";
+                return props.product.price || "-";
             }),
             rate: ref(5),
             rateTexts: ["1分", "2分", "3分", "4分", "5分"],

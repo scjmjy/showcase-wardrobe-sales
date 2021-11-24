@@ -27,7 +27,7 @@
             <el-form-item label="宽度" prop="width">
                 <el-input v-model.number="formData.width" type="number" step="0.01"></el-input>
             </el-form-item>
-            <div v-if="unitPrice" class="customize-dlg__price">
+            <div v-if="unitPrice" class="customize-dlg__price" :class="{ 'is-discount': hasDiscount }">
                 <span class="customize-dlg__price-label"> 总价： </span>
                 <vue3-autocounter
                     ref="counter"
@@ -38,7 +38,9 @@
                     separator=","
                     @finished="onFinished"
                 />
-                <span class="customize-dlg__price-unit"> 元</span>
+                <span class="customize-dlg__price-unit" :data-discount="`(${discount ? discount.label : ''})`">
+                    元</span
+                >
             </div>
         </el-form>
         <template #footer>
@@ -58,8 +60,11 @@
 <script lang="ts">
 import { computed, defineComponent, PropType, reactive, ref } from "vue";
 import { ElForm, ElMessage } from "element-plus";
-import { CustomizeMode, CustomizeMinMax } from "../helpers";
+import { useStore } from "vuex";
+import { CustomizeMode, CustomizeMinMax, useDiscount } from "../helpers";
 import { Size3D } from "@/api/interface/common.interface";
+import { StateType } from "@/store";
+import { NoDiscountItem } from "@/api/interface/provider.interface";
 
 function defaultSize(): Size3D {
     return {
@@ -150,12 +155,13 @@ export default defineComponent({
         const invalid = computed(() => {
             return Object.values(invalidProps.value).includes(true);
         });
+        const { hasDiscount, discount } = useDiscount(props);
         const lastValue = ref(0);
         const totalPrice = computed(() => {
             const { unitPrice } = props;
             if (unitPrice) {
-                const discount = props.discountId === 1 ? 1 : 0.95;
-                return formData.depth * formData.width * unitPrice * discount;
+                const d = discount.value?.discount || 1;
+                return formData.depth * formData.width * unitPrice * d;
             }
             return undefined;
         });
@@ -166,6 +172,8 @@ export default defineComponent({
             invalid,
             totalPrice,
             lastValue,
+            hasDiscount,
+            discount,
             title: computed(() => {
                 return "修改柜体尺寸";
                 // switch (props.mode) {
@@ -225,6 +233,23 @@ export default defineComponent({
         &-value {
             color: var(--el-color-danger);
             font-weight: bold;
+        }
+    }
+
+    &__price.is-discount {
+        .customize-dlg__price-unit {
+            &[data-discount] {
+                padding-right: 35px;
+                position: relative;
+                &::after {
+                    position: absolute;
+                    content: attr(data-discount);
+                    bottom: 0px;
+                    color: var(--el-color-primary);
+                    font-size: 0.8em;
+                    white-space: nowrap;
+                }
+            }
         }
     }
 

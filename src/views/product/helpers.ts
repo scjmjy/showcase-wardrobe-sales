@@ -1,9 +1,9 @@
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import store from "@/store";
 import { ElLoading, ILoadingInstance } from "element-plus";
 import { MenuItem } from "@/components/GooeyMenu.helper";
 import { PartCount } from "@/lib/scheme";
-import { Size3D } from "@/api/interface/common.interface";
+import { NoDiscountItem } from "@/api/interface/provider.interface";
 
 let loading: ILoadingInstance | undefined = undefined;
 export function showSchemeSaveLoading() {
@@ -142,3 +142,22 @@ export function makePartCompositions(partCounts: PartCount[]) {
 //     }
 //     return area;
 // }
+
+export function findDiscount(did: number) {
+    return (store.state.globalCfg?.discounts || []).find((item) => item.value === did);
+}
+
+export function hasNoDiscount(did: number) {
+    return !did || did === NoDiscountItem.value;
+}
+
+export function useDiscount(props: Readonly<{ discountId: number }>) {
+    const hasDiscount = computed(() => !hasNoDiscount(props.discountId));
+    const discount = computed(() => {
+        return store.state.globalCfg?.discounts.find((d) => d.value === props.discountId);
+    });
+    return {
+        hasDiscount,
+        discount,
+    };
+}

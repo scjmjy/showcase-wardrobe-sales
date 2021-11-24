@@ -41,6 +41,7 @@ export class User {
         public organization = "",
         public rank = "",
         public storeId = 0,
+        public photo?: string,
     ) {}
 
     save(): string | undefined {

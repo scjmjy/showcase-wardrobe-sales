@@ -6,13 +6,7 @@
             <!-- <span class="my__info-my">我的</span> -->
 
             <div class="my__info-profile">
-                <!-- <el-image
-                    class="my__info-profile__avatar u-circle"
-                    src="https://picsum.photos/200"
-                    circle
-                    fit="contain"
-                    style="visibility: hidden"
-                /> -->
+                <el-image class="my__info-profile__avatar u-circle" :src="user.photo" circle fit="contain" />
                 <span class="my__info-profile__username"> {{ user.userName }} </span>
                 <i class="my__info-profile__location iconfont icon-store"> &nbsp;{{ user.organization }} </i>
                 <!-- <el-tag class="app-header__job" type="primary" color="#5EB6B366">店长助理</el-tag> -->
