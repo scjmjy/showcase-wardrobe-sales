@@ -1,13 +1,13 @@
 <template>
     <div
-        v-if="product"
+        v-if="product && scheme"
         class="product-detail"
         :class="{ 'slide-left-3d': showMenu || (mode === 'view' && !collapseInfoMenu) }"
     >
         <transition name="el-zoom-in-top">
             <app-header v-if="mode === 'view'" type="dark" :stop="false" icon="" />
         </transition>
-        <!-- <Babylon
+        <Babylon
             ref="refBabylon"
             class="product-detail__3d"
             :scheme="scheme"
@@ -17,7 +17,7 @@
             :mode="mode3D"
             :schemeType="scheme3DType"
             :baseOSSUrl="baseUrl"
-        /> -->
+        />
         <product-info-menu
             v-if="mode === 'view'"
             v-model:collapse="collapseInfoMenu"

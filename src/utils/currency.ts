@@ -1,5 +1,5 @@
 export function splitPrice(price: number, digits = 2) {
-    const s = price.toFixed(2).split(".", digits);
+    const s = price.toFixed(digits).split(".");
     return {
         integer: s[0],
         decimal: s[1],

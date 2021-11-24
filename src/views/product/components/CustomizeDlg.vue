@@ -35,6 +35,7 @@
                     :startAmount="lastValue"
                     :endAmount="totalPrice"
                     :duration="1.5"
+                    :decimals="2"
                     separator=","
                     @finished="onFinished"
                 />
