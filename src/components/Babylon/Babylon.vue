@@ -93,6 +93,7 @@ export default defineComponent({
             indexDb: {} as IndexDb,
             spotLightMap: {} as Map<string, BABYLON.SpotLight>,
             lightEnabled: true,
+            startTime: 0,
         };
     },
     computed: {
@@ -229,6 +230,7 @@ export default defineComponent({
         },
     },
     async mounted() {
+        if (process.env.NODE_ENV === "development") this.startTime = performance.now();
         const sizeConfig = this.scheme.config !== null ? this.scheme.config.sizeConfig : new SizeConfig();
         this.stl = new GeneralStl(new StlConfig(0.1, 0, 0.1, sizeConfig));
         this.bizdata = new BizData(this.scheme);
@@ -244,6 +246,12 @@ export default defineComponent({
         this.setupInteraction();
         this.setupKeyboard();
         this.handleGraphicsEvent(this.graphics);
+
+        if (process.env.NODE_ENV === "development") {
+            const endTime = performance.now();
+            console.log("3D initialize time(ms): ", endTime - this.startTime);
+            this.startTime = endTime;
+        }
 
         // this.setupWallandFloor();
         this.loadScheme(this.mode, this.schemeType);
@@ -1171,6 +1179,11 @@ export default defineComponent({
         },
 
         loadSchemeCompleted(mode: number) {
+            if (process.env.NODE_ENV === "development") {
+                const endTime = performance.now();
+                console.log("Load scheme time(ms): ", endTime - this.startTime);
+            }
+
             this.setModeApi(mode);
 
             const e = new event.SchemeLoadCompletedEvent();

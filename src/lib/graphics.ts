@@ -137,12 +137,14 @@ export class Graphics {
         // Setup keyboard.
         this.setupKeyboard();
 
-        // Setup gizmo.
-        this.setupGizmo();
+        // if (process.env.NODE_ENV === 'development') {
+        //     // Setup gizmo.
+        //     this.setupGizmo();
 
-        // Setup debug mode.
-        this.setupDebugMode();
-        this.enableDebugMode(this._debugMode);
+        //     // Setup debug mode.
+        //     this.setupDebugMode();
+        //     this.enableDebugMode(this._debugMode);
+        // }
     }
 
     dispose(): void {
