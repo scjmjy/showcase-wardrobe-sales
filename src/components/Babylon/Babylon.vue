@@ -253,7 +253,7 @@ export default defineComponent({
          * 修改墙面
          */
         changeWallApi(wall: ImgCardItemType): void {
-            const hexColor = wall.label.substr(wall.label.indexOf("#"), 9);
+            const hexColor = wall.value.toString();
             this.graphics.setBackgroundColor(BABYLON.Color4.FromHexString(hexColor));
             this.bizdata.changeBackground(hexColor);
         },
