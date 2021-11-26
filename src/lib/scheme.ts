@@ -13,6 +13,7 @@ export enum PartType {
     SPOT_LIGHT = 7,
     STRIP_LIGHT = 8,
     T_FRAME = 9,
+    GENERAL_2 = 10,
 }
 
 @JsonInclude({ value: JsonIncludeType.NON_NULL })

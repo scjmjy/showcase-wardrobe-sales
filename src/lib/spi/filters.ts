@@ -10,6 +10,7 @@ export class CompositeFilter implements IAreaFilter {
         const generalAreaFilter = new GeneralAreaFilter(bias_x, bias_y, bias_z);
         const bottomAreaFilter = new BottomAreaFilter();
         this.filterMap.set(PartType.GENERAL, [generalAreaFilter]);
+        this.filterMap.set(PartType.GENERAL_2, [generalAreaFilter]);
         this.filterMap.set(PartType.VERTICAL_SCALE, [generalAreaFilter]);
         this.filterMap.set(PartType.HORIZONTAL_SCALE, [generalAreaFilter]);
         this.filterMap.set(PartType.T_FRAME, [generalAreaFilter, bottomAreaFilter]);

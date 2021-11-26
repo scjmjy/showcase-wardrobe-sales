@@ -8,6 +8,7 @@ export class CompositeAreaDivider implements IAreaDivider {
     constructor() {
         this.dividerMap = new Map<PartType, IAreaDivider>();
         this.dividerMap.set(PartType.GENERAL, new GeneralAreaDivider());
+        this.dividerMap.set(PartType.GENERAL_2, new GeneralAreaDivider());
         this.dividerMap.set(PartType.HORIZONTAL_SCALE, new GeneralAreaDivider());
         this.dividerMap.set(PartType.VERTICAL_SCALE, new GeneralAreaDivider());
     }

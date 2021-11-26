@@ -1,5 +1,5 @@
 import { Area } from "../model/hint";
-import { Item, PartType, Size } from "../scheme";
+import { Item, PartType, Vector3 } from "../scheme";
 
 export interface IAreaDivider {
     /**
@@ -19,5 +19,5 @@ export interface IAreaFilter {
      * @param partSize, the size of part.
      * @return true, if it's good for the part; otherwise, false.
      */
-    doFilter(area: Area, partType: PartType, partSize: Size): boolean;
+    doFilter(area: Area, partType: PartType, partSize: Vector3): boolean;
 }
