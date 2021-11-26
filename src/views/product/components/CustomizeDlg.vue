@@ -163,7 +163,10 @@ export default defineComponent({
         const totalPrice = computed(() => {
             if (showPrice.value) {
                 const d = discount.value?.discount;
-                const p = Object.assign({}, props.product, { formData });
+                const p = Object.assign({}, props.product) as Product;
+                p.width = formData.width;
+                p.height = formData.height;
+                p.depth = formData.depth;
                 return calcNcProductPrice(p as Product, d);
             }
             return undefined;

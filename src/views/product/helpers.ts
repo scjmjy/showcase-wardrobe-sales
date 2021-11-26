@@ -181,7 +181,7 @@ export function useDiscount(props: Readonly<{ discountId: number }>) {
 export function calcNcProductPrice(p: Product, d?: number) {
     let price = (p.price || 0) * (d || 1);
     if (p.otype === PriceType.AREA) {
-        price *= p.width * p.depth;
+        price *= p.width * p.height;
     }
     return price;
 }
