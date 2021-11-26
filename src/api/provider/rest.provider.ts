@@ -411,7 +411,7 @@ export default class RestProvider extends LocalProvider {
                 });
         });
     }
-    requestSchemes(svcid: number, page = 1, pageSize = 10): Promise<AjaxResponse<Scheme[]>> {
+    requestSchemes(svcid: number, page = 1, pageSize = 100): Promise<AjaxResponse<Scheme[]>> {
         return new Promise((resolve) => {
             request({
                 method: "POST",

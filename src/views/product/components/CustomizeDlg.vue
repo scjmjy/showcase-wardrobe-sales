@@ -19,13 +19,13 @@
         >
             <div class="customize-dlg__unit">单位：m</div>
             <el-form-item label="高度" prop="height">
-                <el-input v-model.number="formData.height" type="number" step="0.01"></el-input>
+                <el-input v-model="formData.height" type="number" step="0.1"></el-input>
             </el-form-item>
             <el-form-item label="深度" prop="depth">
-                <el-input v-model.number="formData.depth" type="number" step="0.01"></el-input>
+                <el-input v-model="formData.depth" type="number" step="0.1"></el-input>
             </el-form-item>
             <el-form-item label="宽度" prop="width">
-                <el-input v-model.number="formData.width" type="number" step="0.01"></el-input>
+                <el-input v-model="formData.width" type="number" step="0.1"></el-input>
             </el-form-item>
             <div v-if="showPrice" class="customize-dlg__price" :class="{ 'is-discount': hasDiscount }">
                 <span class="customize-dlg__price-label"> 总价： </span>
@@ -61,18 +61,17 @@
 <script lang="ts">
 import { computed, defineComponent, PropType, reactive, ref } from "vue";
 import { ElForm, ElMessage } from "element-plus";
-import { useStore } from "vuex";
 import { CustomizeMode, CustomizeMinMax, useDiscount, calcNcProductPrice } from "../helpers";
 import { Size3D } from "@/api/interface/common.interface";
-import { StateType } from "@/store";
 import { NoDiscountItem, Product } from "@/api/interface/provider.interface";
 import { Scheme } from "@/lib/scheme";
+import { numberize } from "@/utils";
 
-function defaultSize(): Size3D {
+function defaultSize() {
     return {
-        height: 2.4,
-        depth: 0.6,
-        width: 1.2,
+        height: "2.4",
+        depth: "0.6",
+        width: "1.2",
     };
 }
 function defaultMinMax(): CustomizeMinMax {
@@ -87,6 +86,10 @@ function defaultMinMax(): CustomizeMinMax {
         // heightMin: p.pheightmin,
         heightMin: 2.4,
     };
+}
+
+function rangeValidator(min: number, max: number, val: number) {
+    return min <= val && val <= max;
 }
 
 export default defineComponent({
@@ -125,9 +128,10 @@ export default defineComponent({
             height: [
                 { required: true, message: "请输入单元柜高度", trigger: ["blur", "change"] },
                 {
-                    type: "number",
-                    min: props.minMax.heightMin,
-                    max: props.minMax.heightMax,
+                    validator(rule: any, val: string) {
+                        const { heightMin, heightMax } = props.minMax;
+                        return rangeValidator(heightMin, heightMax, +val);
+                    },
                     message: `高度在 ${props.minMax.heightMin}米 到 ${props.minMax.heightMax}米 之间`,
                     trigger: ["blur", "change"],
                 },
@@ -135,9 +139,10 @@ export default defineComponent({
             depth: [
                 { required: true, message: "请输入单元柜深度", trigger: ["blur", "change"] },
                 {
-                    type: "number",
-                    min: props.minMax.depthMin,
-                    max: props.minMax.depthMax,
+                    validator(rule: any, val: string) {
+                        const { depthMin, depthMax } = props.minMax;
+                        return rangeValidator(depthMin, depthMax, +val);
+                    },
                     message: `深度在 ${props.minMax.depthMin}米 到 ${props.minMax.depthMax}米 之间`,
                     trigger: ["blur", "change"],
                 },
@@ -145,9 +150,10 @@ export default defineComponent({
             width: [
                 { required: true, message: "请输入单元柜宽度", trigger: ["blur", "change"] },
                 {
-                    type: "number",
-                    min: props.minMax.widthMin,
-                    max: props.minMax.widthMax,
+                    validator(rule: any, val: string) {
+                        const { widthMin, widthMax } = props.minMax;
+                        return rangeValidator(widthMin, widthMax, +val);
+                    },
                     message: `宽度在 ${props.minMax.widthMin}米 到 ${props.minMax.widthMax}米 之间`,
                     trigger: ["blur", "change"],
                 },
@@ -164,9 +170,9 @@ export default defineComponent({
             if (showPrice.value) {
                 const d = discount.value?.discount;
                 const p = Object.assign({}, props.product) as Product;
-                p.width = formData.width;
-                p.height = formData.height;
-                p.depth = formData.depth;
+                p.width = +formData.width;
+                p.height = +formData.height;
+                p.depth = +formData.depth;
                 return calcNcProductPrice(p as Product, d);
             }
             return undefined;
@@ -213,7 +219,7 @@ export default defineComponent({
             doConfirm() {
                 elForm.value?.validate((isValid) => {
                     if (isValid) {
-                        ctx.emit("confirm", formData);
+                        ctx.emit("confirm", numberize(formData));
                     } else {
                         ElMessage.warning("表单校验失败！");
                     }
