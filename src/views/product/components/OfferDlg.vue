@@ -25,7 +25,7 @@
                 <div class="offer-dlg__price-value">
                     <span class="offer-dlg__price-symbol"> ￥ </span>
                     <span class="offer-dlg__price-offer">{{ discountPrice.integer }}</span>
-                    <span class="offer-dlg__price-decimal" :data-discount="`(${discount.label})`"
+                    <span class="offer-dlg__price-decimal" :data-discount="`(${discount ? discount.label : '?'})`"
                         >.{{ discountPrice.decimal }}
                     </span>
                 </div>
@@ -70,7 +70,11 @@ export default defineComponent({
         },
         discountId: {
             type: Number,
-            default: 1, // TODO: backend sql column id 1 for no discount
+            default: NoDiscountItem.value,
+        },
+        customized: {
+            type: Number,
+            default: 1,
         },
     },
     setup(props) {
@@ -98,6 +102,7 @@ export default defineComponent({
             return discountPrice.value ? "原价：" : "合计：";
         });
         return {
+            hasDiscount,
             discount,
             schemeOffer,
             itemList: computed(() => {
@@ -112,6 +117,7 @@ export default defineComponent({
                 const partCounts = props.scheme.getPartCounts();
                 const compositions = makePartCompositions(partCounts);
                 const resOffer = await apiProvider.requestSchemeOffer(
+                    props.customized,
                     props.schemeId,
                     discount.value?.value || NoDiscountItem.value,
                     compositions,

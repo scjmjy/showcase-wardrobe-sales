@@ -14,6 +14,7 @@ import ApiProvider, {
     PartAttachmentList,
     PartCategory,
     PartCategoryMeta,
+    PriceType,
     Product,
     ProductCategory,
     RequestPartId,
@@ -303,6 +304,7 @@ export default class LocalProvider implements ApiProvider {
                     heightmax: 0,
                     heightmin: 0,
                     customized: 1,
+                    otype: PriceType.PIECE,
                 };
             }),
         });
@@ -329,6 +331,7 @@ export default class LocalProvider implements ApiProvider {
                 heightmax: 0,
                 heightmin: 0,
                 customized: 1,
+                otype: PriceType.PIECE,
             },
         });
     }
@@ -366,6 +369,7 @@ export default class LocalProvider implements ApiProvider {
                     discount: 1,
                     did: 1,
                     ptime: mockDate[index % mockDate.length],
+                    otype: PriceType.PIECE,
                     pic: "",
                     cover: [
                         "https://picsum.photos/300/300?random=" + index + svcid,
@@ -403,6 +407,7 @@ export default class LocalProvider implements ApiProvider {
                 total: "111",
                 discount: 1,
                 did: 1,
+                otype: PriceType.PIECE,
                 ptime: Date.now() + "",
                 pic: "",
                 cover: [
@@ -459,6 +464,7 @@ export default class LocalProvider implements ApiProvider {
         throw new Error("Method not implemented.");
     }
     requestSchemeOffer(
+        _customized: number,
         _schemeId: string | number,
         _discountId: number,
         _compositions: RequestPartId[],

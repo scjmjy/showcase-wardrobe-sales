@@ -57,7 +57,7 @@ export default defineComponent({
         const bgItems = computed<ImgCardItemType[]>(() =>
             bgs.value.map((bg) => ({
                 label: bg.name,
-                value: bg.id,
+                value: bg.hex || bg.id,
                 url: bg.pic,
             })),
         );

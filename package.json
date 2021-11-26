@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-zip": "vue-cli-service build && zip -r sales-tool-frontend.zip dist/*",
+    "build-zip": "vue-cli-service build && (rm sales-tool-frontend.zip ; zip -r sales-tool-frontend.zip dist/*)",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

@@ -30,7 +30,10 @@ export interface Service {
     no: string;
     ctime: string;
 }
-
+export enum PriceType {
+    PIECE = 1, // 计件
+    AREA = 2, // 按面积
+}
 export interface BaseProduct {
     id: number; // Product id / Scheme id
     name: string; // Product name / Scheme name
@@ -43,6 +46,7 @@ export interface BaseProduct {
     customized: number; // 0:非定制商品， 1:定制商品
     description?: string;
     price?: number; // 单价
+    otype: PriceType;
 }
 export interface Product extends BaseProduct {
     // description: string;
@@ -242,6 +246,7 @@ export interface Background {
     name: string;
     id: string;
     pic: string;
+    hex: string;
 }
 
 export interface OssSignature {
@@ -271,7 +276,7 @@ export interface SchemeOffer {
     price: string; // 单价（元/㎡）
     area: string; // 投影面积（㎡）
     taxrate: string; // 税率
-    otype: number; // 报价方式（1：按配件；2：按投影面积）
+    otype: PriceType; // 报价方式（1：按配件；2：按投影面积）
 }
 
 export interface ManifestPart {
@@ -420,6 +425,7 @@ export default interface ApiProvider {
     updateScreenshotState(schemeId: string | number, url: string): Promise<AjaxResponse<boolean>>;
 
     requestSchemeOffer(
+        customized: number,
         schemeId: number | string,
         discountId: number,
         compositions: RequestPartId[],

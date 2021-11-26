@@ -1,9 +1,9 @@
-import { ref, computed } from "vue";
+import { ref, computed, Ref } from "vue";
 import store from "@/store";
 import { ElLoading, ILoadingInstance } from "element-plus";
 import { MenuItem } from "@/components/GooeyMenu.helper";
-import { PartCount } from "@/lib/scheme";
-import { NoDiscountItem } from "@/api/interface/provider.interface";
+import { PartCount, Scheme } from "@/lib/scheme";
+import { NoDiscountItem, PriceType, Product } from "@/api/interface/provider.interface";
 
 let loading: ILoadingInstance | undefined = undefined;
 export function showSchemeSaveLoading() {
@@ -58,7 +58,8 @@ export enum OpenCloseState {
     close = "close",
 }
 
-export function useStateIcons() {
+export function useStateIcons(scheme: Ref<Scheme | undefined>) {
+    const stateCubeIndex = ref(0);
     const stateInOut = ref<InOutState>(InOutState.out);
     const stateOpenClose = ref<OpenCloseState>(OpenCloseState.close);
     const inOutStates = [
@@ -92,11 +93,26 @@ export function useStateIcons() {
             icon: "door-close",
         },
     ];
+
+    const cubeIndexStates = computed(() => {
+        if (!scheme.value) {
+            return [];
+        }
+        return scheme.value.manifest.cubes.map((val, index) => ({
+            state: index,
+            label: `模式-${index + 1}`,
+            iconBg: "black",
+            iconColor: "#D8D8D8",
+            icon: `number-${index + 1}`,
+        }));
+    });
     return {
         stateInOut,
         stateOpenClose,
         inOutStates,
         openCloseStates,
+        stateCubeIndex,
+        cubeIndexStates,
     };
 }
 
@@ -160,4 +176,12 @@ export function useDiscount(props: Readonly<{ discountId: number }>) {
         hasDiscount,
         discount,
     };
+}
+
+export function calcNcProductPrice(p: Product, d?: number) {
+    let price = (p.price || 0) * (d || 1);
+    if (p.otype === PriceType.AREA) {
+        price *= p.width * p.depth;
+    }
+    return price;
 }

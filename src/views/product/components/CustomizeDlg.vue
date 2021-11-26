@@ -27,7 +27,7 @@
             <el-form-item label="宽度" prop="width">
                 <el-input v-model.number="formData.width" type="number" step="0.01"></el-input>
             </el-form-item>
-            <div v-if="unitPrice" class="customize-dlg__price" :class="{ 'is-discount': hasDiscount }">
+            <div v-if="showPrice" class="customize-dlg__price" :class="{ 'is-discount': hasDiscount }">
                 <span class="customize-dlg__price-label"> 总价： </span>
                 <vue3-autocounter
                     ref="counter"
@@ -62,10 +62,11 @@
 import { computed, defineComponent, PropType, reactive, ref } from "vue";
 import { ElForm, ElMessage } from "element-plus";
 import { useStore } from "vuex";
-import { CustomizeMode, CustomizeMinMax, useDiscount } from "../helpers";
+import { CustomizeMode, CustomizeMinMax, useDiscount, calcNcProductPrice } from "../helpers";
 import { Size3D } from "@/api/interface/common.interface";
 import { StateType } from "@/store";
-import { NoDiscountItem } from "@/api/interface/provider.interface";
+import { NoDiscountItem, Product } from "@/api/interface/provider.interface";
+import { Scheme } from "@/lib/scheme";
 
 function defaultSize(): Size3D {
     return {
@@ -108,13 +109,13 @@ export default defineComponent({
             type: Object as PropType<CustomizeMinMax>,
             default: defaultMinMax(),
         },
-        unitPrice: {
-            type: Number,
-            default: undefined,
+        product: {
+            type: Object as PropType<Product | Scheme>,
+            required: true,
         },
         discountId: {
             type: Number,
-            default: 1, // TODO: backend sql column id 1 for no discount
+            default: NoDiscountItem.value,
         },
     },
     setup(props, ctx) {
@@ -158,11 +159,12 @@ export default defineComponent({
         });
         const { hasDiscount, discount } = useDiscount(props);
         const lastValue = ref(0);
+        const showPrice = computed(() => props.mode === "new-non-custom");
         const totalPrice = computed(() => {
-            const { unitPrice } = props;
-            if (unitPrice) {
-                const d = discount.value?.discount || 1;
-                return formData.depth * formData.width * unitPrice * d;
+            if (showPrice.value) {
+                const d = discount.value?.discount;
+                const p = Object.assign({}, props.product, { formData });
+                return calcNcProductPrice(p as Product, d);
             }
             return undefined;
         });
@@ -175,6 +177,7 @@ export default defineComponent({
             lastValue,
             hasDiscount,
             discount,
+            showPrice,
             title: computed(() => {
                 return "修改柜体尺寸";
                 // switch (props.mode) {

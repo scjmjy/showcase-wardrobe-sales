@@ -8,9 +8,10 @@
                         <div>{{ titles.productName }}</div>
                     </div>
                     <div v-if="nonCustom && isNew && !discountPrice" class="product-info-menu__text-unitPrice">
+                        <span class="unit-price__label">{{ priceLabel }}</span>
                         <span class="unit-price__symbol">￥</span>
                         <span class="unit-price__value">{{ unitPrice }}</span>
-                        <span class="unit-price__unit">元/平米</span>
+                        <span class="unit-price__unit">{{ unitLabel }}</span>
                     </div>
                     <div v-else class="product-info-menu__text-item product-info-menu__offer">
                         <div
@@ -135,12 +136,19 @@
 import { computed, defineComponent, ref, PropType } from "vue";
 import { useStore } from "vuex";
 import { splitPrice } from "@/utils/currency";
-import { Product, Scheme, isProduct, DiscountItem, NoDiscountItem } from "@/api/interface/provider.interface";
+import {
+    Product,
+    Scheme,
+    isProduct,
+    DiscountItem,
+    NoDiscountItem,
+    PriceType,
+} from "@/api/interface/provider.interface";
 import DiscountPopup from "./DiscountPopup.vue";
 import apiProvider from "@/api/provider";
 import { StateType } from "@/store";
 import { LabelValue } from "@/api/interface/common.interface";
-import { findDiscount, hasNoDiscount } from "../helpers";
+import { calcNcProductPrice, findDiscount, hasNoDiscount } from "../helpers";
 
 export default defineComponent({
     name: "ProductInfoMenu",
@@ -196,7 +204,7 @@ export default defineComponent({
         const offerPrice = computed(() => {
             const p = props.product;
             if (props.isNew && props.nonCustom) {
-                const price = (props.product.price || 0) * p.width * p.depth;
+                const price = calcNcProductPrice(p as Product);
                 return splitPrice(price);
             } else if (isProduct(p) || !p.total) {
                 return {
@@ -212,7 +220,7 @@ export default defineComponent({
             const did = discount.value.value;
             if (!hasNoDiscount(did)) {
                 if (props.isNew && props.nonCustom) {
-                    const price = (props.product.price || 0) * p.width * p.depth * discount.value.discount;
+                    const price = calcNcProductPrice(p as Product, discount.value.discount);
                     return splitPrice(price);
                 } else if (!isProduct(p)) {
                     return splitPrice(+p.total);
@@ -220,6 +228,8 @@ export default defineComponent({
             }
             return undefined;
         });
+        const priceLabel = computed(() => (props.product.otype === PriceType.AREA ? "单价：" : "总价："));
+        const unitLabel = computed(() => (props.product.otype === PriceType.AREA ? "元/平米" : ""));
         return {
             showDicountPage,
             discount,
@@ -232,9 +242,11 @@ export default defineComponent({
             onDiscountChange(did: number) {
                 newDidscount.value = findDiscount(did) || NoDiscountItem;
             },
+            priceLabel,
+            unitLabel,
             offerLabel: computed(() => {
                 if (props.nonCustom || discountPrice.value) {
-                    return "原价";
+                    return "原价：";
                 } else {
                     return "报价：";
                 }
@@ -314,20 +326,24 @@ export default defineComponent({
         }
         &-unitPrice {
             margin-top: 17px;
+            font-size: 20px;
             color: var(--el-color-black);
             .unit-price {
+                &__label {
+                    font-weight: bold;
+                    font-size: 1em;
+                }
                 &__symbol {
                     font-weight: bold;
-                    font-size: 20px;
+                    font-size: 1em;
                 }
                 &__value {
                     font-weight: bold;
-                    font-size: 40px;
-                    vertical-align: sub;
+                    font-size: 1.5em;
                 }
                 &__unit {
                     margin-left: 5px;
-                    font-size: 20px;
+                    font-size: 1em;
                 }
             }
         }

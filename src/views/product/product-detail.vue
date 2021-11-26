@@ -66,7 +66,18 @@
         </template>
         <template v-if="mode === 'view'">
             <div class="product-detail__action-left state-icon-group-h">
-                <state-icon v-model="stateOpenClose" :states="openCloseStates" @change="onOpenCloseChange"></state-icon>
+                <state-icon
+                    v-if="scheme3DType === 0"
+                    v-model="stateOpenClose"
+                    :states="openCloseStates"
+                    @change="onOpenCloseChange"
+                ></state-icon>
+                <state-icon
+                    v-if="scheme3DType === 1"
+                    v-model="stateCubeIndex"
+                    :states="cubeIndexStates"
+                    @change="onCubeIndexChange"
+                ></state-icon>
             </div>
         </template>
         <customize-dlg
@@ -74,7 +85,7 @@
             :mode="customizeMode"
             :size="customizeSize"
             :minMax="customizeMinMax"
-            :unit-price="product.price"
+            :product="product"
             :discountId="currentDiscountId"
             @confirm="onCustomizeConfirm"
             @cancel="onCustomizeCancel"
@@ -87,6 +98,7 @@
             :schemeName="product.product"
             :customerName="customerName"
             :scheme="scheme"
+            :customized="gCustomized"
             @closed="onOfferDlgClosed"
         />
         <metals-dlg v-model="showMetalsDlg" :scheme3d="scheme" :part="selectedMetalPart" @change-part="onChangePart" />
@@ -220,9 +232,12 @@ export default defineComponent({
                 }
             }, 200);
         }
+        const scheme = ref<Scheme3D>();
+        const schemeDetailDirty = ref(false);
         const showMenu = ref(false);
         const collapseInfoMenu = ref(true);
-        const { stateInOut, stateOpenClose, inOutStates, openCloseStates } = useStateIcons();
+        const { stateInOut, stateOpenClose, inOutStates, openCloseStates, stateCubeIndex, cubeIndexStates } =
+            useStateIcons(scheme);
 
         const refBabylon = ref<InstanceType<typeof Babylon>>();
         const refPartsMenu = ref<InstanceType<typeof PartsMenu>>();
@@ -303,8 +318,6 @@ export default defineComponent({
             return items;
         });
         const gooeyMenuOpened = ref(false);
-        const scheme = ref<Scheme3D>();
-        const schemeDetailDirty = ref(false);
         async function requestScheme3D() {
             if (!product.value) {
                 return Promise.reject();
@@ -598,6 +611,8 @@ export default defineComponent({
             inOutStates,
             stateOpenClose,
             openCloseStates,
+            stateCubeIndex,
+            cubeIndexStates,
             showMenu,
             collapseInfoMenu,
             completeDisabled: computed(() => !scheme.value || !scheme.value.dirty),
@@ -653,8 +668,8 @@ export default defineComponent({
             },
             async onCustomizeConfirm(size: Size3D) {
                 if (customizeMode.value === "new-non-custom") {
-                    await createNewScheme(true, size);
                     showCustomizeDlg.value = false;
+                    await createNewScheme(true, size);
                     router.push("/");
                     return;
                 }
@@ -684,7 +699,7 @@ export default defineComponent({
             },
             onBgChange(bg: ImgCardItemType, bgType: BackgroundType) {
                 if (bgType === BackgroundType.WALL) {
-                    refBabylon.value?.changeWallApi(bg);
+                    refBabylon.value?.changeWallApi(bg.value as string);
                 } else {
                     refBabylon.value?.changeFloorApi(bg);
                 }
@@ -726,12 +741,11 @@ export default defineComponent({
                 showMenu.value = true;
                 gooeyMenuOpened.value = false;
             },
+            onCubeIndexChange(cube: number) {
+                refBabylon.value?.switchCube(cube);
+            },
             onOpenCloseChange(state: OpenCloseState) {
-                if (scheme3DType.value === 0) {
-                    refBabylon.value?.showDoors(state !== OpenCloseState.open);
-                } else if (scheme3DType.value === 1) {
-                    refBabylon.value?.switchCube(state === OpenCloseState.open ? 1 : 0);
-                }
+                refBabylon.value?.showDoors(state !== OpenCloseState.open);
             },
             onOfferDlgClosed() {
                 requestSchemeDetail();

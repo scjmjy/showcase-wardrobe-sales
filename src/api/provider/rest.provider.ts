@@ -703,6 +703,7 @@ export default class RestProvider extends LocalProvider {
         });
     }
     requestSchemeOffer(
+        customized: number,
         schemeId: string | number,
         discountId: number,
         compositions: RequestPartId[],
@@ -712,6 +713,7 @@ export default class RestProvider extends LocalProvider {
                 method: "POST",
                 url: `/api/v1/biz/scheme/offer`,
                 data: {
+                    customized,
                     sid: schemeId,
                     did: discountId,
                     compositions,
