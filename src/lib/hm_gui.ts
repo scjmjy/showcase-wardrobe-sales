@@ -50,10 +50,10 @@ export class PopupGUI {
         this._switchCubePanel = new Array<GUI.Rectangle>();
     }
 
-    public loading(graphics: Graphics) {
+    public loading(babylonRef: RefBabylon) {
         // GUI
         if (this._popupUI == null) {
-            this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, graphics.scene);
+            this._popupUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("popupGUI", true, babylonRef.graphics.scene);
         }
         // console.log('=================> setup ui')
 
@@ -112,13 +112,11 @@ export class PopupGUI {
             this._loadingPanel.addControl(this._loadingHintInfo);
         }
         if (this._loadingSlider) {
-            // this._loadingSlider.value = this.loadedTemplateMeshCount / this.needToLoadCount
-            // if (this._loadingSlider.value === 1) {
-            setTimeout(() => {
+            this._loadingSlider.value = babylonRef.loadedModelCount / babylonRef.schemeModelCount;
+            if (this._loadingSlider.value === 1) {
                 if (this._loadingPanel) this._loadingPanel.dispose();
                 this._loadingPanel = null;
-            }, 3500);
-            // }
+            }
         }
     }
 

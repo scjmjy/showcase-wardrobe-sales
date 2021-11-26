@@ -1033,7 +1033,9 @@ export default defineComponent({
                                             });
                                         }
                                     }
-                                    if (++this.loadedModelCount >= this.schemeModelCount)
+                                    ++ this.loadedModelCount;
+                                    this.gui.loading(this);
+                                    if (this.loadedModelCount >= this.schemeModelCount)
                                         this.loadSchemeCompleted(mode);
                                 },
                             );
@@ -1116,8 +1118,9 @@ export default defineComponent({
                                                                         });
                                                                     }
                                                                 }
-
-                                                                if (++this.loadedModelCount >= this.schemeModelCount)
+                                                                ++this.loadedModelCount;
+                                                                this.gui.loading(this);
+                                                                if (this.loadedModelCount >= this.schemeModelCount)
                                                                     this.loadSchemeCompleted(mode);
                                                             });
                                                         });
