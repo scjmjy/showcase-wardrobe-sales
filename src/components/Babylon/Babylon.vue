@@ -1047,8 +1047,7 @@ export default defineComponent({
                                     }
                                     ++this.loadedModelCount;
                                     this.gui.loading(this);
-                                    if (this.loadedModelCount >= this.schemeModelCount)
-                                        this.loadSchemeCompleted(mode);
+                                    if (this.loadedModelCount >= this.schemeModelCount) this.loadSchemeCompleted(mode);
                                 },
                             );
                         });
@@ -1535,8 +1534,7 @@ export default defineComponent({
                                 this.adjustCamera();
                                 break;
                             case "7":
-                                this.lightEnabled = !this.lightEnabled;
-                                this.openLights(this.lightEnabled);
+                                console.log(this.getSceneActualSize());
                                 break;
                         }
                         break;
@@ -1762,8 +1760,60 @@ export default defineComponent({
 
         openLights(value: boolean): void {
             for (const [key, spotLight] of this.spotLightMap) {
+                key;
                 if (spotLight) spotLight.setEnabled(value);
             }
+        },
+
+        getSceneActualSize() {
+            let objectNum = 0;
+            let min = BABYLON.Vector3.Zero();
+            let max = BABYLON.Vector3.Zero();
+            this.graphics.scene.rootNodes.forEach((rootNode) => {
+                const rootMesh = rootNode as BABYLON.AbstractMesh;
+                if (rootMesh !== undefined) {
+                    if (
+                        rootMesh.name.startsWith(ObjectType.CUBE) ||
+                        rootMesh.name.startsWith(ObjectType.ITEM) ||
+                        rootMesh.name.startsWith(ObjectType.DOOR)
+                    ) {
+                        const boundingBox = this.getBoundingBox(rootMesh);
+                        if (objectNum === 0) {
+                            min = boundingBox.min;
+                            max = boundingBox.max;
+                        } else {
+                            min = BABYLON.Vector3.Minimize(min, boundingBox.min);
+                            max = BABYLON.Vector3.Maximize(max, boundingBox.max);
+                        }
+                        objectNum++;
+                    }
+                }
+            });
+
+            return {
+                width: this.numberToFixed(max.x - min.x),
+                height: this.numberToFixed(max.y - min.y),
+                depth: this.numberToFixed(max.z - min.z),
+            };
+        },
+
+        numberToFixed(value: number, fractionDigits = 2): number {
+            const str = value.toFixed(fractionDigits);
+            return Number(str);
+        },
+
+        getBoundingBox(rootMesh: BABYLON.AbstractMesh) {
+            const childMeshes = rootMesh.getChildMeshes();
+            let min = childMeshes[0].getBoundingInfo().boundingBox.minimumWorld;
+            let max = childMeshes[0].getBoundingInfo().boundingBox.maximumWorld;
+            for (let i = 1; i < childMeshes.length; i++) {
+                const meshMin = childMeshes[i].getBoundingInfo().boundingBox.minimumWorld;
+                const meshMax = childMeshes[i].getBoundingInfo().boundingBox.maximumWorld;
+                min = BABYLON.Vector3.Minimize(min, meshMin);
+                max = BABYLON.Vector3.Maximize(max, meshMax);
+            }
+
+            return { min: min, max: max };
         },
     },
 });
