@@ -1,6 +1,6 @@
 <template>
     <div class="product-card u-clickable" @click="$emit('detail', productName)">
-        <el-image class="product-card__img" :src="cover" fit="contain" @load="onImgLoad">
+        <el-image class="product-card__img" :src="cover || defaltProductImg" fit="contain" @load="onImgLoad">
             <!-- <template #placeholder>
                 <div class="image-slot">
                     <div class="image-slot__item-1"></div>
@@ -19,6 +19,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
+import defaltProductImg from "@/assets/img/product-default.png";
 
 export default defineComponent({
     props: {
@@ -48,6 +49,7 @@ export default defineComponent({
         context;
         const showBottom = ref(false);
         return {
+            defaltProductImg,
             showBottom,
             onImgLoad() {
                 showBottom.value = true;
