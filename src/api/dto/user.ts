@@ -1,7 +1,7 @@
 // import { getToken, setToken } from "@/utils/token";
 import jscookie from "js-cookie";
 import { Model3DFile } from "@/api/interface/provider.interface";
-import { IndexDb } from "@/lib/indexdb"
+import { IndexDb } from "@/lib/indexdb";
 import { Resource } from "@/lib/model/resource";
 
 const KeyUser = "KEY-HONGMU-SALES-TOOLS-USER";

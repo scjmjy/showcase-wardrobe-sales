@@ -1,4 +1,3 @@
-import { PartCount } from "@/lib/scheme";
 import { LabelValue, Size3D } from "./common.interface";
 
 // import { LabelValue } from "./common.interface";
