@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import { nextTick } from "vue";
 import store from "@/store";
 
 import Login from "@/views/login.vue";
@@ -119,30 +118,39 @@ function isInWhiteList(path: string) {
 }
 
 router.beforeEach(async (to, from, next) => {
+    // console.log("[router.beforeEach]-1", "to:", to, "from:", from);
+
     if (isInWhiteList(to.path)) {
+        // console.log("[router.beforeEach]-2", "in white list:", to.path);
         next();
         return;
     }
     const isLoggedIn = store.getters.isLoggedIn;
+    // console.log("[router.beforeEach]-3", "isLoggedIn:", isLoggedIn);
     if (!isLoggedIn) {
+        // console.log("[router.beforeEach]-4", "redirect to login");
         next({ path: "/login" });
     } else {
         const hasConfig = store.state.globalCfg !== undefined;
         if (hasConfig) {
+            // console.log("[router.beforeEach]-5", "hasConfig:", true);
             next();
         } else {
+            // console.log("[router.beforeEach]-6", "hasConfig:", false);
             return store
                 .dispatch("config")
-                .then((res) => {
+                .then(() => {
+                    // console.log("[router.beforeEach]-7", "got Config");
                     next();
                     // next({ ...to, replace: true }); // hack方法 确保addRoutes已完成
                 })
-                .catch(async (err) => {
+                .catch(async () => {
+                    // console.log("[router.beforeEach]-8", "redirect to login");
                     next("/login");
                     // next(`/login?redirect=${to.path}`);
                 });
         }
-        // next();
+        console.log("[router.beforeEach]-8", "end");
     }
 });
 

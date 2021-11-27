@@ -12,7 +12,6 @@ export function showSchemeSaveLoading() {
             fullscreen: true,
             body: true,
             text: "方案保存中，请稍后......",
-            spinner: "el-icon-loading",
         });
     }
 }
@@ -100,7 +99,7 @@ export function useStateIcons(scheme: Ref<Scheme | undefined>) {
         }
         return scheme.value.manifest.cubes.map((val, index) => ({
             state: index,
-            label: `模式-${index + 1}`,
+            // label: `模式-${index + 1}`,
             iconBg: "black",
             iconColor: "#D8D8D8",
             icon: `number-${index + 1}`,
