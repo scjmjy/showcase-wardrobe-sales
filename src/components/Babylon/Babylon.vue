@@ -579,8 +579,12 @@ export default defineComponent({
                                     BABYLON.Vector3.Zero(),
                                     modelScaling,
                                 ).then((/*mesh*/) => {
-                                    if (loadingSheme && ++this.loadedModelCount >= this.schemeModelCount)
-                                        this.loadSchemeCompleted(mode);
+                                    if (loadingSheme) {
+                                        ++this.loadedModelCount;
+                                        this.gui.loading(this);
+                                        if (this.loadedModelCount >= this.schemeModelCount)
+                                            this.loadSchemeCompleted(mode);
+                                    }
                                 });
                             });
 
@@ -1041,7 +1045,7 @@ export default defineComponent({
                                             });
                                         }
                                     }
-                                    ++ this.loadedModelCount;
+                                    ++this.loadedModelCount;
                                     this.gui.loading(this);
                                     if (this.loadedModelCount >= this.schemeModelCount)
                                         this.loadSchemeCompleted(mode);
