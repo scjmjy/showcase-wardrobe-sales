@@ -19,7 +19,6 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
-import defaltProductImg from "@/assets/img/product-default.png";
 
 export default defineComponent({
     props: {
@@ -49,7 +48,7 @@ export default defineComponent({
         context;
         const showBottom = ref(false);
         return {
-            defaltProductImg,
+            defaltProductImg: require("@/assets/img/product-default.png"),
             showBottom,
             onImgLoad() {
                 showBottom.value = true;
