@@ -94,6 +94,8 @@ export default defineComponent({
             spotLightMap: {} as Map<string, BABYLON.SpotLight>,
             lightEnabled: true,
             startTime: 0,
+            firstLoadCount: 0,
+            secondLoadModels: [] as any,
         };
     },
     computed: {
@@ -554,6 +556,7 @@ export default defineComponent({
                             throw Error(`cannot find cube data by id: ${cubeId}`);
                         } else {
                             this.schemeModelCount += location.index.length;
+                            this.firstLoadCount += location.index.length;
 
                             location.index.forEach(async (index) => {
                                 const doorPosX = cubeData.origin.x + cubeData.width * 0.5 - doorWidth * (index + 0.5);
@@ -582,6 +585,9 @@ export default defineComponent({
                                     if (loadingSheme) {
                                         ++this.loadedModelCount;
                                         this.gui.loading(this);
+
+                                        if (this.schemeType === 0 && this.loadedModelCount >= this.firstLoadCount)
+                                            this.loadSecondModels(mode);
                                         if (this.loadedModelCount >= this.schemeModelCount)
                                             this.loadSchemeCompleted(mode);
                                     }
@@ -598,6 +604,18 @@ export default defineComponent({
                 .catch((err) => {
                     throw Error(`Load part manifest by error: ${err}`);
                 });
+        },
+
+        loadSecondModels(mode: number) {
+            this.secondLoadModels.forEach((model: any) => {
+                this.importMesh(model.url, model.name, model.position, model.rotation, model.scaling, true).then(
+                    (/*mesh*/) => {
+                        ++this.loadedModelCount;
+                        this.gui.loading(this);
+                        if (this.loadedModelCount >= this.schemeModelCount) this.loadSchemeCompleted(mode);
+                    },
+                );
+            });
         },
 
         /**
@@ -971,6 +989,8 @@ export default defineComponent({
             this.loadedModelCount = 0;
             this.schemeModelCount = 0;
             this.bizdata.totalWidth = 0;
+            this.secondLoadModels = [];
+            this.firstLoadCount = 0;
 
             // set background.
             const bkObj = this.scheme.manifest.background[0];
@@ -1026,6 +1046,7 @@ export default defineComponent({
                     .then((res) => {
                         const cubeMf = res.data;
                         this.schemeModelCount += cubeMf.models.length;
+                        this.firstLoadCount += cubeMf.models.length;
 
                         cubeMf.models.forEach(async (model: any) => {
                             const modelPos = new BABYLON.Vector3(
@@ -1037,7 +1058,12 @@ export default defineComponent({
                             const cubeName = ObjectType.CUBE + "_" + cube.id;
                             this.importMesh(model.url, cubeName, modelPos, BABYLON.Vector3.Zero(), modelScaling).then(
                                 (mesh) => {
-                                    if (schemeType === 1) {
+                                    ++this.loadedModelCount;
+                                    this.gui.loading(this);
+
+                                    if (schemeType === 0) {
+                                        if (this.loadedModelCount >= this.firstLoadCount) this.loadSecondModels(mode);
+                                    } else if (schemeType === 1) {
                                         const firstCubeName = ObjectType.CUBE + "_" + firstCubeId;
                                         if (mesh !== null && mesh.name !== firstCubeName) {
                                             mesh.getChildMeshes().forEach((childMesh) => {
@@ -1045,8 +1071,7 @@ export default defineComponent({
                                             });
                                         }
                                     }
-                                    ++this.loadedModelCount;
-                                    this.gui.loading(this);
+
                                     if (this.loadedModelCount >= this.schemeModelCount) this.loadSchemeCompleted(mode);
                                 },
                             );
@@ -1114,26 +1139,37 @@ export default defineComponent({
                                                             }
 
                                                             const itemName = objectType + "_" + item.id;
-                                                            this.importMesh(
-                                                                model.url,
-                                                                itemName,
-                                                                modelPos,
-                                                                modelRotation,
-                                                                modelScaling,
-                                                                true,
-                                                            ).then((mesh) => {
-                                                                if (schemeType === 1) {
+
+                                                            if (schemeType === 0) {
+                                                                const loadItem = {
+                                                                    url: model.url,
+                                                                    name: itemName,
+                                                                    position: modelPos,
+                                                                    rotation: modelRotation,
+                                                                    scaling: modelScaling,
+                                                                };
+                                                                this.secondLoadModels.push(loadItem);
+                                                            } else {
+                                                                this.importMesh(
+                                                                    model.url,
+                                                                    itemName,
+                                                                    modelPos,
+                                                                    modelRotation,
+                                                                    modelScaling,
+                                                                    true,
+                                                                ).then((mesh) => {
                                                                     if (mesh !== null && cube.id !== firstCubeId) {
                                                                         mesh.getChildMeshes().forEach((childMesh) => {
                                                                             childMesh.isVisible = false;
                                                                         });
                                                                     }
-                                                                }
-                                                                ++this.loadedModelCount;
-                                                                this.gui.loading(this);
-                                                                if (this.loadedModelCount >= this.schemeModelCount)
-                                                                    this.loadSchemeCompleted(mode);
-                                                            });
+
+                                                                    ++this.loadedModelCount;
+                                                                    this.gui.loading(this);
+                                                                    if (this.loadedModelCount >= this.schemeModelCount)
+                                                                        this.loadSchemeCompleted(mode);
+                                                                });
+                                                            }
                                                         });
                                                     })
                                                     .catch((err) => {
@@ -1628,6 +1664,7 @@ export default defineComponent({
             isPickable = true,
             isEmissive = false,
         ) {
+            // console.log("import mesh: " + name);
             let rootUrl = "file:///";
             let relativePath = url;
             let modelUrl = this.baseOSSUrl + url;
