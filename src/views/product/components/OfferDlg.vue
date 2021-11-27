@@ -1,13 +1,5 @@
 <template>
-    <el-dialog
-        custom-class="offer-dlg"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        title="报价详情"
-        width="530px"
-        v-bind="$attrs"
-        @opened="doOffer"
-    >
+    <el-dialog custom-class="offer-dlg" title="报价详情" width="530px" v-bind="$attrs" @opened="doOffer">
         <div class="offer-dlg__list">
             <offer-item v-for="(item, index) of itemList" :key="index" :item="item"></offer-item>
         </div>

@@ -59,8 +59,8 @@ export default defineComponent({
     },
     data() {
         return {
-            username: "admin",
-            passwd: "123456",
+            username: "",
+            passwd: "",
             // code: "",
             // codeUrl: "",
             // uuid: "",

@@ -1,6 +1,6 @@
 <template>
     <div class="product-card u-clickable" @click="$emit('detail', productName)">
-        <el-image class="product-card__img" :src="cover" fit="cover" @load="onImgLoad">
+        <el-image class="product-card__img" :src="cover" fit="contain" @load="onImgLoad">
             <!-- <template #placeholder>
                 <div class="image-slot">
                     <div class="image-slot__item-1"></div>

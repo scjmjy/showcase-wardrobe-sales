@@ -73,7 +73,7 @@
                     @change="onOpenCloseChange"
                 ></state-icon>
                 <state-icon
-                    v-if="scheme3DType === 1"
+                    v-if="scheme3DType === 1 && cubeIndexStates.length > 1"
                     v-model="stateCubeIndex"
                     :states="cubeIndexStates"
                     @change="onCubeIndexChange"
@@ -407,7 +407,7 @@ export default defineComponent({
                     await apiProvider.changeSchemeSize(newSchemeId, size);
                 }
 
-                return apiProvider.requestSchemeDetail(res.data.id).then(async (res) => {
+                await apiProvider.requestSchemeDetail(res.data.id).then(async (res) => {
                     if (res.ok && res.data) {
                         product.value = res.data;
 
@@ -633,6 +633,14 @@ export default defineComponent({
                 currentDiscountId.value = did;
             },
             orderNonCustomProduct(did: number) {
+                if (!store.state.currentCustomer.customerId) {
+                    ElMessage({
+                        type: "warning",
+                        message: "没有正在服务的客户",
+                    });
+                    router.push("/");
+                    return;
+                }
                 currentDiscountId.value = did;
                 // TODO backend should give us this vlue
                 customizeMode.value = "new-non-custom";
@@ -644,6 +652,7 @@ export default defineComponent({
                         type: "warning",
                         message: "没有正在服务的客户",
                     });
+                    router.push("/");
                     return;
                 }
                 customizeMode.value = "new";
@@ -660,6 +669,7 @@ export default defineComponent({
                         type: "warning",
                         message: "没有正在服务的客户",
                     });
+                    router.push("/");
                     return;
                 }
                 customizeMode.value = "copy";
