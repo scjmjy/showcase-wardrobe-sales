@@ -397,7 +397,7 @@ export default defineComponent({
             }
             creatingScheme.value = true;
 
-            const res = await apiProvider.createNewScheme(schemeName, svcid, eid, cid, pid, sid);
+            const res = await apiProvider.createNewScheme(schemeName || "-", svcid, eid, cid, pid, sid);
             if (res.ok && res.data) {
                 store.commit("SET-DIRTY-SCHEME", { cid: cid, dirty: true });
 
@@ -452,8 +452,12 @@ export default defineComponent({
         }
 
         async function captureSchemeScreenshot() {
-            const base64 = await refBabylon.value!.screenshotApi();
-            await util.uploadSchemeScreenshot(product.value!.id, base64);
+            try {
+                const base64 = await refBabylon.value!.screenshotApi();
+                await util.uploadSchemeScreenshot(product.value!.id, base64);
+            } catch (error) {
+                //
+            }
         }
 
         async function requestProductDetail() {

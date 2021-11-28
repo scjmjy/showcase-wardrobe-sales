@@ -1,5 +1,5 @@
 /* eslint @typescript-eslint/no-var-requires: "off" */
-import { Scheme } from "@/lib/scheme";
+import { Config, Manifest, Scheme } from "@/lib/scheme";
 import request from "@/utils/request";
 import apiProvider from "@/api/provider";
 import { ObjectMapper } from "jackson-js";
@@ -33,6 +33,9 @@ const objectMapper = new ObjectMapper(undefined, {
     },
 });
 export function importSchemeJson(url: string): Promise<Scheme> {
+    if (!url) {
+        return Promise.resolve(new Scheme(null as unknown as Config, new Manifest([], [], [])));
+    }
     return new Promise((resolve, reject) => {
         request({
             url: url + `?timestamp=${Date.now()}`, // add timestamp to disable browser cache
