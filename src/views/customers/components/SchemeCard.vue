@@ -106,9 +106,15 @@ export default defineComponent({
         border: 1px solid var(--el-color-danger);
         border-radius: 40px;
         color: var(--el-color-danger);
-        font-size: 18px;
+        font-size: 12px;
         font-weight: bold;
         padding: 0 5px;
+        @media (min-width: 1024px) {
+            font-size: 14px;
+        }
+        @media (min-width: 1200px) {
+            font-size: 18px;
+        }
 
         &.no-offer {
             border: none;

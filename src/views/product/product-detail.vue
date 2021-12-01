@@ -245,7 +245,9 @@ export default defineComponent({
         const selectedMetalPart = ref<Part>();
 
         function showReferenceRuler(show: boolean) {
-            refBabylon.value?.showReferenceRuler(show);
+            if (product.value && product.value.manifest) {
+                refBabylon.value?.showReferenceRuler(show);
+            }
         }
 
         const gooeyMenuItems = computed<MenuItem[]>(() => {
