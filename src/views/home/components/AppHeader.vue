@@ -26,6 +26,7 @@
         </div>
         <div class="app-header__right">
             <!-- <el-image class="app-header__avatar u-circle" src="https://picsum.photos/200" circle fit="contain" /> -->
+            <Fullscreen class="app-header__fullscreen" />
             <span class="app-header__username" @click="onUsernameClick"> {{ user.userName }} </span>
             <!-- <el-tag class="app-header__job" type="primary" color="#D6CCBA">{{ user.rank }}</el-tag> -->
             <el-divider direction="vertical" style="margin-left: 2px"></el-divider>
@@ -39,9 +40,13 @@ import { computed, defineComponent } from "vue";
 import { useStore } from "vuex";
 import variables from "@/assets/scss/variables.scss";
 import { useRouter } from "vue-router";
+import Fullscreen from "@/components/Fullscreen.vue";
 
 export default defineComponent({
     name: "AppHeader",
+    components: {
+        Fullscreen,
+    },
     props: {
         type: {
             type: String,
@@ -165,7 +170,10 @@ export default defineComponent({
     &__subLabel {
         font-size: 24px;
     }
-
+    &__fullscreen {
+        position: relative;
+        top: 3px;
+    }
     &__avatar {
         width: 40px;
         height: 40px;
@@ -192,6 +200,7 @@ export default defineComponent({
         // color: white !important;
         font-size: 26px;
         line-height: unset;
+        padding: 0px;
     }
 }
 </style>

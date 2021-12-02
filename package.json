@@ -34,6 +34,7 @@
     "localforage": "^1.9.0",
     "md5": "^2.3.0",
     "mitt": "^3.0.0",
+    "screenfull": "^5.2.0",
     "skeleton-elements": "^3.5.0",
     "turf": "^3.0.14",
     "turf-linestring": "^1.0.2",

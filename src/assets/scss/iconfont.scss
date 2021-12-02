@@ -33,6 +33,14 @@
     }
 }
 
+.icon-fullscreen-exit:before {
+  content: "\e616";
+}
+
+.icon-fullscreen:before {
+  content: "\e617";
+}
+
 .icon-number-0:before {
   content: "\e601";
 }
